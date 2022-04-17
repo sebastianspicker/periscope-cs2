@@ -3,11 +3,11 @@
 A working tree for periscope with an evolving implementation history.
 
 ## Overview
-periscope is moving through bootstrap push work.
+periscope keeps the active bootstrap push work visible.
 
 ## Status
-Lifecycle stage: bootstrap.
+Lifecycle stage: bootstrap. Activity resumed after a longer gap.
 
 ## Usage
-- Merged scattered foundation guidance into the docs.
+- Merged scattered maintenance guidance into the docs.
 
