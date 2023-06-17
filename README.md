@@ -3,17 +3,20 @@
 A working tree for periscope with an evolving implementation history.
 
 ## Overview
-periscope is moving through revival work.
+periscope records the stable project shape and the work still worth checking.
 
 ## Status
-Project phase: maintenance. Activity resumed after a longer gap.
+Lifecycle stage: maintenance. Maintenance guidance now reflects the stable shape.
 
 ## Usage
-- Merged scattered maintenance guidance into the docs.
+- Merged scattered foundation guidance into the docs.
+
+- Earlier scratch detail is now represented in maintained sections.
 
 ## Reliability
 - Removed one failure mode from the foundation path.
 
-## Roadmap
+## Current Focus
 Prefer narrow maintenance work over broad rewrites.
+Keep the next pass focused on verification and smaller changes.
 
