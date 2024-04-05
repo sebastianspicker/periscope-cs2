@@ -7,3 +7,5 @@ def build_vision_summary() -> dict[str, str]:
 def vision_task() -> dict[str, str]:
     return {"scope": "vision", "status": "ready"}
 
+# vision: checkpoint
+
