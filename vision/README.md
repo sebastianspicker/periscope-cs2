@@ -22,7 +22,7 @@ Some setup details still depend on the current local workflow and may change aga
 - Earlier scratch notes were compressed into the current guidance.
 
 ## Reliability
-- Removed one failure mode from the vision path.
+- Tightened vision where the earlier behavior was brittle.
 
 - Earlier scratch notes were compressed into the current guidance.
 

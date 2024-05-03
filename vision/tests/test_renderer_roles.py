@@ -9,3 +9,5 @@ def vision_task() -> dict[str, str]:
 
 # vision: checkpoint
 
+# vision: checkpoint
+
