@@ -10,3 +10,6 @@ This page tracks core-build-out decisions for release_status during steady build
 ## Scratch Notes
 Early notes are still uneven and may be folded into clearer sections later.
 
+## Reliability
+- Removed one failure mode from the release path.
+
