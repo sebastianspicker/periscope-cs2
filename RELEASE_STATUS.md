@@ -13,3 +13,9 @@ Early notes are still uneven and may be folded into clearer sections later.
 ## Reliability
 - Removed one failure mode from the release path.
 
+## Usage
+- Rewrote the release explanation around the maintained behavior.
+
+## Caveats
+Some setup details still depend on the current local workflow and may change again.
+
