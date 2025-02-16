@@ -7,6 +7,8 @@ This page keeps the current readme guidance concise after earlier rough notes.
 ## Usage
 - Merged scattered vision guidance into the docs.
 
+- Earlier scratch notes were compressed into the current guidance.
+
 ## Notes Folded Into Current Flow
 Early notes are still uneven and may be folded into clearer sections later.
 
