@@ -14,7 +14,9 @@ Early notes are still uneven and may be folded into clearer sections later.
 - Removed one failure mode from the release path.
 
 ## Usage
-- Rewrote the release explanation around the maintained behavior.
+- Merged scattered release guidance into the docs.
+
+- Earlier scratch notes were compressed into the current guidance.
 
 ## Caveats
 Some setup details still depend on the current local workflow and may change again.
