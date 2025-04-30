@@ -28,3 +28,8 @@ Some setup details still depend on the current local workflow and may change aga
 
 - Earlier scratch notes were compressed into the current guidance.
 
+## Performance
+- Reduced overhead in vision.
+
+- Earlier scratch notes were compressed into the current guidance.
+
