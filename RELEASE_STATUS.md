@@ -26,3 +26,8 @@ Some setup details still depend on the current local workflow and may change aga
 
 - Earlier scratch notes were compressed into the current guidance.
 
+## Architecture
+- Simplified the next maintenance pass through release.
+
+- Earlier scratch notes were compressed into the current guidance.
+
