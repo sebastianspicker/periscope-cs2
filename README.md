@@ -3,15 +3,15 @@
 A working tree for periscope with an evolving implementation history.
 
 ## Overview
-periscope records the stable project shape and the work still worth checking.
+periscope documents maintained build commands, known limits, and remaining work.
 
 ## Status
-Lifecycle stage: maintenance. Maintenance guidance now reflects the stable shape.
+Lifecycle stage: expansion. Maintenance guidance now reflects the stable shape.
 
 ## Usage
-- Merged scattered foundation guidance into the docs.
+- Rewrote the operations explanation around the maintained behavior.
 
-- Earlier scratch detail is now represented in maintained sections.
+- The older setup fragments have been reduced to the useful parts.
 
 ## Reliability
 - Removed one failure mode from the foundation path.
