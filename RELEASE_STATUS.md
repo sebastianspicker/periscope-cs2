@@ -11,7 +11,9 @@ This page keeps the current release_status guidance concise after earlier rough 
 Early notes are still uneven and may be folded into clearer sections later.
 
 ## Reliability
-- Removed one failure mode from the release path.
+- Closed a concrete release edge found during expansion work.
+
+- Earlier scratch notes were compressed into the current guidance.
 
 ## Usage
 - Merged scattered release guidance into the docs.
