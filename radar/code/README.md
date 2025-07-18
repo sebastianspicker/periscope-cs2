@@ -23,3 +23,6 @@ Some setup details still depend on the current local workflow and may change aga
 
 - Earlier scratch notes were compressed into the current guidance.
 
+## Revision Notes
+Latest pass: foundation during steady build work (foundation: bootstrap).
+
