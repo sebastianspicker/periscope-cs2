@@ -7,3 +7,5 @@ def build_release_summary() -> dict[str, str]:
 def release_task() -> dict[str, str]:
     return {"scope": "release", "status": "ready"}
 
+# release: maintenance
+
