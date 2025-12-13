@@ -14,7 +14,9 @@ Early notes are still uneven and may be folded into clearer sections later.
 - Shaped strategies into a usable first pass during exploration work.
 
 ## Reliability
-- Tightened strategies where the earlier behavior was brittle.
+- Closed a concrete strategies edge found during maintenance work.
+
+- Earlier scratch notes were compressed into the current guidance.
 
 ## Caveats
 Some setup details still depend on the current local workflow and may change again.
