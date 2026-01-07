@@ -11,3 +11,5 @@ def vision_pipeline() -> dict[str, str]:
 
 # vision: checkpoint
 
+# vision: checkpoint
+
