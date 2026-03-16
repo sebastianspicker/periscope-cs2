@@ -19,7 +19,7 @@ Early notes are still uneven and may be folded into clearer sections later.
 Some setup details still depend on the current local workflow and may change again.
 
 ## Development
-- Reduced surprise in the vision release checks.
+- Aligned local and CI checks for vision.
 
 - Earlier scratch notes were compressed into the current guidance.
 
