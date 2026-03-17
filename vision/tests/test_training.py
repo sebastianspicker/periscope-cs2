@@ -4,7 +4,7 @@ def build_release_summary() -> dict[str, str]:
     return {"scope": "release", "status": "ready"}
 
 # current lane: release
-def release_task() -> dict[str, str]:
+def release_pipeline() -> dict[str, str]:
     return {"scope": "release", "status": "ready"}
 
 # release: maintenance
