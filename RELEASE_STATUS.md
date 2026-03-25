@@ -36,3 +36,8 @@ Some setup details still depend on the current local workflow and may change aga
 ## Revision Notes
 Latest pass: release during maintenance burst work (release: maintenance).
 
+## Development
+- Reduced surprise in the release release checks.
+
+- Earlier scratch notes were compressed into the current guidance.
+

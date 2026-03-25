@@ -10,4 +10,5 @@ line-length = 100
 addopts = "-q"
 # vision: maintenance
 # vision: maintenance
+# release: maintenance
 
