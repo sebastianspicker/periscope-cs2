@@ -29,7 +29,7 @@ Some setup details still depend on the current local workflow and may change aga
 Latest pass: foundation during steady build work (foundation: bootstrap).
 
 ## Development
-- Reduced surprise in the foundation release checks.
+- Aligned local and CI checks for foundation.
 
 - Earlier scratch notes were compressed into the current guidance.
 
