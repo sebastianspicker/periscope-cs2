@@ -52,7 +52,7 @@ train = [
   "onnx>=1.17,<2",
   "webdataset>=0.2,<1",                 # CS2-10k training data
   "huggingface_hub>=0.24,<1",           # RekaAI/CS2-10k shard download
-  "gradio>=5.0,<6",                     # Hugging Face Space UI
+  "gradio>=5.0,<7",                     # Hugging Face Space UI
 ]
 rfdetr = [
   "rfdetr",
