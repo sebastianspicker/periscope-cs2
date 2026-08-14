@@ -1,0 +1,48 @@
+{
+  "display": {
+    "headless": false,
+    "overlay": false,
+    "scale": 0.5,
+    "window_title": "CS2 Vision Access - Ingame Overlay"
+  },
+  "input": {
+    "backend": "auto",
+    "device_index": 0,
+    "device_name": "",
+    "file_path": "",
+    "fps": 60.0,
+    "height": 1080,
+    "monitor_index": 1,
+    "region": null,
+    "source_type": "screen",
+    "width": 1920
+  },
+  "model": {
+    "backend": "ultralytics-onnx",
+    "class_names": ["player"],
+    "confidence": 0.45,
+    "device": "cpu",
+    "image_size": 640,
+    "manifest": "artifacts/cs2-player-seg.model.json",
+    "path": "artifacts/cs2-player-seg.onnx"
+  },
+  "outline": {
+    "alpha_fill": false,
+    "fill_opacity": null,
+    "inner_color": null,
+    "inner_width": null,
+    "outer_color": null,
+    "outer_width": null,
+    "output_mode": "overlay",
+    "preset": "maximum-visibility",
+    "stroke_pattern": null,
+    "style": null,
+    "temporal_hold": false,
+    "temporal_max_dropout": 0
+  },
+  "temporal": {
+    "enabled": false,
+    "mode": "suppress",
+    "max_hold_frames": 0
+  }
+}

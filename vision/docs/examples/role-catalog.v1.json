@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "default": {
+    "style": {
+      "inner_color": "#F6FF00",
+      "outer_color": "#101010",
+      "inner_width": 3,
+      "outer_width": 7,
+      "fill_opacity": 0.08,
+      "stroke_pattern": "solid"
+    },
+    "marker": "none",
+    "marker_scale": 1.0
+  },
+  "by_class_name": {
+    "ally": {
+      "style": {
+        "inner_color": "#00F5FF",
+        "outer_color": "#050505",
+        "stroke_pattern": "solid"
+      },
+      "marker": "triangle",
+      "marker_scale": 1.0
+    },
+    "enemy": {
+      "style": {
+        "inner_color": "#F6FF00",
+        "outer_color": "#101010",
+        "stroke_pattern": "dashed",
+        "dash_period_px": 12
+      },
+      "marker": "square",
+      "marker_scale": 1.0
+    }
+  }
+}

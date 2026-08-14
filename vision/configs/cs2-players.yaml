@@ -1,0 +1,8 @@
+# Canonical session-split product dataset for cs2-vision train
+path: data/cs2_players
+train: images/train
+val: images/val
+# optional: test: images/test
+nc: 1
+names:
+  0: player

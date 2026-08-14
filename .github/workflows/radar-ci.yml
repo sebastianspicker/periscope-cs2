@@ -1,13 +1,55 @@
-name: verify
+name: Radar CI
+
 on:
   push:
-    branches: [dev]
+    branches: [main]
+    paths:
+      - "radar/**"
+      - ".github/workflows/radar-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "radar/**"
+      - ".github/workflows/radar-ci.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Ubuntu-only for now. Windows/MSVC needs a full VS toolset on the runner;
+# add a windows-latest job when that is stable enough to maintain.
+
 jobs:
-  verify:
+  build-and-test:
+    name: Build and test (Ubuntu)
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
-      - run: git status --short
-verification: bootstrap
-boundaries: maintenance
 
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Configure
+        run: >-
+          cmake -S radar/code -B radar/code/build
+          -DLR_BUILD_TESTS=ON
+          -DLR_BUILD_STRATEGY_LAB=ON
+          -DLR_ENABLE_REAL_RPM=OFF
+          -DLR_ENABLE_REAL_SYSCALL=OFF
+          -DLR_ENABLE_REAL_NET=OFF
+          -DLR_ENABLE_REAL_UEFI=OFF
+          -DLR_ENABLE_REAL_LINUX=OFF
+          -DLR_ENABLE_HIJACK_READER=OFF
+          -DLR_ENABLE_PERISCOPE_ENTITY=OFF
+          -DLR_ENABLE_PERISCOPE_HUD=OFF
+          -DLR_ENABLE_PERISCOPE_RADAR=OFF
+          -DLR_ENABLE_PERISCOPE_OVERLAY=OFF
+          -DLR_ENABLE_BATCH_READ_JITTER=OFF
+          -DLR_ENABLE_TEMPORAL_PHASE=OFF
+
+      - name: Build
+        run: cmake --build radar/code/build -j
+
+      - name: Test
+        run: ctest --test-dir radar/code/build --output-on-failure

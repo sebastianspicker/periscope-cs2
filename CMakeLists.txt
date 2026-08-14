@@ -1,4 +1,0 @@
-# periscope file
-
-# foundation: bootstrap
-

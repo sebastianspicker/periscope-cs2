@@ -1,0 +1,50 @@
+{
+  "boundary_dilation_px": 2,
+  "f1": 1.0,
+  "false_negatives": 0,
+  "false_positives": 0,
+  "ground_truth_count": 2,
+  "image_count": 3,
+  "iou_threshold": 0.5,
+  "mean_boundary_f1": 1.0,
+  "mean_matched_iou": 0.8622754491017964,
+  "precision": 1.0,
+  "prediction_count": 2,
+  "recall": 1.0,
+  "recall_by_area_bin": [
+    {
+      "ground_truth_count": 1,
+      "max_area": 1024.0,
+      "min_area": 0.0,
+      "name": "tiny",
+      "recall": 1.0,
+      "true_positives": 1
+    },
+    {
+      "ground_truth_count": 1,
+      "max_area": 4096.0,
+      "min_area": 1024.0,
+      "name": "small",
+      "recall": 1.0,
+      "true_positives": 1
+    },
+    {
+      "ground_truth_count": 0,
+      "max_area": 16384.0,
+      "min_area": 4096.0,
+      "name": "medium",
+      "recall": 0.0,
+      "true_positives": 0
+    },
+    {
+      "ground_truth_count": 0,
+      "max_area": null,
+      "min_area": 16384.0,
+      "name": "large",
+      "recall": 0.0,
+      "true_positives": 0
+    }
+  ],
+  "schema_version": 1,
+  "true_positives": 2
+}

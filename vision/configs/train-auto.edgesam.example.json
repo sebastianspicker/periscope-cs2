@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "mode": "session_split",
+  "run_id": "edgesam-local-smoke",
+  "paths": {
+    "work_root": "artifacts/auto"
+  },
+  "sources": {
+    "videos": ["data/gameplay.mp4"],
+    "staging_root": "data/staging",
+    "split_plan": "data/split_plan.json"
+  },
+  "train": {
+    "backend": "local",
+    "profile": "smoke",
+    "device": "cpu",
+    "smoke": true,
+    "class_names": {
+      "0": "player"
+    },
+    "min_labels": 1,
+    "resume_ultralytics": true
+  },
+  "label": {
+    "enabled": true,
+    "bootstrap": true,
+    "teacher": "edgesam",
+    "artifacts_dir": "artifacts",
+    "edgesam_confidence": 0.4,
+    "sample_rate": 3.0,
+    "max_frames": 30,
+    "collapse_to_player": true,
+    "keep_negatives": true,
+    "coco_fallback": true,
+    "required": false
+  },
+  "eval": {
+    "enabled": false,
+    "required": false
+  },
+  "export": {
+    "promote_to_run_models": true,
+    "smoke_enabled": true,
+    "smoke_required": false
+  },
+  "resume": {
+    "enabled": true
+  },
+  "human_gate": {
+    "enabled": false,
+    "block": false
+  }
+}

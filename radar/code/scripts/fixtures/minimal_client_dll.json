@@ -1,0 +1,56 @@
+{
+  "client.dll": {
+    "classes": {
+      "C_BaseEntity": {
+        "fields": {
+          "m_iHealth": 844,
+          "m_iTeamNum": 999,
+          "m_lifeState": 852,
+          "m_pGameSceneNode": 816
+        }
+      },
+      "C_BasePlayerPawn": {
+        "fields": {
+          "m_vOldOrigin": 5048,
+          "m_pObserverServices": 4640
+        }
+      },
+      "C_CSPlayerPawn": {
+        "fields": {
+          "m_angEyeAngles": 13120,
+          "m_ArmorValue": 7324,
+          "m_entitySpottedState": 7256
+        }
+      },
+      "CCSPlayerController": {
+        "fields": {
+          "m_hPlayerPawn": 2324
+        }
+      },
+      "CGameSceneNode": {
+        "fields": {
+          "m_vecAbsOrigin": 200,
+          "m_bDormant": 259
+        }
+      },
+      "EntitySpottedState_t": {
+        "fields": {
+          "m_bSpotted": 8
+        }
+      },
+      "CPlayer_ObserverServices": {
+        "fields": {
+          "m_iObserverMode": 72
+        }
+      },
+      "C_PlantedC4": {
+        "fields": {
+          "m_bBombTicking": 4512,
+          "m_nBombSite": 4516,
+          "m_flC4Blow": 4560,
+          "m_bBeingDefused": 4572
+        }
+      }
+    }
+  }
+}

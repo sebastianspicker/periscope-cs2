@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "mode": "flat_cloud",
+  "run_id": "demo",
+  "paths": {
+    "work_root": "artifacts/auto"
+  },
+  "sources": {
+    "dataset_zip": "data/cs2_train_bundle.zip"
+  },
+  "train": {
+    "backend": "cloud",
+    "profile": "cloud_t4",
+    "allow_leaky_val": true,
+    "device": "cpu",
+    "smoke": false,
+    "base_model_origin": "ultralytics-official",
+    "exported_model_license": "AGPL-3.0-only",
+    "allow_model_download": true,
+    "resume_ultralytics": true,
+    "min_map50": null
+  },
+  "label": {
+    "enabled": true,
+    "bootstrap": true,
+    "conf": 0.25
+  },
+  "eval": {
+    "enabled": true,
+    "required": false,
+    "split": "val",
+    "conf": 0.25
+  },
+  "export": {
+    "promote_to_run_models": true
+  },
+  "resume": {
+    "enabled": true
+  },
+  "human_gate": {
+    "enabled": false,
+    "block": false
+  }
+}

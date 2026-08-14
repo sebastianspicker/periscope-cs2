@@ -1,0 +1,68 @@
+{
+  "default_height": 64,
+  "default_width": 64,
+  "images": {
+    "identical": {
+      "height": 64,
+      "predictions": [
+        {
+          "class_id": 0,
+          "confidence": 0.99,
+          "polygon": [
+            [
+              16.0,
+              16.0
+            ],
+            [
+              48.0,
+              16.0
+            ],
+            [
+              48.0,
+              48.0
+            ],
+            [
+              16.0,
+              48.0
+            ]
+          ]
+        }
+      ],
+      "width": 64
+    },
+    "negative": {
+      "height": 64,
+      "predictions": [],
+      "width": 64
+    },
+    "partial": {
+      "height": 64,
+      "predictions": [
+        {
+          "class_id": 0,
+          "confidence": 0.8,
+          "polygon": [
+            [
+              10.0,
+              10.0
+            ],
+            [
+              34.0,
+              10.0
+            ],
+            [
+              34.0,
+              34.0
+            ],
+            [
+              10.0,
+              34.0
+            ]
+          ]
+        }
+      ],
+      "width": 64
+    }
+  },
+  "schema_version": 1
+}

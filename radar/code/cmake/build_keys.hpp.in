@@ -1,0 +1,43 @@
+#pragma once
+// Educational simulation: per-build randomized keys.
+// Regenerated every CMake configure.
+#ifndef BUILD_KEYS_HPP_INCLUDED
+#define BUILD_KEYS_HPP_INCLUDED 1
+#include <cstddef>
+#include <cstdint>
+
+namespace build {
+inline constexpr unsigned long long kXorKeySeed  = @XOR_KEY_SEED@ULL;
+inline constexpr unsigned long long kTimingSalt  = @TIMING_SALT@ULL;
+inline constexpr unsigned long long kClassSeed   = @CLASS_SEED@ULL;
+inline constexpr unsigned long long kApiSalt     = @API_SALT@ULL;
+inline constexpr unsigned long long kSectionSeed = @SECTION_SEED@ULL;
+inline constexpr unsigned long long kGuidSeed    = @GUID_SEED@ULL;
+inline constexpr unsigned long long kSurfaceSeed = @SURFACE_SEED@ULL;
+
+// User-provided build ID (passed as -DBUILD_ID=xxxx at configure time, or default)
+#ifndef BUILD_ID
+#define BUILD_ID 0
+#endif
+
+// Per-build watermark XOR'd with kXorKeySeed for recoverable build identification
+inline constexpr unsigned long long kBuildWatermark =
+    (static_cast<unsigned long long>(BUILD_ID) << 32) ^
+    kXorKeySeed;
+
+// Per-build compile salt (configure-time random, no __DATE__/__TIME__ leak)
+inline constexpr unsigned long long kCompileSalt = @COMPILE_SALT@ULL;
+}
+
+#endif // BUILD_KEYS_HPP_INCLUDED
+
+// Helper to stringify a numeric constant
+#define OBF_SECTION_STRINGIFY_IMPL(x) #x
+#define OBF_SECTION_STRINGIFY(x) OBF_SECTION_STRINGIFY_IMPL(x)
+
+// OBF_SECTION_NAME macro — defines a section name string with per-build obfuscation
+#define OBF_SECTION_NAME(name) \
+    ([]() -> const char* { \
+        static const char s[] = ".ac" name "@" OBF_SECTION_STRINGIFY(@SECTION_SEED@); \
+        return s; \
+    }())

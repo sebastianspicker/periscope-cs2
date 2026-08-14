@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "mode": "session_split",
+  "run_id": "session-demo",
+  "paths": {
+    "work_root": "artifacts/auto"
+  },
+  "sources": {
+    "prebuilt_dataset_root": "data/session_split_dataset",
+    "videos": []
+  },
+  "train": {
+    "backend": "local",
+    "profile": "local",
+    "device": "cpu",
+    "smoke": false,
+    "base_model": "yolo11n-seg.pt",
+    "base_model_origin": "ultralytics-official",
+    "exported_model_license": "AGPL-3.0-only",
+    "allow_model_download": true,
+    "class_names": {
+      "0": "ct",
+      "1": "t"
+    },
+    "resume_ultralytics": true,
+    "min_map50": null
+  },
+  "label": {
+    "enabled": true,
+    "bootstrap": false,
+    "conf": 0.25
+  },
+  "eval": {
+    "enabled": true,
+    "required": false,
+    "split": "val",
+    "conf": 0.25
+  },
+  "export": {
+    "promote_to_run_models": true
+  },
+  "resume": {
+    "enabled": true
+  },
+  "human_gate": {
+    "enabled": false,
+    "block": false
+  }
+}

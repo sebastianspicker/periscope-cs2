@@ -1,0 +1,57 @@
+name: Feature request
+description: Propose a change within project scope
+title: "[feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Periscope monorepo: `radar/` (educational AC / strategy lab) and `vision/` (CS2 vision accessibility tooling).
+        Stay within each project's published safety scope.
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project
+      description: Which part of the monorepo?
+      options:
+        - radar
+        - vision
+        - monorepo meta
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is hard or missing today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Concrete behavior, CLI, API, or lab surface if you have one.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      description: Confirm this stays within published project boundaries.
+      options:
+        - label: "vision: does not require aim assist, memory R/W, injection, or game input (external capture / offline only)"
+          required: false
+        - label: "radar: educational / simulation intent; not a live-game weaponization request"
+          required: false
+        - label: I understand the above for the project I selected
+          required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional — workarounds, related issues, prior art in-repo.

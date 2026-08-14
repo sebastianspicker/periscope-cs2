@@ -1,16 +1,116 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "periscope"
+name = "cs2-vision-access"
 version = "0.1.0"
-requires-python = ">=3.11"
-dependencies = []
+description = "Real-time visible-player outlining for Counter-Strike 2: capture, segment, render, and self-train"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = "AGPL-3.0-only"
+authors = [
+  { name = "CS2 Vision Access contributors" },
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Environment :: Win32 (MS Windows)",
+  "Intended Audience :: Science/Research",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Games/Entertainment :: First Person Shooters",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+  "numpy>=1.26,<3",
+  "onnxruntime>=1.22,<2",
+  "opencv-python>=4.10,<5",
+  "PyYAML>=6,<7",
+  "ultralytics>=8.4,<9",
+  "supervision>=0.25,<1",
+  "mss>=10,<11",
+]
+
+[project.optional-dependencies]
+gpu = [
+  "onnxruntime-gpu>=1.22,<2",          # CUDA/TensorRT/DirectML support
+  "onnxconverter-common>=1.9,<2",       # FP16 model conversion
+  "onnx>=1.17,<2",
+  "cupy-cuda12x>=13,<14",              # Native CUDA kernels via CuPy (adjust '-cuda12x' for your CUDA version)
+]
+gpu-cuda11 = [
+  "cupy-cuda11x>=13,<14",              # CuPy for CUDA 11.x
+]
+gpu-cuda-local = [
+  "cupy>=13,<14",                      # CuPy from source (builds kernels for your local CUDA)
+]
+train = [
+  "onnx>=1.17,<2",
+  "webdataset>=0.2,<1",                 # CS2-10k training data
+  "huggingface_hub>=0.24,<1",           # RekaAI/CS2-10k shard download
+  "gradio>=5.0,<6",                     # Hugging Face Space UI
+]
+rfdetr = [
+  "rfdetr",
+]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<9",
+  "ruff>=0.12,<1",
+  "types-PyYAML",
+]
+
+[project.scripts]
+cs2-vision = "cs2_vision_access.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"cs2_vision_access" = ["config/data/*.json", "config/data/*.yaml"]
 
 [tool.ruff]
 line-length = 100
-[tool.pytest.ini_options]
-addopts = "-q"
-# vision: maintenance
-# vision: maintenance
-# release: maintenance
-# vision: maintenance
-# vision: maintenance
+target-version = "py311"
+extend-exclude = [
+  "archive",
+  "src/cs2_vision_access/training/notebooks",
+]
 
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# sys.path bootstrap before package imports (CLI module entry points)
+"src/cs2_vision_access/training/batch.py" = ["E402"]
+"src/cs2_vision_access/training/prepare.py" = ["E402"]
+# Gradio Progress() default is the library convention for progress bars
+"src/cs2_vision_access/training/space/app.py" = ["B008"]
+# Nested with patch + assertRaises is clearer than multi-context form in tests
+"tests/**" = ["SIM117"]
+
+[tool.mypy]
+strict = true
+packages = ["cs2_vision_access"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*", "*Tests"]
+python_functions = ["test_*"]
+filterwarnings = [
+  "ignore::DeprecationWarning",
+]
+addopts = [
+  "-q",
+  "--strict-markers",
+]
+markers = [
+  "gpu: requires a CUDA-capable GPU and GPU extras",
+  "cuda: requires CUDA runtime libraries",
+  "live: requires interactive capture or display hardware",
+]

@@ -1,0 +1,14 @@
+# Hugging Face Space dependencies for CS2 YOLO11n-seg training UI.
+#
+# Prefer the official HF GPU runtime image so PyTorch/CUDA are preinstalled.
+# Do not pin a CUDA-specific torch wheel here — those break across CUDA
+# versions. Install torch yourself only for local non-HF GPU runs.
+#
+# ultralytics may pull a CPU torch if none is present; that is fine for UI
+# smoke tests but not for real training.
+
+ultralytics>=8.3.0,<9
+gradio>=5.0.0,<6
+PyYAML>=6.0,<7
+onnx>=1.17,<2
+onnxconverter-common>=1.9,<2

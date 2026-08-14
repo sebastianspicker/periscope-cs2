@@ -1,0 +1,93 @@
+# CMake / build trees (any name under code/)
+code/build/
+code/build-*/
+code/build_*/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/CTestTestfile.cmake
+**/install_manifest.txt
+**/compile_commands.json
+**/CMakeUserPresets.json
+**/Testing/
+**/generated/
+
+# Nested example builds
+code/drivers/**/build/
+code/firmware/**/build*/
+code/firmware/**/build_*/
+
+# Compiler / linker artifacts
+*.obj
+*.o
+*.a
+*.lib
+*.exp
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.ipdb
+*.iobj
+*.res
+*.sbr
+*.idb
+*.pgc
+*.pgd
+*.pch
+
+# Test / MSBuild crumbs
+*.lastbuildstate
+*.unsuccessfulbuild
+*.tlog
+*.recipe
+*.log
+*.manifest
+*.user
+*.suo
+*.sdf
+*.opendb
+*.db
+*.VC.db
+*.VC.opendb
+
+# IDE / editor
+.vs/
+.vscode/
+.idea/
+*.code-workspace
+*.swp
+*~
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.venv/
+venv/
+
+# Coverage / profiling
+*.gcda
+*.gcno
+*.gcov
+coverage/
+*.profraw
+*.profdata
+
+# Local tool configs (not project source)
+kilo.json
+.claude/
+.cursor/
+.codex/
+
+# Scratch dumps that tend to land in the repo root
+/*.obj
+/*.log
+/build_errors.txt
+/loc_before.txt
+/loc_after.txt

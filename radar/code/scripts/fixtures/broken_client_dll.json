@@ -1,0 +1,12 @@
+{
+  "client.dll": {
+    "classes": {
+      "C_BaseEntity": {
+        "fields": {
+          "m_iHealth": 844,
+          "m_iTeamNum": 999
+        }
+      }
+    }
+  }
+}

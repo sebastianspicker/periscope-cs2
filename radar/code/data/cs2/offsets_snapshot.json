@@ -1,0 +1,43 @@
+{
+  "source": "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/",
+  "module": "client.dll",
+  "generated_at_utc": "2026-08-09T11:12:20Z",
+  "globals": {
+    "dwEntityList": 39124592,
+    "dwGameEntitySystem": 39124592,
+    "dwGameEntitySystem_highestEntityIndex": 8336,
+    "dwLocalPlayerPawn": 37376568,
+    "dwLocalPlayerController": 37223280,
+    "dwViewMatrix": 37397312,
+    "dwViewAngles": 37465624,
+    "dwPlantedC4": 37156440,
+    "dwCSGOInput": 37463952,
+    "dwSensitivity": 37364264
+  },
+  "fields": {
+    "m_iHealth": 844,
+    "m_iTeamNum": 999,
+    "m_lifeState": 852,
+    "m_pGameSceneNode": 816,
+    "m_vOldOrigin": 5048,
+    "m_angEyeAngles": 13120,
+    "m_hPlayerPawn": 2324,
+    "m_vecAbsOrigin": 200,
+    "m_bDormant": 259,
+    "m_ArmorValue": 7324,
+    "m_entitySpottedState": 7256,
+    "m_bSpotted": 8,
+    "m_pObserverServices": 4640,
+    "m_iObserverMode": 72,
+    "m_bBombTicking": 4512,
+    "m_nBombSite": 4516,
+    "m_flC4Blow": 4560,
+    "m_bBeingDefused": 4572
+  },
+  "constants": {
+    "entity_identity_stride": 112,
+    "entity_chunk_table_offset": 16,
+    "entity_handle_index_mask": 32767,
+    "entity_chunk_shift": 9
+  }
+}

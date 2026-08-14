@@ -1,0 +1,84 @@
+name: Bug report
+description: Something is broken or unexpected
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Report a concrete failure. Do **not** attach private gameplay frames, account data, API tokens, or credentials.
+        Vulnerabilities: see the relevant `SECURITY.md` under `radar/` or `vision/`.
+
+  - type: dropdown
+    id: project
+    attributes:
+      label: Project
+      description: Which part of the monorepo?
+      options:
+        - radar
+        - vision
+        - monorepo meta
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: OS
+      options:
+        - Windows
+        - Linux
+        - macOS
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: toolchain
+    attributes:
+      label: Toolchain version
+      description: e.g. Python 3.12.3, CMake 3.28, MSVC 19.x, g++ 13
+      placeholder: "3.12.x / CMake x.y"
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command / repro
+      description: Exact CLI invocation, cmake/ctest steps, or short steps. Redact paths with secrets.
+      placeholder: |
+        # vision
+        cd vision && uv run cs2-vision outline --help
+        # radar
+        cmake -S radar/code -B radar/code/build -DLR_BUILD_TESTS=ON
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: Paste relevant traceback, log excerpt, or ctest failure (no credentials).
+    validations:
+      required: true
+
+  - type: input
+    id: component
+    attributes:
+      label: Component (if relevant)
+      description: e.g. ONNX YOLO-seg, strategy_lab, live radar demo, overlay backend
+      placeholder: "optional"
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Extra context
+      description: Config (sanitized)? First bad commit if known? GPU extras?

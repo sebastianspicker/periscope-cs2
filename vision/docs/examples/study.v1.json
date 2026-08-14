@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "study_id": "pilot-low-vision-outlines",
+  "title": "Pilot: dual-contrast outline treatments on entitled CS2 demos",
+  "description": "Example package shape for study-render. Paths are relative to this file when resolved from a study directory; replace with operator-owned local footage and models.",
+  "clips": [
+    {
+      "clip_id": "smoke-mid-01",
+      "input": "clips/smoke-mid-01.mp4",
+      "label": "Smoke mid, distant players",
+      "notes": "Entitled demo playback; 10–15 s segment",
+      "tags": ["smoke", "distance"]
+    },
+    {
+      "clip_id": "close-duel-01",
+      "input": "clips/close-duel-01.mp4",
+      "label": "Close duel, high detail",
+      "tags": ["close", "motion"]
+    }
+  ],
+  "conditions": [
+    {
+      "condition_id": "baseline",
+      "kind": "baseline",
+      "label": "No outline",
+      "description": "Unmodified clip passthrough for control comparison"
+    },
+    {
+      "condition_id": "high-visibility",
+      "kind": "outline",
+      "label": "High visibility solid",
+      "outline_preset": "high-visibility",
+      "stroke_pattern": "solid"
+    },
+    {
+      "condition_id": "maximum-visibility",
+      "kind": "outline",
+      "label": "Maximum visibility solid",
+      "outline_preset": "maximum-visibility"
+    },
+    {
+      "condition_id": "cyan-dashed",
+      "kind": "outline",
+      "label": "Cyan-black dashed",
+      "outline_preset": "cyan-black",
+      "stroke_pattern": "dashed",
+      "dash_period_px": 16
+    }
+  ],
+  "inference": {
+    "model": "artifacts/cs2-player-seg.onnx",
+    "manifest": "artifacts/cs2-player-seg.model.json",
+    "backend": "ultralytics-onnx",
+    "class_names": ["player"],
+    "confidence": 0.45,
+    "image_size": 640,
+    "device": "cpu",
+    "max_frames": 1800,
+    "max_seconds": 60
+  }
+}

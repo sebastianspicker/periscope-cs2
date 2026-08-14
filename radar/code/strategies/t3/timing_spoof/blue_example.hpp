@@ -1,0 +1,12 @@
+#pragma once
+#include "sim/narrative.hpp"
+#include "sim/world.hpp"
+#include <string>
+#include <vector>
+
+namespace examples::timing_spoof {
+struct BlueResult { bool detected; int signals; std::vector<std::string> reasons; double risk;
+  bool mitigated = false; std::string detail; };
+BlueResult detect(sim::World& w);
+BlueResult run_blue(sim::World& w, sim::Narrator& n);
+}  // namespace examples::timing_spoof

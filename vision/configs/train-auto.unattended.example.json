@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "mode": "flat_cloud",
+  "run_id": "unattended-demo",
+  "autonomous": true,
+  "paths": {
+    "work_root": "artifacts/auto"
+  },
+  "sources": {
+    "prebuilt_flat_root": "data/demo_flat"
+  },
+  "train": {
+    "backend": "cloud",
+    "profile": "smoke",
+    "device": "cpu",
+    "allow_leaky_val": true,
+    "smoke": true,
+    "base_model_origin": "ultralytics-official",
+    "exported_model_license": "AGPL-3.0-only",
+    "allow_model_download": true,
+    "resume_ultralytics": true,
+    "min_map50": null
+  },
+  "label": {
+    "enabled": true,
+    "bootstrap": true,
+    "conf": 0.25
+  },
+  "export": {
+    "promote_to_run_models": true,
+    "smoke_enabled": true,
+    "smoke_required": false
+  },
+  "self_train": {
+    "iterations": 3,
+    "conf_threshold": 0.45,
+    "conf_schedule": true,
+    "stop_on_no_growth": true,
+    "max_plateau_iters": 2,
+    "write_uncertain_queue": true,
+    "write_policy": "overwrite_pseudo",
+    "use_teacher": true,
+    "required": false,
+    "retrain_required": false
+  },
+  "eval": {
+    "enabled": true,
+    "required": false,
+    "split": "val",
+    "conf": 0.25
+  },
+  "resume": {
+    "enabled": true
+  },
+  "human_gate": {
+    "enabled": false,
+    "block": false
+  }
+}

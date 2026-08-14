@@ -1,0 +1,14 @@
+{
+  "client.dll": {
+    "dwEntityList": 39124592,
+    "dwGameEntitySystem": 39124592,
+    "dwGameEntitySystem_highestEntityIndex": 8336,
+    "dwLocalPlayerPawn": 37376568,
+    "dwLocalPlayerController": 37223280,
+    "dwViewMatrix": 37397312,
+    "dwViewAngles": 37465624,
+    "dwPlantedC4": 37156440,
+    "dwCSGOInput": 37463952,
+    "dwSensitivity": 37364264
+  }
+}
