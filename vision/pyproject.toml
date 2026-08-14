@@ -58,7 +58,7 @@ rfdetr = [
   "rfdetr",
 ]
 dev = [
-  "mypy>=1.17,<2",
+  "mypy>=1.17,<3",
   "pytest>=8.4,<9",
   "ruff>=0.12,<1",
   "types-PyYAML",
