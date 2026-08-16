@@ -30,6 +30,7 @@ dependencies = [
   "onnxruntime>=1.22,<2",
   "opencv-python>=4.10,<5",
   "PyYAML>=6,<7",
+  "pillow>=12.3,<13",
   "ultralytics>=8.4,<9",
   "supervision>=0.25,<1",
   "mss>=10,<11",
@@ -39,7 +40,7 @@ dependencies = [
 gpu = [
   "onnxruntime-gpu>=1.22,<2",          # CUDA/TensorRT/DirectML support
   "onnxconverter-common>=1.9,<2",       # FP16 model conversion
-  "onnx>=1.17,<2",
+  "onnx>=1.22,<2",
   "cupy-cuda12x>=13,<14",              # Native CUDA kernels via CuPy (adjust '-cuda12x' for your CUDA version)
 ]
 gpu-cuda11 = [
@@ -49,17 +50,18 @@ gpu-cuda-local = [
   "cupy>=13,<14",                      # CuPy from source (builds kernels for your local CUDA)
 ]
 train = [
-  "onnx>=1.17,<2",
+  "onnx>=1.22,<2",
   "webdataset>=0.2,<1",                 # CS2-10k training data
-  "huggingface_hub>=0.24,<1",           # RekaAI/CS2-10k shard download
-  "gradio>=5.0,<6",                     # Hugging Face Space UI
+  "huggingface_hub>=1.5,<2",            # RekaAI/CS2-10k shard download; compatible with transformers 5
+  "gradio>=6.15.1,<7",                  # Hugging Face Space UI
 ]
 rfdetr = [
-  "rfdetr",
+  "rfdetr>=1.6.0,<2",
+  "transformers>=5.5,<6",
 ]
 dev = [
   "mypy>=1.17,<2",
-  "pytest>=8.4,<9",
+  "pytest>=9.0.3,<10",
   "ruff>=0.12,<1",
   "types-PyYAML",
 ]
@@ -72,6 +74,12 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "cs2_vision_access" = ["config/data/*.json", "config/data/*.yaml"]
+
+[tool.uv]
+constraint-dependencies = [
+  "idna>=3.15",
+  "starlette>=1.3.1",
+]
 
 [tool.ruff]
 line-length = 100

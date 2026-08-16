@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstring>
 
 #if LR_PLATFORM_WINDOWS
 #  include "real/win/api_table.hpp"
@@ -37,17 +36,13 @@ static NTSTATUS NTAPI dll_notify_callback(ULONG reason, PVOID module_info,
     auto* info = static_cast<DllNotifyData*>(module_info);
     if (!info || !info->BaseDllName.Buffer) return 0;
 
-    wchar_t wideName[128]{};
-    const USHORT nChars =
-        info->BaseDllName.Length / sizeof(wchar_t);
-    const USHORT copy = nChars < 127 ? nChars : 127;
-    wcsncpy(wideName, info->BaseDllName.Buffer, copy);
-    wideName[copy] = 0;
-
+    constexpr std::size_t kMaxModuleNameChars = 127;
+    const auto copy = std::min<std::size_t>(
+        info->BaseDllName.Length / sizeof(wchar_t), kMaxModuleNameChars);
     std::string modName;
     modName.reserve(copy);
-    for (USHORT i = 0; i < copy; ++i) {
-        modName.push_back(static_cast<char>(wideName[i] & 0x7F));
+    for (std::size_t i = 0; i < copy; ++i) {
+        modName.push_back(static_cast<char>(info->BaseDllName.Buffer[i] & 0x7F));
     }
 
     DllNotification n;

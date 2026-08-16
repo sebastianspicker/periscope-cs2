@@ -15,10 +15,10 @@ int main(){
  uint64_t tier0=0;size_t tsz=0;real::cs2::find_module_by_basename(att.pid,att.handle,"tier0.dll",tier0,tsz);
  real::cs2::Cs2MemoryReader r;r.attach(ac::Tier::T0_UsermodeRpm,att.pid);g_r=&r;
  uint64_t cifn=resolve(tier0,tsz,"CreateInterface");
- uint8_t code[16];rfn(cifn,code,16);int32_t d=0;memcpy(&d,code+3,4);uint64_t head=0;rfn(cifn+7+d,&head,8);
+ int32_t d=0;if(!cifn||!rfn(cifn+3,&d,sizeof(d))){r.detach();real::cs2::detach_from_cs2(att.handle);return 1;}uint64_t head=0;rfn(cifn+7+d,&head,8);
  uint64_t reg=head,icvar=0;
  for(int s=0;s<16&&reg;++s){uint64_t np=0,cf=0,nx=0;rfn(reg+8,&np,8);rfn(reg,&cf,8);rfn(reg+16,&nx,8);char nm[40]{};if(np)rfn(np,nm,39);
-  if(strncmp(nm,"VEngineCvar",11)==0){uint8_t st[16];rfn(cf,st,16);int32_t d2=0;memcpy(&d2,st+3,4);icvar=cf+7+d2;break;}reg=nx;}
+  if(strncmp(nm,"VEngineCvar",11)==0){int32_t d2=0;if(!rfn(cf+3,&d2,sizeof(d2))){reg=nx;continue;}icvar=cf+7+d2;break;}reg=nx;}
  printf("icvar=0x%llx\n",(unsigned long long)icvar);
  // For each ptr in icvar, try as list head; print first 5 good names
  for(int off=0;off<=0x1F0;off+=8){

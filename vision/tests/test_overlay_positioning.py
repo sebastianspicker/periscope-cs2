@@ -230,6 +230,12 @@ class _FakeTkRoot:
     def configure(self, **kwargs: object) -> None:
         del kwargs
 
+    def bind(self, sequence: str, callback: object) -> None:
+        del sequence, callback
+
+    def focus_force(self) -> None:
+        return None
+
     def destroy(self) -> None:
         pass
 

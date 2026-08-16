@@ -174,12 +174,13 @@ class EnsureEdgesamAssetsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
 
-            def fake_urlretrieve(url, dest):
+            def fake_verified_download(url, dest, *, expected_sha256):
                 Path(dest).write_bytes(b"onnx-bytes")
+                return expected_sha256
 
             with patch(
-                "urllib.request.urlretrieve",
-                side_effect=fake_urlretrieve,
+                "cs2_vision_access.training.prepare_lib.assets.download_verified_https",
+                side_effect=fake_verified_download,
             ):
                 found = ensure_edgesam_assets(root, download=True)
 
@@ -187,6 +188,45 @@ class EnsureEdgesamAssetsTests(unittest.TestCase):
             self.assertTrue(found["encoder"].is_file())
             self.assertTrue(found["decoder"].is_file())
             self.assertTrue(found["manifest"].is_file())
+
+    def test_rejects_non_https_registry_url_without_downloading(self) -> None:
+        from cs2_vision_access.training.prepare_lib import assets
+
+        registry = {
+            key: {"url": "file:///tmp/unsafe.onnx", "sha256": "0" * 64}
+            for key in assets._EDGESAM_DOWNLOAD_KEYS
+        }
+        with (
+            patch(
+                "cs2_vision_access.config.data.model_registry.MODEL_REGISTRY",
+                registry,
+            ),
+            patch.object(assets, "download_verified_https") as retrieve,
+            tempfile.TemporaryDirectory() as tmp,
+        ):
+            with self.assertRaisesRegex(FileNotFoundError, "invalid HTTPS download URL"):
+                assets._download_edgesam_registry_models(Path(tmp))
+        retrieve.assert_not_called()
+
+    def test_url_validation_rejects_unsafe_schemes_hosts_and_credentials(self) -> None:
+        from cs2_vision_access.training.prepare_lib.assets import _require_https_download_url
+
+        unsafe_urls = (
+            "",
+            "//example.test/model.onnx",
+            "http://example.test/model.onnx",
+            "ftp://example.test/model.onnx",
+            "file:///tmp/model.onnx",
+            "s3://bucket/model.onnx",
+            "https://",
+            "https:///model.onnx",
+            "https://user@example.test/model.onnx",
+            "https://:password@example.test/model.onnx",
+        )
+        for url in unsafe_urls:
+            with self.subTest(url=url):
+                with self.assertRaisesRegex(FileNotFoundError, "invalid HTTPS download URL"):
+                    _require_https_download_url(url)
 
 
 class BootstrapClassIdTests(unittest.TestCase):

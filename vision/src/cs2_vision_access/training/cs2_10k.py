@@ -17,7 +17,7 @@ import json
 import random
 import tarfile
 import tempfile
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -50,6 +50,10 @@ class Cs210kError(RuntimeError):
     """CS2-10k download or materialization failed."""
 
 
+class _ReproducibleDatasetRng(random.Random):
+    """Non-cryptographic RNG reserved for reproducible dataset sampling."""
+
+
 @dataclass(frozen=True)
 class Cs210kMaterializeReport:
     """Summary of frames extracted from CS2-10k shards."""
@@ -63,7 +67,7 @@ class Cs210kMaterializeReport:
     cache_dir: str
 
 
-def _require_hub():
+def _require_hub() -> tuple[Callable[..., str], Callable[..., list[str]]]:
     try:
         from huggingface_hub import hf_hub_download, list_repo_files
     except ImportError as error:
@@ -192,7 +196,7 @@ def _merge_holdout_json(
 def _select_holdout_names(
     selected: list[str],
     fraction: float,
-    rng: random.Random,
+    rng: _ReproducibleDatasetRng,
 ) -> set[str]:
     """Pick a deterministic holdout subset of video member names."""
     if fraction <= 0.0 or not selected:
@@ -230,7 +234,7 @@ def extract_frames_from_tar(
     Parameters
     ----------
     shuffle_videos:
-        If True, shuffle mp4 members with ``random.Random(seed)`` before taking
+        If True, shuffle mp4 members with the reproducible dataset RNG before taking
         the first ``max_videos``.
     seed:
         RNG seed for video shuffle and per-video start-frame offsets.
@@ -258,7 +262,8 @@ def extract_frames_from_tar(
     frames_written = 0
     frame_index = int(start_frame_index)
     step = max(1, int(sample_every_n))
-    rng = random.Random(seed)
+    # This sampling is intentionally reproducible: callers persist and test the seed.
+    rng = _ReproducibleDatasetRng(seed)
 
     holdout_video_stems: list[str] = []
     holdout_frame_stems: list[str] = []

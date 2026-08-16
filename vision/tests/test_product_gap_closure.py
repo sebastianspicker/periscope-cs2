@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -41,6 +43,25 @@ class FileOutputSinkTests(unittest.TestCase):
 
 
 class SetupModelArtifactGuardTests(unittest.TestCase):
+    def test_missing_ultralytics_requires_locked_environment_without_pip(self) -> None:
+        import argparse
+
+        from cs2_vision_access.cli.handlers.setup import _download_and_export_model
+
+        with tempfile.TemporaryDirectory() as tmp:
+            args = argparse.Namespace(model="yolo11n-seg", skip_download=False)
+            output = io.StringIO()
+            with (
+                patch.dict("sys.modules", {"ultralytics": None}),
+                patch("subprocess.check_call") as check_call,
+                redirect_stdout(output),
+                self.assertRaisesRegex(RuntimeError, "uv sync --frozen --extra train"),
+            ):
+                _download_and_export_model(args, Path(tmp))
+
+        check_call.assert_not_called()
+        self.assertIn("Install the locked training environment", output.getvalue())
+
     def test_skip_download_fails_when_artifacts_missing(self) -> None:
         import argparse
 

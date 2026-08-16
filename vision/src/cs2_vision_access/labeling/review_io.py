@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Sequence
 from pathlib import Path
+from typing import cast
 
 from cs2_vision_access.labeling.io import write_text_atomic
 from cs2_vision_access.labeling.types import (
@@ -130,8 +131,9 @@ def _collect_stems(
 
 def _files_list(payload: dict[str, object]) -> list[dict[str, object]]:
     files = payload["files"]
-    assert isinstance(files, list)
-    return files  # type: ignore[return-value]
+    if not isinstance(files, list) or not all(isinstance(entry, dict) for entry in files):
+        raise BootstrapError("draft status 'files' must be a list of objects")
+    return [cast(dict[str, object], entry) for entry in files]
 
 
 def _match_entries(
@@ -147,11 +149,11 @@ def _match_entries(
     matched: list[tuple[str, dict[str, object]]] = []
     missing: list[str] = []
     for stem in stems:
-        entry = by_stem.get(stem)
-        if entry is None:
+        matched_entry = by_stem.get(stem)
+        if matched_entry is None:
             missing.append(stem)
         else:
-            matched.append((stem, entry))
+            matched.append((stem, matched_entry))
     if missing:
         sample = ", ".join(missing[:5])
         extra = f" (+{len(missing) - 5} more)" if len(missing) > 5 else ""

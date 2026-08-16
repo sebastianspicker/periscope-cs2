@@ -7,6 +7,7 @@ and helper functions. Actual network downloads and ONNX exports are mocked.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import tempfile
 import unittest
@@ -14,6 +15,39 @@ from pathlib import Path
 from unittest.mock import patch
 
 from cs2_vision_access.cli.parser import build_parser
+
+
+class _FakeResponse:
+    def __init__(self, body: bytes, *, url: str, content_length: int | None = None) -> None:
+        self._body = body
+        self._offset = 0
+        self._url = url
+        self.headers: dict[str, str] = {}
+        if content_length is not None:
+            self.headers["Content-Length"] = str(content_length)
+
+    def __enter__(self) -> _FakeResponse:
+        return self
+
+    def __exit__(self, *_args: object) -> None:
+        return None
+
+    def geturl(self) -> str:
+        return self._url
+
+    def read(self, size: int) -> bytes:
+        chunk = self._body[self._offset : self._offset + size]
+        self._offset += len(chunk)
+        return chunk
+
+
+class _FakeOpener:
+    def __init__(self, response: _FakeResponse) -> None:
+        self._response = response
+
+    def open(self, _request: object, *, timeout: int) -> _FakeResponse:
+        del timeout
+        return self._response
 
 
 class TestDownloadModelCommandRegistration(unittest.TestCase):
@@ -59,6 +93,18 @@ class TestDownloadModelCommandRegistration(unittest.TestCase):
         args = parser.parse_args(["download-model", "--output-dir", "models"])
         self.assertEqual(args.output_dir, Path("models"))
 
+    def test_overlap_uses_pinned_registry_artifact(self) -> None:
+        from cs2_vision_access.cli.handlers import download_model
+
+        args = build_parser().parse_args(["download-model", "yolo11n-seg"])
+        with (
+            patch.object(download_model, "_handle_onnx_direct", return_value=0) as direct,
+            patch.object(download_model, "_handle_pt_download") as checkpoint,
+        ):
+            self.assertEqual(download_model._handle_download_model(args), 0)
+        direct.assert_called_once()
+        checkpoint.assert_not_called()
+
 
 class TestDownloadModelList(unittest.TestCase):
     """Verify the model listing output."""
@@ -99,6 +145,195 @@ class TestDownloadModelList(unittest.TestCase):
 
         self.assertTrue(_is_onnx_direct(MODEL_REGISTRY["vombit-yolov10n"]))
         self.assertTrue(_is_onnx_direct(MODEL_REGISTRY["edgesam-encoder"]))
+
+
+class TestHttpsDownloadValidation(unittest.TestCase):
+    """Reject unsafe model artifact URLs before opening a downloader."""
+
+    @staticmethod
+    def _arguments(output_dir: Path) -> argparse.Namespace:
+        return argparse.Namespace(
+            output_dir=output_dir,
+            image_size=640,
+            device="cpu",
+            overwrite=False,
+            classes=None,
+            origin=None,
+            license=None,
+        )
+
+    def test_validator_rejects_unsafe_schemes_hosts_and_credentials(self) -> None:
+        from cs2_vision_access.cli.handlers.download_model import (
+            DownloadModelError,
+            _require_https_download_url,
+        )
+
+        unsafe_urls = (
+            "",
+            "//example.test/model.onnx",
+            "http://example.test/model.onnx",
+            "ftp://example.test/model.onnx",
+            "file:///tmp/model.onnx",
+            "s3://bucket/model.onnx",
+            "https://",
+            "https:///model.onnx",
+            "https://user@example.test/model.onnx",
+            "https://:password@example.test/model.onnx",
+        )
+        for url in unsafe_urls:
+            with self.subTest(url=url):
+                with self.assertRaisesRegex(DownloadModelError, "invalid HTTPS download URL"):
+                    _require_https_download_url(url)
+
+    def test_all_cli_download_paths_reject_invalid_urls_before_downloading(self) -> None:
+        from cs2_vision_access.cli.handlers import download_model
+
+        with tempfile.TemporaryDirectory() as tmp:
+            arguments = self._arguments(Path(tmp))
+            unsafe_url = "https://user@example.test/model.onnx"
+            cases = (
+                (
+                    lambda: download_model._handle_pt_download("unsafe", arguments),
+                    {"unsafe": {"pt_url": unsafe_url, "sha256": "0" * 64}},
+                ),
+                (
+                    lambda: download_model._handle_registry_pt(
+                        "unsafe",
+                        {"url": unsafe_url, "sha256": "0" * 64},
+                        arguments,
+                    ),
+                    None,
+                ),
+                (
+                    lambda: download_model._handle_onnx_direct(
+                        "unsafe",
+                        {"url": unsafe_url, "format": "onnx", "sha256": "0" * 64},
+                        arguments,
+                    ),
+                    None,
+                ),
+            )
+            for run, downloadable_models in cases:
+                with self.subTest(run=run):
+                    with patch.object(download_model, "download_verified_https") as download:
+                        if downloadable_models is None:
+                            with self.assertRaisesRegex(
+                                download_model.DownloadModelError,
+                                "invalid HTTPS download URL",
+                            ):
+                                run()
+                        else:
+                            with (
+                                patch.object(
+                                    download_model,
+                                    "_DOWNLOADABLE_MODELS",
+                                    downloadable_models,
+                                ),
+                                self.assertRaisesRegex(
+                                    download_model.DownloadModelError,
+                                    "invalid HTTPS download URL",
+                                ),
+                            ):
+                                run()
+                    download.assert_not_called()
+
+    def test_unpinned_downloadable_model_fails_before_network_or_model_load(self) -> None:
+        from cs2_vision_access.cli.handlers import download_model
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with (
+                patch.object(download_model, "download_verified_https") as download,
+                self.assertRaisesRegex(download_model.DownloadModelError, "registry SHA-256 pin"),
+            ):
+                download_model._handle_pt_download("yolo26n-seg", self._arguments(Path(tmp)))
+        download.assert_not_called()
+
+
+class TestPinnedDownloadAdversarialCases(unittest.TestCase):
+    """Pinned downloads must not promote attacker-controlled or incomplete bytes."""
+
+    @staticmethod
+    def _arguments(output_dir: Path) -> argparse.Namespace:
+        return TestHttpsDownloadValidation._arguments(output_dir)
+
+    def _run_with_response(
+        self,
+        root: Path,
+        response: _FakeResponse,
+        *,
+        expected: bytes,
+        message: str,
+    ) -> None:
+        from cs2_vision_access.cli.handlers import download_model
+
+        registry_info = {
+            "format": "onnx",
+            "url": "https://example.test/model.onnx",
+            "sha256": hashlib.sha256(expected).hexdigest(),
+            "classes": {"0": "player"},
+        }
+        with (
+            patch(
+                "cs2_vision_access.cli.handlers._model_ops.urllib.request.build_opener",
+                return_value=_FakeOpener(response),
+            ),
+            patch.object(download_model, "_create_manifest") as create_manifest,
+            self.assertRaisesRegex(download_model.DownloadModelError, message),
+        ):
+            download_model._handle_onnx_direct(
+                "pinned-test", registry_info, self._arguments(root)
+            )
+        create_manifest.assert_not_called()
+        self.assertFalse((root / "model.onnx").exists())
+        self.assertEqual(list(root.glob(".model.onnx.*.download")), [])
+
+    def test_digest_mismatch_is_not_promoted_or_loaded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self._run_with_response(
+                Path(tmp),
+                _FakeResponse(b"attacker bytes", url="https://example.test/model.onnx"),
+                expected=b"trusted bytes",
+                message="SHA-256 mismatch",
+            )
+
+    def test_truncated_payload_is_not_promoted_or_loaded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self._run_with_response(
+                Path(tmp),
+                _FakeResponse(b"abc", url="https://example.test/model.onnx", content_length=4),
+                expected=b"abc",
+                message="truncated",
+            )
+
+    def test_redirect_to_unapproved_host_is_not_promoted_or_loaded(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            self._run_with_response(
+                Path(tmp),
+                _FakeResponse(b"trusted bytes", url="https://attacker.test/model.onnx"),
+                expected=b"trusted bytes",
+                message="unapproved host",
+            )
+
+    def test_existing_alias_must_match_the_registry_pin(self) -> None:
+        from cs2_vision_access.cli.handlers import download_model
+
+        trusted = b"trusted bytes"
+        registry_info = {
+            "format": "onnx",
+            "url": "https://example.test/model.onnx",
+            "sha256": hashlib.sha256(trusted).hexdigest(),
+            "classes": {"0": "player"},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "model.onnx").write_bytes(trusted)
+            alias = root / "pinned-test.onnx"
+            alias.write_bytes(b"attacker bytes")
+            with self.assertRaisesRegex(download_model.DownloadModelError, "SHA-256 mismatch"):
+                download_model._handle_onnx_direct(
+                    "pinned-test", registry_info, self._arguments(root)
+                )
+            self.assertFalse(alias.exists())
 
 
 class TestCoco80Classes(unittest.TestCase):

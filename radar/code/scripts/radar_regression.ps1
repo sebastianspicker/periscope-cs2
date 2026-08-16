@@ -29,6 +29,11 @@ $ErrorActionPreference = "Stop"
 $script:FailCount = 0
 $script:PassCount = 0
 
+function Write-Status {
+  param([string]$Message)
+  Write-Information -MessageData $Message -InformationAction Continue
+}
+
 # Resolve repo code/ root from this script location (scripts/ -> parent).
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
@@ -59,16 +64,16 @@ function Get-ResolutionCenterNudgePx {
 function Assert-True {
   param([bool]$Condition, [string]$Message)
   if (-not $Condition) {
-    Write-Host ("  FAIL  " + $Message) -ForegroundColor Red
+    Write-Error -Message ("  FAIL  " + $Message) -ErrorAction Continue
     $script:FailCount++
     throw ("ASSERT FAIL: " + $Message)
   }
-  Write-Host ("  OK  " + $Message)
+  Write-Status ("  OK  " + $Message)
   $script:PassCount++
 }
 
 function Test-ScaleNudgeMath {
-  Write-Host "[1] scale / nudge formulas (pure)"
+  Write-Status "[1] scale / nudge formulas (pure)"
 
   $edge = Get-RadarWorldScale -ClRadarScale 0.7
   $okEdge = [math]::Abs($edge - 1071.4285714285713) -lt 0.01
@@ -99,7 +104,7 @@ function Test-ScaleNudgeMath {
 
 function Test-BuildArtifacts {
   param([string]$Dir)
-  Write-Host ("[2] build artifacts under " + $Dir)
+  Write-Status ("[2] build artifacts under " + $Dir)
 
   if (-not (Test-Path -LiteralPath $Dir)) {
     throw ("ASSERT FAIL: build directory missing: " + $Dir + " (build Release radar demos first)")
@@ -120,15 +125,15 @@ function Test-BuildArtifacts {
   foreach ($n in $optional) {
     $p = Join-Path $Dir $n
     if (Test-Path -LiteralPath $p) {
-      Write-Host ("  OK  " + $n + " exists (optional)")
+      Write-Status ("  OK  " + $n + " exists (optional)")
     } else {
-      Write-Host ("  --  " + $n + " absent (optional)")
+      Write-Status ("  --  " + $n + " absent (optional)")
     }
   }
 }
 
 function Test-SelfTestOnly {
-  Write-Host "=== radar_regression -SelfTest (pure math only) ==="
+  Write-Status "=== radar_regression -SelfTest (pure math only) ==="
   Test-ScaleNudgeMath
   # Negative-path structural checks on pure helpers (must throw).
   $threw = $false
@@ -137,12 +142,12 @@ function Test-SelfTestOnly {
   $threw2 = $false
   try { Get-ResolutionCenterNudgePx -ClientH 0 | Out-Null } catch { $threw2 = $true }
   Assert-True $threw2 "Get-ResolutionCenterNudgePx rejects client_h <= 0"
-  Write-Host ("=== SELF-TEST PASSED (" + $script:PassCount + " assertions) ===")
+  Write-Status ("=== SELF-TEST PASSED (" + $script:PassCount + " assertions) ===")
 }
 
 function Invoke-LiveScaleProbe {
   param([string]$Dir)
-  Write-Host "[3] live scale_probe"
+  Write-Status "[3] live scale_probe"
   $exe = Join-Path $Dir "scale_probe.exe"
   Assert-True (Test-Path -LiteralPath $exe) "scale_probe.exe present for live run"
 
@@ -154,14 +159,14 @@ function Invoke-LiveScaleProbe {
     if ($null -eq $prev) { Remove-Item Env:LR_SKIP_CVAR_SCAN -ErrorAction SilentlyContinue }
     else { $env:LR_SKIP_CVAR_SCAN = $prev }
   }
-  Write-Host $out
+  Write-Status $out
   Assert-True ($out -match "1071") "scale_probe reports ~1071"
   Assert-True ($out -match "local=") "scale_probe produced local= line"
 }
 
 function Invoke-LiveRadarBrief {
   param([string]$Dir, [int]$TimeoutSec)
-  Write-Host ("[4] live_radar brief (" + $TimeoutSec + "s)")
+  Write-Status ("[4] live_radar brief (" + $TimeoutSec + "s)")
   $exe = Join-Path $Dir "live_radar.exe"
   Assert-True (Test-Path -LiteralPath $exe) "live_radar.exe present for live run"
 
@@ -181,9 +186,9 @@ function Invoke-LiveRadarBrief {
     Start-Sleep -Milliseconds 300
   }
   if (-not $proc.HasExited) {
-    Write-Host ("  (timeout " + $TimeoutSec + "s - stopping live_radar)")
+    Write-Status ("  (timeout " + $TimeoutSec + "s - stopping live_radar)")
     Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
-    try { $proc.WaitForExit(3000) | Out-Null } catch { }
+    try { $proc.WaitForExit(3000) | Out-Null } catch { Write-Warning "Unable to confirm live_radar stopped after timeout: $($_.Exception.Message)" }
   }
 
   $txt = ""
@@ -193,7 +198,7 @@ function Invoke-LiveRadarBrief {
   if ([string]::IsNullOrWhiteSpace($txt)) {
     throw ("ASSERT FAIL: live_radar produced empty stdout (see " + $stderr + ")")
   }
-  Write-Host $txt
+  Write-Status $txt
 
   Assert-True ($txt -match "SNAP") "live_radar SNAP layout"
   $nudgeOk = ($txt -match "nudge\s*[=:]?\s*2[0-9]") -or ($txt -match "nudgeSE\s*=\s*2") -or ($txt -match "nudge=2")
@@ -209,36 +214,36 @@ try {
     exit 0
   }
 
-  Write-Host "=== radar_regression ==="
-  Write-Host ("root=" + $root)
-  Write-Host ("BuildDir=" + $BuildDir + " SkipLive=" + $SkipLive)
+  Write-Status "=== radar_regression ==="
+  Write-Status ("root=" + $root)
+  Write-Status ("BuildDir=" + $BuildDir + " SkipLive=" + $SkipLive)
 
   Test-ScaleNudgeMath
   Test-BuildArtifacts -Dir $BuildDir
 
   if ($SkipLive) {
-    Write-Host "SkipLive set - offline gates only."
-    Write-Host ("=== OFFLINE CHECKS PASSED (" + $script:PassCount + " assertions) ===")
+    Write-Status "SkipLive set - offline gates only."
+    Write-Status ("=== OFFLINE CHECKS PASSED (" + $script:PassCount + " assertions) ===")
     exit 0
   }
 
   $cs2 = Get-Process -Name cs2 -ErrorAction SilentlyContinue
   if (-not $cs2) {
-    Write-Host "SKIP live (cs2 process not running) - offline gates passed."
-    Write-Host ("=== OFFLINE CHECKS PASSED (" + $script:PassCount + " assertions); live skipped ===")
+    Write-Status "SKIP live (cs2 process not running) - offline gates passed."
+    Write-Status ("=== OFFLINE CHECKS PASSED (" + $script:PassCount + " assertions); live skipped ===")
     exit 0
   }
 
-  Write-Host ("cs2.exe detected (PID(s): " + ($cs2.Id -join ", ") + ")")
+  Write-Status ("cs2.exe detected (PID(s): " + ($cs2.Id -join ", ") + ")")
   Invoke-LiveScaleProbe -Dir $BuildDir
   Invoke-LiveRadarBrief -Dir $BuildDir -TimeoutSec $LiveTimeoutSec
 
-  Write-Host ("=== ALL CHECKS PASSED (" + $script:PassCount + " assertions) ===")
+  Write-Status ("=== ALL CHECKS PASSED (" + $script:PassCount + " assertions) ===")
   exit 0
 }
 catch {
-  Write-Host ""
-  Write-Host $_.Exception.Message -ForegroundColor Red
-  Write-Host ("=== FAILED (passed=" + $script:PassCount + ") ===") -ForegroundColor Red
+  Write-Information -MessageData "" -InformationAction Continue
+  Write-Error -Message $_.Exception.Message -ErrorAction Continue
+  Write-Error -Message ("=== FAILED (passed=" + $script:PassCount + ") ===") -ErrorAction Continue
   exit 1
 }

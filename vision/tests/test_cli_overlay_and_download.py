@@ -11,6 +11,7 @@ Covers:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 import tempfile
@@ -61,9 +62,15 @@ class TestDownloadModelNoManifest(unittest.TestCase):
 
         shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    @staticmethod
-    def _fake_urlretrieve(url: str, path: object) -> None:
-        Path(str(path)).write_bytes(b"fake onnx bytes\n")
+    _MODEL_BYTES = b"fake onnx bytes\n"
+    _MODEL_SHA256 = hashlib.sha256(_MODEL_BYTES).hexdigest()
+
+    @classmethod
+    def _fake_download(
+        cls, url: str, path: object, *, expected_sha256: str
+    ) -> str:
+        Path(str(path)).write_bytes(cls._MODEL_BYTES)
+        return expected_sha256
 
     def test_onnx_direct_without_classes_skips_manifest(self) -> None:
         arguments = argparse.Namespace(
@@ -80,7 +87,7 @@ class TestDownloadModelNoManifest(unittest.TestCase):
         registry_info = {
             "format": "onnx",
             "url": "https://example.com/edge_sam_3x_encoder.onnx",
-            "sha256": "",
+            "sha256": self._MODEL_SHA256,
             "task": "segment",
             "imgsz": 1024,
             "license": "MIT",
@@ -88,7 +95,11 @@ class TestDownloadModelNoManifest(unittest.TestCase):
 
         buf = io.StringIO()
         with (
-            patch("urllib.request.urlretrieve", side_effect=self._fake_urlretrieve),
+            patch.object(
+                download_model_module,
+                "_download_https",
+                side_effect=self._fake_download,
+            ),
             redirect_stdout(buf),
         ):
             status = _handle_onnx_direct("edge-test", registry_info, arguments)
@@ -107,7 +118,7 @@ class TestDownloadModelNoManifest(unittest.TestCase):
                 "description": "test entry without class metadata",
                 "format": "onnx",
                 "url": "https://example.com/edge_test.onnx",
-                "sha256": "",
+                "sha256": self._MODEL_SHA256,
                 "task": "segment",
                 "imgsz": 1024,
                 "license": "MIT",
@@ -117,7 +128,11 @@ class TestDownloadModelNoManifest(unittest.TestCase):
         buf = io.StringIO()
         with (
             patch.object(download_model_module, "MODEL_REGISTRY", registry),
-            patch("urllib.request.urlretrieve", side_effect=self._fake_urlretrieve),
+            patch.object(
+                download_model_module,
+                "_download_https",
+                side_effect=self._fake_download,
+            ),
             redirect_stdout(buf),
         ):
             status = main(

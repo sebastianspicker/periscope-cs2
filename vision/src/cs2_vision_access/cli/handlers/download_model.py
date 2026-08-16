@@ -12,7 +12,6 @@ Then writes a SHA-256 checksum manifest when class metadata is available.
 from __future__ import annotations
 
 import argparse
-import urllib.request
 from pathlib import Path
 from typing import Any
 from urllib.parse import unquote, urlparse
@@ -20,8 +19,12 @@ from urllib.parse import unquote, urlparse
 from cs2_vision_access.cli.handlers._model_ops import (
     coco80_classes,
     create_manifest,
+    download_verified_https,
     export_onnx,
+    require_https_download_url,
+    require_sha256,
     sha256_file,
+    verify_sha256_file,
 )
 from cs2_vision_access.config.data.model_registry import MODEL_REGISTRY
 
@@ -77,6 +80,43 @@ class DownloadModelError(RuntimeError):
     """Model download or ONNX export failed."""
 
 
+def _require_https_download_url(url: str) -> str:
+    """Return a safe HTTPS download URL or raise ``DownloadModelError``."""
+    try:
+        return require_https_download_url(url)
+    except Exception as error:
+        raise DownloadModelError(str(error)) from error
+
+
+def _required_registry_sha256(model_name: str, info: dict[str, Any]) -> str:
+    """Return a registry pin or fail closed before any model bytes are loaded."""
+    try:
+        return require_sha256(str(info.get("sha256") or ""))
+    except Exception as error:
+        raise DownloadModelError(
+            f"model {model_name!r} has no valid registry SHA-256 pin"
+        ) from error
+
+
+def _download_https(url: str, dest: Path, *, expected_sha256: str) -> str:
+    """Download, verify, and atomically promote a pinned HTTPS model artifact."""
+    try:
+        download_url = require_https_download_url(url)
+        expected = require_sha256(expected_sha256)
+        return download_verified_https(download_url, dest, expected_sha256=expected)
+    except Exception as error:
+        raise DownloadModelError(str(error)) from error
+
+
+def _verify_or_remove(path: Path, *, expected_sha256: str) -> str:
+    """Reject and remove a mismatched artifact before it can be loaded or exported."""
+    try:
+        return verify_sha256_file(path, expected_sha256)
+    except Exception as error:
+        path.unlink(missing_ok=True)
+        raise DownloadModelError(str(error)) from error
+
+
 def _available_model_names() -> list[str]:
     """Sorted union of Ultralytics downloadables and registry teachers."""
     names = set(_DOWNLOADABLE_MODELS) | set(MODEL_REGISTRY) | set(_MODEL_ALIASES)
@@ -120,7 +160,7 @@ def _registry_classes_as_list(info: dict[str, Any]) -> list[str] | None:
     return [name for _, name in items]
 
 
-def register_download_model_command(subcommands: argparse._SubParsersAction) -> None:
+def register_download_model_command(subcommands: argparse._SubParsersAction[Any]) -> None:
     available = ", ".join(_available_model_names())
     dl = subcommands.add_parser(
         "download-model",
@@ -220,8 +260,10 @@ def _handle_download_model(arguments: argparse.Namespace) -> int:
 
     model_name = _resolve_model_name(arguments.model_name)
 
-    # Prefer Ultralytics downloadable path when both define the same name.
-    if model_name in _DOWNLOADABLE_MODELS:
+    # Prefer a checkpoint only when it has its own pin. If the same name also
+    # has a pinned registry artifact, use that safe path instead.
+    downloadable_info = _DOWNLOADABLE_MODELS.get(model_name)
+    if downloadable_info is not None and downloadable_info.get("sha256"):
         return _handle_pt_download(model_name, arguments)
 
     if model_name in MODEL_REGISTRY:
@@ -234,6 +276,9 @@ def _handle_download_model(arguments: argparse.Namespace) -> int:
         print(f"error: registry model {model_name!r} is not ONNX-direct and has no .pt URL")
         return 2
 
+    if downloadable_info is not None:
+        return _handle_pt_download(model_name, arguments)
+
     available = ", ".join(_available_model_names())
     print(f"error: unknown model {model_name!r}. Available: {available}")
     return 2
@@ -241,6 +286,7 @@ def _handle_download_model(arguments: argparse.Namespace) -> int:
 
 def _handle_pt_download(model_name: str, arguments: argparse.Namespace) -> int:
     model_info = _DOWNLOADABLE_MODELS[model_name]
+    expected_sha = _required_registry_sha256(model_name, model_info)
     output_dir = Path(arguments.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -249,11 +295,12 @@ def _handle_pt_download(model_name: str, arguments: argparse.Namespace) -> int:
     manifest_path = output_dir / f"{model_name}.model.json"
 
     if pt_path.exists() and not arguments.overwrite:
+        _verify_or_remove(pt_path, expected_sha256=expected_sha)
         print(f"  {pt_path.name} already exists (use --overwrite to replace)")
     else:
         print(f"  Downloading {model_info['pt_url']} ...")
         try:
-            urllib.request.urlretrieve(model_info["pt_url"], pt_path)
+            _download_https(model_info["pt_url"], pt_path, expected_sha256=expected_sha)
         except Exception as error:
             raise DownloadModelError(f"download failed for {model_name}: {error}") from error
         print(f"  Saved {pt_path}")
@@ -298,6 +345,7 @@ def _handle_registry_pt(
 ) -> int:
     """Registry entry that still needs Ultralytics .pt → ONNX export."""
     pt_url = str(registry_info.get("pt_url") or registry_info.get("url") or "")
+    expected_sha = _required_registry_sha256(model_name, registry_info)
     model_info = {
         "description": str(registry_info.get("description", model_name)),
         "pt_url": pt_url,
@@ -314,11 +362,12 @@ def _handle_registry_pt(
     image_size = int(registry_info.get("imgsz") or arguments.image_size)
 
     if pt_path.exists() and not arguments.overwrite:
+        _verify_or_remove(pt_path, expected_sha256=expected_sha)
         print(f"  {pt_path.name} already exists (use --overwrite to replace)")
     else:
         print(f"  Downloading {pt_url} ...")
         try:
-            urllib.request.urlretrieve(pt_url, pt_path)
+            _download_https(pt_url, pt_path, expected_sha256=expected_sha)
         except Exception as error:
             raise DownloadModelError(f"download failed for {model_name}: {error}") from error
         print(f"  Saved {pt_path}")
@@ -367,6 +416,7 @@ def _handle_onnx_direct(
     if not url:
         print(f"error: registry model {model_name!r} has no url")
         return 2
+    expected_sha = _required_registry_sha256(model_name, registry_info)
 
     output_dir = Path(arguments.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -378,44 +428,40 @@ def _handle_onnx_direct(
         url_name = f"{model_name}.onnx"
     onnx_path = output_dir / url_name
     alias_path = output_dir / f"{model_name}.onnx"
-    manifest_path: Path | None = output_dir / f"{model_name}.model.json"
+    manifest_path = output_dir / f"{model_name}.model.json"
 
     if onnx_path.exists() and not arguments.overwrite:
+        _verify_or_remove(onnx_path, expected_sha256=expected_sha)
         print(f"  {onnx_path.name} already exists (use --overwrite to replace)")
     else:
         print(f"  Downloading {url} ...")
         try:
-            urllib.request.urlretrieve(url, onnx_path)
+            _download_https(url, onnx_path, expected_sha256=expected_sha)
         except Exception as error:
             raise DownloadModelError(f"download failed for {model_name}: {error}") from error
         print(f"  Saved {onnx_path}")
 
-    expected_sha = str(registry_info.get("sha256") or "").strip().lower()
-    if expected_sha:
-        actual = sha256_file(onnx_path)
-        if actual != expected_sha:
-            raise DownloadModelError(
-                f"SHA-256 mismatch for {model_name}: expected {expected_sha}, got {actual}"
-            )
-        print(f"  SHA-256 verified: {actual[:16]}…")
+    actual = _verify_or_remove(onnx_path, expected_sha256=expected_sha)
+    print(f"  SHA-256 verified: {actual[:16]}…")
 
     # Convenience alias when URL basename differs from the registry key.
-    if alias_path.resolve() != onnx_path.resolve() and (
-        not alias_path.exists() or arguments.overwrite
-    ):
-        try:
-            if alias_path.exists():
-                alias_path.unlink()
-            # Hard link when possible; fall back to copy.
+    if alias_path.resolve() != onnx_path.resolve():
+        if alias_path.exists() and not arguments.overwrite:
+            _verify_or_remove(alias_path, expected_sha256=expected_sha)
+        else:
             try:
-                alias_path.hardlink_to(onnx_path)
-            except OSError:
-                import shutil
+                if alias_path.exists():
+                    alias_path.unlink()
+                # Hard link when possible; fall back to copy.
+                try:
+                    alias_path.hardlink_to(onnx_path)
+                except OSError:
+                    import shutil
 
-                shutil.copy2(onnx_path, alias_path)
-            print(f"  Alias: {alias_path.name} -> {onnx_path.name}")
-        except OSError as error:
-            print(f"  (could not create alias {alias_path.name}: {error})")
+                    shutil.copy2(onnx_path, alias_path)
+                print(f"  Alias: {alias_path.name} -> {onnx_path.name}")
+            except OSError as error:
+                print(f"  (could not create alias {alias_path.name}: {error})")
 
     classes = arguments.classes
     if classes is None:
@@ -424,13 +470,14 @@ def _handle_onnx_direct(
     license_name = arguments.license or str(registry_info.get("license") or "AGPL-3.0-only")
     origin = arguments.origin or url
     image_size = int(registry_info.get("imgsz") or arguments.image_size)
+    manifest_to_print: Path | None = manifest_path
 
     if classes is None:
         # ONNX-direct entries with no class metadata skip the manifest entirely;
         # unlike the .pt paths, create_manifest(classes=None) must NOT apply COCO
         # defaults here — these models (EdgeSAM etc.) have no COCO task mapping.
         print("  Skipping manifest (no classes in registry; pass --classes to create one)")
-        manifest_path = None
+        manifest_to_print = None
     elif manifest_path.exists() and not arguments.overwrite:
         print(f"  {manifest_path.name} already exists (use --overwrite to replace)")
     else:
@@ -449,13 +496,14 @@ def _handle_onnx_direct(
             classes=classes,
         )
         print(f"  Saved {manifest_path}")
+        manifest_to_print = manifest_path
 
     files = [onnx_path]
     if alias_path.exists() and alias_path.resolve() != onnx_path.resolve():
         files.append(alias_path)
-    if manifest_path is not None and manifest_path.exists():
-        files.append(manifest_path)
-    return _print_done(output_dir, files, onnx_path, manifest_path)
+    if manifest_to_print is not None and manifest_to_print.exists():
+        files.append(manifest_to_print)
+    return _print_done(output_dir, files, onnx_path, manifest_to_print)
 
 
 def _print_done(

@@ -328,6 +328,27 @@ class CloudInstallDependenciesTests(unittest.TestCase):
                 install_dependencies(gpu=False)
                 mock_run.assert_not_called()
 
+    def test_dependency_install_uses_trusted_shell_free_allowlisted_command(self) -> None:
+        from cs2_vision_access.training.cloud import deps
+
+        with patch.object(deps, "run") as mock_run:
+            deps._install_allowed_packages(["onnx", "ultralytics"])
+
+        command = mock_run.call_args.args[0]
+        self.assertTrue(Path(command[0]).is_absolute())
+        self.assertEqual(command[1:5], ["-m", "pip", "install", "-q"])
+        self.assertEqual(command[5:], ["onnx", "ultralytics"])
+        self.assertEqual(mock_run.call_args.kwargs["shell"], False)
+        self.assertGreater(mock_run.call_args.kwargs["timeout"], 0)
+
+    def test_dependency_install_rejects_non_allowlisted_package(self) -> None:
+        from cs2_vision_access.training.cloud import deps
+
+        with patch.object(deps, "run") as mock_run:
+            with self.assertRaisesRegex(RuntimeError, "unapproved packages"):
+                deps._install_allowed_packages(["onnx", "--requirement=/tmp/unsafe.txt"])
+        mock_run.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -109,6 +109,7 @@ def decode(
     if cuda_available() and hasattr(raw, "__cuda_array_interface__"):
         try:
             return decode_gpu(raw, num_classes, orig_w, orig_h, det_size)
-        except Exception:
+        except (ImportError, RuntimeError):
+            # A missing CUDA backend or failed kernel falls back to NumPy.
             pass
     return decode_cpu(raw, num_classes, orig_w, orig_h, det_size)

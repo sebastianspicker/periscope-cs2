@@ -1,7 +1,7 @@
 #include "strategies/pair_util.hpp"
 
 #include <cstdio>
-#include <cstring>
+#include <algorithm>
 
 namespace strategies {
 
@@ -25,11 +25,11 @@ int entity_count_via_handle(sim::World& w, std::uint32_t reader,
     return -1;
   }
   auto r = w.read_mem(reader, game, g->base, 4, true);
-  if (r.status != ac::Status::Ok || r.bytes.size() < 4) {
+  if (r.status != ac::Status::Ok || r.bytes.size() != sizeof(std::uint32_t)) {
     return -1;
   }
   std::uint32_t c = 0;
-  std::memcpy(&c, r.bytes.data(), 4);
+  std::copy_n(r.bytes.begin(), sizeof(c), reinterpret_cast<std::uint8_t*>(&c));
   return static_cast<int>(c);
 }
 

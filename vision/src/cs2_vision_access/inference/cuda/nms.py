@@ -133,8 +133,9 @@ def nms(
     if cuda_available():
         try:
             return _nms_gpu(boxes, scores, iou_threshold)
-        except Exception:
-            pass  # Fall through to CPU
+        except (ImportError, RuntimeError):
+            # A missing CUDA backend or failed kernel falls through to NumPy.
+            pass
     return _nms_cpu(boxes, scores, iou_threshold)
 
 

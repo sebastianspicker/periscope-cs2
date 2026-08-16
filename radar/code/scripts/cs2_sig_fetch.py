@@ -8,6 +8,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 from cs2_sig_common import (
     CRITICAL_GLOBALS,
@@ -15,6 +16,47 @@ from cs2_sig_common import (
     FIELD_MAP,
     GLOBAL_KEYS,
 )
+
+_ALLOWED_SOURCE_HOST = "raw.githubusercontent.com"
+_ALLOWED_SOURCE_PATH_PREFIX = "/a2x/cs2-dumper/"
+
+
+def validate_source_url(url: str) -> None:
+    """Require the pinned HTTPS cs2-dumper source before opening a URL."""
+    parsed = urlparse(url)
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise ValueError(f"invalid source URL port: {url!r}") from exc
+    if parsed.scheme != "https":
+        raise ValueError("CS2 dump source must use HTTPS")
+    if parsed.username or parsed.password:
+        raise ValueError("CS2 dump source must not include URL credentials")
+    if parsed.hostname != _ALLOWED_SOURCE_HOST or port not in (None, 443):
+        raise ValueError(
+            f"CS2 dump source must be {_ALLOWED_SOURCE_HOST} over HTTPS"
+        )
+    if not parsed.path.startswith(_ALLOWED_SOURCE_PATH_PREFIX):
+        raise ValueError(
+            "CS2 dump source must stay within the a2x/cs2-dumper repository path"
+        )
+
+
+class _PinnedSourceRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Reject redirect targets outside the pinned HTTPS source before retrieval."""
+
+    def redirect_request(  # type: ignore[override]
+        self,
+        req: urllib.request.Request,
+        fp: Any,
+        code: int,
+        msg: str,
+        headers: Any,
+        newurl: str,
+    ) -> urllib.request.Request | None:
+        validate_source_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
 
 def load_json_bytes(data: bytes) -> dict:
     """Parse UTF-8 JSON bytes into a dict. Raises ValueError on bad input."""
@@ -153,7 +195,8 @@ def diff_snapshots(old: dict | None, new: dict) -> list[str]:
     for section in ("globals", "fields", "constants"):
         a = old.get(section) if isinstance(old.get(section), dict) else {}
         b = new.get(section) if isinstance(new.get(section), dict) else {}
-        assert isinstance(a, dict) and isinstance(b, dict)
+        if not isinstance(a, dict) or not isinstance(b, dict):
+            raise RuntimeError(f"snapshot section {section} must be a JSON object")
         keys = sorted(set(a) | set(b))
         for k in keys:
             av, bv = a.get(k), b.get(k)
@@ -180,11 +223,16 @@ def snapshot_values_equal(a: dict | None, b: dict | None) -> bool:
     ]
 
 def fetch(url: str, timeout: float = 60.0) -> bytes:
+    """Fetch a pinned cs2-dumper JSON URL, rejecting unsafe redirect targets."""
+    validate_source_url(url)
+    if timeout <= 0:
+        raise ValueError("fetch timeout must be positive")
     req = urllib.request.Request(
         url, headers={"User-Agent": "ac-lab-offset-updater/1.0"}
     )
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        opener = urllib.request.build_opener(_PinnedSourceRedirectHandler())
+        with opener.open(req, timeout=timeout) as resp:
             data = resp.read()
     except urllib.error.HTTPError as exc:
         raise RuntimeError(
@@ -194,6 +242,8 @@ def fetch(url: str, timeout: float = 60.0) -> bytes:
         raise RuntimeError(f"Failed to fetch {url}: {exc.reason}") from exc
     except TimeoutError as exc:
         raise RuntimeError(f"Timed out fetching {url}") from exc
+    except ValueError as exc:
+        raise RuntimeError(f"Rejected unsafe CS2 dump URL {url}: {exc}") from exc
     if not data:
         raise RuntimeError(f"Empty response from {url}")
     return data

@@ -88,12 +88,19 @@ def auto_configure(
         if candidate == "dml" and not info["has_dml"]:
             continue
 
-        try:
-            result = benchmark_device(model_path, device=candidate, n_warmup=5, n_bench=20)
-            if result["fps"] > best_fps:
-                best = {"device": candidate}
-                best_fps = result["fps"]
-        except Exception:
+        result = _benchmark_candidate(model_path, candidate)
+        if result is None:
             continue
+        if result["fps"] > best_fps:
+            best = {"device": candidate}
+            best_fps = result["fps"]
 
     return best
+
+
+def _benchmark_candidate(model_path: str | Path, candidate: str) -> dict[str, Any] | None:
+    """Return a benchmark result, treating unavailable backends as non-candidates."""
+    try:
+        return benchmark_device(model_path, device=candidate, n_warmup=5, n_bench=20)
+    except (OSError, RuntimeError, TypeError, ValueError):
+        return None

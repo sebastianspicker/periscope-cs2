@@ -1,25 +1,43 @@
 #include "cs2/simulator.hpp"
 #include "cs2/schema.hpp"
 
-#include <cstring>
+#include <algorithm>
+#include <array>
+#include <bit>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace cs2 {
 
 namespace {
 constexpr std::size_t kMaxPlayerName = 128;
+
+template <typename T>
+bool decode_scalar(const std::vector<std::uint8_t>& buffer, T* out) {
+  static_assert(std::is_trivially_copyable_v<T>);
+  if (out == nullptr || buffer.size() != sizeof(T)) return false;
+  std::array<std::uint8_t, sizeof(T)> bytes{};
+  std::copy_n(buffer.begin(), bytes.size(), bytes.begin());
+  *out = std::bit_cast<T>(bytes);
+  return true;
+}
 }  // namespace
 
 bool Cs2GameReader::read_raw(std::uint32_t reader_pid, std::uint64_t address,
                              std::vector<std::uint8_t>& out, std::size_t size,
                              bool require_handle) {
+  if (world == nullptr) return false;
   if (const auto* game = world->proc(game_pid); game && address < game->base) {
     address += game->base;
   }
   auto result =
       world->read_mem(reader_pid, game_pid, address, size, require_handle);
-  if (result.status != ac::Status::Ok) return false;
+  // A successful transport result is not sufficient for a typed caller: every
+  // subsequent decode assumes the requested extent is present.
+  if (result.status != ac::Status::Ok || result.bytes.size() != size) {
+    return false;
+  }
   out = std::move(result.bytes);
   return true;
 }
@@ -28,9 +46,8 @@ int Cs2GameReader::read_int(std::uint32_t reader_pid, std::uint64_t address,
                             bool require_handle) {
   std::vector<std::uint8_t> buffer;
   int value = 0;
-  if (read_raw(reader_pid, address, buffer, sizeof(value), require_handle)) {
-    std::memcpy(&value, buffer.data(), sizeof(value));
-  }
+  (void)(read_raw(reader_pid, address, buffer, sizeof(value), require_handle) &&
+         decode_scalar(buffer, &value));
   return value;
 }
 
@@ -38,9 +55,8 @@ float Cs2GameReader::read_float(std::uint32_t reader_pid, std::uint64_t address,
                                 bool require_handle) {
   std::vector<std::uint8_t> buffer;
   float value = 0;
-  if (read_raw(reader_pid, address, buffer, sizeof(value), require_handle)) {
-    std::memcpy(&value, buffer.data(), sizeof(value));
-  }
+  (void)(read_raw(reader_pid, address, buffer, sizeof(value), require_handle) &&
+         decode_scalar(buffer, &value));
   return value;
 }
 
@@ -48,18 +64,18 @@ uint64_t Cs2GameReader::read_ptr(std::uint32_t reader_pid, std::uint64_t address
                                  bool require_handle) {
   std::vector<std::uint8_t> buffer;
   uint64_t value = 0;
-  if (read_raw(reader_pid, address, buffer, sizeof(value), require_handle)) {
-    std::memcpy(&value, buffer.data(), sizeof(value));
-  }
+  (void)(read_raw(reader_pid, address, buffer, sizeof(value), require_handle) &&
+         decode_scalar(buffer, &value));
   return value;
 }
 
 void Cs2GameReader::read_buf(std::uint32_t reader_pid, std::uint64_t address,
                              void* out, std::size_t size, bool require_handle) {
+  if (out == nullptr && size != 0) return;
   std::vector<std::uint8_t> buffer;
   if (read_raw(reader_pid, address, buffer, size, require_handle) &&
       buffer.size() >= size) {
-    std::memcpy(out, buffer.data(), size);
+    std::copy_n(buffer.begin(), size, static_cast<std::uint8_t*>(out));
   }
 }
 

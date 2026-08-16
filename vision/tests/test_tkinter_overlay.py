@@ -208,14 +208,12 @@ class TkinterBackendOpenTests(unittest.TestCase):
         self.assertEqual(root.focus_force_calls, 1)
         self.assertTrue(any(c[0] == "-transparentcolor" for c in root.attributes_calls))
 
-    def test_open_survives_missing_bind_and_focus_force(self) -> None:
+    def test_open_propagates_broken_root_interface(self) -> None:
         root = _BareRoot()
         with patch.dict(sys.modules, {"tkinter": _make_fake_tk(root)}):
             backend = TkinterOverlayBackend()
-            backend.open(320, 240)
-        self.assertTrue(backend.is_open)
-        self.assertIs(backend._root, root)
-        self.assertTrue(any(c[0] == "-transparentcolor" for c in root.attributes_calls))
+            with self.assertRaises(AttributeError):
+                backend.open(320, 240)
 
 
 if __name__ == "__main__":

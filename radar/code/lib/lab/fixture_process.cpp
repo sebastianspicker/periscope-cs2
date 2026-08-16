@@ -4,7 +4,10 @@
 #include "lab/fixture_process.hpp"
 
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <cstring>
+#include <limits>
 #include <map>
 #include <mutex>
 
@@ -13,6 +16,20 @@ namespace {
 
 std::mutex g_registry_mu;
 std::map<std::uint32_t, FixtureProcess*> g_registry;
+constexpr std::size_t kMaxFixtureImageBytes = 128u * 1024u * 1024u;
+
+bool range_fits(std::uint64_t address, std::uint64_t base,
+                std::size_t size, std::size_t extent,
+                std::size_t* offset) {
+  if (address < base) return false;
+  const auto delta = address - base;
+  if (delta > std::numeric_limits<std::size_t>::max()) return false;
+  const auto start = static_cast<std::size_t>(delta);
+  if (size > std::numeric_limits<std::size_t>::max() - start) return false;
+  if (start > extent || size > extent - start) return false;
+  *offset = start;
+  return true;
+}
 
 }  // namespace
 
@@ -27,22 +44,24 @@ FixtureProcess::FixtureProcess(std::uint32_t id) : id_(id) {
 void FixtureProcess::write_bytes(std::uint64_t address,
                                  std::span<const std::uint8_t> data) {
   if (address < base_) return;
-  const auto off = static_cast<std::size_t>(address - base_);
-  if (off + data.size() > image_.size()) {
-    image_.resize(off + data.size());
+  const auto delta = address - base_;
+  if (delta > std::numeric_limits<std::size_t>::max()) return;
+  const auto off = static_cast<std::size_t>(delta);
+  if (data.size() > std::numeric_limits<std::size_t>::max() - off) return;
+  const auto end = off + data.size();
+  if (end > kMaxFixtureImageBytes) return;
+  if (end > image_.size()) {
+    image_.resize(end);
   }
-  std::memcpy(image_.data() + off, data.data(), data.size());
+  std::copy(data.begin(), data.end(), image_.begin() +
+                                      static_cast<std::ptrdiff_t>(off));
 }
 
 ac::ReadResult FixtureProcess::read_bytes(std::uint64_t address,
                                           std::size_t size) const {
   ac::ReadResult out;
-  if (address < base_) {
-    out.status = ac::Status::InvalidArgument;
-    return out;
-  }
-  const auto off = static_cast<std::size_t>(address - base_);
-  if (off + size > image_.size()) {
+  std::size_t off = 0;
+  if (!range_fits(address, base_, size, image_.size(), &off)) {
     out.status = ac::Status::InvalidArgument;
     return out;
   }
@@ -65,12 +84,18 @@ void FixtureProcess::plant_synthetic_entities() {
 }
 
 void FixtureProcess::plant_entities(const std::vector<FixtureEntity>& entities) {
-  std::uint32_t count = static_cast<std::uint32_t>(entities.size());
+  const auto count = static_cast<std::uint32_t>(
+      std::min<std::size_t>(entities.size(),
+                            std::numeric_limits<std::uint32_t>::max()));
   write_bytes(base_ + 0x00,
               {reinterpret_cast<const std::uint8_t*>(&count),
                reinterpret_cast<const std::uint8_t*>(&count) + sizeof(count)});
 
   // Clear a generous span then write entities.
+  if (entities.size() >
+      std::numeric_limits<std::size_t>::max() / sizeof(FixtureEntity)) {
+    return;
+  }
   const std::size_t table_bytes = entities.size() * sizeof(FixtureEntity);
   if (table_bytes > 0) {
     std::vector<std::uint8_t> zeros(table_bytes, 0);
@@ -142,21 +167,26 @@ std::uint32_t FixtureProcess::entity_count() const {
     return 0;
   }
   std::uint32_t count = 0;
-  std::memcpy(&count, rr.bytes.data(), sizeof(count));
-  return count;
+  std::array<std::uint8_t, sizeof(count)> bytes{};
+  std::copy_n(rr.bytes.begin(), bytes.size(), bytes.begin());
+  return std::bit_cast<std::uint32_t>(bytes);
 }
 
 std::vector<FixtureEntity> FixtureProcess::read_entities() const {
   const auto count = entity_count();
   std::vector<FixtureEntity> out;
   if (count == 0 || count > 256) return out;
-  auto rr = read_bytes(base_ + 0x10, count * sizeof(FixtureEntity));
+  static_assert(256 <=
+                std::numeric_limits<std::size_t>::max() / sizeof(FixtureEntity));
+  const auto byte_count = static_cast<std::size_t>(count) * sizeof(FixtureEntity);
+  auto rr = read_bytes(base_ + 0x10, byte_count);
   if (rr.status != ac::Status::Ok ||
-      rr.bytes.size() < count * sizeof(FixtureEntity)) {
+      rr.bytes.size() != byte_count) {
     return out;
   }
   out.resize(count);
-  std::memcpy(out.data(), rr.bytes.data(), count * sizeof(FixtureEntity));
+  std::copy(rr.bytes.begin(), rr.bytes.end(),
+            reinterpret_cast<std::uint8_t*>(out.data()));
   return out;
 }
 

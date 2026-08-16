@@ -38,6 +38,55 @@ def _format_dataset_yaml(data_dir: Path, classes: Mapping[int, str]) -> str:
     )
 
 
+def create_space_dataset_yaml(data_dir: str | Path) -> Path:
+    """Replace uploaded metadata with the Space's fixed local manifest.
+
+    The public upload boundary must not pass user-controlled YAML to
+    Ultralytics: its dataset loader supports operational keys such as
+    ``download``.  The Space only supports the product's four fixed classes,
+    so validate extracted labels against that class map and overwrite any
+    uploaded ``dataset.yaml`` rather than parsing or merging it.
+
+    Raises:
+        ValueError: The extracted dataset has no images or labels, or a label
+            references a class outside :data:`DEFAULT_CLASSES`.
+    """
+    root = Path(data_dir)
+    images_dir = root / "images"
+    labels_dir = root / "labels"
+    image_count = _count_images(images_dir)
+    label_paths = sorted(path for path in labels_dir.glob("*.txt") if path.is_file())
+    if image_count == 0:
+        raise ValueError("dataset contains no supported images")
+    if not label_paths:
+        raise ValueError("dataset contains no .txt labels")
+
+    valid_class_ids = set(DEFAULT_CLASSES)
+    for label_path in label_paths:
+        try:
+            lines = label_path.read_text(encoding="utf-8").splitlines()
+        except UnicodeDecodeError as exc:
+            raise ValueError(f"label is not valid UTF-8: {label_path.name}") from exc
+        for line_number, line in enumerate(lines, start=1):
+            fields = line.split()
+            if not fields:
+                continue
+            class_token = fields[0]
+            if not class_token.isdecimal():
+                raise ValueError(
+                    f"invalid class id in {label_path.name}:{line_number}: {class_token!r}"
+                )
+            class_id = int(class_token)
+            if class_id not in valid_class_ids:
+                raise ValueError(
+                    f"unsupported class id in {label_path.name}:{line_number}: {class_id}"
+                )
+
+    yaml_path = root / "dataset.yaml"
+    yaml_path.write_text(_format_dataset_yaml(root, DEFAULT_CLASSES), encoding="utf-8")
+    return yaml_path
+
+
 def _ensure_dataset_yaml(
     data_dir: Path,
     classes: Mapping[int, str] | Mapping[str, str] | None = None,

@@ -2,8 +2,11 @@
 #include "cs2/schema.hpp"
 
 #include <algorithm>
-#include <cstring>
+#include <array>
+#include <bit>
+#include <limits>
 #include <string>
+#include <type_traits>
 
 #include "real/win/xorstr.hpp"
 
@@ -17,31 +20,48 @@ constexpr uintptr_t kEntityChunkSize =
 constexpr std::size_t kGameMemorySize = 0x800000;
 constexpr std::size_t kMaxPlayerName = 128;
 
-void ensure_size(std::vector<std::uint8_t>& memory, std::size_t size) {
-  if (memory.size() < size) memory.resize(size, 0);
+bool ensure_size(std::vector<std::uint8_t>& memory, uintptr_t offset,
+                 std::size_t size) {
+  if (offset > std::numeric_limits<std::size_t>::max()) return false;
+  const auto start = static_cast<std::size_t>(offset);
+  if (size > std::numeric_limits<std::size_t>::max() - start) return false;
+  const auto end = start + size;
+  if (memory.size() < end) memory.resize(end, 0);
+  return true;
+}
+
+bool ensure_size(std::vector<std::uint8_t>& memory, std::size_t size) {
+  return ensure_size(memory, 0, size);
+}
+
+template <typename T>
+void write_object(std::vector<std::uint8_t>& memory, uintptr_t offset,
+                  const T& value) {
+  static_assert(std::is_trivially_copyable_v<T>);
+  if (!ensure_size(memory, offset, sizeof(T))) return;
+  const auto bytes = std::bit_cast<std::array<std::uint8_t, sizeof(T)>>(value);
+  std::copy(bytes.begin(), bytes.end(), memory.begin() +
+                                      static_cast<std::ptrdiff_t>(offset));
 }
 
 void write_ptr(std::vector<std::uint8_t>& memory, uintptr_t offset,
                std::uint64_t value) {
-  ensure_size(memory, offset + sizeof(value));
-  std::memcpy(memory.data() + offset, &value, sizeof(value));
+  write_object(memory, offset, value);
 }
 
 void write_int(std::vector<std::uint8_t>& memory, uintptr_t offset, int value) {
-  ensure_size(memory, offset + sizeof(value));
-  std::memcpy(memory.data() + offset, &value, sizeof(value));
+  write_object(memory, offset, value);
 }
 
 void write_u8(std::vector<std::uint8_t>& memory, uintptr_t offset,
               std::uint8_t value) {
-  ensure_size(memory, offset + 1);
+  if (!ensure_size(memory, offset, 1)) return;
   memory[offset] = value;
 }
 
 void write_float(std::vector<std::uint8_t>& memory, uintptr_t offset,
                  float value) {
-  ensure_size(memory, offset + sizeof(value));
-  std::memcpy(memory.data() + offset, &value, sizeof(value));
+  write_object(memory, offset, value);
 }
 
 void write_vec3(std::vector<std::uint8_t>& memory, uintptr_t offset,
@@ -53,16 +73,21 @@ void write_vec3(std::vector<std::uint8_t>& memory, uintptr_t offset,
 
 void write_bytes(std::vector<std::uint8_t>& memory, uintptr_t offset,
                  const void* data, std::size_t size) {
-  ensure_size(memory, offset + size);
-  std::memcpy(memory.data() + offset, data, size);
+  if ((data == nullptr && size != 0) || !ensure_size(memory, offset, size)) {
+    return;
+  }
+  const auto* source = static_cast<const std::uint8_t*>(data);
+  std::copy_n(source, size,
+              memory.begin() + static_cast<std::ptrdiff_t>(offset));
 }
 
 void write_cstring(std::vector<std::uint8_t>& memory, uintptr_t offset,
                    const std::string& value, std::size_t max_len) {
-  ensure_size(memory, offset + max_len);
-  std::memset(memory.data() + offset, 0, max_len);
+  if (max_len == 0 || !ensure_size(memory, offset, max_len)) return;
+  auto destination = memory.begin() + static_cast<std::ptrdiff_t>(offset);
+  std::fill_n(destination, max_len, std::uint8_t{0});
   const std::size_t n = std::min(value.size(), max_len - 1);
-  std::memcpy(memory.data() + offset, value.data(), n);
+  std::copy_n(value.begin(), n, destination);
 }
 
 uintptr_t chunk_address(uint32_t index) {

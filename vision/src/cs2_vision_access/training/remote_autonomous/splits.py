@@ -22,6 +22,10 @@ from .models import (
 )
 
 
+class _ReproducibleSplitRng(random.Random):
+    """Non-cryptographic RNG reserved for repeatable train/validation splits."""
+
+
 def materialize_held_out_split(
     data_dir: str | Path,
     *,
@@ -44,7 +48,8 @@ def materialize_held_out_split(
     if not stems:
         raise FileNotFoundError(f"No images under {images_dir} for held-out split")
 
-    rng = random.Random(int(seed))
+    # The seed is a reproducibility contract for dataset split plans, not entropy.
+    rng = _ReproducibleSplitRng(int(seed))
     ordered = list(stems)
     rng.shuffle(ordered)
     n = len(ordered)

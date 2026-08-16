@@ -84,6 +84,14 @@ uv sync --frozen --extra dev --extra train
 uv sync --frozen --extra gpu
 ```
 
+`cs2-vision setup` downloads and exports a baseline model with Ultralytics. It
+never installs packages at runtime; provision the locked training environment
+first when that dependency is absent:
+
+```bash
+uv sync --frozen --extra train
+```
+
 Editable install comes from the `src/` layout. Console entry point:
 
 ```bash

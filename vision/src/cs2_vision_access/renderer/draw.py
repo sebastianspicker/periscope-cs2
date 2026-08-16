@@ -235,8 +235,9 @@ class OutlineRenderer:
         frame_index: int,
     ) -> tuple[np.ndarray, RenderDiagnostics]:
         """Per-instance role treatments from a multi-signifier catalog."""
-        assert self.catalog is not None
         catalog = self.catalog
+        if catalog is None:
+            raise RuntimeError("role rendering requires a treatment catalog")
         output = frame_bgr.copy()
         height, width = output.shape[:2]
         # Diagnostics report the catalog default style widths/pattern.

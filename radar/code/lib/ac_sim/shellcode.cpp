@@ -2,6 +2,9 @@
 
 #include "real/platform.hpp"
 
+#include <algorithm>
+#include <array>
+#include <bit>
 #include <cstring>
 #include <initializer_list>
 
@@ -73,14 +76,18 @@ std::size_t ShellcodeEngine::emit_plaintext(std::uint8_t* out,
         for (auto b : bytes) emit1(b);
     };
     auto emit_u32 = [&](std::uint32_t v) {
-        if (o + 4 <= cap) {
-            std::memcpy(out + o, &v, 4);
+        if (o <= cap && sizeof(v) <= cap - o) {
+            const auto bytes =
+                std::bit_cast<std::array<std::uint8_t, sizeof(v)>>(v);
+            std::copy(bytes.begin(), bytes.end(), out + o);
             o += 4;
         }
     };
     auto emit_u64 = [&](std::uint64_t v) {
-        if (o + 8 <= cap) {
-            std::memcpy(out + o, &v, 8);
+        if (o <= cap && sizeof(v) <= cap - o) {
+            const auto bytes =
+                std::bit_cast<std::array<std::uint8_t, sizeof(v)>>(v);
+            std::copy(bytes.begin(), bytes.end(), out + o);
             o += 8;
         }
     };
@@ -173,7 +180,7 @@ ShellcodeResult ShellcodeEngine::build(std::uint8_t xorKey) noexcept {
         return result;
     }
 
-    std::memcpy(result.bytes, plain, kShellcodeSize);
+    std::copy_n(plain, kShellcodeSize, result.bytes);
     Obfuscate(result.bytes, kShellcodeSize, xorKey);
     std::memset(plain, 0, sizeof(plain));
 
@@ -195,7 +202,7 @@ bool ShellcodeEngine::Materialize(const ShellcodeResult& built, std::uint8_t* ou
         built.size != kShellcodeSize || built.xorKey == 0) {
         return false;
     }
-    std::memcpy(out, built.bytes, kShellcodeSize);
+    std::copy_n(built.bytes, kShellcodeSize, out);
     Deobfuscate(out, kShellcodeSize, built.xorKey);
     return true;
 }
@@ -205,7 +212,7 @@ bool ShellcodeEngine::ArmSyscall(std::uint8_t* plain,
     if (!plain || size < kShellcodeSize) return false;
     const std::size_t site =
         static_cast<std::size_t>(SharedMemory()->reserved[0]);
-    if (site == 0 || site + 1 >= size) return false;
+    if (site == 0 || site >= size || size - site < 2) return false;
     // Split writes so a single store never materializes both signature bytes
     // as an immediate pair in the caller's instruction stream either.
     const std::uint8_t b0 = static_cast<std::uint8_t>(0x00u + 0x0Fu);

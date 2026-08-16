@@ -108,6 +108,11 @@ int main() {
     // Direct entity_count_via_handle after handle exists.
     const int via = strategies::entity_count_via_handle(w, actor, game);
     expect(via >= 0, "entity_count_via_handle >= 0");
+
+    // A short backing store cannot be decoded as a partial four-byte count.
+    w.proc(game)->memory.resize(2);
+    expect(strategies::entity_count_via_handle(w, actor, game) == -1,
+           "entity_count_via_handle rejects truncated count");
   }
 
   // ── 5. driver / device sensors ─────────────────────────────────────────

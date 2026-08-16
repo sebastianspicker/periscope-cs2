@@ -2,8 +2,51 @@
 
 from __future__ import annotations
 
-import subprocess
 import sys
+from pathlib import Path
+from subprocess import CalledProcessError, TimeoutExpired, run  # nosec B404
+
+_ALLOWED_PIP_PACKAGES = frozenset(
+    {"ultralytics", "onnx", "onnxconverter-common", "onnxruntime-gpu"}
+)
+_PIP_INSTALL_TIMEOUT_SECONDS = 300
+
+
+def _trusted_python_executable() -> str:
+    """Return the absolute interpreter path used for the fixed pip invocation."""
+    try:
+        executable = Path(sys.executable).resolve(strict=True)
+    except (OSError, TypeError) as exc:
+        raise RuntimeError("cannot resolve the active Python interpreter") from exc
+    if not executable.is_absolute() or not executable.is_file():
+        raise RuntimeError("active Python interpreter is not a trusted executable file")
+    return str(executable)
+
+
+def _install_allowed_packages(packages: list[str]) -> None:
+    """Install the fixed dependency allowlist without a shell or ambient binary."""
+    unexpected = set(packages) - _ALLOWED_PIP_PACKAGES
+    if unexpected:
+        raise RuntimeError(f"refusing to install unapproved packages: {sorted(unexpected)}")
+    command = [_trusted_python_executable(), "-m", "pip", "install", "-q", *packages]
+    try:
+        # `command` is assembled only from the validated interpreter and package allowlist above.
+        run(  # nosec B603  # nosemgrep: dangerous-subprocess-use-audit
+            command,
+            check=True,
+            shell=False,
+            timeout=_PIP_INSTALL_TIMEOUT_SECONDS,
+        )
+    except CalledProcessError as exc:
+        raise RuntimeError(
+            f"dependency installation failed with exit code {exc.returncode}"
+        ) from exc
+    except TimeoutExpired as exc:
+        raise RuntimeError(
+            f"dependency installation timed out after {_PIP_INSTALL_TIMEOUT_SECONDS} seconds"
+        ) from exc
+    except OSError as exc:
+        raise RuntimeError(f"could not start dependency installation: {exc}") from exc
 
 
 def install_dependencies(gpu: bool = True) -> None:
@@ -23,25 +66,25 @@ def install_dependencies(gpu: bool = True) -> None:
         missing.append("ultralytics")
 
     try:
-        import onnx  # noqa: F401
+        import onnx  # type: ignore[import-not-found]  # noqa: F401
     except ImportError:
         missing.append("onnx")
 
     try:
-        import onnxconverter_common  # noqa: F401
+        import onnxconverter_common  # type: ignore[import-not-found]  # noqa: F401
     except ImportError:
         missing.append("onnxconverter-common")
 
     packages = list(missing)
     if gpu:
         try:
-            import onnxruntime  # noqa: F401
+            import onnxruntime  # type: ignore[import-untyped]  # noqa: F401
 
             # If ORT is present but may be CPU-only; still try GPU package when requested.
             # Skip reinstall only when we already have a working CUDA EP (best-effort).
             providers: list[str] = []
             try:
-                providers = list(onnxruntime.get_available_providers())  # type: ignore[attr-defined]
+                providers = list(onnxruntime.get_available_providers())
             except Exception:
                 providers = []
             if "CUDAExecutionProvider" not in providers:
@@ -51,10 +94,7 @@ def install_dependencies(gpu: bool = True) -> None:
 
     if packages:
         print(f"Installing dependencies: {', '.join(packages)}...")
-        subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-q", *packages],
-            check=True,
-        )
+        _install_allowed_packages(packages)
         print("✓ dependencies installed")
     else:
         print("✓ ultralytics / onnx / onnxconverter-common already installed")

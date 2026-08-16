@@ -214,7 +214,9 @@ class Cs2SamSegmenter:
                         )
                     )
                 return results
-            except Exception:
+            except (ImportError, RuntimeError):
+                # The optional CUDA path is an optimization; use the detector
+                # session below when its backend cannot initialize or execute.
                 pass
 
         # CPU path.
@@ -374,5 +376,5 @@ class Cs2SamSegmenter:
             import logging
 
             logging.getLogger(__name__).info("GPU inference pipeline enabled for Vombit detection")
-        except Exception:
+        except (ImportError, RuntimeError):
             self._gpu_pipeline = None

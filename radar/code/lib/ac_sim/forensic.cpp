@@ -31,6 +31,20 @@
 namespace sim {
 namespace {
 
+std::size_t bounded_wide_length(const wchar_t* value,
+                                std::size_t capacity) noexcept {
+    if (!value) return 0;
+    std::size_t length = 0;
+    while (length < capacity && value[length] != L'\0') ++length;
+    return length;
+}
+
+wchar_t lower_ascii(wchar_t value) noexcept {
+    return value >= L'A' && value <= L'Z'
+               ? static_cast<wchar_t>(value + (L'a' - L'A'))
+               : value;
+}
+
 // FNV-1a hash of a narrow string (used for Prefetch file matching)
 uint32_t fnv1a(const char* str) noexcept {
     uint32_t hash = 0x811C9DC5u;
@@ -46,8 +60,11 @@ uint32_t fnv1a(const char* str) noexcept {
 // We compute a match by checking if the .pf filename starts with our
 // process name (case-insensitive).
 bool prefetch_matches_our_name(const wchar_t* filename, const wchar_t* exeNameLower) noexcept {
+    if (!filename || !exeNameLower) return false;
     // Compare up to the '-' separator between name and hash
-    size_t exeLen = wcslen(exeNameLower);
+    constexpr std::size_t kExeNameCapacity = 64;
+    const size_t exeLen = bounded_wide_length(exeNameLower, kExeNameCapacity);
+    if (exeLen == 0 || exeLen == kExeNameCapacity) return false;
     for (size_t i = 0; i < exeLen; ++i) {
         if (filename[i] == L'-' || filename[i] == L'.' || filename[i] == L'\0')
             return false;  // Name too short
@@ -60,6 +77,7 @@ bool prefetch_matches_our_name(const wchar_t* filename, const wchar_t* exeNameLo
 
 // Convert exe path to lowercase base name for comparison
 void exe_base_name_lower(const wchar_t* fullPath, wchar_t* out, size_t outLen) noexcept {
+    if (!fullPath || !out || outLen == 0) return;
     // Find last backslash or colon
     const wchar_t* base = fullPath;
     for (const wchar_t* p = fullPath; *p; ++p) {
@@ -77,9 +95,15 @@ void exe_base_name_lower(const wchar_t* fullPath, wchar_t* out, size_t outLen) n
 
 // Get our own executable path
 void get_own_exe_path(wchar_t* out, size_t outLen) noexcept {
+    if (!out || outLen == 0) return;
     out[0] = L'\0';
 #if LR_PLATFORM_WINDOWS
-    ::GetModuleFileNameW(nullptr, out, static_cast<DWORD>(outLen));
+    const auto copied = ::GetModuleFileNameW(nullptr, out, static_cast<DWORD>(outLen));
+    if (copied == 0 || copied >= outLen) {
+        out[0] = L'\0';
+        return;
+    }
+    out[copied] = L'\0';
 #endif
 }
 
@@ -215,11 +239,17 @@ bool ForensicEngine::clean_recent_items() noexcept {
         if (!match) continue;
 
         // Delete matching .lnk file
-        wchar_t fullPath[MAX_PATH]{};
-        recentPath[wcslen(recentPath) - 1] = L'\0';  // Remove trailing *
-        wcscpy_s(fullPath, recentPath);
-        wcscat_s(fullPath, findData.cFileName);
-        ::DeleteFileW(fullPath);
+        constexpr std::size_t kPathCapacity = MAX_PATH;
+        const auto recentLen = bounded_wide_length(recentPath, kPathCapacity);
+        const auto nameLen = bounded_wide_length(findData.cFileName, kPathCapacity);
+        if (recentLen == 0 || recentLen == kPathCapacity ||
+            recentPath[recentLen - 1] != L'*' || nameLen == kPathCapacity ||
+            nameLen > kPathCapacity - recentLen) {
+            continue;
+        }
+        std::wstring fullPath(recentPath, recentLen - 1);  // Exclude trailing *.
+        fullPath.append(findData.cFileName, nameLen);
+        ::DeleteFileW(fullPath.c_str());
     } while (::FindNextFileW(hFind, &findData));
 
     ::FindClose(hFind);
@@ -282,16 +312,17 @@ bool ForensicEngine::clean_mui_cache() noexcept {
         }
         // Also check if value ends with our exe name
         if (!match) {
-            size_t exeLen = wcslen(exePath);
-            size_t valLen = wcslen(valueName);
-            if (valLen > exeLen) {
+            const size_t exeLen = bounded_wide_length(exePath, MAX_PATH);
+            const size_t valLen = std::min<std::size_t>(
+                valueNameLen, sizeof(valueName) / sizeof(valueName[0]));
+            if (exeLen != 0 && exeLen < MAX_PATH && valLen >= exeLen) {
                 const wchar_t* suffix = valueName + valLen - exeLen;
                 match = true;
                 for (size_t i = 0; i < exeLen; ++i) {
                     wchar_t ca = exePath[i];
                     wchar_t cb = suffix[i];
-                    if (ca >= L'A' && ca <= L'Z') ca += 32;
-                    if (cb >= L'A' && cb <= L'Z') cb += 32;
+                    ca = lower_ascii(ca);
+                    cb = lower_ascii(cb);
                     if (ca != cb) { match = false; break; }
                 }
             }
@@ -355,7 +386,9 @@ bool ForensicEngine::clean_user_assist() noexcept {
                 // The value name contains the full path to the executable.
                 // Decode ROT-13 to check for our exe path.
                 wchar_t decoded[512]{};
-                for (size_t i = 0; i < vnLen && i < 511; ++i) {
+                const size_t decodedLen = std::min<std::size_t>(
+                    vnLen, (sizeof(decoded) / sizeof(decoded[0])) - 1);
+                for (size_t i = 0; i < decodedLen; ++i) {
                     wchar_t c = valueName[i];
                     if (c >= L'A' && c <= L'Z')
                         decoded[i] = (c - L'A' + 13) % 26 + L'A';
@@ -364,15 +397,14 @@ bool ForensicEngine::clean_user_assist() noexcept {
                     else
                         decoded[i] = c;
                 }
-                decoded[vnLen] = L'\0';
+                decoded[decodedLen] = L'\0';
 
                 // Check if decoded value name contains our exe path
                 bool match = (wcsstr(decoded, exePath) != nullptr);
                 if (!match) {
                     // Also check if decoded ends with our exe base name
-                    size_t decodedLen = wcslen(decoded);
-                    size_t exeLen = wcslen(exePath);
-                    if (decodedLen > exeLen) {
+                    const size_t exeLen = bounded_wide_length(exePath, MAX_PATH);
+                    if (exeLen != 0 && exeLen < MAX_PATH && decodedLen >= exeLen) {
                         const wchar_t* suffix = decoded + decodedLen - exeLen;
                         match = (_wcsicmp(suffix, exePath) == 0);
                     }

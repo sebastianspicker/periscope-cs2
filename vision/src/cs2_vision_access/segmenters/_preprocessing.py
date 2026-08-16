@@ -84,7 +84,7 @@ def box_to_sam_prompt(
             [x2 * scale_x, y2 * scale_y],
         ],
         dtype=np.float32,
-    ).reshape(1, 2, 2)
+    ).reshape((1, 2, 2))
 
     labels = np.array([[2, 3]], dtype=np.float32)
     return coords, labels
@@ -168,8 +168,11 @@ def mask_to_polygon(
             result = gpu_mask_to_polygon(mask.astype(np.float32), epsilon=epsilon)
             if result is not None and result:
                 return result
-    except Exception:
-        pass  # Fall through to CPU
+    except (ImportError, RuntimeError):
+        # CuPy/CUDA setup or a launched kernel can be unavailable at runtime.
+        # Keep the OpenCV result as the portable fallback, but surface data and
+        # programming errors from the GPU path instead of hiding them.
+        pass
 
     # CPU fallback.
     binary = (mask > 0).astype(np.uint8) * 255

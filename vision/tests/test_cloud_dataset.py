@@ -14,6 +14,7 @@ from cs2_vision_access.training.cloud import (
     extract_dataset,
 )
 from cs2_vision_access.training.dataset_zip import (
+    ZipExtractionLimits,
     count_images,
     count_labels,
     is_unsafe_zip_member,
@@ -67,6 +68,71 @@ class DatasetZipHelpersTests(unittest.TestCase):
                 zf.writestr("../escape.txt", b"nope")
             with zipfile.ZipFile(zip_path, "r") as zf, self.assertRaises(ValueError):
                 safe_extract_zip(zf, out)
+
+    def test_safe_extract_zip_rejects_member_count_before_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            zip_path = root / "many.zip"
+            out = root / "out"
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr("images/a.jpg", b"a")
+                zf.writestr("labels/a.txt", b"0")
+            limits = ZipExtractionLimits(
+                max_members=1,
+                max_member_uncompressed_bytes=10,
+                max_total_uncompressed_bytes=10,
+                max_compression_ratio=10,
+            )
+            with (
+                zipfile.ZipFile(zip_path, "r") as zf,
+                self.assertRaisesRegex(ValueError, "members"),
+            ):
+                safe_extract_zip(zf, out, limits)
+            self.assertFalse(out.exists())
+
+    def test_safe_extract_zip_rejects_expansion_limits_before_writing(self) -> None:
+        cases = (
+            (
+                "member.zip",
+                (("images/a.jpg", b"abcd"),),
+                ZipExtractionLimits(2, 3, 10, 10),
+                "expanded-size",
+            ),
+            (
+                "total.zip",
+                (("images/a.jpg", b"abc"), ("labels/a.txt", b"def")),
+                ZipExtractionLimits(2, 4, 5, 10),
+                "total expanded-size",
+            ),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name, members, limits, error in cases:
+                with self.subTest(name=name):
+                    zip_path = root / name
+                    out = root / f"{name}.out"
+                    with zipfile.ZipFile(zip_path, "w") as zf:
+                        for member_name, payload in members:
+                            zf.writestr(member_name, payload)
+                    with zipfile.ZipFile(zip_path, "r") as zf, self.assertRaisesRegex(
+                        ValueError, error
+                    ):
+                        safe_extract_zip(zf, out, limits)
+                    self.assertFalse(out.exists())
+
+    def test_safe_extract_zip_rejects_compression_bomb_before_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            zip_path = root / "bomb.zip"
+            out = root / "out"
+            with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+                zf.writestr("images/repeated.jpg", b"x" * 4_096)
+            limits = ZipExtractionLimits(2, 8_192, 8_192, 2)
+            with zipfile.ZipFile(zip_path, "r") as zf, self.assertRaisesRegex(
+                ValueError, "compression-ratio"
+            ):
+                safe_extract_zip(zf, out, limits)
+            self.assertFalse(out.exists())
 
 
 class CloudExtractDatasetTests(unittest.TestCase):

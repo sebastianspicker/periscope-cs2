@@ -128,7 +128,8 @@ def _handle_bakeoff(arguments: argparse.Namespace) -> int:
                 raise BakeoffError("config device must be a non-empty string")
             device = raw_d.strip()
     else:
-        assert backends_csv is not None
+        if backends_csv is None:
+            raise BakeoffError("bakeoff requires --backends when --config is absent")
         names = parse_backends_csv(backends_csv)
         specs = specs_from_cli_pairs(
             names,

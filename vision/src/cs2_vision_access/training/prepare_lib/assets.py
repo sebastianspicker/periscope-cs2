@@ -2,8 +2,16 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
 from urllib.parse import unquote, urlparse
+
+from cs2_vision_access.cli.handlers._model_ops import (
+    download_verified_https,
+    require_https_download_url,
+    require_sha256,
+    verify_sha256_file,
+)
 
 # Expected basenames (used in discovery error messages and preference order).
 _DETECTOR_PREFERRED = (
@@ -26,6 +34,43 @@ _EDGESAM_DOWNLOAD_KEYS = (
     "edgesam-encoder",
     "edgesam-decoder",
 )
+
+
+def _require_https_download_url(url: str) -> str:
+    """Return a safe HTTPS download URL or raise ``FileNotFoundError``."""
+    try:
+        return require_https_download_url(url)
+    except ValueError as exc:
+        raise FileNotFoundError(f"invalid HTTPS download URL: {url!r}") from exc
+    except Exception as exc:
+        raise FileNotFoundError(str(exc)) from exc
+
+
+def _required_registry_sha256(key: str, info: Mapping[str, object]) -> str:
+    """Return a registry pin or fail before any EdgeSAM artifact is consumed."""
+    try:
+        return require_sha256(str(info.get("sha256") or ""))
+    except Exception as exc:
+        raise FileNotFoundError(f"model registry entry {key!r} has no valid SHA-256 pin") from exc
+
+
+def _download_https(url: str, dest: Path, *, expected_sha256: str) -> str:
+    """Download, verify, and atomically promote a pinned HTTPS model artifact."""
+    try:
+        download_url = require_https_download_url(url)
+        expected = require_sha256(expected_sha256)
+        return download_verified_https(download_url, dest, expected_sha256=expected)
+    except Exception as exc:
+        raise FileNotFoundError(str(exc)) from exc
+
+
+def _verify_or_remove(path: Path, *, expected_sha256: str) -> str:
+    """Delete a mismatched registry artifact before any runtime can load it."""
+    try:
+        return verify_sha256_file(path, expected_sha256)
+    except Exception as exc:
+        path.unlink(missing_ok=True)
+        raise FileNotFoundError(str(exc)) from exc
 
 
 def discover_edgesam_assets(artifacts_dir: Path | str) -> dict[str, Path]:
@@ -76,8 +121,8 @@ def discover_edgesam_assets(artifacts_dir: Path | str) -> dict[str, Path]:
             f"missing {'; '.join(missing)}. Files seen: {found_msg}"
         )
 
-    assert detector is not None and manifest is not None
-    assert encoder is not None and decoder is not None
+    if detector is None or manifest is None or encoder is None or decoder is None:
+        raise FileNotFoundError(f"could not discover complete EdgeSAM/Vombit assets under {root}")
     return {
         "detector": detector,
         "manifest": manifest,
@@ -130,8 +175,6 @@ def ensure_edgesam_assets(
 
 def _download_edgesam_registry_models(artifacts_dir: Path) -> None:
     """Fetch Vombit FP16 detector + EdgeSAM encoder/decoder via MODEL_REGISTRY."""
-    import urllib.request
-
     from cs2_vision_access.config.data.model_registry import MODEL_REGISTRY
     from cs2_vision_access.model_manifest import create_manifest
 
@@ -142,6 +185,7 @@ def _download_edgesam_registry_models(artifacts_dir: Path) -> None:
         url = str(info.get("url") or "").strip()
         if not url:
             raise FileNotFoundError(f"no download URL for registry model {key}")
+        expected_sha = _required_registry_sha256(key, info)
 
         basename = Path(unquote(urlparse(url).path)).name or f"{key}.onnx"
         if not basename.lower().endswith(".onnx"):
@@ -150,11 +194,12 @@ def _download_edgesam_registry_models(artifacts_dir: Path) -> None:
         if not dest.is_file():
             print(f"  Downloading {key}: {url} → {dest}")
             try:
-                urllib.request.urlretrieve(url, dest)
+                _download_https(url, dest, expected_sha256=expected_sha)
             except Exception as exc:
                 raise FileNotFoundError(f"download failed for {key} from {url}: {exc}") from exc
             print(f"  Saved {dest.name}")
         else:
+            _verify_or_remove(dest, expected_sha256=expected_sha)
             print(f"  {dest.name} already present (skip download)")
 
         # Detector needs a class manifest for Cs2SamSegmenter; EdgeSAM parts do not.

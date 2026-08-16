@@ -33,8 +33,10 @@ def _session_input_dtype(session: Any) -> np.dtype:
             return np.dtype(np.float32)
         if element == "double":
             return np.dtype(np.float64)
-    except Exception:
-        pass
+    except RuntimeError:
+        # An unavailable ORT session has no reliable declared dtype; float32
+        # is the established portable input fallback.
+        return np.dtype(np.float32)
     return np.dtype(np.float32)
 
 
@@ -79,7 +81,7 @@ def _filter_by_confidence(
             empty_boxes = boxes[:0]
             return empty_boxes, scores[:0], class_ids[:0]
         return boxes[keep], scores[keep], class_ids[keep]
-    except Exception:
+    except RuntimeError:
         import numpy as np
 
         boxes_np = np.asarray(boxes)

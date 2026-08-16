@@ -137,7 +137,9 @@ def gpu_letterbox(
     if cuda_available():
         try:
             return _letterbox_gpu(frame_bgr, target_size)
-        except Exception:
+        except (ImportError, RuntimeError):
+            # The OpenCV implementation is the portable result for an
+            # unavailable CUDA backend or a failed GPU kernel.
             pass
     return _letterbox_cpu(frame_bgr, target_size)
 
@@ -252,7 +254,9 @@ def gpu_yolo_decode(
     if cuda_available():
         try:
             return _yolo_decode_gpu(raw, num_classes, orig_w, orig_h, det_size, confidence)
-        except Exception:
+        except (ImportError, RuntimeError):
+            # The NumPy decoder remains the portable fallback when the CUDA
+            # backend cannot load or execute.
             pass
     return _yolo_decode_cpu(raw, num_classes, orig_w, orig_h, det_size, confidence)
 

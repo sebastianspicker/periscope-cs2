@@ -87,6 +87,13 @@ class Win32OverlayBackend:
         """Current window position in screen coordinates."""
         return (self._x, self._y)
 
+    def _require_bindings(self) -> dict[str, Any]:
+        """Return loaded Win32 bindings or fail for an invalid backend lifecycle."""
+        bindings = self._bindings
+        if bindings is None:
+            raise RuntimeError("Win32 bindings are unavailable; open the overlay first")
+        return bindings
+
     def open(
         self,
         width: int,
@@ -109,7 +116,7 @@ class Win32OverlayBackend:
 
         if self._bindings is None:
             self._bindings = _load_win32()
-        b = self._bindings
+        b = self._require_bindings()
 
         hinstance = b["GetModuleHandleW"](None)
         if not hinstance:
@@ -228,8 +235,7 @@ class Win32OverlayBackend:
         self._y = int(y)
         if self._window is None:
             return
-        b = self._bindings
-        assert b is not None
+        b = self._require_bindings()
         b["SetWindowPos"](
             self._window,
             self._HWND_TOPMOST,
@@ -248,8 +254,7 @@ class Win32OverlayBackend:
         """Register the fixed global hotkey set for overlay input control."""
         if self._window is None:
             return
-        b = self._bindings
-        assert b is not None
+        b = self._require_bindings()
         for hotkey_id, vk in self._hotkey_id_to_vk.items():
             b["RegisterHotKey"](self._window, hotkey_id, _MOD_NOREPEAT, vk)
 
@@ -292,8 +297,7 @@ class Win32OverlayBackend:
             if not self._running or self._bits is None:
                 return
 
-        b = self._bindings
-        assert b is not None
+        b = self._require_bindings()
 
         # Windows 32-bit DIBs are BGRA; caller supplies RGBA.
         frame = np.ascontiguousarray(frame_rgba, dtype=np.uint8)
@@ -334,8 +338,7 @@ class Win32OverlayBackend:
 
         if not self._running or self._window is None:
             return False
-        b = self._bindings
-        assert b is not None
+        b = self._require_bindings()
         msg = b["MSG"]()
         while b["PeekMessageW"](ctypes.byref(msg), None, 0, 0, self._PM_REMOVE):
             b["TranslateMessage"](ctypes.byref(msg))

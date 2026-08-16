@@ -5,9 +5,34 @@
 
 #include <algorithm>
 #include <cstring>
+#include <limits>
 
 namespace sim {
 
+namespace {
+
+bool checked_add(std::size_t left, std::size_t right, std::size_t& out) {
+  if (right > std::numeric_limits<std::size_t>::max() - left) {
+    return false;
+  }
+  out = left + right;
+  return true;
+}
+
+bool address_offset(std::uint64_t address, std::uint64_t base,
+                    std::size_t& offset) {
+  if (address < base) {
+    return false;
+  }
+  const auto difference = address - base;
+  if (difference > std::numeric_limits<std::size_t>::max()) {
+    return false;
+  }
+  offset = static_cast<std::size_t>(difference);
+  return true;
+}
+
+}  // namespace
 
 // World::note: World::note: educational sim residual path.
 void World::note(std::string line) {
@@ -134,15 +159,20 @@ bool World::write_mem(std::uint32_t target_pid, std::uint64_t addr,
   if (!t || (size != 0 && data == nullptr)) {
     return false;
   }
-  if (addr < t->base) {
+  std::size_t off = 0;
+  if (!address_offset(addr, t->base, off)) {
     return false;
   }
-  const auto off = static_cast<std::size_t>(addr - t->base);
-  if (off + size > t->memory.size()) {
-    t->memory.resize(off + size, 0);
+  std::size_t end = 0;
+  if (!checked_add(off, size, end) || end > t->memory.max_size()) {
+    return false;
+  }
+  if (end > t->memory.size()) {
+    t->memory.resize(end, 0);
   }
   if (size != 0) {
-    std::memcpy(t->memory.data() + off, data, size);
+    const auto* source = static_cast<const std::uint8_t*>(data);
+    std::copy_n(source, size, t->memory.begin() + static_cast<std::ptrdiff_t>(off));
   }
   return true;
 }

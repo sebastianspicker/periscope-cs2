@@ -192,7 +192,10 @@ cs2-vision-config.json
 *.local.sqlite3
 
 # Local analysis state
-.codacy/
+/.codacy/*
+!/.codacy/codacy.config.json
+!/.codacy/codacy.yaml
+!/.codacy/codacy.yml
 .repowise/
 
 # Archived ledger packets only; maintained source tests remain visible.

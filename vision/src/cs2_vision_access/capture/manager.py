@@ -59,8 +59,10 @@ class CaptureManager:
 
     @property
     def info(self) -> CaptureInfo:
-        assert self._info is not None, "capture not opened yet"
-        return self._info
+        info = self._info
+        if info is None:
+            raise CaptureError("capture not opened yet")
+        return info
 
     @property
     def timing(self) -> FrameTimingDiagnostics:

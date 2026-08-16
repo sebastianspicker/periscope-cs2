@@ -5,9 +5,9 @@ configure hyperparameters, and train. Download FP32 + FP16 ONNX models and
 the model manifest when training finishes.
 
 Usage on HF Spaces:
-  1. Create a Space from this directory (GPU recommended: T4 small or better)
+  1. Deploy the package layout documented in this directory's README
   2. Prefer the official HF GPU image so PyTorch/CUDA are preinstalled
-  3. Vendor ``cloud/`` (or legacy ``cloud.py``) next to ``app.py`` for train
+  3. Configure the two required Space authentication secrets
   4. Upload your dataset zip and click Start Training
   5. Download the resulting ONNX models + manifest
 
@@ -19,16 +19,38 @@ Local smoke (UI only)::
 from __future__ import annotations
 
 import hashlib
-import importlib.util
+import logging
+import os  # noqa: F401  # retained for direct Space security tests
 import shutil
-import subprocess
 import sys
 import tempfile
+import threading
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-import gradio as gr
+import gradio as gr  # type: ignore[import-not-found]
+
+from cs2_vision_access.training.space import _gpu_security, _request_security
+
+LOGGER = logging.getLogger(__name__)
+
+# Server-side admission limits. Gradio component bounds are client-side hints;
+# callers can invoke ``_train`` directly with arbitrary values.
+MAX_UPLOAD_BYTES = 512 * 1024 * 1024
+MAX_ZIP_MEMBERS = 10_000
+MAX_ZIP_MEMBER_UNCOMPRESSED_BYTES = 128 * 1024 * 1024
+MAX_ZIP_TOTAL_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
+MAX_ZIP_COMPRESSION_RATIO = 100.0
+BASE_MODELS = ("yolo11n-seg.pt", "yolo11s-seg.pt", "yolo11m-seg.pt")
+IMAGE_SIZES = (416, 512, 640, 768)
+
+# A GPU training job is deliberately serial. This prevents separate Gradio
+# requests from competing for GPU memory or racing any helper-side artifacts.
+_TRAINING_SLOT = threading.BoundedSemaphore(value=1)
+
+_TRUSTED_NVIDIA_SMI_ENV = _gpu_security.TRUSTED_NVIDIA_SMI_ENV
+_PLATFORM_NVIDIA_SMI_PATHS = _gpu_security.PLATFORM_NVIDIA_SMI_PATHS
 
 # ---------------------------------------------------------------------------
 # Shared cloud helpers (package / sibling / vendored cloud only — no
@@ -42,8 +64,8 @@ _ManifestFn = Callable[..., Path]
 _CLOUD_REQUIRED_MSG = (
     "Training helpers unavailable: could not import "
     "cs2_vision_access.training.cloud or load cloud package/module. "
-    "Vendor training/cloud/ (or legacy cloud.py) next to app.py "
-    "(or as ../cloud), or install the cs2_vision_access package."
+    "Vendor training/cloud/ next to app.py (or as ../cloud), or install "
+    "the cs2_vision_access package."
 )
 
 
@@ -53,7 +75,7 @@ def _helpers_from_module(mod: object) -> tuple[_ExtractFn, _TrainFn, _ManifestFn
     train_fn = getattr(mod, "train", None)
     manifest = getattr(mod, "create_manifest", None)
     if callable(extract) and callable(train_fn) and callable(manifest):
-        return extract, train_fn, manifest  # type: ignore[return-value]
+        return extract, train_fn, manifest
     return None
 
 
@@ -103,21 +125,18 @@ def _load_cloud_package_dir(cloud_dir: Path) -> tuple[_ExtractFn, _TrainFn, _Man
         if Path(mod_file).resolve().parent != cloud_dir.resolve():
             return None
         return _helpers_from_module(mod)
-    except Exception:
+    except (ImportError, OSError) as error:
+        LOGGER.debug("Could not load vendored cloud package %s: %s", cloud_dir, error)
         return None
     finally:
-        if inserted:
-            try:
-                if sys.path and sys.path[0] == parent:
-                    sys.path.pop(0)
-            except Exception:
-                pass
+        if inserted and sys.path and sys.path[0] == parent:
+            sys.path.pop(0)
 
 
 def _load_cloud_helpers() -> tuple[_ExtractFn | None, _TrainFn | None, _ManifestFn | None]:
     """Load extract_dataset / train / create_manifest from cloud when possible."""
     try:
-        from cs2_vision_access.training.cloud import (  # type: ignore[import-not-found]
+        from cs2_vision_access.training.cloud import (
             create_manifest,
             extract_dataset,
             train,
@@ -127,8 +146,8 @@ def _load_cloud_helpers() -> tuple[_ExtractFn | None, _TrainFn | None, _Manifest
     except ImportError:
         pass
 
-    # Monorepo layout: training/cloud/ package next to training/space/
-    # Standalone Space: vendor cloud/ or legacy cloud.py next to app.py
+    # Monorepo layout: training/cloud/ package next to training/space/.
+    # Standalone Space: vendor the complete cloud/ package next to app.py.
     space_dir = Path(__file__).resolve().parent
     for cloud_dir in (space_dir.parent / "cloud", space_dir / "cloud"):
         if cloud_dir.is_dir():
@@ -136,27 +155,20 @@ def _load_cloud_helpers() -> tuple[_ExtractFn | None, _TrainFn | None, _Manifest
             if loaded is not None:
                 return loaded
 
-    for cloud_path in (space_dir.parent / "cloud.py", space_dir / "cloud.py"):
-        if not cloud_path.is_file():
-            continue
-        try:
-            spec = importlib.util.spec_from_file_location(
-                "_cs2_vision_access_training_cloud", cloud_path
-            )
-            if spec is not None and spec.loader is not None:
-                mod = importlib.util.module_from_spec(spec)
-                sys.modules[spec.name] = mod
-                spec.loader.exec_module(mod)
-                helpers = _helpers_from_module(mod)
-                if helpers is not None:
-                    return helpers
-        except Exception:
-            continue
-
     return None, None, None
 
 
 _cloud_extract, _cloud_train, _cloud_create_manifest = _load_cloud_helpers()
+
+
+def _canonicalize_space_dataset(data_dir: str | Path) -> Path:
+    """Create the fixed manifest required by the untrusted Space upload path."""
+    return _request_security.canonicalize_space_dataset(data_dir)
+
+
+def _confined_dataset_root(data_dir: str | Path, extract_dir: Path) -> Path:
+    """Return a real dataset root confined to the private extraction directory."""
+    return _request_security.confined_dataset_root(data_dir, extract_dir)
 
 
 def extract_dataset(zip_path: str | Path, output_dir: str | Path = "cs2_data") -> Path:
@@ -185,48 +197,31 @@ def create_manifest(onnx_path: str | Path, data_dir: str | Path, **kwargs: Any) 
 # ---------------------------------------------------------------------------
 
 
+def _validated_nvidia_smi_path(candidate: Path) -> str | None:
+    """Return a safe executable path, or ``None`` for an untrusted candidate."""
+    return _gpu_security.validated_nvidia_smi_path(candidate)
+
+
+def _nvidia_smi_path() -> str | None:
+    """Return a validated platform path or trusted deployment-configured path.
+
+    PATH is intentionally never consulted: an upload request must not be able
+    to affect which executable this process invokes.
+    """
+    return _gpu_security.nvidia_smi_path(
+        os.environ.get(_TRUSTED_NVIDIA_SMI_ENV),
+        _PLATFORM_NVIDIA_SMI_PATHS,
+    )
+
+
 def _has_cuda() -> bool:
     """Check whether a CUDA-capable GPU is available."""
-    try:
-        import torch
-
-        return bool(torch.cuda.is_available())
-    except ImportError:
-        try:
-            return (
-                subprocess.run(
-                    ["nvidia-smi"], capture_output=True, check=False, timeout=3
-                ).returncode
-                == 0
-            )
-        except Exception:
-            return False
+    return _gpu_security.has_cuda(_nvidia_smi_path, LOGGER)
 
 
 def _gpu_info() -> str:
     """Return a short GPU description or 'None (CPU)'."""
-    try:
-        import torch
-
-        if torch.cuda.is_available():
-            name = torch.cuda.get_device_name(0)
-            vram = torch.cuda.get_device_properties(0).total_memory / 1e9
-            return f"{name} ({vram:.1f} GB)"
-    except Exception:
-        pass
-    try:
-        result = subprocess.run(
-            ["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader"],
-            capture_output=True,
-            text=True,
-            check=False,
-            timeout=3,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip().split(",")[0].strip()
-    except Exception:
-        pass
-    return "None (CPU)"
+    return _gpu_security.gpu_info(_nvidia_smi_path, LOGGER)
 
 
 def _resolve_upload_path(dataset_zip: Any) -> str | None:
@@ -235,16 +230,45 @@ def _resolve_upload_path(dataset_zip: Any) -> str | None:
     Gradio may pass a path string, a Path-like, or an object with ``.name``
     (e.g. tempfile / NamedString).
     """
-    if dataset_zip is None:
-        return None
-    if isinstance(dataset_zip, (str, Path)):
-        path = str(dataset_zip).strip()
-        return path or None
-    name = getattr(dataset_zip, "name", None)
-    if name:
-        path = str(name).strip()
-        return path or None
-    return None
+    return _request_security.resolve_upload_path(dataset_zip)
+
+
+def _validate_uploaded_zip(zip_path: Path) -> str | None:
+    """Return a user-safe error when the upload exceeds Space admission limits."""
+    return _request_security.validate_uploaded_zip(
+        zip_path,
+        max_upload_bytes=MAX_UPLOAD_BYTES,
+        max_members=MAX_ZIP_MEMBERS,
+        max_member_bytes=MAX_ZIP_MEMBER_UNCOMPRESSED_BYTES,
+        max_total_bytes=MAX_ZIP_TOTAL_UNCOMPRESSED_BYTES,
+        max_compression_ratio=MAX_ZIP_COMPRESSION_RATIO,
+    )
+
+
+def _integer_in_range(value: Any, minimum: int, maximum: int) -> int | None:
+    """Coerce an integral finite value only when it is within the server bound."""
+    return _request_security.integer_in_range(value, minimum, maximum)
+
+
+def _validate_training_controls(
+    base_model: Any,
+    epochs: Any,
+    batch: Any,
+    imgsz: Any,
+    lr0: Any,
+    patience: Any,
+) -> tuple[str, int, int, int, float, int] | str:
+    """Validate direct requests independently of Gradio's client-side widgets."""
+    return _request_security.validate_training_controls(
+        base_model,
+        epochs,
+        batch,
+        imgsz,
+        lr0,
+        patience,
+        base_models=BASE_MODELS,
+        image_sizes=IMAGE_SIZES,
+    )
 
 
 def _empty_outputs(message: str) -> tuple[str, None, None, None, str]:
@@ -256,7 +280,7 @@ def _empty_outputs(message: str) -> tuple[str, None, None, None, str]:
 # ---------------------------------------------------------------------------
 
 
-def _train(
+def _train_job(
     dataset_zip: Any,
     base_model: str,
     epochs: int,
@@ -278,13 +302,14 @@ def _train(
     gpu_name = _gpu_info()
 
     extract_dir = Path(tempfile.mkdtemp(prefix="cs2_train_"))
-    output_dir = Path(tempfile.gettempdir()) / "cs2-output"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(tempfile.mkdtemp(prefix="cs2_train_artifacts_"))
+    completed = False
 
     try:
         progress(0.05, desc="Extracting dataset...")
         try:
             data_dir = extract_dataset(zip_path, extract_dir)
+            data_dir = _confined_dataset_root(data_dir, extract_dir)
         except Exception as exc:
             return _empty_outputs(f"Error extracting zip: {exc}")
 
@@ -299,6 +324,11 @@ def _train(
         label_files = list(labels_dir.glob("*.txt"))
         if not label_files:
             return _empty_outputs("Error: no .txt label files found under labels/.")
+
+        try:
+            _canonicalize_space_dataset(data_dir)
+        except (OSError, ValueError) as exc:
+            return _empty_outputs(f"Error validating dataset metadata: {exc}")
 
         progress(0.1, desc=f"Found {len(label_files)} labeled frames")
         progress(0.15, desc=f"Loading model on {device} ({gpu_name})...")
@@ -332,8 +362,9 @@ def _train(
         sha256 = hashlib.sha256(onnx_path.read_bytes()).hexdigest()
         onnx_size_mb = onnx_path.stat().st_size / 1e6
 
-        final_onnx = output_dir / "cs2-yolo11n-seg.onnx"
-        final_manifest = output_dir / "cs2-yolo11n-seg.model.json"
+        job_id = output_dir.name.removeprefix("cs2_train_artifacts_")
+        final_onnx = output_dir / f"{job_id}-cs2-yolo11n-seg.onnx"
+        final_manifest = output_dir / f"{job_id}-cs2-yolo11n-seg.model.json"
         shutil.copy2(str(onnx_path), str(final_onnx))
         shutil.copy2(str(manifest_path), str(final_manifest))
 
@@ -341,7 +372,7 @@ def _train(
         final_fp16: Path | None = None
         fp16_str = ""
         if fp16_src.is_file():
-            final_fp16 = output_dir / "cs2-yolo11n-seg-fp16.onnx"
+            final_fp16 = output_dir / f"{job_id}-cs2-yolo11n-seg-fp16.onnx"
             shutil.copy2(str(fp16_src), str(final_fp16))
             fp16_str = f"\nFP16 ONNX: {final_fp16.stat().st_size / 1e6:.1f} MB (GPU inference)"
 
@@ -355,6 +386,7 @@ def _train(
             f"SHA-256: {sha256[:16]}..."
         )
         progress(1.0, desc="Done")
+        completed = True
         return (
             msg,
             str(final_onnx),
@@ -364,6 +396,66 @@ def _train(
         )
     finally:
         shutil.rmtree(extract_dir, ignore_errors=True)
+        if not completed:
+            shutil.rmtree(output_dir, ignore_errors=True)
+
+
+def _train(
+    dataset_zip: Any,
+    base_model: str,
+    epochs: int,
+    batch: int,
+    imgsz: int,
+    lr0: float,
+    patience: int,
+    progress: gr.Progress = gr.Progress(),
+) -> tuple[str, str | None, str | None, str | None, str]:
+    """Validate a request and run one isolated training job if capacity permits."""
+    zip_path = _resolve_upload_path(dataset_zip)
+    if not zip_path:
+        return _empty_outputs("Error: No dataset uploaded. Please upload a .zip file.")
+    upload_path = Path(zip_path)
+    if not upload_path.is_file():
+        return _empty_outputs("Error: uploaded file is unavailable.")
+    upload_error = _validate_uploaded_zip(upload_path)
+    if upload_error is not None:
+        return _empty_outputs(upload_error)
+
+    controls = _validate_training_controls(base_model, epochs, batch, imgsz, lr0, patience)
+    if isinstance(controls, str):
+        return _empty_outputs(controls)
+
+    try:
+        acquired = _TRAINING_SLOT.acquire(blocking=False)
+    except Exception:
+        LOGGER.exception("Training capacity gate failed closed")
+        return _empty_outputs("Error: training capacity is temporarily unavailable.")
+    if not acquired:
+        return _empty_outputs(
+            "Error: another training job is already running. Please try again later."
+        )
+
+    try:
+        (
+            checked_model,
+            checked_epochs,
+            checked_batch,
+            checked_imgsz,
+            checked_lr0,
+            checked_patience,
+        ) = controls
+        return _train_job(
+            upload_path,
+            checked_model,
+            checked_epochs,
+            checked_batch,
+            checked_imgsz,
+            checked_lr0,
+            checked_patience,
+            progress,
+        )
+    finally:
+        _TRAINING_SLOT.release()
 
 
 # ---------------------------------------------------------------------------
@@ -402,7 +494,9 @@ def _build_ui() -> gr.Blocks:
             "`python -m cs2_vision_access.training.bundle`, configure training, "
             "and download the fine-tuned ONNX models (FP32 + FP16) plus manifest.\n\n"
             f"{gpu_badge}\n\n"
-            f"_Training backend: {helpers}_{helpers_hint}"
+            f"_Training backend: {helpers}_{helpers_hint}\n\n"
+            "**Deployment security:** launch requires the server-configured Gradio "
+            "credentials. Deploy it only as a private, access-controlled Space."
         )
 
         with gr.Row():
@@ -415,13 +509,13 @@ def _build_ui() -> gr.Blocks:
 
                 base_model = gr.Dropdown(
                     label="Base model",
-                    choices=["yolo11n-seg.pt", "yolo11s-seg.pt", "yolo11m-seg.pt"],
+                    choices=list(BASE_MODELS),
                     value="yolo11n-seg.pt",
                 )
 
                 epochs = gr.Slider(minimum=10, maximum=500, value=150, step=10, label="Epochs")
                 batch = gr.Slider(minimum=2, maximum=64, value=16, step=2, label="Batch size")
-                imgsz = gr.Dropdown(label="Image size", choices=[416, 512, 640, 768], value=416)
+                imgsz = gr.Dropdown(label="Image size", choices=list(IMAGE_SIZES), value=416)
                 lr0 = gr.Number(
                     label="Learning rate",
                     value=0.001,
@@ -460,8 +554,9 @@ def _build_ui() -> gr.Blocks:
             "     `python -m cs2_vision_access.training.bundle "
             "--input data/cs2_train --output data/cs2_train_bundle.zip`\n"
             "   - Optional: `--max-frames N` to cap frames for a quicker Space run\n"
-            "2. **Upload** the zip above (must contain `images/`, `labels/`, "
-            "and preferably `dataset.yaml`).\n"
+            "2. **Upload** the zip above (must contain `images/` and `labels/`; "
+            "its `dataset.yaml`, if present, is replaced with the Space's fixed "
+            "local manifest).\n"
             "3. **Configure** epochs, batch size, image size, etc.\n"
             "4. **Train** — progress updates in Status.\n"
             "5. **Download** FP32 ONNX (CPU), FP16 ONNX (GPU), and the manifest.\n\n"
@@ -475,6 +570,22 @@ def _build_ui() -> gr.Blocks:
     return demo
 
 
-if __name__ == "__main__":
+def _required_space_auth() -> tuple[str, str]:
+    """Return required private-Space credentials without exposing their values."""
+    return _request_security.required_space_auth(os.environ)
+
+
+def main() -> None:
+    """Launch the Space only after its private-access credentials are configured."""
+    auth = _required_space_auth()
     demo = _build_ui()
-    demo.launch()
+    demo.launch(
+        auth=auth,
+        max_file_size=MAX_UPLOAD_BYTES,
+        show_error=False,
+        enable_monitoring=False,
+    )
+
+
+if __name__ == "__main__":
+    main()

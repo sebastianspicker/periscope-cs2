@@ -250,10 +250,10 @@ static void render_console_radar(const std::vector<RadarBlip>& blips,
     std::printf("  %-8s %-12s %-10s %s\n", "Tier", "Time", "Handle?", "Scar");
     std::printf("  %-8s %-12s %-10s %s\n", "────", "────", "───────", "────");
     std::printf("  %-8s %6.0fus    %-10s %s\n", "T0 RPM", elapsed_us, "YES", "Handle table");
-    std::printf("  %-8s     N/A     %-10s %s\n", "T1 SC", "", "YES", "Handle + syscall");
-    std::printf("  %-8s     N/A     %-10s %s\n", "T2 BYOVD", "", "NO", "Device IOCTL");
-    std::printf("  %-8s     N/A     %-10s %s\n", "T3 HV", "", "NO", "VMCS/EPT");
-    std::printf("  %-8s     N/A     %-10s %s\n", "T4 DMA", "", "NO", "PCIe TLP");
+    std::printf("  %-8s     N/A     %-10s %s\n", "T1 SC", "YES", "Handle + syscall");
+    std::printf("  %-8s     N/A     %-10s %s\n", "T2 BYOVD", "NO", "Device IOCTL");
+    std::printf("  %-8s     N/A     %-10s %s\n", "T3 HV", "NO", "VMCS/EPT");
+    std::printf("  %-8s     N/A     %-10s %s\n", "T4 DMA", "NO", "PCIe TLP");
     std::printf("\n");
 }
 

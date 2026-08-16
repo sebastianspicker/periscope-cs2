@@ -6,7 +6,14 @@ other callers) can import them without depending on the download CLI handler.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
+import os
+import tempfile
+import urllib.request
 from pathlib import Path
+from typing import Final
+from urllib.parse import urlparse
 
 from cs2_vision_access.model_manifest import create_manifest as write_model_manifest
 from cs2_vision_access.model_manifest import sha256_file as _canonical_sha256_file
@@ -16,10 +23,161 @@ class ModelOperationError(RuntimeError):
     """Model export or manifest creation failed."""
 
 
+_DOWNLOAD_CHUNK_SIZE: Final = 1024 * 1024
+_MAX_MODEL_DOWNLOAD_BYTES: Final = 2 * 1024 * 1024 * 1024
+_DOWNLOAD_TIMEOUT_SECONDS: Final = 30
+_GITHUB_DOWNLOAD_HOSTS: Final = frozenset(
+    {"github.com", "objects.githubusercontent.com", "release-assets.githubusercontent.com"}
+)
+_HUGGINGFACE_DOWNLOAD_HOSTS: Final = frozenset(
+    {
+        "huggingface.co",
+        "cdn-lfs.huggingface.co",
+        "cdn-lfs-us-1.hf.co",
+        "cas-bridge.xethub.hf.co",
+        "transfer.xethub.hf.co",
+    }
+)
+
+
+def require_https_download_url(url: str) -> str:
+    """Validate an HTTPS URL suitable for a pinned model artifact."""
+    try:
+        parsed = urlparse(url)
+        hostname = parsed.hostname
+        _ = parsed.port
+    except ValueError as error:
+        raise ModelOperationError(f"invalid HTTPS download URL: {url!r}") from error
+    if (
+        parsed.scheme != "https"
+        or not hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        raise ModelOperationError(f"invalid HTTPS download URL: {url!r}")
+    return url
+
+
+def require_sha256(expected_sha256: str) -> str:
+    """Validate and normalize a required SHA-256 registry pin."""
+    normalized = expected_sha256.strip().lower()
+    if len(normalized) != 64 or any(char not in "0123456789abcdef" for char in normalized):
+        raise ModelOperationError("model registry entry requires a valid SHA-256 pin")
+    return normalized
+
+
+def verify_sha256_file(path: Path, expected_sha256: str) -> str:
+    """Verify a model artifact against a required registry SHA-256 pin."""
+    expected = require_sha256(expected_sha256)
+    actual = sha256_file(path)
+    if not hmac.compare_digest(actual, expected):
+        raise ModelOperationError(f"SHA-256 mismatch: expected {expected}, got {actual}")
+    return actual
+
+
+def _approved_download_hosts(origin_hostname: str) -> frozenset[str]:
+    """Return the small redirect allowlist for a registry artifact origin."""
+    hostname = origin_hostname.lower()
+    if hostname in _GITHUB_DOWNLOAD_HOSTS:
+        return _GITHUB_DOWNLOAD_HOSTS
+    if hostname in _HUGGINGFACE_DOWNLOAD_HOSTS:
+        return _HUGGINGFACE_DOWNLOAD_HOSTS
+    return frozenset({hostname})
+
+
+class _ApprovedRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Permit only HTTPS redirects to the registry origin's approved hosts."""
+
+    def __init__(self, allowed_hosts: frozenset[str]) -> None:
+        super().__init__()
+        self._allowed_hosts = allowed_hosts
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # type: ignore[no-untyped-def]
+        del fp, code, msg, headers
+        require_https_download_url(newurl)
+        hostname = urlparse(newurl).hostname
+        if hostname is None or hostname.lower() not in self._allowed_hosts:
+            raise ModelOperationError(
+                f"redirected model download to an unapproved host: {newurl!r}"
+            )
+        return urllib.request.Request(
+            newurl,
+            headers=dict(req.headers),
+            origin_req_host=req.origin_req_host,
+            unverifiable=True,
+            method=req.get_method(),
+        )
+
+
+def download_verified_https(url: str, dest: Path, *, expected_sha256: str) -> str:
+    """Stream a pinned HTTPS artifact to a temporary file and atomically promote it.
+
+    Redirects are limited to the source host or the explicitly supported CDN
+    hosts for GitHub and Hugging Face. A destination is never created or
+    replaced until its streamed SHA-256 matches the registry pin.
+    """
+    download_url = require_https_download_url(url)
+    expected = require_sha256(expected_sha256)
+    origin_hostname = urlparse(download_url).hostname
+    if origin_hostname is None:  # Covered above; keeps the type invariant explicit.
+        raise ModelOperationError(f"invalid HTTPS download URL: {url!r}")
+    allowed_hosts = _approved_download_hosts(origin_hostname)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    temp_path: Path | None = None
+    try:
+        opener = urllib.request.build_opener(_ApprovedRedirectHandler(allowed_hosts))
+        request = urllib.request.Request(download_url, headers={"User-Agent": "cs2-vision-access"})
+        with opener.open(request, timeout=_DOWNLOAD_TIMEOUT_SECONDS) as response:
+            final_url = require_https_download_url(response.geturl())
+            final_hostname = urlparse(final_url).hostname
+            if final_hostname is None or final_hostname.lower() not in allowed_hosts:
+                raise ModelOperationError(
+                    f"redirected model download to an unapproved host: {final_url!r}"
+                )
+            content_length = response.headers.get("Content-Length")
+            if content_length is not None:
+                try:
+                    expected_length = int(content_length)
+                except ValueError as error:
+                    raise ModelOperationError(
+                        "model download returned an invalid Content-Length"
+                    ) from error
+                if expected_length < 0 or expected_length > _MAX_MODEL_DOWNLOAD_BYTES:
+                    raise ModelOperationError("model download exceeds the size limit")
+            else:
+                expected_length = None
+            digest = hashlib.sha256()
+            written = 0
+            with tempfile.NamedTemporaryFile(
+                dir=dest.parent,
+                prefix=f".{dest.name}.",
+                suffix=".download",
+                delete=False,
+            ) as temporary:
+                temp_path = Path(temporary.name)
+                while chunk := response.read(_DOWNLOAD_CHUNK_SIZE):
+                    written += len(chunk)
+                    if written > _MAX_MODEL_DOWNLOAD_BYTES:
+                        raise ModelOperationError("model download exceeds the size limit")
+                    digest.update(chunk)
+                    temporary.write(chunk)
+            if expected_length is not None and written != expected_length:
+                raise ModelOperationError("model download was truncated")
+            actual = digest.hexdigest()
+            if not hmac.compare_digest(actual, expected):
+                raise ModelOperationError(f"SHA-256 mismatch: expected {expected}, got {actual}")
+        os.replace(temp_path, dest)
+        temp_path = None
+        return actual
+    finally:
+        if temp_path is not None:
+            temp_path.unlink(missing_ok=True)
+
+
 def export_onnx(pt_path: Path, onnx_path: Path, *, image_size: int, device: str) -> None:
     """Load a .pt checkpoint and export to ONNX."""
     try:
-        from ultralytics import YOLO
+        from ultralytics import YOLO  # type: ignore[attr-defined]
     except ImportError as error:
         raise ModelOperationError(
             "Ultralytics is required for ONNX export; install project dependencies"

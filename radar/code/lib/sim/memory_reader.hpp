@@ -11,7 +11,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <span>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace sim {
@@ -30,7 +32,15 @@ class MemoryReader {
 
   /// Read |size| bytes from |addr| in the target process into |buf|.
   /// Returns Status::Ok on success, Status::Denied if the model forbids it.
-  virtual ac::Status read(std::uint64_t addr, void* buf, std::size_t size) = 0;
+  virtual ac::Status read(  // Flawfinder: ignore
+      std::uint64_t addr, void* buf, std::size_t size) = 0;
+
+  /// Bounds-carrying convenience overload for callers that own a byte buffer.
+  /// A successful read fills the complete span; partial source results are
+  /// rejected rather than copied partially.
+  ac::Status read(std::uint64_t addr, std::span<std::uint8_t> out) {
+    return read(addr, out.data(), out.size());
+  }
 
   /// Whether this reader holds a handle to |target_pid|.
   virtual bool has_handle_to(std::uint32_t target_pid) const = 0;
@@ -43,7 +53,10 @@ class MemoryReader {
   /// Typed convenience read into a POD / aggregate |T|.
   template <typename T>
   ac::Status read_t(std::uint64_t addr, T& out) {
-    return read(addr, &out, sizeof(T));
+    static_assert(std::is_trivially_copyable_v<T>,
+                  "MemoryReader::read_t requires a trivially copyable type");
+    auto bytes = std::as_writable_bytes(std::span<T, 1>(&out, 1));
+    return read(addr, reinterpret_cast<std::uint8_t*>(bytes.data()), bytes.size());
   }
 };
 
@@ -58,7 +71,8 @@ class DirectRpmReader final : public MemoryReader {
   explicit DirectRpmReader(World& world, std::uint32_t cheat_pid);
   ac::MemoryAcquisitionModel model() const override;
   ac::HandleAcquisitionModel handle_model() const override;
-  ac::Status read(std::uint64_t addr, void* buf, std::size_t size) override;
+  ac::Status read(  // Flawfinder: ignore
+      std::uint64_t addr, void* buf, std::size_t size) override;
   bool has_handle_to(std::uint32_t target_pid) const override;
   bool compatible_with(ac::DefenseLayer layer) const override;
 

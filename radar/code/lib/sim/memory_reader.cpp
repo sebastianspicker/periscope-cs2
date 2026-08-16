@@ -16,31 +16,30 @@ bool has_handle_from(const World& world, std::uint32_t owner_pid,
                      });
 }
 
+bool valid_destination(const void* buf, std::size_t size) {
+  return size == 0 || buf != nullptr;
+}
+
+ac::Status copy_exact_bytes(const std::vector<std::uint8_t>& bytes, void* buf,
+                            std::size_t size) {
+  if (size != 0 && buf == nullptr) {
+    return ac::Status::InvalidArgument;
+  }
+  if (bytes.size() != size) {
+    return ac::Status::InvalidArgument;
+  }
+  if (size != 0) {
+    std::copy(bytes.begin(), bytes.end(), static_cast<std::uint8_t*>(buf));
+  }
+  return ac::Status::Ok;
+}
+
 ac::Status copy_read_result(const ac::ReadResult& result, void* buf,
                             std::size_t size) {
   if (result.status != ac::Status::Ok) {
     return result.status;
   }
-  if (size != 0 && buf == nullptr) {
-    return ac::Status::InvalidArgument;
-  }
-  const auto copy_size = std::min(size, result.bytes.size());
-  if (copy_size != 0) {
-    std::memcpy(buf, result.bytes.data(), copy_size);
-  }
-  return ac::Status::Ok;
-}
-
-ac::Status copy_bytes(const std::vector<std::uint8_t>& bytes, void* buf,
-                      std::size_t size) {
-  if (size != 0 && buf == nullptr) {
-    return ac::Status::InvalidArgument;
-  }
-  const auto copy_size = std::min(size, bytes.size());
-  if (copy_size != 0) {
-    std::memcpy(buf, bytes.data(), copy_size);
-  }
-  return ac::Status::Ok;
+  return copy_exact_bytes(result.bytes, buf, size);
 }
 
 }  // namespace
@@ -95,8 +94,11 @@ ac::HandleAcquisitionModel DirectRpmReader::handle_model() const {
   return ac::HandleAcquisitionModel::DirectOpenProcess;
 }
 
-ac::Status DirectRpmReader::read(std::uint64_t addr, void* buf,
-                                 std::size_t size) {
+ac::Status DirectRpmReader::read(  // Flawfinder: ignore
+    std::uint64_t addr, void* buf, std::size_t size) {
+  if (!valid_destination(buf, size)) {
+    return ac::Status::InvalidArgument;
+  }
   const auto game_pid = world_.game_pid();
   if (game_pid == 0) {
     return ac::Status::Unavailable;
@@ -131,8 +133,11 @@ ac::HandleAcquisitionModel SyscallReader::handle_model() const {
   return ac::HandleAcquisitionModel::DirectSyscall;
 }
 
-ac::Status SyscallReader::read(std::uint64_t addr, void* buf,
-                               std::size_t size) {
+ac::Status SyscallReader::read(  // Flawfinder: ignore
+    std::uint64_t addr, void* buf, std::size_t size) {
+  if (!valid_destination(buf, size)) {
+    return ac::Status::InvalidArgument;
+  }
   const auto game_pid = world_.game_pid();
   if (game_pid == 0) {
     return ac::Status::Unavailable;
@@ -202,9 +207,9 @@ bool KernelIoctlReader::ensure_bridge() {
   return true;
 }
 
-ac::Status KernelIoctlReader::read(std::uint64_t addr, void* buf,
-                                   std::size_t size) {
-  if (size != 0 && buf == nullptr) {
+ac::Status KernelIoctlReader::read(  // Flawfinder: ignore
+    std::uint64_t addr, void* buf, std::size_t size) {
+  if (!valid_destination(buf, size)) {
     return ac::Status::InvalidArgument;
   }
   const auto game_pid = world_.game_pid();
@@ -219,10 +224,14 @@ ac::Status KernelIoctlReader::read(std::uint64_t addr, void* buf,
                                out)) {
     return ac::Status::Denied;
   }
+  const auto status = copy_exact_bytes(out, buf, size);
+  if (status != ac::Status::Ok) {
+    return status;
+  }
   // Kernel path: no usermode handle scar from cheat_pid.
   ++world_.remote_read_ops;
   world_.remote_read_bytes += static_cast<std::uint32_t>(size);
-  return copy_bytes(out, buf, size);
+  return ac::Status::Ok;
 }
 
 bool KernelIoctlReader::has_handle_to(std::uint32_t target_pid) const {
@@ -266,9 +275,9 @@ bool HvHypercallReader::ensure_hv() {
   return true;
 }
 
-ac::Status HvHypercallReader::read(std::uint64_t addr, void* buf,
-                                   std::size_t size) {
-  if (size != 0 && buf == nullptr) {
+ac::Status HvHypercallReader::read(  // Flawfinder: ignore
+    std::uint64_t addr, void* buf, std::size_t size) {
+  if (!valid_destination(buf, size)) {
     return ac::Status::InvalidArgument;
   }
   const auto game_pid = world_.game_pid();
@@ -293,9 +302,13 @@ ac::Status HvHypercallReader::read(std::uint64_t addr, void* buf,
     world_.note("hypercall_read ok target=" + std::to_string(game_pid) +
                 " size=" + std::to_string(size));
   }
+  const auto status = copy_exact_bytes(out, buf, size);
+  if (status != ac::Status::Ok) {
+    return status;
+  }
   ++world_.remote_read_ops;
   world_.remote_read_bytes += static_cast<std::uint32_t>(size);
-  return copy_bytes(out, buf, size);
+  return ac::Status::Ok;
 }
 
 bool HvHypercallReader::has_handle_to(std::uint32_t target_pid) const {
@@ -340,9 +353,9 @@ void DmaPhysicalReader::arm_device(bool present, bool iommu_bypass) {
               " iommu_bypass=" + (iommu_bypass ? "1" : "0"));
 }
 
-ac::Status DmaPhysicalReader::read(std::uint64_t addr, void* buf,
-                                   std::size_t size) {
-  if (size != 0 && buf == nullptr) {
+ac::Status DmaPhysicalReader::read(  // Flawfinder: ignore
+    std::uint64_t addr, void* buf, std::size_t size) {
+  if (!valid_destination(buf, size)) {
     return ac::Status::InvalidArgument;
   }
   const auto game_pid = world_.game_pid();
@@ -359,10 +372,14 @@ ac::Status DmaPhysicalReader::read(std::uint64_t addr, void* buf,
   if (!world_.dma_read(game_pid, addr, size, out)) {
     return ac::Status::Denied;
   }
+  const auto status = copy_exact_bytes(out, buf, size);
+  if (status != ac::Status::Ok) {
+    return status;
+  }
   ++world_.fpga_scatter_reads;
   ++world_.remote_read_ops;
   world_.remote_read_bytes += static_cast<std::uint32_t>(size);
-  return copy_bytes(out, buf, size);
+  return ac::Status::Ok;
 }
 
 bool DmaPhysicalReader::has_handle_to(std::uint32_t target_pid) const {
@@ -389,9 +406,9 @@ ac::HandleAcquisitionModel HijackProxyReader::handle_model() const {
   return ac::HandleAcquisitionModel::HijackProxy;
 }
 
-ac::Status HijackProxyReader::read(std::uint64_t addr, void* buf,
-                                   std::size_t size) {
-  if (size != 0 && buf == nullptr) {
+ac::Status HijackProxyReader::read(  // Flawfinder: ignore
+    std::uint64_t addr, void* buf, std::size_t size) {
+  if (!valid_destination(buf, size)) {
     return ac::Status::InvalidArgument;
   }
   if (donor_callback_) {

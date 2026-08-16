@@ -38,6 +38,26 @@ class ResolveZipTests(unittest.TestCase):
 
 
 class HeldOutSplitTests(unittest.TestCase):
+    def test_same_seed_produces_the_same_split_plan(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            images = root / "images"
+            labels = root / "labels"
+            images.mkdir()
+            labels.mkdir()
+            for index in range(10):
+                stem = f"frame_{index:08d}"
+                (images / f"{stem}.jpg").write_bytes(b"not-decoded-by-split")
+                (labels / f"{stem}.txt").write_text("", encoding="utf-8")
+            first = materialize_held_out_split(root, val_fraction=0.3, seed=73)
+            for split_name in ("train", "val"):
+                for path in (images / split_name).glob("*"):
+                    path.unlink()
+                for path in (labels / split_name).glob("*"):
+                    path.unlink()
+            second = materialize_held_out_split(root, val_fraction=0.3, seed=73)
+            self.assertEqual(first, second)
+
     def test_materialize_held_out_split(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

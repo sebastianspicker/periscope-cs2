@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <cctype>
+#include <limits>
 
 namespace lab {
 
@@ -57,11 +58,19 @@ void plant_cs2_pattern_markers(std::vector<std::uint8_t>& memory,
     if (!pattern) continue;
     const auto bytes = materialize_pattern_bytes(pattern->bytes_hex);
     if (bytes.empty()) continue;
-    if (memory.size() < offset + bytes.size()) {
-      memory.resize(offset + bytes.size(), 0);
+    if (bytes.size() > std::numeric_limits<std::size_t>::max() - offset) {
+      return;
+    }
+    const auto end = offset + bytes.size();
+    if (memory.size() < end) {
+      memory.resize(end, 0);
     }
     std::copy(bytes.begin(), bytes.end(),
               memory.begin() + static_cast<std::ptrdiff_t>(offset));
+    if (bytes.size() + kMarkerGap >
+        std::numeric_limits<std::size_t>::max() - offset) {
+      return;
+    }
     offset += bytes.size() + kMarkerGap;
   }
 }
@@ -97,6 +106,11 @@ ac::ReadResult LabMemoryBackend::read(const ac::ReadRequest& req) {
   auto& fx = fixture_by_id(target_id_);
   auto out = fx.read_bytes(req.address, req.size);
   if (out.status == ac::Status::Ok) {
+    if (out.bytes.size() != req.size ||
+        stats_.read_bytes >
+            std::numeric_limits<std::uint64_t>::max() - out.bytes.size()) {
+      return {ac::Status::InvalidArgument, {}};
+    }
     ++stats_.read_ops;
     stats_.read_bytes += out.bytes.size();
     if (stats_.read_bytes >= (1u << 20) || stats_.read_ops >= 4) {

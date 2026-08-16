@@ -4,7 +4,8 @@
 #include "sim/world.hpp"
 
 #include <algorithm>
-#include <cstring>
+#include <limits>
+#include <type_traits>
 
 namespace sim {
 
@@ -12,36 +13,127 @@ namespace {
 
 constexpr std::size_t kEntRawSize = 16;  // float*3 + team + alive + pad[2]
 constexpr std::size_t kMinLabMem = 0x400;
+constexpr std::size_t kEntityRowsOffset = 0x10;
+constexpr std::size_t kMarkerSize = 8;
 
-void write_entity_table(std::vector<std::uint8_t>& mem, std::uint32_t table_rel) {
-  const std::size_t need = static_cast<std::size_t>(table_rel) + 0x10 + 2 * kEntRawSize;
-  if (mem.size() < need) {
-    mem.resize(need, 0);
+struct LabEntityRow {
+  float x, y, z;
+  std::uint8_t team, alive, pad[2];
+};
+static_assert(std::is_trivially_copyable_v<LabEntityRow>);
+static_assert(sizeof(LabEntityRow) == kEntRawSize);
+
+bool checked_add(std::size_t left, std::size_t right, std::size_t& out) {
+  if (right > std::numeric_limits<std::size_t>::max() - left) {
+    return false;
   }
-  // Clear prior table region lightly when relocating (zero count at old default).
-  if (table_rel != 0 && mem.size() >= 4) {
-    std::memset(mem.data(), 0, 4);
-  }
-  const std::uint32_t count = 2;
-  std::memcpy(mem.data() + table_rel, &count, sizeof(count));
-  struct Ent {
-    float x, y, z;
-    std::uint8_t team, alive, pad[2];
-  } e0{10.f, 0.f, 20.f, 1, 1, {}}, e1{50.f, 0.f, 80.f, 2, 1, {}};
-  std::memcpy(mem.data() + table_rel + 0x10, &e0, sizeof(e0));
-  std::memcpy(mem.data() + table_rel + 0x10 + sizeof(Ent), &e1, sizeof(e1));
+  out = left + right;
+  return true;
 }
 
-void write_acpt_marker(std::vector<std::uint8_t>& mem, std::size_t marker_off,
+bool checked_mul(std::size_t left, std::size_t right, std::size_t& out) {
+  if (left != 0 && right > std::numeric_limits<std::size_t>::max() / left) {
+    return false;
+  }
+  out = left * right;
+  return true;
+}
+
+bool range_fits(std::size_t offset, std::size_t size, std::size_t extent) {
+  return offset <= extent && size <= extent - offset;
+}
+
+bool address_offset(std::uint64_t address, std::uint64_t base,
+                    std::size_t& offset) {
+  if (address < base) {
+    return false;
+  }
+  const auto difference = address - base;
+  if (difference > std::numeric_limits<std::size_t>::max()) {
+    return false;
+  }
+  offset = static_cast<std::size_t>(difference);
+  return true;
+}
+
+bool ensure_extent(std::vector<std::uint8_t>& memory, std::size_t offset,
+                   std::size_t size) {
+  std::size_t end = 0;
+  if (!checked_add(offset, size, end) || end > memory.max_size()) {
+    return false;
+  }
+  if (memory.size() < end) {
+    memory.resize(end, 0);
+  }
+  return true;
+}
+
+template <typename T>
+bool write_object(std::vector<std::uint8_t>& memory, std::size_t offset,
+                  const T& value) {
+  static_assert(std::is_trivially_copyable_v<T>);
+  if (!range_fits(offset, sizeof(T), memory.size())) {
+    return false;
+  }
+  const auto* bytes = reinterpret_cast<const std::uint8_t*>(&value);
+  std::copy_n(bytes, sizeof(T),
+              memory.begin() + static_cast<std::ptrdiff_t>(offset));
+  return true;
+}
+
+template <typename T>
+bool read_object(const std::vector<std::uint8_t>& memory, std::size_t offset,
+                 T& value) {
+  static_assert(std::is_trivially_copyable_v<T>);
+  if (!range_fits(offset, sizeof(T), memory.size())) {
+    return false;
+  }
+  auto* bytes = reinterpret_cast<std::uint8_t*>(&value);
+  std::copy_n(memory.begin() + static_cast<std::ptrdiff_t>(offset), sizeof(T),
+              bytes);
+  return true;
+}
+
+bool entity_table_end(std::uint32_t table_rel, std::size_t row_count,
+                      std::size_t& end) {
+  std::size_t rows_size = 0;
+  std::size_t rows_offset = 0;
+  return checked_mul(row_count, kEntRawSize, rows_size) &&
+         checked_add(static_cast<std::size_t>(table_rel), kEntityRowsOffset,
+                     rows_offset) &&
+         checked_add(rows_offset, rows_size, end);
+}
+
+bool write_entity_table(std::vector<std::uint8_t>& mem, std::uint32_t table_rel) {
+  std::size_t end = 0;
+  if (!entity_table_end(table_rel, 2, end) ||
+      !ensure_extent(mem, static_cast<std::size_t>(table_rel),
+                     end - static_cast<std::size_t>(table_rel))) {
+    return false;
+  }
+  // Clear prior table region lightly when relocating (zero count at old default).
+  if (table_rel != 0 && range_fits(0, sizeof(std::uint32_t), mem.size())) {
+    std::fill_n(mem.begin(), sizeof(std::uint32_t), 0);
+  }
+  const std::uint32_t count = 2;
+  const LabEntityRow e0{10.f, 0.f, 20.f, 1, 1, {}};
+  const LabEntityRow e1{50.f, 0.f, 80.f, 2, 1, {}};
+  const auto rows_offset = static_cast<std::size_t>(table_rel) + kEntityRowsOffset;
+  return write_object(mem, table_rel, count) &&
+         write_object(mem, rows_offset, e0) &&
+         write_object(mem, rows_offset + sizeof(e0), e1);
+}
+
+bool write_acpt_marker(std::vector<std::uint8_t>& mem, std::size_t marker_off,
                        std::uint32_t table_rel) {
-  if (mem.size() < marker_off + 8) {
-    mem.resize(marker_off + 8, 0);
+  if (!ensure_extent(mem, marker_off, kMarkerSize)) {
+    return false;
   }
   mem[marker_off + 0] = 'A';
   mem[marker_off + 1] = 'C';
   mem[marker_off + 2] = 'P';
   mem[marker_off + 3] = 'T';
-  std::memcpy(mem.data() + marker_off + 4, &table_rel, sizeof(table_rel));
+  return write_object(mem, marker_off + 4, table_rel);
 }
 
 }  // namespace
@@ -54,13 +146,16 @@ void World::plant_lab_entities(std::uint32_t gpid) {
   if (!g || !g->is_game) {
     return;
   }
-  if (g->memory.size() < kMinLabMem) {
-    g->memory.resize(kMinLabMem, 0);
+  if (!ensure_extent(g->memory, 0, kMinLabMem)) {
+    return;
   }
   lab_entity_table_rel = 0;
   lab_pattern_marker_off = 0x200;
-  write_entity_table(g->memory, lab_entity_table_rel);
-  write_acpt_marker(g->memory, lab_pattern_marker_off, lab_entity_table_rel);
+  if (!write_entity_table(g->memory, lab_entity_table_rel) ||
+      !write_acpt_marker(g->memory, lab_pattern_marker_off,
+                         lab_entity_table_rel)) {
+    return;
+  }
   lab_pattern_marker_present = true;
   ++lab_pattern_generation;
 
@@ -79,25 +174,33 @@ bool World::mutate_lab_pattern_layout(std::uint32_t gpid, std::size_t new_marker
     return false;
   }
   // Avoid overlapping marker and entity table rows.
-  const std::size_t table_end =
-      static_cast<std::size_t>(new_table_rel) + 0x10 + 2 * kEntRawSize;
-  if (new_marker_off < table_end && new_marker_off + 8 > new_table_rel) {
+  std::size_t table_end = 0;
+  std::size_t marker_end = 0;
+  if (!entity_table_end(new_table_rel, 2, table_end) ||
+      !checked_add(new_marker_off, kMarkerSize, marker_end)) {
     return false;
   }
-  const std::size_t need =
-      std::max(new_marker_off + 8, table_end);
-  if (g->memory.size() < need) {
-    g->memory.resize(need, 0);
+  if (new_marker_off < table_end && marker_end > new_table_rel) {
+    return false;
+  }
+  const std::size_t need = std::max(marker_end, table_end);
+  if (!ensure_extent(g->memory, 0, need)) {
+    return false;
   }
   // Wipe old marker if present.
   if (lab_pattern_marker_present &&
-      lab_pattern_marker_off + 8 <= g->memory.size()) {
-    std::memset(g->memory.data() + lab_pattern_marker_off, 0, 8);
+      range_fits(lab_pattern_marker_off, kMarkerSize, g->memory.size())) {
+    std::fill_n(g->memory.begin() +
+                    static_cast<std::ptrdiff_t>(lab_pattern_marker_off),
+                kMarkerSize, 0);
   }
   lab_pattern_marker_off = new_marker_off;
   lab_entity_table_rel = new_table_rel;
-  write_entity_table(g->memory, lab_entity_table_rel);
-  write_acpt_marker(g->memory, lab_pattern_marker_off, lab_entity_table_rel);
+  if (!write_entity_table(g->memory, lab_entity_table_rel) ||
+      !write_acpt_marker(g->memory, lab_pattern_marker_off,
+                         lab_entity_table_rel)) {
+    return false;
+  }
   lab_pattern_marker_present = true;
   ++lab_pattern_generation;
   note("mutate_lab_pattern_layout marker_off=" + std::to_string(new_marker_off) +
@@ -114,35 +217,38 @@ bool World::plant_entity_snapshots(
   if (!g || !g->is_game) {
     return false;
   }
-  constexpr std::size_t kEnt = 16;
-  const std::size_t need =
-      static_cast<std::size_t>(table_rel) + 0x10 + entities.size() * kEnt;
-  if (g->memory.size() < need) {
-    g->memory.resize(need, 0);
+  if (entities.size() > std::numeric_limits<std::uint32_t>::max()) {
+    return false;
+  }
+  std::size_t table_end = 0;
+  if (!entity_table_end(table_rel, entities.size(), table_end) ||
+      !ensure_extent(g->memory, static_cast<std::size_t>(table_rel),
+                     table_end - static_cast<std::size_t>(table_rel)) ||
+      !ensure_extent(g->memory, lab_pattern_marker_off, kMarkerSize)) {
+    return false;
   }
   const std::uint32_t count = static_cast<std::uint32_t>(entities.size());
-  std::memcpy(g->memory.data() + table_rel, &count, sizeof(count));
+  if (!write_object(g->memory, table_rel, count)) {
+    return false;
+  }
   for (std::size_t i = 0; i < entities.size(); ++i) {
     const auto& e = entities[i];
-    struct Ent {
-      float x, y, z;
-      std::uint8_t team, alive, pad[2];
-    } row{e.origin.x, e.origin.y, e.origin.z, e.team,
-          static_cast<std::uint8_t>(e.alive ? 1 : 0), {}};
-    std::memcpy(g->memory.data() + table_rel + 0x10 + i * kEnt, &row,
-                sizeof(row));
+    const LabEntityRow row{e.origin.x, e.origin.y, e.origin.z, e.team,
+                           static_cast<std::uint8_t>(e.alive ? 1 : 0), {}};
+    std::size_t row_delta = 0;
+    std::size_t row_offset = 0;
+    if (!checked_mul(i, sizeof(row), row_delta) ||
+        !checked_add(static_cast<std::size_t>(table_rel) + kEntityRowsOffset,
+                     row_delta, row_offset) ||
+        !write_object(g->memory, row_offset, row)) {
+      return false;
+    }
   }
   lab_entity_table_rel = table_rel;
   // Keep ACPT marker pointing at this table for pattern-scan paths.
-  if (lab_pattern_marker_off + 8 > g->memory.size()) {
-    g->memory.resize(lab_pattern_marker_off + 8, 0);
+  if (!write_acpt_marker(g->memory, lab_pattern_marker_off, table_rel)) {
+    return false;
   }
-  g->memory[lab_pattern_marker_off + 0] = 'A';
-  g->memory[lab_pattern_marker_off + 1] = 'C';
-  g->memory[lab_pattern_marker_off + 2] = 'P';
-  g->memory[lab_pattern_marker_off + 3] = 'T';
-  std::memcpy(g->memory.data() + lab_pattern_marker_off + 4, &table_rel,
-              sizeof(table_rel));
   lab_pattern_marker_present = true;
   ++lab_pattern_generation;
   note("plant_entity_snapshots count=" + std::to_string(count) +
@@ -159,24 +265,34 @@ std::vector<ac::EntitySnapshot> World::read_entity_snapshots(
     return out;
   }
   const auto rel = table_rel != 0 ? table_rel : lab_entity_table_rel;
-  if (g->memory.size() < static_cast<std::size_t>(rel) + 4) {
+  if (!range_fits(rel, sizeof(std::uint32_t), g->memory.size())) {
     return out;
   }
   std::uint32_t count = 0;
-  std::memcpy(&count, g->memory.data() + rel, sizeof(count));
-  constexpr std::size_t kEnt = 16;
+  if (!read_object(g->memory, rel, count)) {
+    return out;
+  }
+  std::size_t rows_offset = 0;
+  if (!checked_add(static_cast<std::size_t>(rel), kEntityRowsOffset,
+                   rows_offset)) {
+    return out;
+  }
+  const auto available_rows = rows_offset <= g->memory.size()
+                                  ? (g->memory.size() - rows_offset) / kEntRawSize
+                                  : 0;
+  if (count > available_rows) {
+    return out;
+  }
   out.reserve(count);
   for (std::uint32_t i = 0; i < count; ++i) {
-    const std::size_t off =
-        static_cast<std::size_t>(rel) + 0x10 + static_cast<std::size_t>(i) * kEnt;
-    if (off + kEnt > g->memory.size()) {
-      break;
+    std::size_t row_delta = 0;
+    std::size_t off = 0;
+    LabEntityRow row{};
+    if (!checked_mul(i, sizeof(row), row_delta) ||
+        !checked_add(rows_offset, row_delta, off) ||
+        !read_object(g->memory, off, row)) {
+      return {};
     }
-    struct Ent {
-      float x, y, z;
-      std::uint8_t team, alive, pad[2];
-    } row{};
-    std::memcpy(&row, g->memory.data() + off, sizeof(row));
     out.emplace_back(i + 1, ac::Vec3{row.x, row.y, row.z}, row.team,
                      row.alive != 0);
   }
@@ -207,12 +323,12 @@ ac::ReadResult World::read_mem(std::uint32_t reader_pid, std::uint32_t target_pi
       return out;
     }
   }
-  if (addr < t->base ||
-      static_cast<std::size_t>(addr - t->base) + size > t->memory.size()) {
+  std::size_t off = 0;
+  if (!address_offset(addr, t->base, off) ||
+      !range_fits(off, size, t->memory.size())) {
     out.status = ac::Status::InvalidArgument;
     return out;
   }
-  const auto off = static_cast<std::size_t>(addr - t->base);
   out.bytes.assign(t->memory.begin() + static_cast<std::ptrdiff_t>(off),
                    t->memory.begin() + static_cast<std::ptrdiff_t>(off + size));
   out.status = ac::Status::Ok;

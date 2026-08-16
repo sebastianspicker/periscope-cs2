@@ -23,8 +23,8 @@ auto resolve=[&](uint64_t base,size_t size,const char*name)->uint64_t{
   uint32_t nn=0,af=0,an=0,ao=0;rfn(base+er+0x18,&nn,4);rfn(base+er+0x1C,&af,4);rfn(base+er+0x20,&an,4);rfn(base+er+0x24,&ao,4);
   size_t nl=strlen(name);for(uint32_t i=0;i<nn;++i){uint32_t nr=0;rfn(base+an+i*4u,&nr,4);char nm[64]{};rfn(base+nr,nm,63);if(strcmp(nm,name)==0){uint16_t o=0;rfn(base+ao+i*2u,&o,2);uint32_t fr=0;rfn(base+af+o*4u,&fr,4);return base+fr;}}return 0;};
 uint64_t cifn=resolve(tier0,tsz,"CreateInterface");
-uint8_t code[16];rfn(cifn,code,16);int32_t d=0;memcpy(&d,code+3,4);uint64_t slot=cifn+7+d;uint64_t head=0;rfn(slot,&head,8);
-uint64_t reg=head,icvar=0;for(int s=0;s<16&&reg;++s){uint64_t np=0,cf=0,nx=0;rfn(reg+8,&np,8);rfn(reg,&cf,8);rfn(reg+16,&nx,8);char nm[40]{};if(np)rfn(np,nm,39);if(strncmp(nm,"VEngineCvar",11)==0){uint8_t st[16];rfn(cf,st,16);int32_t d2=0;memcpy(&d2,st+3,4);icvar=cf+7+d2;break;}reg=nx;}
+int32_t d=0;if(!cifn||!rfn(cifn+3,&d,sizeof(d))){r.detach();real::cs2::detach_from_cs2(att.handle);return 1;}uint64_t slot=cifn+7+d;uint64_t head=0;rfn(slot,&head,8);
+uint64_t reg=head,icvar=0;for(int s=0;s<16&&reg;++s){uint64_t np=0,cf=0,nx=0;rfn(reg+8,&np,8);rfn(reg,&cf,8);rfn(reg+16,&nx,8);char nm[40]{};if(np)rfn(np,nm,39);if(strncmp(nm,"VEngineCvar",11)==0){int32_t d2=0;if(!rfn(cf+3,&d2,sizeof(d2))){reg=nx;continue;}icvar=cf+7+d2;break;}reg=nx;}
 printf("icvar=0x%llx\n",(unsigned long long)icvar);
 // find strings
 const char* names[]={"cl_radar_scale","hud_scaling","cl_hud_radar_scale","fps_max","sv_cheats","name"};

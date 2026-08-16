@@ -13,8 +13,10 @@
 #include "sim/world.hpp"
 
 #include <algorithm>
+#include <array>
+#include <bit>
 #include <cstdio>
-#include <cstring>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -47,11 +49,29 @@ int main() {
     expect(!fx.modules().empty(), "fixture default modules planted");
     auto vm = fx.read_bytes(fx.base_address() + lab::FixtureProcess::kViewMatrixRel,
                             sizeof(float) * 16);
-    expect(vm.status == ac::Status::Ok && vm.bytes.size() == sizeof(float) * 16,
-           "fixture view matrix readable");
+    const bool matrix_readable =
+        vm.status == ac::Status::Ok && vm.bytes.size() == sizeof(float) * 16;
+    expect(matrix_readable, "fixture view matrix readable");
     float m15 = 0;
-    std::memcpy(&m15, vm.bytes.data() + 15 * sizeof(float), sizeof(float));
+    if (matrix_readable) {
+      std::array<std::uint8_t, sizeof(float)> raw{};
+      std::copy_n(vm.bytes.begin() + 15 * sizeof(float), raw.size(), raw.begin());
+      m15 = std::bit_cast<float>(raw);
+    }
     expect(m15 == 1.0f, "fixture identity view matrix m[15]==1");
+
+    const auto original_size = fx.image_size();
+    const std::uint8_t one = 1;
+    fx.write_bytes(std::numeric_limits<std::uint64_t>::max(), {&one, 1});
+    expect(fx.image_size() == original_size,
+           "fixture rejects overflowing write address without resize");
+    expect(fx.read_bytes(fx.base_address() + original_size - 1, 2).status ==
+               ac::Status::InvalidArgument,
+           "fixture rejects truncated read extent");
+    auto misaligned = fx.read_bytes(fx.base_address() + 1, sizeof(std::uint32_t));
+    expect(misaligned.status == ac::Status::Ok &&
+               misaligned.bytes.size() == sizeof(std::uint32_t),
+           "fixture permits bounded misaligned byte read");
 
     lab::LabMemoryBackend be;
     expect(be.attach(9001) == ac::Status::Ok, "lab_memory attach secondary id");
@@ -69,9 +89,15 @@ int main() {
     expect(be.is_attached() && be.tier() == ac::Tier::T0_UsermodeRpm,
            "lab_memory attached tier");
     auto rr = be.read({fx.base_address(), sizeof(std::uint32_t)});
-    expect(rr.status == ac::Status::Ok, "lab_memory read count");
+    const bool count_readable =
+        rr.status == ac::Status::Ok && rr.bytes.size() >= sizeof(std::uint32_t);
+    expect(count_readable, "lab_memory read count");
     std::uint32_t count = 0;
-    std::memcpy(&count, rr.bytes.data(), sizeof(count));
+    if (count_readable) {
+      std::array<std::uint8_t, sizeof(std::uint32_t)> raw{};
+      std::copy_n(rr.bytes.begin(), raw.size(), raw.begin());
+      count = std::bit_cast<std::uint32_t>(raw);
+    }
     expect(count >= 2, "lab_memory entity count field");
 
     // Sequential entity reads to trip sequential_burst / bulk flags.
@@ -96,6 +122,12 @@ int main() {
     expect(sc.status == ac::Status::Ok && sc.parts.size() == 2,
            "lab_memory scatter_read");
     expect(be.stats().scatter_ops >= 1, "lab_memory scatter_ops");
+
+    auto partial = be.scatter_read({{fx.base_address(), 4},
+                                    {fx.base_address() + fx.image_size() - 1, 2}});
+    expect(partial.status == ac::Status::InvalidArgument && partial.parts.size() == 2 &&
+               partial.parts[1].bytes.empty(),
+           "lab_memory preserves partial scatter failure without short bytes");
 
     be.detach();
     expect(!be.is_attached(), "lab_memory detach");

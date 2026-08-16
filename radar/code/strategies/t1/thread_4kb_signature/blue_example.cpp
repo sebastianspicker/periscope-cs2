@@ -1,7 +1,8 @@
 #include "blue_example.hpp"
 
+#include <algorithm>
 #include <cstdio>
-#include <cstring>
+#include <string_view>
 
 namespace strategy::t1_thread_4kb_signature {
 
@@ -17,15 +18,17 @@ BlueResult Blue::detect(const sim::World& w) noexcept {
   }
 
   std::printf("[blue:thread_4kb_signature] sensor 2: 4KB signature buffer pattern scan\n");
-  const char* bad_strings[] = {"OpenProcess", "ReadProcessMemory",
-                               "cheat", "radar", "VAC", "injection"};
-  for (const auto& s : bad_strings) {
-    const std::size_t slen = std::strlen(s);
+  constexpr std::string_view bad_strings[] = {
+      "OpenProcess", "ReadProcessMemory", "cheat", "radar", "VAC", "injection"};
+  for (const auto s : bad_strings) {
+    const std::size_t slen = s.size();
     if (w.thread_start_4kb.size() < slen) continue;
     for (std::size_t i = 0; i + slen <= w.thread_start_4kb.size(); ++i) {
-      if (std::memcmp(w.thread_start_4kb.data() + i, s, slen) == 0) {
+      if (std::equal(s.begin(), s.end(),
+                     w.thread_start_4kb.begin() +
+                         static_cast<std::ptrdiff_t>(i))) {
         ++r.patterns_found;
-        r.detail += std::string("pattern[") + s + "] ";
+        r.detail += std::string("pattern[") + std::string(s) + "] ";
         break;
       }
     }

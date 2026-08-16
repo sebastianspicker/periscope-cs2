@@ -1,14 +1,13 @@
 """setup subcommand — one-command setup for the live ingame overlay.
 
-Installs dependencies, downloads a model, creates a configuration file, and
+Checks dependencies, downloads a model, creates a configuration file, and
 optionally tests the pipeline. Designed to get a visually impaired user from
-zero to running in a single command.
+zero to running in a single command after the locked environment is installed.
 """
 
 from __future__ import annotations
 
 import argparse
-import subprocess
 import sys
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -27,6 +26,9 @@ from cs2_vision_access.config import (
 
 if TYPE_CHECKING:
     import numpy as np
+
+
+_TRAINING_ENVIRONMENT_COMMAND = "uv sync --frozen --extra train"
 
 
 def register_setup_command(subcommands: argparse._SubParsersAction) -> None:
@@ -129,7 +131,8 @@ def _check_environment() -> list[str]:
 
     if missing:
         print(f"  WARNING: missing packages: {', '.join(missing)}")
-        print(f"  Run: uv sync  (or: pip install {' '.join(missing)})")
+        print("  Install the locked environment before continuing:")
+        print(f"    {_TRAINING_ENVIRONMENT_COMMAND}")
     else:
         print("  All core dependencies available")
     print()
@@ -174,10 +177,14 @@ def _download_and_export_model(
 
             try:
                 from ultralytics import YOLO
-            except ImportError:
-                print("  Installing ultralytics...")
-                subprocess.check_call([sys.executable, "-m", "pip", "install", "ultralytics"])
-                from ultralytics import YOLO  # noqa: F811
+            except ImportError as error:
+                message = (
+                    "Ultralytics is required to download and export a setup model. "
+                    "Install the locked training environment before rerunning: "
+                    f"{_TRAINING_ENVIRONMENT_COMMAND}"
+                )
+                print(f"  ERROR: {message}")
+                raise RuntimeError(message) from error
 
             pt_path = output_dir / f"{model_name}.pt"
             if not pt_path.is_file():

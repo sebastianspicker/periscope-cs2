@@ -10,6 +10,7 @@ Modes:
 
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -51,6 +52,8 @@ from cs2_vision_access.training.auto.state import (
     load_state,
     save_state,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 # Exit codes for the CLI / ``run_auto_train``.
 EXIT_OK = 0
@@ -272,8 +275,10 @@ def _note_events_path(paths: RunPaths, state: StageState) -> None:
         events_path = paths.run_dir / "events.jsonl"
         if events_path.is_file():
             state.artifacts["events_jsonl"] = str(events_path.resolve())
-    except Exception:  # noqa: BLE001 — never break pipeline
-        pass
+    except OSError as error:
+        # The event pointer is supplemental; a transient filesystem problem
+        # must not turn an otherwise completed training stage into a failure.
+        LOGGER.debug("Could not record events.jsonl artifact: %s", error)
 
 
 def _load_or_create_state(

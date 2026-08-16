@@ -103,6 +103,28 @@ class ExtractFramesFromTarTests(unittest.TestCase):
             img_c = cv2.imread(str(root / "out_c" / "images" / names_c[0]))
             self.assertIsNotNone(img_c)
 
+    def test_reproducible_rng_keeps_same_seed_sampling_contract(self) -> None:
+        """The non-cryptographic RNG is deliberate so training inputs reproduce."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            tar_path = root / "shard.tar"
+            _make_webdataset_tar(tar_path, n_videos=4)
+            outputs: list[list[str]] = []
+            for name in ("first", "second"):
+                out = root / name
+                extract_frames_from_tar(
+                    tar_path,
+                    out,
+                    max_videos=2,
+                    frames_per_video=2,
+                    sample_every_n=3,
+                    shuffle_videos=True,
+                    seed=2026,
+                    random_offset=True,
+                )
+                outputs.append(sorted(path.name for path in (out / "images").glob("frame_*.jpg")))
+            self.assertEqual(outputs[0], outputs[1])
+
     def test_random_offset_parameter_exists(self) -> None:
         sig = inspect.signature(extract_frames_from_tar)
         self.assertIn("random_offset", sig.parameters)

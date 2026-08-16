@@ -92,7 +92,8 @@ def run_frame(
             result.termination_reason = read_reason
         return result
 
-    assert frame is not None
+    if frame is None:
+        raise RuntimeError("capture returned success without a frame")
 
     inference_start = time.perf_counter()
     predictions = segmenter.predict(frame, frame_index=frame_index)

@@ -143,15 +143,22 @@ class LifecycleMixin:
             except queue.Full:
                 return
 
+    def _preview_photo(self, png: bytes) -> Any | None:
+        """Build a Tk image, dropping only preview payloads rejected by Tk."""
+        try:
+            return self._tk.PhotoImage(data=png)
+        except self._tk.TclError as error:
+            self._log(f"Preview frame skipped: {error}")
+            return None
+
     def _poll_preview(self) -> None:
         while True:
             try:
                 png, frame_index, count = self._preview_queue.get_nowait()
             except queue.Empty:
                 break
-            try:
-                photo = self._tk.PhotoImage(data=png)
-            except Exception:
+            photo = self._preview_photo(png)
+            if photo is None:
                 continue
             self._last_photo = photo
             self._preview_canvas.itemconfigure(self._preview_image_id, image=photo)

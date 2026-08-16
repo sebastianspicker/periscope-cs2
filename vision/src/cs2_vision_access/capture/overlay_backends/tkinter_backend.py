@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-import contextlib
+import logging
 from collections.abc import Callable
 from typing import Any
 
 import numpy as np
+
+LOGGER = logging.getLogger(__name__)
 
 # Pixels at or below this alpha are forced to pure black so the window's
 # ``-transparentcolor black`` color key hides them entirely.
@@ -103,9 +105,10 @@ class TkinterOverlayBackend:
         try:
             root.bind("<KeyPress>", self._on_key_press)
             root.focus_force()
-        except Exception:
-            # Binding is best-effort; a headless/stubbed display must not crash.
-            pass
+        except tk.TclError as error:
+            # Binding is optional for an overlay whose window manager cannot
+            # grant focus; drawing remains usable through the normal pipeline.
+            LOGGER.debug("Tkinter hotkeys unavailable; continuing without focus: %s", error)
 
     def move(self, x: int, y: int) -> None:
         """Reposition the window without resizing."""
@@ -120,8 +123,14 @@ class TkinterOverlayBackend:
 
     def close(self) -> None:
         if self._root:
-            with contextlib.suppress(Exception):
+            import tkinter as tk
+
+            try:
                 self._root.destroy()
+            except tk.TclError as error:
+                # A user/window manager can destroy the window before the
+                # pipeline's cleanup callback runs.
+                LOGGER.debug("Tkinter overlay was already closed: %s", error)
             self._root = None
         self._running = False
 
@@ -135,10 +144,7 @@ class TkinterOverlayBackend:
         action = _HOTKEY_ACTION_KEYS.get(char) or _HOTKEY_ACTION_KEYS.get(keysym)
         if action is None:
             return
-        try:
-            should_quit = handler(action)
-        except Exception:
-            return
+        should_quit = handler(action)
         if should_quit:
             self.close()
 
@@ -159,8 +165,11 @@ class TkinterOverlayBackend:
             else:
                 self._canvas.itemconfig(self._image_id, image=self._photo)
             self._root.update_idletasks()
-        except Exception:
-            pass
+        except tk.TclError as error:
+            # Closing the overlay between frames is a normal UI race. Stop
+            # rendering instead of hiding encoding/programming failures.
+            self._running = False
+            LOGGER.debug("Tkinter overlay closed while drawing a frame: %s", error)
 
     def _encode_photo(self, tk: Any, frame_rgba: np.ndarray) -> Any:
         """Encode an RGBA frame as a ``tk.PhotoImage`` (cv2 preferred, PIL fallback).
@@ -176,6 +185,7 @@ class TkinterOverlayBackend:
         else:
             bgr = frame_rgba
 
+        cv2: Any
         try:
             import cv2
         except ImportError:
@@ -202,9 +212,12 @@ class TkinterOverlayBackend:
     def poll_events(self) -> bool:
         if not self._running or self._root is None:
             return False
+        import tkinter as tk
+
         try:
             self._root.update()
-        except Exception:
+        except tk.TclError as error:
             self._running = False
+            LOGGER.debug("Tkinter overlay event loop closed: %s", error)
             return False
         return True

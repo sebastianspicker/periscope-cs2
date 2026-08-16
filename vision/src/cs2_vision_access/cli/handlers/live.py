@@ -31,6 +31,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,7 @@ from cs2_vision_access.capture import (
     CaptureConfig,
     FileOutputSink,
     OverlayWindow,
+    ScreenCaptureError,
     ScreenCapturer,
     ScreenRegion,
     create_overlay,
@@ -60,6 +62,8 @@ from cs2_vision_access.segmenters import (
     SUPPORTED_SEGMENTER_BACKENDS,
     create_segmenter,
 )
+
+LOGGER = logging.getLogger(__name__)
 
 
 def register_live_commands(subcommands: argparse._SubParsersAction) -> None:
@@ -310,8 +314,10 @@ def _monitor_origin(monitor_index: int) -> tuple[int, int]:
         for mon in list_monitors():
             if int(mon["index"]) == int(monitor_index):
                 return int(mon["left"]), int(mon["top"])
-    except Exception:
-        pass
+    except (OSError, ScreenCaptureError) as error:
+        # Monitor discovery is optional alignment metadata; the overlay still
+        # works at its default origin when the display backend is unavailable.
+        LOGGER.debug("Could not resolve monitor origin; using (0, 0): %s", error)
     return 0, 0
 
 

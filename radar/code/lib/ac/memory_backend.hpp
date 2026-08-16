@@ -23,7 +23,10 @@ class IMemoryBackend {
   virtual void detach() = 0;
   virtual bool is_attached() const = 0;
 
-  virtual ReadResult read(const ReadRequest& req) = 0;
+  /// On Status::Ok, bytes must contain exactly req.size bytes. Backends must
+  /// reject overflowed or partially materialized ranges rather than returning
+  /// a short success result to typed callers.
+  [[nodiscard]] virtual ReadResult read(const ReadRequest& req) = 0;
 };
 
 }  // namespace ac

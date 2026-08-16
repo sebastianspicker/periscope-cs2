@@ -13,8 +13,10 @@
 #include "sim/world.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstdio>
-#include <cstring>
+#include <limits>
+#include <span>
 #include <memory>
 #include <string>
 #include <vector>
@@ -45,9 +47,11 @@ bool donor_cb(std::uint64_t addr, void* buf, std::size_t size) {
   if (rr.status != ac::Status::Ok) {
     return false;
   }
-  if (size != 0 && buf != nullptr) {
-    std::memcpy(buf, rr.bytes.data(),
-                std::min(size, rr.bytes.size()));
+  if (rr.bytes.size() != size || (size != 0 && buf == nullptr)) {
+    return false;
+  }
+  if (size != 0) {
+    std::copy(rr.bytes.begin(), rr.bytes.end(), static_cast<std::uint8_t*>(buf));
   }
   return true;
 }
@@ -91,6 +95,19 @@ int main() {
     expect(w.mutate_lab_pattern_layout(game, 0x280, 0x40),
            "arena: mutate_lab_pattern_layout");
     expect(w.lab_pattern_generation >= 2, "arena: generation bumped");
+
+    // Bounds are checked without wrapping, allocating, or partially reading.
+    const auto before_size = g->memory.size();
+    const std::uint8_t byte = 0xA5;
+    expect(!w.write_mem(game, std::numeric_limits<std::uint64_t>::max(), &byte,
+                        static_cast<std::size_t>(g->base) + 1),
+           "arena: write_mem rejects address/length overflow");
+    expect(g->memory.size() == before_size,
+           "arena: overflow write leaves memory extent unchanged");
+    const auto truncated =
+        w.read_mem(reader_pid, game, g->base + g->memory.size() - 2, 4, true);
+    expect(truncated.status == ac::Status::InvalidArgument && truncated.bytes.empty(),
+           "arena: truncated read rejects partial result");
   }
 
   // ── 2. MemoryReader factory — all six acquisition models ─────────────────
@@ -121,6 +138,18 @@ int main() {
              "DirectRpm incompatible ProxyMemoryAccess");
       expect(w.active_memory_model == ac::MemoryAcquisitionModel::DirectRpm,
              "World active_memory_model DirectRpm");
+      expect(r->read(g->base, nullptr, sizeof(count)) == ac::Status::InvalidArgument,
+             "DirectRpm rejects null non-empty destination");
+      std::array<std::uint8_t, sizeof(count)> bytes{};
+      expect(r->read(g->base, std::span<std::uint8_t>(bytes)) == ac::Status::Ok,
+             "DirectRpm span read fills full destination");
+      std::uint32_t typed_count = 0;
+      expect(r->read_t(g->base, typed_count) == ac::Status::Ok && typed_count >= 2,
+             "DirectRpm typed read fills whole object");
+      std::uint32_t unaligned_count = 0;
+      expect(r->read(g->base + 1, &unaligned_count, sizeof(unaligned_count)) ==
+                 ac::Status::Ok,
+             "DirectRpm byte-stream permits misaligned address safely");
     }
 
     // Syscall
@@ -427,6 +456,21 @@ int main() {
     expect(back.size() == 2, "read_entity_snapshots size");
     expect(back[0].origin.x == 1.f && back[1].alive == false,
            "read_entity_snapshots values");
+
+    // Corrupt count and rows to model malformed fixture input. The decoder must
+    // return no partial snapshots and must not reserve the forged count.
+    const std::uint32_t forged = std::numeric_limits<std::uint32_t>::max();
+    expect(w.write_mem(game, g->base + 0x50, &forged, sizeof(forged)),
+           "write forged entity count");
+    expect(w.read_entity_snapshots(game, 0x50).empty(),
+           "read_entity_snapshots rejects oversized count");
+    g->memory.resize(0x52);
+    expect(w.read_entity_snapshots(game, 0x50).empty(),
+           "read_entity_snapshots rejects truncated table");
+    expect(!w.mutate_lab_pattern_layout(game,
+                                        std::numeric_limits<std::size_t>::max(),
+                                        0x40),
+           "mutate layout rejects marker offset overflow");
   }
 
   // ── 9. strategy_example + narrative smoke ────────────────────────────────

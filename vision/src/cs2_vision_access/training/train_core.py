@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any
+
+LOGGER = logging.getLogger(__name__)
 
 
 def build_train_kwargs(
@@ -81,6 +84,8 @@ def auto_train_device() -> str:
 
         if torch.cuda.is_available():
             return "cuda:0"
-    except Exception:
-        pass
+    except (ImportError, OSError, RuntimeError) as error:
+        # Missing/broken CUDA runtimes are recoverable: local and cloud
+        # training both support an explicit CPU device.
+        LOGGER.debug("CUDA autodetection unavailable; using CPU: %s", error)
     return "cpu"
