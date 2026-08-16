@@ -41,7 +41,7 @@ gpu = [
   "onnxruntime-gpu>=1.22,<2",          # CUDA/TensorRT/DirectML support
   "onnxconverter-common>=1.9,<2",       # FP16 model conversion
   "onnx>=1.22,<2",
-  "cupy-cuda12x>=13,<14",              # Native CUDA kernels via CuPy (adjust '-cuda12x' for your CUDA version)
+  "cupy-cuda12x>=13,<15",              # Native CUDA kernels via CuPy (adjust '-cuda12x' for your CUDA version)
 ]
 gpu-cuda11 = [
   "cupy-cuda11x>=13,<14",              # CuPy for CUDA 11.x
