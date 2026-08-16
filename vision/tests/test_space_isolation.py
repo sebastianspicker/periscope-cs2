@@ -220,7 +220,7 @@ class SpaceIsolationTests(unittest.TestCase):
                 archive.writestr("labels/frame.txt", "0 0.5 0.5 0.1 0.1\n")
                 archive.writestr(
                     "dataset.yaml",
-                    f"download: python -c \\\"Path({marker!r}).touch()\\\"\n",
+                    f'download: python -c \\"Path({marker!r}).touch()\\"\n',
                 )
 
             observed_manifests: list[str] = []

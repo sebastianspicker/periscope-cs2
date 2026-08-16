@@ -176,6 +176,17 @@ class MonitorAndTrainingFallbackTests(unittest.TestCase):
 
 
 class TkinterFallbackTests(unittest.TestCase):
+    def test_close_recovers_when_tkinter_is_unavailable(self) -> None:
+        backend = TkinterOverlayBackend()
+        backend._root = _TkRoot()
+        backend._running = True
+
+        with patch.dict(sys.modules, {"tkinter": None}):
+            backend.close()
+
+        self.assertIsNone(backend._root)
+        self.assertFalse(backend._running)
+
     def test_tkinter_ui_boundaries_recover_only_tcl_errors(self) -> None:
         for operation in ("open", "close", "show_frame", "poll_events"):
             for error, recovers in [(_TclError("window closed"), True), (TypeError("bug"), False)]:
@@ -255,9 +266,7 @@ class SpaceFallbackTests(unittest.TestCase):
                 with (
                     patch.dict(sys.modules, {"torch": None}),
                     patch.object(_SPACE_APP, "_nvidia_smi_path", return_value=executable),
-                    patch.object(
-                        _SPACE_APP._gpu_security.subprocess, "run", side_effect=error
-                    ),
+                    patch.object(_SPACE_APP._gpu_security.subprocess, "run", side_effect=error),
                 ):
                     if recovers:
                         self.assertFalse(_SPACE_APP._has_cuda())
@@ -291,9 +300,7 @@ class SpaceFallbackTests(unittest.TestCase):
                 with (
                     patch.dict(sys.modules, {"torch": None}),
                     patch.object(_SPACE_APP, "_nvidia_smi_path", return_value=executable),
-                    patch.object(
-                        _SPACE_APP._gpu_security.subprocess, "run", side_effect=error
-                    ),
+                    patch.object(_SPACE_APP._gpu_security.subprocess, "run", side_effect=error),
                 ):
                     if recovers:
                         self.assertEqual(_SPACE_APP._gpu_info(), "None (CPU)")

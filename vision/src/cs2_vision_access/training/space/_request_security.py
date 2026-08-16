@@ -122,8 +122,7 @@ def validate_uploaded_zip(
                 f"({max_total_bytes} bytes)."
             )
         if info.file_size and (
-            info.compress_size == 0
-            or info.file_size / info.compress_size > max_compression_ratio
+            info.compress_size == 0 or info.file_size / info.compress_size > max_compression_ratio
         ):
             return (
                 "Error: dataset zip contains a member above the compression-ratio limit "

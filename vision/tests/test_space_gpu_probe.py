@@ -20,10 +20,7 @@ def _load_space_app() -> ModuleType:
     """Load the app without requiring Gradio in the CPU test environment."""
     gradio = ModuleType("gradio")
     gradio.Progress = _Progress  # type: ignore[attr-defined]
-    app_path = (
-        Path(__file__).resolve().parents[1]
-        / "src/cs2_vision_access/training/space/app.py"
-    )
+    app_path = Path(__file__).resolve().parents[1] / "src/cs2_vision_access/training/space/app.py"
     spec = importlib.util.spec_from_file_location("space_app_gpu_probe_test", app_path)
     if spec is None or spec.loader is None:
         raise RuntimeError("could not load Space app test module")

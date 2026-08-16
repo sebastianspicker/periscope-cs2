@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 #include <bit>
+#include <cstring>
 #include <limits>
 #include <string>
 #include <type_traits>

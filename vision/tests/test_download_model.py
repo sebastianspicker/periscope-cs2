@@ -280,9 +280,7 @@ class TestPinnedDownloadAdversarialCases(unittest.TestCase):
             patch.object(download_model, "_create_manifest") as create_manifest,
             self.assertRaisesRegex(download_model.DownloadModelError, message),
         ):
-            download_model._handle_onnx_direct(
-                "pinned-test", registry_info, self._arguments(root)
-            )
+            download_model._handle_onnx_direct("pinned-test", registry_info, self._arguments(root))
         create_manifest.assert_not_called()
         self.assertFalse((root / "model.onnx").exists())
         self.assertEqual(list(root.glob(".model.onnx.*.download")), [])

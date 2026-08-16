@@ -66,9 +66,7 @@ class TestDownloadModelNoManifest(unittest.TestCase):
     _MODEL_SHA256 = hashlib.sha256(_MODEL_BYTES).hexdigest()
 
     @classmethod
-    def _fake_download(
-        cls, url: str, path: object, *, expected_sha256: str
-    ) -> str:
+    def _fake_download(cls, url: str, path: object, *, expected_sha256: str) -> str:
         Path(str(path)).write_bytes(cls._MODEL_BYTES)
         return expected_sha256
 

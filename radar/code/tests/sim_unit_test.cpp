@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdio>
+#include <cstring>
 #include <limits>
 #include <span>
 #include <memory>

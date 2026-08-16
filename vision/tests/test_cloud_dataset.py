@@ -114,8 +114,9 @@ class DatasetZipHelpersTests(unittest.TestCase):
                     with zipfile.ZipFile(zip_path, "w") as zf:
                         for member_name, payload in members:
                             zf.writestr(member_name, payload)
-                    with zipfile.ZipFile(zip_path, "r") as zf, self.assertRaisesRegex(
-                        ValueError, error
+                    with (
+                        zipfile.ZipFile(zip_path, "r") as zf,
+                        self.assertRaisesRegex(ValueError, error),
                     ):
                         safe_extract_zip(zf, out, limits)
                     self.assertFalse(out.exists())
@@ -128,8 +129,9 @@ class DatasetZipHelpersTests(unittest.TestCase):
             with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
                 zf.writestr("images/repeated.jpg", b"x" * 4_096)
             limits = ZipExtractionLimits(2, 8_192, 8_192, 2)
-            with zipfile.ZipFile(zip_path, "r") as zf, self.assertRaisesRegex(
-                ValueError, "compression-ratio"
+            with (
+                zipfile.ZipFile(zip_path, "r") as zf,
+                self.assertRaisesRegex(ValueError, "compression-ratio"),
             ):
                 safe_extract_zip(zf, out, limits)
             self.assertFalse(out.exists())

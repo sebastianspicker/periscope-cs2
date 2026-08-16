@@ -123,15 +123,21 @@ class TkinterOverlayBackend:
 
     def close(self) -> None:
         if self._root:
-            import tkinter as tk
-
             try:
-                self._root.destroy()
-            except tk.TclError as error:
-                # A user/window manager can destroy the window before the
-                # pipeline's cleanup callback runs.
-                LOGGER.debug("Tkinter overlay was already closed: %s", error)
-            self._root = None
+                import tkinter as tk
+            except ModuleNotFoundError:
+                # Cleanup can run after a headless fallback has made Tkinter
+                # unavailable. There is no live Tcl interpreter to notify.
+                self._root = None
+            else:
+                try:
+                    self._root.destroy()
+                except tk.TclError as error:
+                    # A user/window manager can destroy the window before the
+                    # pipeline's cleanup callback runs.
+                    LOGGER.debug("Tkinter overlay was already closed: %s", error)
+                self._root = None
+
         self._running = False
 
     def _on_key_press(self, event: Any) -> None:

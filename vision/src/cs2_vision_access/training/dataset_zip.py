@@ -16,9 +16,7 @@ from pathlib import Path
 try:
     from cs2_vision_access.dataset.types import IMAGE_EXTENSIONS
 except ImportError:
-    IMAGE_EXTENSIONS = frozenset(
-        {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
-    )
+    IMAGE_EXTENSIONS = frozenset({".jpg", ".jpeg", ".png", ".bmp", ".webp"})
 
 # Stable preference order for stem → image lookup (subset of IMAGE_EXTENSIONS).
 _PREFERRED_IMAGE_EXTS: tuple[str, ...] = (".jpg", ".jpeg", ".png", ".bmp", ".webp")

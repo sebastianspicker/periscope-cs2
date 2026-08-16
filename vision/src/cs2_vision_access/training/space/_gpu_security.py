@@ -65,9 +65,7 @@ def has_cuda(resolve_executable: PathResolver, logger: logging.Logger) -> bool:
             return False
         try:
             return (
-                subprocess.run(
-                    [executable], capture_output=True, check=False, timeout=3
-                ).returncode
+                subprocess.run([executable], capture_output=True, check=False, timeout=3).returncode
                 == 0
             )
         except (OSError, subprocess.TimeoutExpired) as error:
