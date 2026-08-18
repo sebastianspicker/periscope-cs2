@@ -206,6 +206,7 @@ cs2-vision-config.json
 /loc_before.txt
 /loc_after.txt
 kilo.json
+/.mcp.json
 
 # Archived agent guidance is local-only.
 /vision/archive/internal/AGENTS.md

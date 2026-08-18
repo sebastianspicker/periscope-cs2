@@ -27,7 +27,7 @@ anti-cheat-legit-radar/
 
 ## Learn (order)
 
-1. [`docs/OVERVIEW.md`](docs/OVERVIEW.md)
+1. [`OVERVIEW.md`](OVERVIEW.md)
 2. `code/tiers/t0_usermode_rpm/` → LESSON + `duel_t0`
 3. t1 → t2 → t3 (same pattern)
 4. `code/crosscutting/` (evasion / features / structural)
@@ -50,15 +50,15 @@ ctest --test-dir build --output-on-failure
 
 Lab only (`sim::World`). No real games, no loadable malware, no real VMX/BYOVD exploits.
 
-- [Residual VMX/BYOVD/DMA/SMM research examples](docs/RESIDUAL-VMX-BYOVD-DMA-SMM.md) (lab-safe sim only)
+- [Residual VMX/BYOVD/DMA/SMM research examples](RESIDUAL-VMX-BYOVD-DMA-SMM.md) (lab-safe sim only)
 - Depth pedagogy library: `code/shared/depth/` + `depth_tests`
 
 ## Depth pedagogy (post catalog-99)
 
 - Shared multi-step detectors: `code/shared/depth/` (`ac_depth`)
 - Tests: `depth_tests` (ctest)
-- Residual research (lab-safe): [docs/RESIDUAL-VMX-BYOVD-DMA-SMM.md](docs/RESIDUAL-VMX-BYOVD-DMA-SMM.md)
+- Residual research (lab-safe): [RESIDUAL-VMX-BYOVD-DMA-SMM.md](RESIDUAL-VMX-BYOVD-DMA-SMM.md)
 
 ## Dummy FPS example
 
-Attacker/defender bomb plant-defuse stand-in: [`code/shared/fps/`](code/shared/fps/) — run `./code/build/fps_demo all`.
+Attacker/defender bomb plant-defuse stand-in: [current FPS library](../../../code/lib/fps/) — from `radar/code`, run `./build/fps_demo all`.

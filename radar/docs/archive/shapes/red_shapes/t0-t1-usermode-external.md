@@ -81,5 +81,5 @@ red-t0-t1-external-radar/
 
 ## Blue mapping
 
-→ [`../blue/control-stack.md`](../blue/control-stack.md) § Handle graph, UI co-occurrence  
-→ [`../matrices/RED-BLUE-MAP.md`](../matrices/RED-BLUE-MAP.md) rows T0–T1
+→ [`../blue_shapes/control-stack.md`](../blue_shapes/control-stack.md) § Handle graph, UI co-occurrence
+→ [`../../matrices/RED-BLUE-MAP.md`](../../matrices/RED-BLUE-MAP.md) rows T0–T1

@@ -85,4 +85,4 @@ driver/src/hide.c
 
 → Driver allow/block lists, SCM telemetry, BYOVD intel  
 → Still run full T0–T1 detectors (fallback)  
-→ [`../matrices/RED-BLUE-MAP.md`](../matrices/RED-BLUE-MAP.md) rows T2
+→ [`../../matrices/RED-BLUE-MAP.md`](../../matrices/RED-BLUE-MAP.md) rows T2

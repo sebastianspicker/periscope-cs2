@@ -27,7 +27,7 @@ Game VA (entity)
 
 ## On-disk / install tree (adversary shape)
 
-See [`../red/t3-hypervisor.md`](../red/t3-hypervisor.md) for full tree.
+See [`../shapes/red_shapes/t3-hypervisor.md`](../shapes/red_shapes/t3-hypervisor.md) for full tree.
 
 **Minimal user-facing drop:**
 

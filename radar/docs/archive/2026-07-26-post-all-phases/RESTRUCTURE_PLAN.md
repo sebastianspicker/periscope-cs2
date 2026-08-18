@@ -388,7 +388,7 @@ After code moves stabilize:
 ### Phase 7 — Final verification
 
 ```bash
-cd /Users/sebastian/research/anti-cheat-legit-radar/code
+cd path/to/periscope/radar/code
 rm -rf build
 cmake -S . -B build
 cmake --build build -j
@@ -462,7 +462,7 @@ ctest --test-dir build --output-on-failure
 
 ```bash
 # Clean configure + build
-cd /Users/sebastian/research/anti-cheat-legit-radar/code
+cd path/to/periscope/radar/code
 cmake -S . -B build
 cmake --build build -j$(sysctl -n hw.ncpu 2>/dev/null || echo 4)
 
@@ -479,7 +479,7 @@ ctest --test-dir build --output-on-failure
 rg -n 't0|t1|t2|demos/cs2_radar' \
   --glob '!docs/archive/2026-07-21-pre-comprehensive/**' \
   --glob '!code/build/**' \
-  /Users/sebastian/research/anti-cheat-legit-radar
+  path/to/periscope/radar
 # expect: only HISTORY / intentional archive mentions
 ```
 
@@ -614,7 +614,7 @@ echo "git mv complete. Apply CMake/include/doc rewrites next (Phases 2–6 conte
 
 ```bash
 # From repo root — review diff before commit
-cd /Users/sebastian/research/anti-cheat-legit-radar
+cd path/to/periscope/radar
 
 # CMake + sources (exclude archive snapshot + build)
 rg -l 't0|t1|t2|t3|t4|demos/cs2_radar|shared/lab/src/(smoke|team_api|depth|fps|t[0-4]_full|evasion_full|features_full|ops_full|structural_full|shared_full|tools_full)' \

@@ -1,16 +1,17 @@
 # Release Status
 
-Evidence date: 2026-08-14
+Historical evidence date: 2026-08-14
 
-Status: local simulation and CPU validation complete; not publishable
+Status: historical local simulation and CPU validation; not publishable from
+that snapshot
 
 ## Repository boundary
 
-This checkout is an unborn `main` repository with no commit, canonical
-revision, or configured remote. Every top-level path is untracked. The local
-results below are useful implementation evidence, but they cannot identify a
-release candidate and do not authorize a commit, push, tag, package, or
-deployment.
+The 2026-08-14 audit described an unborn `main` repository with no commit,
+canonical revision, or configured remote. That description is historical and
+must not be used as a statement of the current checkout. The local results
+below are useful implementation evidence, but they cannot identify a release
+candidate and do not authorize a commit, push, tag, package, or deployment.
 
 Periscope contains two separately licensed projects rather than one releasable
 package:
@@ -18,7 +19,7 @@ package:
 - `radar/` is an MIT-licensed C++ educational red/blue simulation lab.
 - `vision/` is an AGPL-3.0-only Python accessibility-research package.
 
-## Current local evidence
+## 2026-08-14 local evidence
 
 <!-- markdownlint-disable MD013 -->
 
@@ -27,10 +28,10 @@ package:
 | Radar default boundary | All real backends and live-reader features default to `OFF` on every platform. A clean macOS ARM64 configuration confirmed the disabled cache values. |
 | Radar build | The complete default CMake graph built successfully with tests and `strategy_lab` enabled. |
 | Radar tests | CTest passed 42 of 42 tests. The strategy catalog completed 187 scenarios with 0 failures. The five tier demos built and entered simulation mode. |
-| Vision environment | The frozen lock resolves 143 packages under Python 3.12.12 with the `dev` extra. CI and contributor commands now use frozen resolution. |
+| Vision environment | The frozen lock resolved 143 packages under Python 3.12.12 with the `dev` extra. CI and contributor commands used frozen resolution. |
 | Vision lint and format | Ruff check and format verification passed across 333 source and test files. |
 | Vision CPU tests | The documented selection passed 778 tests, skipped 1, and deselected 54 live, GPU, or CUDA cases. The focused optimizer suite passed 17 tests. |
-| Vision strict typing | The matrix now checks each interpreter as its actual Python version instead of forcing Python 3.11. Mypy reaches project diagnostics and remains red with 451 errors in 96 files across 252 source files. |
+| Vision strict typing | The matrix checked each interpreter as its actual Python version instead of forcing Python 3.11. Mypy reached project diagnostics and remained red with 451 errors in 96 files across 252 source files. |
 
 <!-- markdownlint-enable MD013 -->
 

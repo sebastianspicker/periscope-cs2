@@ -60,4 +60,4 @@ T0 RPM ──► T1 syscall ──► T2 kernel/BYOVD ──► T3 HV ──► 
 - [THREAD-SUMMARY.md](THREAD-SUMMARY.md)
 - [THREAT-TIERS.md](THREAT-TIERS.md)
 - [TIERED-COUNTERS.md](TIERED-COUNTERS.md)
-- [code/tools/strategy_lab/CATALOG.md](../code/tools/strategy_lab/CATALOG.md)
+- [Current strategy catalog](../../../code/strategies/CATALOG.md)

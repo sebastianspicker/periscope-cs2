@@ -152,5 +152,5 @@ Names/icons often disguised as RGB, VPN, or “system utility.”
 | Entity data existence | Fog-of-war / interest management |
 | Clean client demos | Server info-advantage scoring |
 
-→ [`../blue/project-tree.md`](../blue/project-tree.md)  
-→ [`../docs/T3-HYPERVISOR.md`](../docs/T3-HYPERVISOR.md)
+→ [`../blue_shapes/project-tree.md`](../blue_shapes/project-tree.md)
+→ [`../../2026-07-21-pre-comprehensive/T3-HYPERVISOR.md`](../../2026-07-21-pre-comprehensive/T3-HYPERVISOR.md)
