@@ -114,4 +114,4 @@ Local outputs go under `artifacts/` (gitignored). Prefer manifests next to ONNX 
 | [CONTRACTS.md](CONTRACTS.md) | Segmenter / InstanceMask contracts |
 | [CUDA.md](CUDA.md) | GPU extras |
 
-Historical ledgers and design notes: [archive/](archive/) (not active product docs). Completed LoC split ledger: [archive/MONOLITH_LEDGER.md](archive/MONOLITH_LEDGER.md); living gate: `tests/test_monolith_loc_gate.py`.
+Historical ledgers and design notes: [archive/](archive/) (not active product docs). Completed LoC split ledger: [archive/MONOLITH_LEDGER.md](archive/MONOLITH_LEDGER.md).

@@ -32,7 +32,7 @@ Educational anti-cheat research lab (radar track of the Periscope monorepo). Use
    ./build/strategy_lab run <id>
    ctest --test-dir build --output-on-failure
    ```
-5. If the pair introduces a new surface class, extend the relevant `*_full_tests` under `code/tests/`.
+5. If the pair introduces a new surface class, update the CMake wiring and retained CTest smoke coverage when applicable.
 
 ## Doc updates
 

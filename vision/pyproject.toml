@@ -117,8 +117,3 @@ addopts = [
   "-q",
   "--strict-markers",
 ]
-markers = [
-  "gpu: requires a CUDA-capable GPU and GPU extras",
-  "cuda: requires CUDA runtime libraries",
-  "live: requires interactive capture or display hardware",
-]

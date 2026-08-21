@@ -16,5 +16,5 @@ Completed living ledgers also land here once their work is done.
 | RESEARCH.md | Pre-alpha research notes |
 | ACCESSIBILITY_FULL_IMPLEMENTATION.md | Pre-implementation design |
 | MONOLITH_REFACTOR.md | Pre-refactoring plan (completed) |
-| MONOLITH_LEDGER.md | Completed LoC split ledger; historical. Living gate: `tests/test_monolith_loc_gate.py` |
+| MONOLITH_LEDGER.md | Completed LoC split ledger; historical. |
 | EXTERNAL_RESOURCES_LEDGER.md | Resource tracking ledger |

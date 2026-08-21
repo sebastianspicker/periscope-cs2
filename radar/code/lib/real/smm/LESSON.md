@@ -38,7 +38,7 @@ hypervisor cooperation, and below VBS/HVCI. Every operation still leaves
 
 ```text
 cmake -DLR_ENABLE_REAL_SMM=ON ...
-cmake --build . --target ac_real_smm smm_unit_test
+cmake --build . --target ac_real_smm
 ```
 
 ## Strategy map

@@ -32,10 +32,7 @@ uv run ruff check src/ tests/
 uv run ruff format --check src/ tests/
 uv run mypy --strict src/cs2_vision_access/
 uv run pytest tests/ -v \
-  --ignore=tests/test_live_capture.py \
-  --ignore=tests/test_live_pipeline.py \
-  --ignore=tests/test_live_cli.py \
-  -k "not gpu and not cuda"
+  -q
 ```
 
 CI installs with `uv sync --frozen --extra dev` (optional-dependencies, not a uv group). Local `ruff format` without `--check` is fine before you commit; CI requires the check form. Matrix: Ubuntu and Windows, Python 3.11–3.13.

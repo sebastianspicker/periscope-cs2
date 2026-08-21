@@ -10,11 +10,7 @@ Educational red/blue narratives.
 | BYOVD | depth::run_byovd_research_example | 04_byovd, T2 KernelAc / blocklist |
 | DMA | depth::run_dma_research_example | 06_dma_hardware, T4 DmaRadar / DmaDefense |
 | SMM residual | depth::run_smm_research_example | Trust timeline + attest/EFI dual-view scars |
-| All four | depth::run_all_residual_research_examples | depth_tests residual section |
-
-```bash
-./build/depth_tests
-```
+| All four | depth::run_all_residual_research_examples | Combined residual example |
 
 ## Multi-step scar to detect to mitigate (sim)
 
@@ -40,4 +36,4 @@ Educational red/blue narratives.
 
 ## Relation to tiers
 
-T3/T4 team libraries are the deep educational implementations. Residual research helpers are compact four-family demos for depth_tests and lectures.
+T3/T4 team libraries are the deep educational implementations. Residual research helpers are compact four-family examples for lectures.

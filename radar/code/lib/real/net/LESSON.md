@@ -29,10 +29,4 @@ magic u32 LE ('ACL2') | type u8 | flags u8 | seq u32 | len u32 | payload | mac[3
 
 Flags: `Encrypted` (ChaCha20 seal), `HasMac` (HMAC-SHA256 over header+payload).
 
-## Tests
-
-```
-net_stack_test   # crypto, DNS tunnel, C2 frames, loopback HTTP/C2, pipes, offset blob
-```
-
 Link: Windows needs `ws2_32 winhttp bcrypt crypt32` (wired in CMake when `LR_ENABLE_REAL_NET`).

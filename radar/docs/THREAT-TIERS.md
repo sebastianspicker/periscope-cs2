@@ -27,8 +27,6 @@ Blue: handle graph, co-occurrence, weak UI heuristics.
 
 Demos: duel_t0, proto_t0_*
 
-Tests: t0_full_tests
-
 Strategies: 01_external_rpm, handle hide, section map, GDI capture residuals, and related IDs.
 
 ## T1: Syscall-soft
@@ -42,8 +40,6 @@ Scar: still a handle; hooks on ntdll may be blind.
 Blue: do not trust usermode hook presence; same graph and lineage.
 
 Demos: duel_t1, proto_t1_*
-
-Tests: t1_full_tests
 
 Strategies: 02_indirect_syscall, manual map hide, stack spoof, ETW blind, hollow, SeDebug, and related IDs.
 
@@ -59,8 +55,6 @@ Blue: blocklist, device open heuristics, callback baseline, SCM services.
 
 Demos: duel_t2, proto_t2_*
 
-Tests: t2_full_tests
-
 Strategies: 03_kernel_ioctl, 04_byovd, callback strip/shadow, physmem, pool tag, ETW-TI, instr callback, and related IDs.
 
 ## T3: Personal hypervisor (sim)
@@ -74,8 +68,6 @@ Scar: VBS/HVCI cleared, personal_hv_active, bridge driver/device, optional EPT/t
 Blue: ranked trust deny, multi-invariant HV probe, bridge intel, dual-view/EPT, residual flags (CI options, infinity hook, VTL1, EFI/ELAM, and related).
 
 Demos: duel_t3, proto_t3_*
-
-Tests: t3_full_tests
 
 Strategies: 05_hypervisor, nested HV, attestation, EPT hide, timing spoof, EFI/ELAM, HVCI race, feature control MSR, and related IDs.
 
@@ -92,8 +84,6 @@ Scar: dma_device_present, iommu_on=false, dma_read without local cheat process; 
 Blue: platform IOMMU signal (weak), structural fog (LeakageScorer / interest), info-advantage residual.
 
 Demos: duel_t4, proto_t4_*
-
-Tests: t4_full_tests
 
 Strategies: 06_dma_hardware, IOMMU policy, dual boot, capture CV/HID, lag/packet disambig, clipcursor, and related IDs.
 

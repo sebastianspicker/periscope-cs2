@@ -26,10 +26,8 @@ package is that surface.
 
 ```bash
 cd code
-cmake -S . -B build && cmake --build build --target fps_demo fps_tests
+cmake -S . -B build && cmake --build build --target fps_demo
 ./build/fps_demo all
-./build/fps_tests
-ctest --test-dir build -R fps --output-on-failure
 ```
 
 ## Demo modes
@@ -109,8 +107,8 @@ instead of anonymous fixtures. The bridge does not reimplement netcode or 3D.
 ## Honesty
 
 - Sim-only educational rules. Not CS:GO/CS2, not Source, not Valve networking.
-- Always-true stubs fail `fps_tests` (wrong team, off-site plant, pre-plant
-  defuse, invalid pickup, and related guards).
+- The demo keeps wrong-team, off-site plant, pre-plant defuse, invalid pickup,
+  and related guards in the shipped scenario code.
 
 ## Link to anti-cheat lab
 

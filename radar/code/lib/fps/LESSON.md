@@ -77,7 +77,6 @@ noise) without inventing a second game engine.
 ```bash
 ./build/fps_demo
 ./build/fps_demo all
-./build/fps_tests
 ./build/strategy_lab stats
 ```
 

@@ -27,7 +27,7 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - Reading or writing CS2 process memory
 - Shipping commercial CS2-10k-trained weights without a separate rights review (CS2-10k is CC BY-NC 4.0)
 
-Large-module LoC splits are done; `tests/test_monolith_loc_gate.py` keeps the 600-line ceiling. Historical refactor ledgers live under `docs/archive/` and `archive/internal/`, not the active topic list.
+Large-module LoC splits are done. Historical refactor ledgers live under `docs/archive/` and `archive/internal/`, not the active topic list.
 
 ## Capabilities and limitations
 
@@ -299,7 +299,7 @@ vision/   # cwd for uv, pytest, and cs2-vision
 │   ├── study/
 │   ├── training/
 │   └── video/
-├── tests/                   # pytest suite (test_*.py, fixtures/, conftest.py)
+├── tests/                   # focused pytest contracts (test_*.py)
 └── archive/                 # Historical / local-only materials (not runtime)
 ```
 
@@ -332,22 +332,22 @@ uv sync --frozen --extra dev
 uv run ruff check src/ tests/
 uv run ruff format src/ tests/
 uv run mypy --strict src/cs2_vision_access/
-uv run pytest tests/ -q --ignore=tests/test_live_capture.py --ignore=tests/test_live_pipeline.py --ignore=tests/test_live_cli.py -k "not gpu and not cuda"
+uv run pytest tests/ -q
 ```
 
 Optional pre-commit: `.pre-commit-config.yaml` (if present under `vision/`).
 
-CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On `main` push/PR it runs Ubuntu and Windows, Python 3.11–3.13, ruff, mypy, and the CPU pytest filter above. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
+CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On `main` push/PR it runs Ubuntu and Windows, Python 3.11–3.13, ruff, mypy, and the focused CPU pytest suite. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
 
 Package metadata: `pyproject.toml`. Lockfile: `uv.lock`.
 
 ## Testing
 
 ```bash
-uv run pytest tests/ -v --ignore=tests/test_live_capture.py --ignore=tests/test_live_pipeline.py --ignore=tests/test_live_cli.py -k "not gpu and not cuda"
+uv run pytest tests/ -v
 ```
 
-Layout and conventions: [tests/README.md](tests/README.md). Fixtures: `tests/fixtures/`. Training tests mock Ultralytics for most paths and do not download multi-GB datasets in CI.
+Layout and conventions: [tests/README.md](tests/README.md). The suite creates its minimal input data in temporary directories and does not download datasets in CI.
 
 ## Operation
 

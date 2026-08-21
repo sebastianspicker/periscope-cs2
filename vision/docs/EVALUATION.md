@@ -228,8 +228,8 @@ engineering target).
 
 ```bash
 uv run cs2-vision eval-masks \
-  --predictions tests/fixtures/eval_masks/predictions.v1.json \
-  --dataset-root tests/fixtures/eval_masks \
+  --predictions path/to/predictions.v1.json \
+  --dataset-root path/to/yolo-dataset \
   --split test \
   --output artifacts/eval-run.v1.json
 ```

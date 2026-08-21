@@ -61,11 +61,7 @@ uv sync --extra dev
 uv run ruff check src/ tests/
 uv run ruff format --check src/ tests/
 uv run mypy --strict src/cs2_vision_access/
-uv run pytest tests/ -v \
-  --ignore=tests/test_live_capture.py \
-  --ignore=tests/test_live_pipeline.py \
-  --ignore=tests/test_live_cli.py \
-  -k "not gpu and not cuda"
+uv run pytest tests/ -v
 ```
 
 Details: [`vision/CONTRIBUTING.md`](vision/CONTRIBUTING.md).

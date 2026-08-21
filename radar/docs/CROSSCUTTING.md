@@ -28,8 +28,6 @@ name/
 
 Demo: ./build/evasion_lab
 
-Tests: evasion_full_tests
-
 ## Features family — 5 pairs
 
 | Theme | Example IDs | Multi-step idea |
@@ -41,8 +39,6 @@ Tests: evasion_full_tests
 | Phone radar | 10_web_phone_radar | PC reader and SaaS net; no overlay |
 
 Demo: ./build/features_lab
-
-Tests: features_full_tests
 
 ## Ops family — 8 pairs
 
@@ -59,8 +55,6 @@ Tests: features_full_tests
 
 Demo: ./build/ops_lab
 
-Tests: ops_full_tests
-
 Shared helpers: depth::SellerFusionCorrelator, depth::MultiInvariantScorer
 
 ## Structural family — 5 pairs
@@ -74,8 +68,6 @@ Shared helpers: depth::SellerFusionCorrelator, depth::MultiInvariantScorer
 | Fallback chain | 20_fallback_chain | HV fail to driver to RPM; blue stacks sensors |
 
 Demo: ./build/structural_lab
-
-Tests: structural_full_tests
 
 ## Family counts (live)
 
