@@ -1,4 +1,4 @@
-# --- OS / IDE ---
+# Operating systems and editors
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -15,38 +15,72 @@ desktop.ini
 *.VC.db
 *.VC.opendb
 
-# Nested git history backup (pre-monorepo standalone clone)
-.git.bak-*/
-**/.git.bak-*
-
-# Nested assistant / agent caches (do not hide project source)
-.claude/
-.cursor/
-.codex/
-.codegraph/
-.serena/
-.kilo/
-.grok/
-.continue/
-.aider*
-.specstory/
-*.session.md
-*.conversation.md
-.prompt-history/
+# Local development assistants and prompts
+AGENT.md
+AGENTS.md
+agent.md
+agents.md
+CLAUDE.md
+CURSOR.md
+CODEX.md
+GEMINI.md
+.cursorrules
 .agent/
 .agents/
+.ai/
+.claude/
+.codex/
+.cursor/
 .copilot/
-/CLAUDE.md
-/CURSOR.md
-/.cursorrules
-/.aider.conf.yml
+.continue/
+.grok/
+.kilo/
+.serena/
+.codegraph/
+.specstory/
+.prompt-history/
+.aider*
 .github/copilot-instructions.md
-/AGENTS.md
-/GEMINI.md
-
-# Root-local workflow records
-/AUDIT_LEDGER.md
-/remediation-ledger.md
+agent-prompts/
+ai-prompts/
+prompt/
+prompts/
+instructions-for-agent.*
+agent-instructions.*
+agent-notes*
+agent-output*
+agent-report*
+agent-context*
+agent-memory*
+notes-for-agent.md
+handoff.md
+handover.md
+scratchpad.md
+worklog.md
+work-log.md
+devlog.md
+development-log.md
+implementation-notes.md
+*.session.md
+*.conversation.md
+AI_NOTES*
+AI_REPORT*
+AI_AUDIT*
+AI_SUMMARY*
+AI_REVIEW*
+LLM_NOTES*
+GPT_NOTES*
+CHATGPT_NOTES*
+CLAUDE_NOTES*
+CODEX_NOTES*
+generated-summary.*
+repo-analysis.*
+repository-analysis.*
+audit-output.*
+implementation-report.*
+completion-report.*
+*-ledger.md
+*_ledger.md
 /plan.md
 /progress.md
 
@@ -69,42 +103,29 @@ credentials.local.*
 *.mobileprovision
 *.local.pem
 *.local.key
+*.private.pem
+*.private.key
 
-# --- Python (vision and any root scripts) ---
+# Python environments and packaging
 __pycache__/
 *.py[cod]
 *$py.class
-.mypy_cache/
-.pytype/
-.pytest_cache/
-.ruff_cache/
-.coverage
-.coverage.*
-coverage.xml
-htmlcov/
-.tox/
-.nox/
-.hypothesis/
-.cache/
 .venv/
 venv/
 dist/
 *.egg-info/
-src/*.egg-info/
-test-results/
-playwright-report/
-blob-report/
-junit*.xml
-*.sarif
-junit.xml
-*.junit.xml
-pytest-cache-files-*/
-tmp/
-temp/
-*.tmp
-*.temp
+.mypy_cache/
+.pytype/
+.ruff_cache/
+.tox/
+.nox/
+.hypothesis/
+.cache/
 
-# --- CMake / C++ build artifacts (radar and accidental root builds) ---
+# CMake and native build output
+build/
+build-*/
+build_*/
 **/CMakeFiles/
 **/CMakeCache.txt
 **/cmake_install.cmake
@@ -113,19 +134,7 @@ temp/
 **/compile_commands.json
 **/CMakeUserPresets.json
 **/Testing/
-
-# Named build trees (radar uses code/build*; also catch root mistakes)
-build/
-build-*/
-build_*/
-radar/code/build/
-radar/code/build-*/
-radar/code/build_*/
-radar/code/drivers/**/build/
-radar/code/firmware/**/build*/
-radar/code/firmware/**/build_*/
-
-# Compiler / linker droppings
+**/generated/
 *.obj
 *.o
 *.a
@@ -147,37 +156,47 @@ radar/code/firmware/**/build_*/
 *.unsuccessfulbuild
 *.tlog
 *.recipe
-*.log
 *.manifest
+
+# Tests, coverage, profiling, and reports
+.pytest_cache/
+.coverage
+.coverage.*
+coverage/
+coverage.xml
+htmlcov/
+test-results/
+playwright-report/
+blob-report/
+junit*.xml
+*.junit.xml
+pytest-cache-files-*/
+*.sarif
 *.gcda
 *.gcno
 *.gcov
 *.profraw
 *.profdata
-coverage/
 
-# Local package and platform products
-node_modules/
-target/
-.build/
-DerivedData/
-xcuserdata/
+# Logs and temporary files
+*.log
+*.pid
+*.lock.tmp
+*.tmp
+*.temp
+tmp/
+temp/
 
-# --- Local models / data / artifacts (vision patterns; catch root mistakes) ---
-# Per-subtree .gitignore still owns detailed allowlists (e.g. artifacts/README.md).
+# Local models, media, configuration, and databases
 runs/
 *.pt
 *.onnx
 cs2-vision-config.json
-
-# Media that often contains private gameplay frames
 *.avi
 *.mkv
 *.mp4
 *.mov
 *.webm
-
-# Scratch DBs
 *.sqlite
 *.sqlite3
 *.db
@@ -191,35 +210,19 @@ cs2-vision-config.json
 *.local.sqlite
 *.local.sqlite3
 
-# Local analysis state
-/.codacy/*
-!/.codacy/codacy.config.json
-!/.codacy/codacy.yaml
-!/.codacy/codacy.yml
+# Local analysis and repository state
+/.codacy/cli-config.yaml
+/.codacy/codacy.config.json
+/.codacy/generated/
+/.codacy/tools-configs/
 .repowise/
+/.mcp.json
+.git.bak-*/
+**/.git.bak-*/
+/radar/scripts/launchd/*.plist
 
-# Archived ledger packets only; maintained source tests remain visible.
-**/archive/**/*LEDGER*.md
-
-# Root scratch dumps
+# Known root scratch files
 /build_errors.txt
 /loc_before.txt
 /loc_after.txt
-kilo.json
-/.mcp.json
-
-# Archived agent guidance is local-only.
-/vision/archive/internal/AGENTS.md
-
-# Generated test and coverage output (local only)
-/coverage/
-/htmlcov/
-/.coverage
-/.coverage.*
-/.pytest_cache/
-/test-results/
-/playwright-report/
-/blob-report/
-/coverage.xml
-/junit.xml
-/junit-*.xml
+/kilo.json
