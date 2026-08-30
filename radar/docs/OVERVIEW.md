@@ -18,18 +18,18 @@ This lab is a tier-first, sim-backed training ground for that adversary class an
 
 | Tier | Folders | Red leaves | Blue primary |
 |------|---------|------------|--------------|
-| T0 | teams/t0_red/ + teams/t0_blue/ | Usermode VM_READ handle | Handle graph, co-occurrence |
-| T1 | teams/t1_red/ + teams/t1_blue/ | Same handle, syscall-shaped path | Handles (ignore ntdll hooks) |
-| T2 | teams/t2_red/ + teams/t2_blue/ | Driver, BYOVD, device IOCTL | Blocklist, device watch, callbacks |
-| T3 | teams/t3_red/ + teams/t3_blue/ | VBS/HVCI off, personal HV, bridge | Trust policy, HV probe, bridge, attest |
-| T4 | teams/t4_red/ + teams/t4_blue/ | DMA device, often no local process | IOMMU policy, fog, info-advantage |
+| T0 | src/lab_components/teams/t0_red/ + src/lab_components/teams/t0_blue/ | Usermode VM_READ handle | Handle graph, co-occurrence |
+| T1 | src/lab_components/teams/t1_red/ + src/lab_components/teams/t1_blue/ | Same handle, syscall-shaped path | Handles (ignore ntdll hooks) |
+| T2 | src/lab_components/teams/t2_red/ + src/lab_components/teams/t2_blue/ | Driver, BYOVD, device IOCTL | Blocklist, device watch, callbacks |
+| T3 | src/lab_components/teams/t3_red/ + src/lab_components/teams/t3_blue/ | VBS/HVCI off, personal HV, bridge | Trust policy, HV probe, bridge, attest |
+| T4 | src/lab_components/teams/t4_red/ + src/lab_components/teams/t4_blue/ | DMA device, often no local process | IOMMU policy, fog, info-advantage |
 
 Each tier ships:
 
 ```text
-teams/tN_red/  teams/tN_blue/          team code
-strategies/<tier>/                     strategy lessons (all tiers + crosscutting)
-demos/duel_tN.cpp  demos/proto_tN_*.cpp  demos/cs2_radar/tN/
+src/lab_components/teams/tN_red/  src/lab_components/teams/tN_blue/          team code
+scenarios/strategies/<tier>/                     strategy lessons (all tiers + crosscutting)
+apps/demos/duel_tN.cpp  apps/demos/proto_tN_*.cpp  apps/demos/cs2_radar/tN/
 docs/tiers/tN/                        LESSON.md + README.md
 ```
 
@@ -37,10 +37,10 @@ docs/tiers/tN/                        LESSON.md + README.md
 
 | Area | Folder | Role |
 |------|--------|------|
-| Evasion | `strategies/` (evasion-tagged pairs) | Staging, crypto, C2 offsets, HWID, poly builds, canaries |
-| Features | `strategies/` (feature-tagged pairs) | Overlay ESP, phone radar, humanization, input synth, silent aim |
-| Ops | `strategies/` (ops-tagged pairs) | Account graph, reports, VPN, C2 intel, overwatch scores |
-| Structural | `strategies/` (structural-tagged pairs) | Fog, info-advantage, delayed ban, stream crypto, fallbacks |
+| Evasion | `scenarios/strategies/` (evasion-tagged pairs) | Staging, crypto, C2 offsets, HWID, poly builds, canaries |
+| Features | `scenarios/strategies/` (feature-tagged pairs) | Overlay ESP, phone radar, humanization, input synth, silent aim |
+| Ops | `scenarios/strategies/` (ops-tagged pairs) | Account graph, reports, VPN, C2 intel, overwatch scores |
+| Structural | `scenarios/strategies/` (structural-tagged pairs) | Fog, info-advantage, delayed ban, stream crypto, fallbacks |
 
 ## Design conclusions
 

@@ -27,7 +27,7 @@ T3  Personal hypervisor + thin bridge
 T4  Off-box DMA / capture residuals
 ```
 
-Each tier has a red team library, a blue team library, runnable demos, and strategy pair lessons (apply → detect) under `code/strategies/{t0..t4,crosscutting}/`.
+Each tier has a red team library, a blue team library, runnable demos, and strategy pair lessons (apply → detect) under `scenarios/strategies/{t0..t4,crosscutting}/`.
 
 ---
 
@@ -36,26 +36,22 @@ Each tier has a red team library, a blue team library, runnable demos, and strat
 ```
 .
 ├── README.md                 You are here
+├── CMakeLists.txt            Build entry point
+├── cmake/                    CMake helpers and target fragments
 ├── docs/                     Curriculum and reference
-├── code/                     Everything that builds
-│   ├── CMakeLists.txt
-│   ├── lib/                  Shared libraries
-│   │   ├── ac/               Core types
-│   │   ├── sim/              sim::World (scar arena)
-│   │   ├── ac_sim/           Temporal / behavioral helpers
-│   │   ├── server/           Interest mgmt, info-advantage, bans
-│   │   ├── depth/            Multi-signal scoring
-│   │   ├── fps/              FPS scenario machine
-│   │   ├── lab/              Fixture process, scanners
-│   │   ├── cs2/              CS2 models & signatures
-│   │   ├── blue/             Blue coordinator
-│   │   └── real/             OS/hardware backends (T0–T4)
-│   ├── teams/                t0_red … t4_blue
-│   ├── strategies/           Red/blue pair lessons + strategy_lab
-│   ├── demos/                radar_tN, live_radar, duels, probes
-│   ├── drivers/              Example vulnerable driver (lab only)
-│   ├── firmware/             Example PCIe DMA host sim
-│   └── tests/                CTest suites
+├── src/
+│   ├── domain/               Core values, telemetry, server-side policy
+│   ├── simulation/           Deterministic world and scenario engines
+│   ├── application/          Detection, analysis, strategies, simulation pipeline
+│   └── lab_components/       Lab infrastructure and tier components
+├── adapters/real/            Optional OS/hardware backends (T0–T4)
+├── scenarios/strategies/     Red/blue pair lessons + strategy_lab
+├── apps/demos/               radar_tN, live_radar, duels, probes
+├── examples/drivers/         Example vulnerable driver (lab only)
+├── examples/firmware/        Example PCIe DMA host sim
+├── tests/                    CTest suites
+├── scripts/                  Signature and offset tooling
+└── data/                     Offset snapshots and related data
 ```
 ---
 
@@ -64,7 +60,6 @@ Each tier has a red team library, a blue team library, runnable demos, and strat
 ### Simulation only (any platform)
 
 ```bash
-cd code
 cmake -S . -B build -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON
 cmake --build build -j
 ```
@@ -72,7 +67,6 @@ cmake --build build -j
 ### Real backends (Windows)
 
 ```bash
-cd code
 cmake -S . -B build -DLR_ENABLE_REAL_ALL=ON
 cmake --build build -j
 ```
@@ -111,18 +105,21 @@ Runtime knobs: `LR_MODE=sim|real|hybrid`, `LR_VERBOSE=0|1`.
 LR_MODE=sim ./build/strategy_lab run 01_external_rpm
 ./build/strategy_lab all --quiet
 
-# Per-tier radar overlays (real path when CS2 is running; otherwise sim entities)
+# Per-tier deterministic simulation demos
 ./build/radar_t0
 ./build/radar_t1
 
-# Control panel demo (no game required)
+# Windows GPU control panel demo (requires LR_ENABLE_REAL_GPU=ON)
 ./build/gui_demo
 
 # Tests
 ctest --test-dir build --output-on-failure
 ```
 
-`INSERT` toggles the control panel in GUI demos; `END` / `ESC` quit. Settings land in `radar.ini` next to the binary.
+`gui_demo` is created only when the real RPM, syscall, and GPU capabilities
+are enabled. It uses simulated entities and does not require a game process.
+`INSERT` toggles its control panel; `END` / `ESC` quit. Settings land in
+`radar.ini` next to the binary.
 
 ---
 
@@ -137,9 +134,8 @@ ctest --test-dir build --output-on-failure
 | [docs/THREAT-TIERS.md](docs/THREAT-TIERS.md) | T0–T4 delivery detail |
 | [docs/STRATEGY-CATALOG.md](docs/STRATEGY-CATALOG.md) | Human index of strategy pairs |
 | [docs/CURRICULUM.md](docs/CURRICULUM.md) | Suggested learning order |
-| [code/STRUCTURE.md](code/STRUCTURE.md) | In-tree layout notes |
 
-Live catalog truth is always `./build/strategy_lab list` (hundreds of registered pairs under `code/strategies/`).
+Live catalog truth is always `./build/strategy_lab list` (hundreds of registered pairs under `scenarios/strategies/`).
 
 ---
 
@@ -154,7 +150,7 @@ Live catalog truth is always `./build/strategy_lab list` (hundreds of registered
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: new lessons go under `strategies/<tier>/` with red + blue + `LESSON.md`, register them in `framework/registry.cpp`, and keep tests green.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: new lessons go under `scenarios/strategies/<tier>/` with red + blue + `LESSON.md`, register them in `scenarios/strategies/framework/registry.cpp`, and keep tests green.
 
 ---
 

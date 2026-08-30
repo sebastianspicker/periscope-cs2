@@ -1,11 +1,10 @@
 # Strategy catalog
 
-**Live truth:** `./build/strategy_lab list` and `code/strategies/framework/registry.cpp`.
+**Live truth:** `./build/strategy_lab list` and `scenarios/strategies/framework/registry.cpp`.
 
-There are on the order of **~180+ pair folders** under `code/strategies/{t0,t1,t2,t3,t4,crosscutting}/`. IDs are not a clean 1–N sequence (waves reused some numbers with different names). Treat this file as a **human index of the classic 01–99 narrative pairs**; the CLI may list additional wave / crosscutting entries that are not every row below.
+There are on the order of **~180+ pair folders** under `scenarios/strategies/{t0,t1,t2,t3,t4,crosscutting}/`. IDs are not a clean 1–N sequence (waves reused some numbers with different names). Treat this file as a **human index of the classic 01–99 narrative pairs**; the CLI may list additional wave / crosscutting entries that are not every row below.
 
 ```bash
-cd code
 cmake --build build -j
 ./build/strategy_lab list
 ./build/strategy_lab list --family Delivery
@@ -14,7 +13,7 @@ cmake --build build -j
 ./build/strategy_lab all --quiet
 ```
 
-Path-oriented index: `code/strategies/CATALOG.md`.
+Path-oriented index: `scenarios/strategies/CATALOG.md`.
 
 ## Classic catalog (01–99)
 
@@ -122,12 +121,12 @@ Path-oriented index: `code/strategies/CATALOG.md`.
 
 ## Path index by area
 
-See `code/strategies/CATALOG.md` for the path-oriented index (all strategies under `code/strategies/`).
+See `scenarios/strategies/CATALOG.md` for the path-oriented index (all strategies under `scenarios/strategies/`).
 
 ## Adding a strategy
 
 1. Create `red_example` / `blue_example` / `pair.cpp` under the correct tier or crosscutting folder.  
-2. Register `entry_NN_*` in `code/strategies/framework/registry.cpp` (CMake GLOBs `strategies/**/*.cpp`).  
+2. Register `entry_NN_*` in `scenarios/strategies/framework/registry.cpp` and add the sources to `cmake/ScenarioSources.cmake`.
 3. Multi-step red + multi-reason blue; LESSON.md accuracy.  
 4. Extend the relevant `*_full_tests` if the pair is a new lesson class.  
 5. Update this file via `strategy_lab list` regeneration when shipping docs.

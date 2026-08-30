@@ -9,8 +9,8 @@ Blue: IOMMU/device policy (limited) + interest management + info-advantage.
 |------|------|
 | `red/` | `t4_red::DmaRadar` — off-box DMA path (sim) |
 | `blue/` | `t4_blue::DmaDefense` — platform signal + fog |
-| `strategies/dma_hardware/` | Catalog pair `06_dma_hardware` + thin wrappers |
-| `demos/duel/` | Narrated T4 walkthrough |
+| `scenarios/strategies/dma_hardware/` | Catalog pair `06_dma_hardware` + thin wrappers |
+| `apps/demos/duel/` | Narrated T4 walkthrough |
 
 ## Run
 

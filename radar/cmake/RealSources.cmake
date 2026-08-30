@@ -1,0 +1,118 @@
+# Explicit opt-in real-adapter source manifests.  Do not aggregate these into
+# a catch-all platform library: each option below owns only its capability.
+set(LR_REAL_CORE_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/error.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/library.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/memory.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/process.cpp")
+
+# RPM is the live process/CS2 observation path.  It deliberately does not
+# pull in syscall, kernel, VMX, DMA, GPU, firmware, or network research.
+set(LR_REAL_RPM_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/diagnostic.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/entities.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/entity.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/hijack_reader.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/hijack_reader_discover.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/hud_layout.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/live_radar_stack.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/live_radar_stack_entity.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/live_radar_stack_ipc.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/memory.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/offsets.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/periscope_entity.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/periscope_hud.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/periscope_hud_cvar.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/periscope_hud_reader.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/periscope_radar.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/periscope_scanner.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/process.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/process_cache.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/process_finder.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/cs2/radar.cpp"
+)
+# Direct syscall support is separately selectable from ordinary RPM.
+set(LR_REAL_SYSCALL_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/win/api_table.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/win/api_table_batches.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/win/api_table_pe.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/win/ssn_resolve.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/win/syscall_helper.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/win/syscall_msvc.asm"
+  "${RADAR_SOURCE_DIR}/adapters/real/win/syscall_ops.cpp"
+)
+
+set(LR_REAL_SHELLCODE_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/shellcode/shellcode.cpp"
+)
+set(LR_REAL_kernel_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/kernel/driver_loader.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/kernel/ioctl_interface.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/kernel/kernel_memory.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/kernel/kernel_memory_ops.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/kernel/vulnerable_driver.cpp"
+)
+set(LR_REAL_vmx_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/mode/mode.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/mode/mode_cpu_vmx.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/vmx/cpuid.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/vmx/ept.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/vmx/hyperv.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/vmx/lifecycle.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/vmx/tlb.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/vmx/vmcs.cpp"
+)
+set(LR_REAL_dma_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/backend.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/core.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/fpga.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/iommu.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/page_walk.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/pcie.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/dma/thunderbolt.cpp"
+)
+set(LR_REAL_gpu_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/gui.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/gui_radar_panel.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/gui_widgets.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/periscope_overlay.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/periscope_overlay_dxgi.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/periscope_overlay_scramble.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/periscope_overlay_window.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/render_pipeline.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/render_pipeline_d3d11_draw.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/render_pipeline_d3d11_lifecycle.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/render_pipeline_null.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/gpu/render_pipeline_overlay_place.cpp"
+)
+set(LR_REAL_net_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/net/c2_client.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/common.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/crypto.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/dns.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/http.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/offset_fetch.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/pipe.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/proxy.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/socket.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/net/websocket.cpp"
+)
+set(LR_REAL_smm_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/acpi.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/efi.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/port_io.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/smi.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/smm_channel.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/smm_protocol.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/smram.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/smm/tpm.cpp"
+)
+set(LR_REAL_uefi_SOURCES
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_dma.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_fw.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_fw_parse.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_lab.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_phys.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_tpm.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/uefi/uefi_var.cpp"
+)

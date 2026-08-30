@@ -17,14 +17,18 @@
 **vision** (from `vision/`):
 
 - [ ] `uv run ruff check src/ tests/`
-- [ ] `uv run pytest tests/ -v --ignore=tests/test_live_capture.py --ignore=tests/test_live_pipeline.py --ignore=tests/test_live_cli.py -k "not gpu and not cuda"`
+- [ ] `uv run mypy --strict src/cs2_vision_access/`
+- [ ] `uv run pytest tests/ -v`
+- [ ] `uv build`
 - [ ] Extra checks if relevant (live, GPU, train path, notebook regen)
 
-**radar** (from repo root, or `cd radar/code`):
+**radar** (from repo root):
 
-- [ ] `cmake -S radar/code -B radar/code/build -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON`
-- [ ] `cmake --build radar/code/build -j`
-- [ ] `ctest --test-dir radar/code/build --output-on-failure`
+- [ ] `python3 scripts/verify.py radar-sim`
+
+**architecture** (from repo root):
+
+- [ ] `python3 scripts/check_architecture.py`
 
 ## Safety checklist
 

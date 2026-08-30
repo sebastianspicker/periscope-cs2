@@ -14,9 +14,9 @@ Educational red/blue lab (radar track under the Periscope monorepo) for studying
 
 | Path | Risk |
 |------|------|
-| `code/drivers/example_vulnerable/` | Vulnerable driver pattern. Requires test-signing. Lab machines only. |
-| `code/firmware/example_pcie_dma/` | DMA host / FPGA examples. Needs special hardware. |
-| `code/lib/real/` | Process open, memory read, IOCTL, VMX, DMA helpers when enabled. |
+| `examples/drivers/example_vulnerable/` | Vulnerable driver pattern. Requires test-signing. Lab machines only. |
+| `examples/firmware/example_pcie_dma/` | DMA host / FPGA examples. Needs special hardware. |
+| `adapters/real/` | Process open, memory read, IOCTL, VMX, DMA helpers when enabled. |
 
 Do not load the sample driver or run elevated real backends on systems you care about.
 

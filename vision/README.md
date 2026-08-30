@@ -27,8 +27,6 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - Reading or writing CS2 process memory
 - Shipping commercial CS2-10k-trained weights without a separate rights review (CS2-10k is CC BY-NC 4.0)
 
-Large-module LoC splits are done. Historical refactor ledgers live under `docs/archive/` and `archive/internal/`, not the active topic list.
-
 ## Capabilities and limitations
 
 ### Capabilities
@@ -42,7 +40,7 @@ Large-module LoC splits are done. Historical refactor ledgers live under `docs/a
 | Segmenters | Ultralytics ONNX seg/detect, optional RF-DETR (`rfdetr` extra), Vombit+EdgeSAM (`cs2-sam`) |
 | Dataset | `extract-frames`, `validate-dataset`, `audit-dataset`, `assemble-dataset`, box import, draft review |
 | Train | `cs2-vision train`, `train-auto`, modules under `training/` |
-| Remote research train | Colab/Kaggle notebooks under `src/cs2_vision_access/training/notebooks/` |
+| Remote research train | Colab/Kaggle notebooks under `src/cs2_vision_access/workflows/training/notebooks/` |
 | Eval | `eval-masks`, `export-predictions`, `eval-negatives`, `eval-temporal`, `eval-comfort` |
 | Study | `study-render`, `study-aggregate` |
 | Compare backends | `bakeoff` |
@@ -234,9 +232,9 @@ uv run cs2-vision train-auto --config path/to/config.json --from-stage train
 
 ### Remote notebooks (research)
 
-- `src/cs2_vision_access/training/notebooks/colab.ipynb`
-- `src/cs2_vision_access/training/notebooks/kaggle.ipynb`
-- Operator notes: `src/cs2_vision_access/training/notebooks/README.md`
+- `src/cs2_vision_access/workflows/training/notebooks/colab.ipynb`
+- `src/cs2_vision_access/workflows/training/notebooks/kaggle.ipynb`
+- Operator notes: `src/cs2_vision_access/workflows/training/notebooks/README.md`
 
 Default: CS2-10k sample + COCO-person bootstrap + iterative self-train. Optional `USE_EDGESAM=True` for Vombit+EdgeSAM auto-label. Regenerate notebooks from:
 
@@ -285,22 +283,13 @@ vision/   # cwd for uv, pytest, and cs2-vision
 ├── docs/                    # Topic docs (see below)
 ├── scripts/                 # Notebook generator
 ├── src/cs2_vision_access/   # Installable package
-│   ├── capture/
-│   ├── cli/
-│   ├── config/
-│   ├── dataset/
-│   ├── evaluation/
-│   ├── frames/
-│   ├── gui/
-│   ├── inference/
-│   ├── labeling/
-│   ├── renderer/
-│   ├── segmenters/
-│   ├── study/
-│   ├── training/
-│   └── video/
-├── tests/                   # focused pytest contracts (test_*.py)
-└── archive/                 # Historical / local-only materials (not runtime)
+│   ├── domain/              # Values, schemas, and deterministic policy
+│   ├── application/         # Use cases and volatile-boundary ports
+│   ├── workflows/           # Dataset, training, evaluation, and study flows
+│   ├── adapters/            # Capture, models, rendering, persistence, overlays
+│   ├── interfaces/          # CLI and GUI composition edges
+│   └── <public facades>/    # Thin compatibility imports only
+└── tests/                   # Behavioral and boundary contracts
 ```
 
 Topic docs:
@@ -320,8 +309,6 @@ Topic docs:
 | [docs/USER_STUDY.md](docs/USER_STUDY.md) | Study protocol helpers |
 | [SECURITY.md](SECURITY.md) | Vulnerability reporting |
 
-Historical notes under `docs/archive/` and `archive/` are not active product docs.
-
 ## Development workflow
 
 Run these from `vision/` (the directory with `pyproject.toml`):
@@ -334,8 +321,6 @@ uv run ruff format src/ tests/
 uv run mypy --strict src/cs2_vision_access/
 uv run pytest tests/ -q
 ```
-
-Optional pre-commit: `.pre-commit-config.yaml` (if present under `vision/`).
 
 CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On `main` push/PR it runs Ubuntu and Windows, Python 3.11–3.13, ruff, mypy, and the focused CPU pytest suite. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
 
@@ -355,7 +340,7 @@ No hosted multi-tenant service here. Typical modes:
 
 1. Local CLI on a research workstation (`uv run cs2-vision …` from `vision/`).
 2. Local `train-auto` under `artifacts/auto/<run_id>/` (state, report, models, events).
-3. Optional Gradio Space under `src/cs2_vision_access/training/space/` (`train` extra).
+3. Optional Gradio Space under `src/cs2_vision_access/workflows/training/space/` (`train` extra).
 4. Colab/Kaggle notebooks for free-tier iterative train; download ONNX+manifest when done.
 
 Promote ONNX + `.model.json` into a stable path under `artifacts/` for live/outline after training.
@@ -394,7 +379,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Monorepo meta (issues across tracks, roo
 2. Run the CPU pytest suite and ruff/mypy as in CI (from `vision/`).
 3. Do not commit `data/*`, `artifacts/*` weights, or `vision/cs2-vision-config.json`.
 4. Prefer session-split datasets for product-oriented training experiments.
-5. Keep CLI and config examples consistent with `src/cs2_vision_access/cli/parser.py`.
+5. Keep CLI and config examples consistent with `src/cs2_vision_access/interfaces/cli/parser.py`.
 
 ## Model selection notes
 
@@ -402,5 +387,3 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Monorepo meta (issues across tracks, roo
 - Ultralytics YOLO-seg nano models are the default plumbing and fine-tune path in CLI train and cloud helpers.
 - RF-DETR-Seg is optional (`rfdetr` extra).
 - EdgeSAM is a teacher for labeling (Vombit boxes to masks), not the default real-time live backend.
-
-Further background is under `docs/archive/` if needed; prefer the active docs above.

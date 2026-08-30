@@ -51,7 +51,7 @@ body:
         # vision
         cd vision && uv run cs2-vision outline --help
         # radar
-        cmake -S radar/code -B radar/code/build -DLR_BUILD_TESTS=ON
+        cmake -S radar -B radar/build -DLR_BUILD_TESTS=ON
     validations:
       required: true
 

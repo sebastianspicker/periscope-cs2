@@ -32,7 +32,7 @@ except Exception as e:
 _INSTALL_IMPORT_AND_CUDA = r"""
 # Fail fast if the autonomous entry point is still missing
 try:
-    from cs2_vision_access.training.remote_autonomous import (
+    from cs2_vision_access.workflows.training.remote_autonomous import (
         run_autonomous_loop,
         resolve_remote_dataset_zip,
     )
@@ -60,7 +60,7 @@ else:
 _INSTALL_RESOLVE_PACKAGE = r"""
 def _try_import() -> bool:
     try:
-        import cs2_vision_access.training.remote_autonomous  # noqa: F401
+        import cs2_vision_access.workflows.training.remote_autonomous  # noqa: F401
         return True
     except Exception:
         return False

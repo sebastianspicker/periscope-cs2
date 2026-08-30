@@ -3,7 +3,6 @@
 ## Configure and Build
 
 ```
-cd code
 cmake -S . -B build -DLR_BUILD_TESTS=ON -DLR_BUILD_PROTOS=ON -DLR_BUILD_STRATEGY_LAB=ON
 cmake --build build -j
 ```
@@ -27,14 +26,14 @@ See `CMakeLists.txt` for the full list of `LAB_ALLOW_*` flags that enable additi
 
 ## Directory layout
 
-| Kind | Path (under `code/`) |
+| Kind | Path (from the Radar root) |
 |------|------|
-| Libraries | `lib/ac/`, `lib/sim/`, `lib/ac_sim/`, `lib/cs2/`, `lib/real/`, … |
-| Team libraries | `teams/t0_red/` … `teams/t4_blue/` |
-| Strategy pairs | `strategies/t0/` … `strategies/crosscutting/` |
-| Demos | `demos/` (flat `.cpp` + `demos/cs2_radar/tN/`) |
+| Libraries | `src/domain/ac/`, `src/simulation/sim/`, `src/simulation/ac_sim/`, `src/simulation/cs2/`, `adapters/real/`, … |
+| Team libraries | `src/lab_components/teams/t0_red/` … `src/lab_components/teams/t4_blue/` |
+| Strategy pairs | `scenarios/strategies/t0/` … `scenarios/strategies/crosscutting/` |
+| Demos | `apps/demos/` (flat `.cpp` + `apps/demos/cs2_radar/tN/`) |
 | Tests | `tests/` |
-| Project docs | `../docs/` (curriculum); `docs/` (code-adjacent notes) |
+| Project docs | `docs/` (curriculum and reference) |
 
 ## Test
 
@@ -47,11 +46,15 @@ ctest --test-dir build --output-on-failure
 
 | Binary | Source | Description |
 |--------|--------|-------------|
-| `strategy_lab` | `strategies/framework/main.cpp` | Strategy catalog runner |
-| `fps_demo` | `demos/fps_demo.cpp` | FPS game state demo |
-| `radar_t0` … `radar_t4` | `demos/radar_t{0-4}.cpp` | Per-tier live radar overlays |
-| `live_radar` | `demos/live_radar.cpp` | Live CS2 radar overlay (T0) |
-| `tier_comparison` | `demos/tier_comparison.cpp` | All-tier timing comparison |
-| `full_prototype` | `demos/full_prototype.cpp` | All backend exercise |
-| `duel_t0` … `duel_t4` | `demos/duel_t{0-4}.cpp` | Red-vs-blue duels |
-| `cs2_radar_t0` … `cs2_radar_t4` | `demos/cs2_radar/t{0-4}/` | Alternative CS2 radars |
+| `strategy_lab` | `scenarios/strategies/framework/main.cpp` | Strategy catalog runner |
+| `fps_demo` | `apps/demos/fps_demo.cpp` | FPS game state demo |
+| `radar_t0` … `radar_t4` | `apps/demos/radar_t{0-4}.cpp` | Per-tier deterministic simulation demos |
+| `live_radar` | `apps/demos/live_radar.cpp` | Opt-in live CS2 radar overlay (real RPM + syscall + GPU) |
+| `tier_comparison` | `apps/demos/tier_comparison.cpp` | All-tier timing comparison |
+| `full_prototype` | `apps/demos/full_prototype.cpp` | Opt-in real-backend exercise |
+| `duel_t0` … `duel_t4` | `apps/demos/duel_t{0-4}.cpp` | Red-vs-blue duels |
+| `cs2_radar_t0` … `cs2_radar_t4` | `apps/demos/cs2_radar/t{0-4}/` | Alternative CS2 radars |
+
+Targets backed by `adapters/real/` are created only when their required
+capability targets exist. The default target graph contains no real adapter
+source.

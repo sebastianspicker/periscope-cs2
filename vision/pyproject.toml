@@ -73,7 +73,7 @@ cs2-vision = "cs2_vision_access.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"cs2_vision_access" = ["config/data/*.json", "config/data/*.yaml"]
+"cs2_vision_access" = ["application/configuration/data/*.json"]
 
 [tool.uv]
 constraint-dependencies = [
@@ -85,8 +85,7 @@ constraint-dependencies = [
 line-length = 100
 target-version = "py311"
 extend-exclude = [
-  "archive",
-  "src/cs2_vision_access/training/notebooks",
+  "src/cs2_vision_access/workflows/training/notebooks",
 ]
 
 [tool.ruff.lint]
@@ -94,16 +93,34 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 
 [tool.ruff.lint.per-file-ignores]
 # sys.path bootstrap before package imports (CLI module entry points)
-"src/cs2_vision_access/training/batch.py" = ["E402"]
-"src/cs2_vision_access/training/prepare.py" = ["E402"]
+"src/cs2_vision_access/workflows/training/batch.py" = ["E402"]
+"src/cs2_vision_access/workflows/training/prepare.py" = ["E402"]
 # Gradio Progress() default is the library convention for progress bars
-"src/cs2_vision_access/training/space/app.py" = ["B008"]
+"src/cs2_vision_access/workflows/training/space/app.py" = ["B008"]
 # Nested with patch + assertRaises is clearer than multi-context form in tests
 "tests/**" = ["SIM117"]
 
 [tool.mypy]
 strict = true
 packages = ["cs2_vision_access"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"
+
+[[tool.mypy.overrides]]
+# Optional hardware/training bindings expose no usable cross-platform stubs.
+# Keep the application strict while treating only these external boundaries as
+# dynamically typed adapters.
+module = [
+  "AppKit",
+  "Quartz",
+  "cupy",
+  "huggingface_hub",
+  "onnx",
+  "onnxconverter_common",
+  "onnxruntime",
+  "rfdetr",
+  "webdataset",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -25,9 +25,9 @@ These exist for teaching. Use them only on disposable lab machines.
 
 | Path | Risk |
 |------|------|
-| `radar/code/drivers/example_vulnerable/` | Vulnerable driver pattern; test-signing |
-| `radar/code/firmware/example_pcie_dma/` | DMA / FPGA host examples |
-| `radar/code/lib/real/` | Process open, memory read, IOCTL, VMX, DMA helpers when enabled |
+| `radar/examples/drivers/example_vulnerable/` | Vulnerable driver pattern; test-signing |
+| `radar/examples/firmware/example_pcie_dma/` | DMA / FPGA host examples |
+| `radar/adapters/real/` | Process open, memory read, IOCTL, VMX, DMA helpers when enabled |
 
 High-impact CMake flags (`LR_ENABLE_REAL_*`, kernel/VMX/DMA) default **off**. Prefer simulation when exploring strategies.
 

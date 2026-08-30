@@ -5,19 +5,20 @@ on:
     branches: [main]
     paths:
       - "radar/**"
+      - "scripts/check_architecture.py"
+      - "scripts/verify.py"
       - ".github/workflows/radar-ci.yml"
   pull_request:
     branches: [main]
     paths:
       - "radar/**"
+      - "scripts/check_architecture.py"
+      - "scripts/verify.py"
       - ".github/workflows/radar-ci.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
-# Ubuntu-only for now. Windows/MSVC needs a full VS toolset on the runner;
-# add a windows-latest job when that is stable enough to maintain.
 
 jobs:
   build-and-test:
@@ -30,26 +31,31 @@ jobs:
       - name: Install CMake
         uses: lukka/get-cmake@fffaaafeea488556c2c12dad60690008bc1caacb # v4.4.2
 
-      - name: Configure
+      - name: Check architecture
+        run: python3 scripts/check_architecture.py
+
+      - name: Build and verify simulation
+        run: python3 scripts/verify.py radar-sim
+
+  real-capability-composition:
+    name: Real capability composition (Windows x64)
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Configure the supported real capability combination
+        shell: pwsh
         run: >-
-          cmake -S radar/code -B radar/code/build
-          -DLR_BUILD_TESTS=ON
-          -DLR_BUILD_STRATEGY_LAB=ON
-          -DLR_ENABLE_REAL_RPM=OFF
-          -DLR_ENABLE_REAL_SYSCALL=OFF
-          -DLR_ENABLE_REAL_NET=OFF
-          -DLR_ENABLE_REAL_UEFI=OFF
-          -DLR_ENABLE_REAL_LINUX=OFF
-          -DLR_ENABLE_HIJACK_READER=OFF
-          -DLR_ENABLE_PERISCOPE_ENTITY=OFF
-          -DLR_ENABLE_PERISCOPE_HUD=OFF
-          -DLR_ENABLE_PERISCOPE_RADAR=OFF
-          -DLR_ENABLE_PERISCOPE_OVERLAY=OFF
-          -DLR_ENABLE_BATCH_READ_JITTER=OFF
-          -DLR_ENABLE_TEMPORAL_PHASE=OFF
+          cmake -S radar -B radar/build/real-capability
+          -DLR_ENABLE_REAL_RPM=ON
+          -DLR_ENABLE_REAL_SYSCALL=ON
+          -DLR_ENABLE_REAL_GPU=ON
+          -DLR_ENABLE_SHELLCODE_INJECTION=ON
+          -DLR_BUILD_TESTS=OFF
+          -DLR_BUILD_PROTOS=OFF
+          -DLR_BUILD_DUELS=OFF
+          -DLR_BUILD_STRATEGY_LAB=OFF
 
-      - name: Build
-        run: cmake --build radar/code/build -j
-
-      - name: Test
-        run: ctest --test-dir radar/code/build --output-on-failure
+      - name: Build the composed real pipeline
+        run: cmake --build radar/build/real-capability --target ac_real_pipeline --config Release

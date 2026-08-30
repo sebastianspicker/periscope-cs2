@@ -48,7 +48,6 @@ Paths below are relative to `vision/` inside the Periscope monorepo.
 | `configs/*.example.json` | Example live and train-auto configs |
 | `docs/` | Active topic docs |
 | `scripts/` | Maintenance scripts (for example notebook generator) |
-| `docs/archive/`, `archive/` | Historical notes only; not required for builds |
 | `../radar/` | Sister Periscope track (out of scope for vision PRs) |
 | monorepo `.github/workflows/vision-ci.yml` | CI for this track |
 

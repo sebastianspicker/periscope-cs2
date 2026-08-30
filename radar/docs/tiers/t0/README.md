@@ -7,8 +7,8 @@
 
 - `red/` — cheat client, weak evasions, RPM backends  
 - `blue/` — AC agent, handle monitor, FP policy  
-- `strategies/` — external_rpm, internal_inject, handle_minimize, read_throttle, module_integrity  
-- `demos/duel` — narrated fight  
+- `scenarios/strategies/` — external_rpm, internal_inject, handle_minimize, read_throttle, module_integrity
+- `apps/demos/duel` — narrated fight
 
 ## Run
 

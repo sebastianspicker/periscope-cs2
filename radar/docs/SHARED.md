@@ -1,22 +1,22 @@
 # Shared packages
 
-Reusable lab infrastructure under `code/lib/`.
+Reusable lab infrastructure under `src/`.
 
 ## Layout
 
 | Package | Path | Role |
 |---------|------|------|
-| ac | `lib/ac/` | Core types: Status, Tier, EntitySnapshot, telemetry, risk |
-| sim | `lib/sim/` | `sim::World` arena — processes, handles, drivers, trust flags, inputs |
-| ac_sim | `lib/ac_sim/` | Temporal engine, behavioral filter, forensic / health helpers |
-| server | `lib/server/` | Interest management, info-advantage, ban correlator |
-| depth | `lib/depth/` | Multi-sample handles, leakage, multi-invariant, trust, seller fusion |
-| fps | `lib/fps/` | Bomb plant/defuse map, scenario, lab bridge |
-| lab | `lib/lab/` | Fixture process, LabMemoryBackend, pattern scanners |
-| cs2 | `lib/cs2/` | CS2-shaped helpers, signatures, diagnostics |
-| blue | `lib/blue/` | Shared multi-view blue coordinator |
-| strategies (support) | `lib/strategies/` | Pair utilities, multi-reason helpers, scar sensors |
-| real | `lib/real/` | Optional OS/hardware backends (see ARCHITECTURE.md) |
+| ac | `src/domain/ac/` | Core types: Status, Tier, EntitySnapshot, telemetry, risk |
+| sim | `src/simulation/sim/` | `sim::World` arena — processes, handles, drivers, trust flags, inputs |
+| ac_sim | `src/simulation/ac_sim/` | Temporal engine, behavioral filter, forensic / health helpers |
+| server | `src/domain/server/` | Interest management, info-advantage, ban correlator |
+| depth | `src/application/analysis/depth/` | Multi-sample handles, leakage, multi-invariant, trust, seller fusion |
+| fps | `src/simulation/fps/` | Bomb plant/defuse map, scenario, lab bridge |
+| lab | `src/lab_components/lab/` | Fixture process, LabMemoryBackend, pattern scanners |
+| cs2 | `src/simulation/cs2/` | CS2-shaped helpers, signatures, diagnostics |
+| blue | `src/application/detection/blue/` | Shared multi-view blue coordinator |
+| strategies (support) | `src/application/strategies/` | Pair utilities, multi-reason helpers, scar sensors |
+| real | `adapters/real/` | Optional OS/hardware backends (see ARCHITECTURE.md) |
 
 ## sim::World
 
@@ -24,16 +24,16 @@ Single battlefield both red and blue mutate. Team libraries and strategies plant
 
 ## Lab vs tests
 
-- Lab library code: `lib/lab/`
-- Tests: `code/tests/` (team API, depth, fps, tier full_tests, real backend smoke)
+- Lab library code: `src/lab_components/lab/`
+- Tests: `tests/` (team API, depth, fps, tier full_tests, real backend smoke)
 
 ## CS2 helpers
 
-`lib/cs2/` supports `demos/cs2_radar/tN/` and live radar demos. Signature tooling lives under `code/scripts/`.
+`src/simulation/cs2/` supports `apps/demos/cs2_radar/tN/` and live radar demos. Signature tooling lives under `scripts/`.
 
 ## Team packages
 
 | Package | Role |
 |---------|------|
-| `teams/t0_red/` … `teams/t4_red/` | Red delivery surfaces |
-| `teams/t0_blue/` … `teams/t4_blue/` | Blue sensors and agents |
+| `src/lab_components/teams/t0_red/` … `src/lab_components/teams/t4_red/` | Red delivery surfaces |
+| `src/lab_components/teams/t0_blue/` … `src/lab_components/teams/t4_blue/` | Blue sensors and agents |

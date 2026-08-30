@@ -2,7 +2,7 @@
 
 Apply on top of any delivery tier. These are product, evasion, ops, and server-design lessons, not a sixth way to read memory.
 
-Path: code/strategies/
+Path: scenarios/strategies/
 
 Each strategy folder:
 
@@ -82,4 +82,4 @@ From ./build/strategy_lab stats (includes tier strategies):
 | Structural | 9 |
 | Total | 99 |
 
-All strategies live under `code/strategies/`. Family is metadata in the strategy catalog (Delivery / Feature / Evasion / Detection / Structural), not a second directory tree.
+All strategies live under `scenarios/strategies/`. Family is metadata in the strategy catalog (Delivery / Feature / Evasion / Detection / Structural), not a second directory tree.

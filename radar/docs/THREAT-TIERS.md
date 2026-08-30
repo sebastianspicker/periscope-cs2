@@ -17,7 +17,7 @@ Software ladder for external entity radar. T4 is residual (hardware-class). Prim
 
 ## T0: Usermode RPM
 
-Path: teams/t0_red/, teams/t0_blue/
+Path: src/lab_components/teams/t0_red/, src/lab_components/teams/t0_blue/
 
 Team: t0_red::RpmBackend, CheatClient, EntityPipeline; t0_blue handle graph monitors.
 
@@ -31,7 +31,7 @@ Strategies: 01_external_rpm, handle hide, section map, GDI capture residuals, an
 
 ## T1: Syscall-soft
 
-Path: teams/t1_red/, teams/t1_blue/
+Path: src/lab_components/teams/t1_red/, src/lab_components/teams/t1_blue/
 
 Team: t1_red::SyscallBackend (attach_world sets via_syscall_path); t1_blue::SyscallAwareHandleMonitor.
 
@@ -45,7 +45,7 @@ Strategies: 02_indirect_syscall, manual map hide, stack spoof, ETW blind, hollow
 
 ## T2: Kernel / BYOVD
 
-Path: teams/t2_red/, teams/t2_blue/
+Path: src/lab_components/teams/t2_red/, src/lab_components/teams/t2_blue/
 
 Team: KernelRadar, ByovdSurface, IoctlReadBackend; KernelAc, driver guard, device watch, callback integrity.
 
@@ -59,7 +59,7 @@ Strategies: 03_kernel_ioctl, 04_byovd, callback strip/shadow, physmem, pool tag,
 
 ## T3: Personal hypervisor (sim)
 
-Path: teams/t3_red/, teams/t3_blue/
+Path: src/lab_components/teams/t3_red/, src/lab_components/teams/t3_blue/
 
 Team: HvRadar::run_full_loop, HvReadBackend, BridgeSurface; PlatformAc::full, TrustPolicy, HvProbe, BridgeIntel, AttestationGate, depth::TrustAggregator.
 
@@ -71,11 +71,11 @@ Demos: duel_t3, proto_t3_*
 
 Strategies: 05_hypervisor, nested HV, attestation, EPT hide, timing spoof, EFI/ELAM, HVCI race, feature control MSR, and related IDs.
 
-See also RESIDUAL-RESEARCH.md and archived T3 notes under docs/archive/.
+See also [RESIDUAL-RESEARCH.md](RESIDUAL-RESEARCH.md).
 
 ## T4: DMA / residual hardware (sim)
 
-Path: teams/t4_red/, teams/t4_blue/
+Path: src/lab_components/teams/t4_red/, src/lab_components/teams/t4_blue/
 
 Team: DmaRadar::run_full_loop, DmaDefense::full.
 

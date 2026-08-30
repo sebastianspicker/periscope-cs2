@@ -12,21 +12,21 @@ Use `t4_blue::DmaDefense` and pair blue_example sensors for multi-reason detect 
 
 ## Strategy pairs in this tier
 
-- `60_aim_challenge` — strategies/aim_challenge/LESSON.md
-- `39_capture_cv_hid` — strategies/capture_cv_hid/LESSON.md
-- `97_clipcursor` — strategies/clipcursor/LESSON.md
-- `72_desktop_duplication` — strategies/desktop_duplication/LESSON.md
-- `06_dma_hardware` — strategies/dma_hardware/LESSON.md
-- `50_dual_boot_posture` — strategies/dual_boot_posture/LESSON.md
-- `85_external_clone_display` — strategies/external_clone_display/LESSON.md
-- `61_iommu_policy` — strategies/iommu_policy/LESSON.md
-- `84_lag_switch` — strategies/lag_switch/LESSON.md
-- `73_network_multibox_aim` — strategies/network_multibox_aim/LESSON.md
-- `96_packet_loss_disambig` — strategies/packet_loss_disambig/LESSON.md
+- `60_aim_challenge` — scenarios/strategies/aim_challenge/LESSON.md
+- `39_capture_cv_hid` — scenarios/strategies/capture_cv_hid/LESSON.md
+- `97_clipcursor` — scenarios/strategies/clipcursor/LESSON.md
+- `72_desktop_duplication` — scenarios/strategies/desktop_duplication/LESSON.md
+- `06_dma_hardware` — scenarios/strategies/dma_hardware/LESSON.md
+- `50_dual_boot_posture` — scenarios/strategies/dual_boot_posture/LESSON.md
+- `85_external_clone_display` — scenarios/strategies/external_clone_display/LESSON.md
+- `61_iommu_policy` — scenarios/strategies/iommu_policy/LESSON.md
+- `84_lag_switch` — scenarios/strategies/lag_switch/LESSON.md
+- `73_network_multibox_aim` — scenarios/strategies/network_multibox_aim/LESSON.md
+- `96_packet_loss_disambig` — scenarios/strategies/packet_loss_disambig/LESSON.md
 
 ## How to read a pair
 
-1. LESSON.md (this folder's strategies/<name>/) — multi-step red scars and blue sensors.
+1. LESSON.md (this folder's scenarios/strategies/<name>/) — multi-step red scars and blue sensors.
 2. red_example.cpp — exact World mutations and team calls.
 3. blue_example.cpp — multi-reason detect/mitigate.
 4. pair.cpp — StrategyEntry id, family, narrator.

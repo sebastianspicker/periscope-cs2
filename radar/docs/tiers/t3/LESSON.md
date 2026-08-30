@@ -12,25 +12,25 @@ Use `t3_blue::PlatformAc` and pair blue_example sensors for multi-reason detect 
 
 ## Strategy pairs in this tier
 
-- `37_attestation` — strategies/attestation/LESSON.md
-- `27_boot_trust` — strategies/boot_trust/LESSON.md
-- `82_ci_options` — strategies/ci_options/LESSON.md
-- `59_cr3_stealth_target` — strategies/cr3_stealth_target/LESSON.md
-- `49_efi_boot_entry` — strategies/efi_boot_entry/LESSON.md
-- `58_elam_bypass` — strategies/elam_bypass/LESSON.md
-- `48_ept_hide_ac` — strategies/ept_hide_ac/LESSON.md
-- `83_feature_control_msr` — strategies/feature_control_msr/LESSON.md
-- `71_hvci_race` — strategies/hvci_race/LESSON.md
-- `05_hypervisor` — strategies/hypervisor/LESSON.md
-- `94_infinity_hook` — strategies/infinity_hook/LESSON.md
-- `36_nested_hv` — strategies/nested_hv/LESSON.md
-- `70_secure_kernel_view` — strategies/secure_kernel_view/LESSON.md
-- `38_timing_spoof` — strategies/timing_spoof/LESSON.md
-- `95_vtl1_enclave_miss` — strategies/vtl1_enclave_miss/LESSON.md
+- `37_attestation` — scenarios/strategies/attestation/LESSON.md
+- `27_boot_trust` — scenarios/strategies/boot_trust/LESSON.md
+- `82_ci_options` — scenarios/strategies/ci_options/LESSON.md
+- `59_cr3_stealth_target` — scenarios/strategies/cr3_stealth_target/LESSON.md
+- `49_efi_boot_entry` — scenarios/strategies/efi_boot_entry/LESSON.md
+- `58_elam_bypass` — scenarios/strategies/elam_bypass/LESSON.md
+- `48_ept_hide_ac` — scenarios/strategies/ept_hide_ac/LESSON.md
+- `83_feature_control_msr` — scenarios/strategies/feature_control_msr/LESSON.md
+- `71_hvci_race` — scenarios/strategies/hvci_race/LESSON.md
+- `05_hypervisor` — scenarios/strategies/hypervisor/LESSON.md
+- `94_infinity_hook` — scenarios/strategies/infinity_hook/LESSON.md
+- `36_nested_hv` — scenarios/strategies/nested_hv/LESSON.md
+- `70_secure_kernel_view` — scenarios/strategies/secure_kernel_view/LESSON.md
+- `38_timing_spoof` — scenarios/strategies/timing_spoof/LESSON.md
+- `95_vtl1_enclave_miss` — scenarios/strategies/vtl1_enclave_miss/LESSON.md
 
 ## How to read a pair
 
-1. LESSON.md (this folder's strategies/<name>/) — multi-step red scars and blue sensors.
+1. LESSON.md (this folder's scenarios/strategies/<name>/) — multi-step red scars and blue sensors.
 2. red_example.cpp — exact World mutations and team calls.
 3. blue_example.cpp — multi-reason detect/mitigate.
 4. pair.cpp — StrategyEntry id, family, narrator.

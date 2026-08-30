@@ -1,6 +1,6 @@
 # CLI reference
 
-Program: `cs2-vision` (`src/cs2_vision_access/cli/parser.py`).
+Program: `cs2-vision` (`src/cs2_vision_access/interfaces/cli/parser.py`).
 
 ```bash
 uv run cs2-vision --help

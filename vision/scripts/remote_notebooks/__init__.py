@@ -10,7 +10,7 @@ from .kaggle import build_kaggle_cells
 
 
 def main() -> None:
-    base = Path("src/cs2_vision_access/training/notebooks")
+    base = Path("src/cs2_vision_access/workflows/training/notebooks")
     colab = build_colab_cells()
     kaggle = build_kaggle_cells()
     write_nb(base / "colab.ipynb", colab)

@@ -6,11 +6,11 @@ Primary catalog runner for red/blue pairs.
 
 | Item | Path |
 |------|------|
-| CLI | `code/strategies/framework/main.cpp` → `./build/strategy_lab` |
-| Registry | `code/strategies/framework/registry.cpp` |
-| Framework | `code/strategies/framework/` |
-| Strategy sources | `code/strategies/<tier>/` |
-| Human catalog | `code/strategies/CATALOG.md` + `docs/STRATEGY-CATALOG.md` |
+| CLI | `scenarios/strategies/framework/main.cpp` → `./build/strategy_lab` |
+| Registry | `scenarios/strategies/framework/registry.cpp` |
+| Framework | `scenarios/strategies/framework/` |
+| Strategy sources | `scenarios/strategies/<tier>/` |
+| Human catalog | `scenarios/strategies/CATALOG.md` + `docs/STRATEGY-CATALOG.md` |
 
 ```bash
 ./build/strategy_lab list
@@ -20,9 +20,9 @@ Primary catalog runner for red/blue pairs.
 
 New pair workflow:
 
-1. Add `code/strategies/<tier>/<name>/{red_example,blue_example,pair}.cpp` (+ optional `LESSON.md`).
+1. Add `scenarios/strategies/<tier>/<name>/{red_example,blue_example,pair}.cpp` (+ optional `LESSON.md`).
 2. Export `entry_NN_*()` from `pair.cpp` and register it in `framework/registry.cpp`.
-3. Rebuild — CMake GLOBs `strategies/**/*.cpp` into `ac_strategies`.
+3. Rebuild — CMake GLOBs `scenarios/strategies/**/*.cpp` into `ac_strategies`.
 
 ## fps_demo
 
@@ -30,9 +30,9 @@ Plant/defuse FPS scenario + residual modes.
 
 | Item | Path |
 |------|------|
-| Source | `code/demos/fps_demo.cpp` |
+| Source | `apps/demos/fps_demo.cpp` |
 | Binary | `./build/fps_demo` |
-| Library | `ac_fps` (`lib/fps/`) |
+| Library | `ac_fps` (`src/simulation/fps/`) |
 
 ```bash
 ./build/fps_demo all
@@ -42,27 +42,31 @@ Plant/defuse FPS scenario + residual modes.
 
 | Binary | Source |
 |--------|--------|
-| `evasion_lab` | `demos/evasion_lab.cpp` |
-| `features_lab` | `demos/features_lab.cpp` |
-| `ops_lab` | `demos/ops_lab.cpp` |
-| `structural_lab` | `demos/structural_lab.cpp` |
-| `duel_t0` … `duel_t4` | `demos/duel_tN.cpp` |
-| `proto_tN_*` | `demos/proto_tN_{red,blue}.cpp` |
-| `cs2_radar_tN` | `demos/cs2_radar/tN/` |
+| `evasion_lab` | `apps/demos/evasion_lab.cpp` |
+| `features_lab` | `apps/demos/features_lab.cpp` |
+| `ops_lab` | `apps/demos/ops_lab.cpp` |
+| `structural_lab` | `apps/demos/structural_lab.cpp` |
+| `duel_t0` … `duel_t4` | `apps/demos/duel_tN.cpp` |
+| `proto_tN_*` | `apps/demos/proto_tN_{red,blue}.cpp` |
+| `cs2_radar_tN` | `apps/demos/cs2_radar/tN/` |
 
 ## GUI demo (`gui_demo`)
 
-Immediate-mode GUI radar demo. No CS2 required (simulated entities).
+Immediate-mode Windows GPU radar demo. No CS2 process is required because it
+uses simulated entities, but the target is created only when the real RPM,
+syscall, and GPU capabilities are enabled.
 
 | Item | Path |
 |------|------|
-| Source | `code/demos/gui_demo.cpp` |
+| Source | `apps/demos/gui_demo.cpp` |
 | Binary | `./build/gui_demo` (multi-config generators: `build/Release/gui_demo.exe`) |
 
 Live CS2 radar with the same panel: `./build/live_radar`.
-| Library | `real::gpu::gui` (`lib/real/gpu/gui.hpp` + `gui.cpp`) |
+| Library | `real::gpu::gui` (`adapters/real/gpu/gui.hpp` + `gui.cpp`) |
 
 ```bash
+cmake -S . -B build -DLR_ENABLE_REAL_RPM=ON -DLR_ENABLE_REAL_SYSCALL=ON -DLR_ENABLE_REAL_GPU=ON
+cmake --build build --target gui_demo
 ./build/gui_demo
 ```
 

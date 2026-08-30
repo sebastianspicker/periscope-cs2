@@ -1,6 +1,9 @@
 # Periscope
 
-Umbrella monorepo for two CS2-related research tracks with different threat models and licenses: **radar** (memory-path educational red/blue lab for external “legit” radar vs detection) and **vision** (pure-pixel player outlining for accessibility research). They share a theme, not a codebase. Do not treat either subtree as a cheat product.
+Periscope contains two independently built and licensed CS2 research projects:
+**Radar**, a simulation-first red/blue teaching lab, and **Vision**, a
+pixel-only accessibility research package. They share a subject area but no
+runtime code.
 
 ## Projects
 
@@ -11,13 +14,12 @@ Umbrella monorepo for two CS2-related research tracks with different threat mode
 
 ## Quick start
 
-**Radar** — see [`radar/README.md`](radar/README.md). Build under `radar/code/`:
+**Radar** — see [`radar/README.md`](radar/README.md). Build from `radar/`:
 
 ```bash
-cd radar/code
-cmake -S . -B build -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON
-cmake --build build -j
-ctest --test-dir build --output-on-failure
+cmake -S radar -B radar/build/dev -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON
+cmake --build radar/build/dev -j
+ctest --test-dir radar/build/dev --output-on-failure
 ```
 
 **Vision** — see [`vision/README.md`](vision/README.md). From `vision/`:
@@ -45,15 +47,13 @@ uv run cs2-vision --help
 
 Each subtree has its own `README`, `LICENSE`, `CONTRIBUTING`, `SECURITY`, and docs tree. Root files do not replace those.
 
-## Status
+The current dependency rules and placement guide are in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Run all portable repository
+checks with:
 
-Current local evidence and the publication boundary are recorded in
-[`RELEASE_STATUS.md`](RELEASE_STATUS.md).
-
-| Project | Maturity |
-|---------|----------|
-| **radar** | Mature educational lab: hundreds of strategy pairs across T0–T4 + crosscutting, sim-first, optional Windows real backends behind CMake flags |
-| **vision** | Pre-alpha research tooling (0.1.0). CPU unit tests in CI; live overlay and multi-epoch training are operator-local |
+```bash
+python3 scripts/verify.py all
+```
 
 ## Not a cheat product
 
@@ -68,10 +68,10 @@ Operators own compliance with platform terms, anti-cheat policy, and local law.
 
 | Doc | Role |
 |-----|------|
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Monorepo PR rules; points into each subtree |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Monorepo PR rules and verification commands |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Current system boundaries and dependency direction |
 | [SECURITY.md](SECURITY.md) | Reporting and scope |
 | [NOTICE.md](NOTICE.md) | Dual licensing |
-| [RELEASE_STATUS.md](RELEASE_STATUS.md) | Current local evidence, Pages decision, and blockers |
 | [radar/README.md](radar/README.md) · [radar/docs/INDEX.md](radar/docs/INDEX.md) | Radar curriculum and build |
 | [vision/README.md](vision/README.md) · [vision/docs/](vision/docs/) | Vision install, CLI, architecture |
 | [radar/CONTRIBUTING.md](radar/CONTRIBUTING.md) · [vision/CONTRIBUTING.md](vision/CONTRIBUTING.md) | Per-project contribution detail |

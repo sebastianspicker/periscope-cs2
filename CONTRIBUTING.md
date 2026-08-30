@@ -19,35 +19,22 @@ Periscope is a monorepo of two independent research trees. Pick the subtree you 
 ## Do not commit
 
 - Virtualenvs (`.venv/`, `venv/`)
-- Build trees (`radar/code/build*`, CMake cache, `*.obj` / `*.pdb` / `*.exe` droppings)
+- Build trees (`radar/build*`, CMake cache, `*.obj` / `*.pdb` / `*.exe` droppings)
 - Local model weights, ONNX dumps, Ultralytics `runs/`
 - Private frames, gameplay video, machine-local configs (`cs2-vision-config.json`, tokens)
-- Nested assistant caches (`.claude/`, `.cursor/`, `.codex/`, `.grok/`, …)
+- Local development-tool caches and instruction files
 
-Root and per-subtree `.gitignore` files should already cover these. If something still shows up in `git status`, fix ignore rules rather than force-adding.
-
-## Archives are not live truth
-
-Historical ledgers and snapshots live only under:
-
-- `radar/docs/archive/`
-- `vision/docs/archive/`
-- `vision/archive/`
-
-Do not revive archive material as current architecture, CLI contract, or curriculum without rewriting it into active docs and code.
+Repository ignore rules should already cover these. If something still shows
+up in `git status`, update the relevant rule rather than force-adding it.
 
 ## Checks
 
 ### Radar
 
-From `radar/code/`:
+From the repository root:
 
 ```bash
-cmake -S . -B build -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON
-cmake --build build -j
-ctest --test-dir build --output-on-failure
-# optional strategy catalog pass:
-./build/strategy_lab all --quiet
+python3 scripts/verify.py radar-sim
 ```
 
 Details: [`radar/docs/BUILD-AND-TEST.md`](radar/docs/BUILD-AND-TEST.md), [`radar/CONTRIBUTING.md`](radar/CONTRIBUTING.md).
@@ -62,7 +49,13 @@ uv run ruff check src/ tests/
 uv run ruff format --check src/ tests/
 uv run mypy --strict src/cs2_vision_access/
 uv run pytest tests/ -v
+uv build
 ```
+
+From the repository root, the same complete lane is
+`python3 scripts/verify.py vision-cpu`. Run
+`python3 scripts/verify.py architecture` after changing boundaries or moving
+code.
 
 Details: [`vision/CONTRIBUTING.md`](vision/CONTRIBUTING.md).
 

@@ -3,40 +3,19 @@
 ## Monorepo layout
 
 ```
-code/
-├── CMakeLists.txt
+.
+├── CMakeLists.txt                 Build entry point
 ├── cmake/                         CMake helpers / generated headers
-├── lib/                           Libraries (headers + sources together)
-│   ├── ac/                        Core types (Tier, EntitySnapshot, Vec3, Status)
-│   ├── sim/                       sim::World — scar arena
-│   ├── ac_sim/                    Temporal engine, behavioral filter, helpers
-│   ├── server/                    InterestManager, InfoAdvantageScorer, BanCorrelator
-│   ├── depth/                     Multi-invariant analysis, trust / seller fusion
-│   ├── fps/                       FPS game state machine, scenario runner
-│   ├── lab/                       Fixture process, pattern scanners
-│   ├── cs2/                       CS2 models, diagnostics, signatures
-│   ├── blue/                      Blue team coordinator
-│   ├── strategies/                Shared pair support (scorers, sensors)
-│   └── real/                      Platform backends (optional at configure time)
-│       ├── win/                   NT API table, syscalls, PE/ETW helpers
-│       ├── cs2/                   Process attach, HijackReader, radar stack
-│       ├── kernel/                Driver load, IOCTL, BYOVD scaffolding
-│       ├── dma/                   PCIe / FPGA / Thunderbolt
-│       ├── vmx/                   Intel VT-x
-│       ├── smm/                   SMM / ACPI / TPM-shaped surfaces
-│       ├── uefi/                  UEFI firmware lab helpers
-│       ├── gpu/                   D3D11 overlay, GUI, render pipeline
-│       ├── net/                   Sockets, HTTP, C2-shaped client, pipes
-│       ├── mode/                  Runtime mode (real / sim / hybrid)
-│       └── linux/                 Linux memory / process helpers
-├── teams/                         t0_red … t4_blue
-├── strategies/                    Pair lessons + strategy_lab
-│   ├── framework/                 CLI, registry, runner
-│   ├── t0/ … t4/                  Tier pairs
-│   └── crosscutting/              Cross-cutting pairs
-├── demos/                         Runnable executables
-├── drivers/                       Kernel driver examples (WDK lab)
-├── firmware/                      FPGA DMA host-sim examples
+├── src/
+│   ├── domain/                    Core values, telemetry, server-side policy
+│   ├── simulation/                Deterministic world and scenario engines
+│   ├── application/               Detection, analysis, strategies, simulation pipeline
+│   └── lab_components/             Lab infrastructure and tier components
+├── adapters/real/                 Optional platform backends
+├── scenarios/strategies/           Pair lessons + strategy_lab
+├── apps/demos/                    Runnable executables
+├── examples/drivers/              Kernel driver examples (WDK lab)
+├── examples/firmware/             FPGA DMA host-sim examples
 ├── tests/                         CTest sources
 ├── scripts/                       Signature / offset tooling
 └── data/                          Offset snapshots and related data
@@ -48,18 +27,21 @@ Each library target keeps headers and sources in one directory. There is no sepa
 
 | Target | Path | Purpose |
 |--------|------|---------|
-| ac_common | `lib/ac/` | Core types, telemetry, risk |
-| ac_sim | `lib/sim/` + `lib/ac_sim/` | World arena + temporal/behavioral helpers |
-| ac_server | `lib/server/` | Interest, info-advantage, bans |
-| ac_depth | `lib/depth/` | Multi-sample / trust / fusion scorers |
-| ac_lab | `lib/lab/` | Fixture process, lab memory, scanners |
-| ac_fps | `lib/fps/` | FPS map and scenario |
-| ac_cs2 | `lib/cs2/` | CS2-shaped helpers and signatures |
-| ac_t0_red … ac_t4_blue | `teams/tN_*` | Tier team libraries |
-| ac_strategies | `strategies/` | Catalog registry + all pairs |
-| ac_real_platform | `lib/real/…` | Optional real backends |
+| ac_common | `src/domain/ac/` | Core types, telemetry, risk |
+| ac_sim | `src/simulation/sim/` + `src/simulation/ac_sim/` | World arena + temporal/behavioral helpers |
+| ac_server | `src/domain/server/` | Interest, info-advantage, bans |
+| ac_strategy_core | `src/application/strategies/` | Strategy contracts and shared policy |
+| ac_blue | `src/application/detection/blue/` | Simulation-backed detection policy |
+| ac_depth | `src/application/analysis/depth/` | Multi-sample / trust / fusion scorers |
+| ac_lab | `src/lab_components/lab/` | Fixture process, lab memory, scanners |
+| ac_fps | `src/simulation/fps/` | FPS map and scenario |
+| ac_cs2 | `src/simulation/cs2/` | CS2-shaped helpers and signatures |
+| ac_t0_red … ac_t4_blue | `src/lab_components/teams/tN_*` | Tier team libraries |
+| ac_strategies | `scenarios/strategies/` | Catalog registry + all pairs |
+| ac_real_core, ac_real_rpm, ac_real_syscall, … | `adapters/real/…` | Narrow opt-in capability backends |
+| ac_real_pipeline | `adapters/real/application/` | Opt-in live pipeline composition |
 
-Exact CMake target names can vary slightly; see `code/CMakeLists.txt`.
+Exact CMake target names can vary slightly; see `CMakeLists.txt`.
 
 ## sim::World: single source of truth
 
@@ -89,7 +71,8 @@ Blue::detect(World&)
 ```
 strategy_lab  -> ac_strategies -> team libs + sim/depth/server
 duel_tN / proto_tN_* -> team libs
-radar_t0 … t4 / live_radar -> ac_real_platform (when enabled) + sim
+radar_t0 … t4 -> sim
+live_radar -> selected ac_real_* capability targets + sim (when enabled)
 tests/* -> shipped apply/detect or team API entry points
 fps_demo -> ac_fps + ac_server
 ```
