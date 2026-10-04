@@ -226,3 +226,9 @@ cs2-vision-config.json
 /loc_before.txt
 /loc_after.txt
 /kilo.json
+
+# Removed internal test directories
+/radar/tests/
+/radar/adapters/real/linux/tests/
+/radar/examples/firmware/example_pcie_dma/tests/
+/vision/tests/

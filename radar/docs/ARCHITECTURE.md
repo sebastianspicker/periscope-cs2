@@ -16,7 +16,6 @@
 ├── apps/demos/                    Runnable executables
 ├── examples/drivers/              Kernel driver examples (WDK lab)
 ├── examples/firmware/             FPGA DMA host-sim examples
-├── tests/                         CTest sources
 ├── scripts/                       Signature / offset tooling
 └── data/                          Offset snapshots and related data
 ```
@@ -73,7 +72,6 @@ strategy_lab  -> ac_strategies -> team libs + sim/depth/server
 duel_tN / proto_tN_* -> team libs
 radar_t0 … t4 -> sim
 live_radar -> selected ac_real_* capability targets + sim (when enabled)
-tests/* -> shipped apply/detect or team API entry points
 fps_demo -> ac_fps + ac_server
 ```
 

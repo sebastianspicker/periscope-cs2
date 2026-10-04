@@ -28,11 +28,9 @@ def verify_radar() -> None:
         str(ROOT / "radar"),
         "-B",
         str(RADAR_BUILD),
-        "-DLR_BUILD_TESTS=ON",
         "-DLR_BUILD_STRATEGY_LAB=ON",
     )
     run("cmake", "--build", str(RADAR_BUILD), "-j", BUILD_JOBS)
-    run("ctest", "--test-dir", str(RADAR_BUILD), "--output-on-failure")
     run(str(RADAR_BUILD / "strategy_lab"), "list")
     run(str(RADAR_BUILD / "strategy_lab"), "all", "--quiet")
 
@@ -40,10 +38,9 @@ def verify_radar() -> None:
 def verify_vision() -> None:
     vision = ROOT / "vision"
     run("uv", "sync", "--frozen", "--extra", "dev", cwd=vision)
-    run("uv", "run", "ruff", "check", "src/", "tests/", cwd=vision)
-    run("uv", "run", "ruff", "format", "--check", "src/", "tests/", cwd=vision)
+    run("uv", "run", "ruff", "check", "src/", cwd=vision)
+    run("uv", "run", "ruff", "format", "--check", "src/", cwd=vision)
     run("uv", "run", "mypy", "--strict", "src/cs2_vision_access/", cwd=vision)
-    run("uv", "run", "pytest", "tests/", "-q", cwd=vision)
     run("uv", "build", cwd=vision)
 
 

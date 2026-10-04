@@ -6,7 +6,7 @@
 |----------|-------------|
 | [README.md](../README.md) | Project overview, build, usage |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Code layout, World model, multi-step pattern |
-| [BUILD-AND-TEST.md](BUILD-AND-TEST.md) | CMake options and tests |
+| [BUILD-AND-TEST.md](BUILD-AND-TEST.md) | CMake options and build |
 | [CURRICULUM.md](CURRICULUM.md) | Suggested learning order |
 
 ## Concepts

@@ -49,7 +49,6 @@ Each tier has a red team library, a blue team library, runnable demos, and strat
 ├── apps/demos/               radar_tN, live_radar, duels, probes
 ├── examples/drivers/         Example vulnerable driver (lab only)
 ├── examples/firmware/        Example PCIe DMA host sim
-├── tests/                    CTest suites
 ├── scripts/                  Signature and offset tooling
 └── data/                     Offset snapshots and related data
 ```
@@ -60,7 +59,7 @@ Each tier has a red team library, a blue team library, runnable demos, and strat
 ### Simulation only (any platform)
 
 ```bash
-cmake -S . -B build -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON
+cmake -S . -B build -DLR_BUILD_STRATEGY_LAB=ON
 cmake --build build -j
 ```
 
@@ -75,7 +74,6 @@ Useful CMake flags:
 
 | Flag | Default | Meaning |
 |------|:-------:|---------|
-| `LR_BUILD_TESTS` | ON | CTest targets |
 | `LR_BUILD_STRATEGY_LAB` | ON | `strategy_lab` CLI |
 | `LR_BUILD_DUELS` | ON | `duel_tN` binaries |
 | `LR_BUILD_PROTOS` | ON | Prototype demos |
@@ -111,9 +109,6 @@ LR_MODE=sim ./build/strategy_lab run 01_external_rpm
 
 # Windows GPU control panel demo (requires LR_ENABLE_REAL_GPU=ON)
 ./build/gui_demo
-
-# Tests
-ctest --test-dir build --output-on-failure
 ```
 
 `gui_demo` is created only when the real RPM, syscall, and GPU capabilities
@@ -150,7 +145,7 @@ Live catalog truth is always `./build/strategy_lab list` (hundreds of registered
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: new lessons go under `scenarios/strategies/<tier>/` with red + blue + `LESSON.md`, register them in `scenarios/strategies/framework/registry.cpp`, and keep tests green.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: new lessons go under `scenarios/strategies/<tier>/` with red + blue + `LESSON.md`, register them in `scenarios/strategies/framework/registry.cpp`.
 
 ---
 

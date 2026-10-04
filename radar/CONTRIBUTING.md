@@ -1,6 +1,6 @@
 # Contributing
 
-Educational anti-cheat research lab (radar track of the Periscope monorepo). Useful contributions: clearer lessons, better blue sensors, tighter tests, or docs that match the tree.
+Educational anti-cheat research lab (radar track of the Periscope monorepo). Useful contributions: clearer lessons, better blue sensors, or docs that match the tree.
 
 ## Monorepo
 
@@ -29,9 +29,8 @@ Educational anti-cheat research lab (radar track of the Periscope monorepo). Use
 4. Rebuild and run:
    ```bash
    ./build/strategy_lab run <id>
-   ctest --test-dir build --output-on-failure
    ```
-5. If the pair introduces a new surface class, update the CMake wiring and retained CTest smoke coverage when applicable.
+5. If the pair introduces a new surface class, update the CMake wiring.
 
 ## Doc updates
 
@@ -41,5 +40,5 @@ Educational anti-cheat research lab (radar track of the Periscope monorepo). Use
 ## Pull requests
 
 - One concern per PR when you can.
-- Say what you ran (build flags, which tests).
+- Say what you ran (build flags).
 - Update `docs/` only when behavior or layout actually changed.

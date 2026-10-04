@@ -3,7 +3,7 @@
 ## Configure and Build
 
 ```
-cmake -S . -B build -DLR_BUILD_TESTS=ON -DLR_BUILD_PROTOS=ON -DLR_BUILD_STRATEGY_LAB=ON
+cmake -S . -B build -DLR_BUILD_PROTOS=ON -DLR_BUILD_STRATEGY_LAB=ON
 cmake --build build -j
 ```
 
@@ -11,7 +11,6 @@ cmake --build build -j
 
 | Option | Default | Description |
 |--------|:-------:|-------------|
-| `LR_BUILD_TESTS` | ON | CTest targets under `tests/` |
 | `LR_BUILD_PROTOS` | ON | Per-tier prototype demos (`proto_tN_*`), CS2 radar demos |
 | `LR_BUILD_DUELS` | ON | Red-vs-blue duel demos (`duel_tN`) |
 | `LR_BUILD_STRATEGY_LAB` | ON | `strategy_lab` CLI + `ac_strategies` library |
@@ -32,13 +31,11 @@ See `CMakeLists.txt` for the full list of `LAB_ALLOW_*` flags that enable additi
 | Team libraries | `src/lab_components/teams/t0_red/` … `src/lab_components/teams/t4_blue/` |
 | Strategy pairs | `scenarios/strategies/t0/` … `scenarios/strategies/crosscutting/` |
 | Demos | `apps/demos/` (flat `.cpp` + `apps/demos/cs2_radar/tN/`) |
-| Tests | `tests/` |
 | Project docs | `docs/` (curriculum and reference) |
 
 ## Test
 
 ```
-ctest --test-dir build --output-on-failure
 ./build/strategy_lab all --quiet
 ```
 

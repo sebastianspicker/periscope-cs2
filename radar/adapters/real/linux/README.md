@@ -24,10 +24,9 @@ the Linux counterparts to the Windows `real/win` and `real/kernel` adapters.
 ## Build (userspace)
 
 ```bash
-# From this directory (host Windows OK for unit tests; Linux for live paths)
+# From this directory
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
-ctest --test-dir build --output-on-failure
 ```
 
 On Linux the same build produces `aclab_client`. The Radar root build includes
@@ -48,13 +47,3 @@ Requires kernel headers matching `uname -r`.
 Every privileged path documents **technique → forensic scar → blue sensor →
 mitigation** in the `.cpp` commentary. Nothing here is stealthy by design:
 the lab exists to practice **detection**, not to ship cheats.
-
-## Tests
-
-`tests/linux_stack_test.cpp` exercises **shipped** entry points:
-
-- Pure parsers/decoders (always)
-- `read_self_memory` content integrity (always)
-- `page_walk::walk` with a mock physical backend (always)
-- Live `/proc`, `process_vm_readv`, sensors (Linux only)
-- Structural asserts on `aclab_module.c` IOCTL surface

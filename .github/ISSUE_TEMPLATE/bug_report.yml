@@ -46,12 +46,12 @@ body:
     id: command
     attributes:
       label: Command / repro
-      description: Exact CLI invocation, cmake/ctest steps, or short steps. Redact paths with secrets.
+      description: Exact CLI invocation, cmake steps, or short steps. Redact paths with secrets.
       placeholder: |
         # vision
         cd vision && uv run cs2-vision outline --help
         # radar
-        cmake -S radar -B radar/build -DLR_BUILD_TESTS=ON
+        cmake -S radar -B radar/build
     validations:
       required: true
 
@@ -66,7 +66,7 @@ body:
     id: actual
     attributes:
       label: Actual
-      description: Paste relevant traceback, log excerpt, or ctest failure (no credentials).
+      description: Paste relevant traceback, log excerpt, or build failure (no credentials).
     validations:
       required: true
 

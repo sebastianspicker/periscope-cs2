@@ -47,7 +47,7 @@ Help low-vision accessibility research by outlining visible player models on CS2
 
 ### Limitations
 
-- Pre-alpha. Public CI runs CPU unit tests on Ubuntu and Windows (Python 3.11–3.13). It does not run multi-epoch Ultralytics training or validate live overlay hardware.
+- Pre-alpha. Public CI runs lint, type checks and a package build (Python 3.11–3.13). It does not run multi-epoch Ultralytics training or validate live overlay hardware.
 - COCO `person` models are plumbing checks, not CS2-validated player models.
 - Session-split product training needs your labels (or EdgeSAM/prepare drafts) and whole-session train/val assignment. Random frame splits are rejected for product datasets.
 - Free-tier notebooks default to COCO-person bootstrap plus self-train on a small CS2-10k slice. EdgeSAM auto-label is opt-in (`USE_EDGESAM=True`) and pulls larger ONNX teachers.
@@ -139,7 +139,7 @@ ingest → prepare_data → label → validate → train → export → self_tra
 | `CS2_VISION_GIT` | Notebooks: git clone URL if import fails |
 | `CS2_DATASET_ZIP` | Notebooks / remote zip discovery |
 | `ALLOW_LEAKY_VAL` | Notebooks: set `1`/`true` to force flat train=val (research only) |
-| `CI` | CI sets this; tests skip GPU markers |
+| `CI` | CI sets this |
 
 ## Usage
 
@@ -276,7 +276,7 @@ Details: [docs/CLI.md](docs/CLI.md).
 This tree is the `vision/` package root inside the Periscope monorepo (sibling of `radar/`).
 
 ```text
-vision/   # cwd for uv, pytest, and cs2-vision
+vision/   # cwd for uv and cs2-vision
 ├── configs/                 # Example train-auto and live configs
 ├── data/README.md           # Local data root (contents gitignored)
 ├── artifacts/README.md      # Local model/run outputs (contents gitignored)
@@ -289,7 +289,6 @@ vision/   # cwd for uv, pytest, and cs2-vision
 │   ├── adapters/            # Capture, models, rendering, persistence, overlays
 │   ├── interfaces/          # CLI and GUI composition edges
 │   └── <public facades>/    # Thin compatibility imports only
-└── tests/                   # Behavioral and boundary contracts
 ```
 
 Topic docs:
@@ -316,23 +315,14 @@ Run these from `vision/` (the directory with `pyproject.toml`):
 ```bash
 uv sync --frozen --extra dev
 # code under src/
-uv run ruff check src/ tests/
-uv run ruff format src/ tests/
+uv run ruff check src/
+uv run ruff format src/
 uv run mypy --strict src/cs2_vision_access/
-uv run pytest tests/ -q
 ```
 
-CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On `main` push/PR it runs Ubuntu and Windows, Python 3.11–3.13, ruff, mypy, and the focused CPU pytest suite. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
+CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On `main` push/PR it runs Python 3.11–3.13 ruff and mypy checks and a package build. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
 
 Package metadata: `pyproject.toml`. Lockfile: `uv.lock`.
-
-## Testing
-
-```bash
-uv run pytest tests/ -v
-```
-
-Layout and conventions: [tests/README.md](tests/README.md). The suite creates its minimal input data in temporary directories and does not download datasets in CI.
 
 ## Operation
 
@@ -375,11 +365,10 @@ Promote ONNX + `.model.json` into a stable path under `artifacts/` for live/outl
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Monorepo meta (issues across tracks, root templates) is at the Periscope root. Short version for this track:
 
-1. Change a contract or CLI only with tests.
-2. Run the CPU pytest suite and ruff/mypy as in CI (from `vision/`).
-3. Do not commit `data/*`, `artifacts/*` weights, or `vision/cs2-vision-config.json`.
-4. Prefer session-split datasets for product-oriented training experiments.
-5. Keep CLI and config examples consistent with `src/cs2_vision_access/interfaces/cli/parser.py`.
+1. Run ruff/mypy as in CI (from `vision/`).
+2. Do not commit `data/*`, `artifacts/*` weights, or `vision/cs2-vision-config.json`.
+3. Prefer session-split datasets for product-oriented training experiments.
+4. Keep CLI and config examples consistent with `src/cs2_vision_access/interfaces/cli/parser.py`.
 
 ## Model selection notes
 

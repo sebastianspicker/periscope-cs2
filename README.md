@@ -17,9 +17,8 @@ runtime code.
 **Radar** — see [`radar/README.md`](radar/README.md). Build from `radar/`:
 
 ```bash
-cmake -S radar -B radar/build/dev -DLR_BUILD_TESTS=ON -DLR_BUILD_STRATEGY_LAB=ON
+cmake -S radar -B radar/build/dev -DLR_BUILD_STRATEGY_LAB=ON
 cmake --build radar/build/dev -j
-ctest --test-dir radar/build/dev --output-on-failure
 ```
 
 **Vision** — see [`vision/README.md`](vision/README.md). From `vision/`:

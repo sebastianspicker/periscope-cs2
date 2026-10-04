@@ -6,9 +6,8 @@ Pre-alpha research tooling for CS2 visible-player outlining (offline files, live
 
 ## Before you open a change
 
-1. Add or update tests for the behavior you change.
-2. Keep Python 3.11–3.13 compatibility (`requires-python` in `pyproject.toml`).
-3. Do not commit local weights, videos, or machine-specific configs (`data/*`, `artifacts/*` except README files, `cs2-vision-config.json` under `vision/`).
+1. Keep Python 3.11–3.13 compatibility (`requires-python` in `pyproject.toml`).
+2. Do not commit local weights, videos, or machine-specific configs (`data/*`, `artifacts/*` except README files, `cs2-vision-config.json` under `vision/`).
 
 ## Development setup
 
@@ -28,11 +27,9 @@ Repo-root CI: monorepo `.github/workflows/vision-ci.yml` (path filters on `visio
 
 ```bash
 uv sync --frozen --extra dev
-uv run ruff check src/ tests/
-uv run ruff format --check src/ tests/
+uv run ruff check src/
+uv run ruff format --check src/
 uv run mypy --strict src/cs2_vision_access/
-uv run pytest tests/ -v \
-  -q
 ```
 
 CI installs with `uv sync --frozen --extra dev` (optional-dependencies, not a uv group). Local `ruff format` without `--check` is fine before you commit; CI requires the check form. Matrix: Ubuntu and Windows, Python 3.11–3.13.
@@ -44,7 +41,6 @@ Paths below are relative to `vision/` inside the Periscope monorepo.
 | Path | Role |
 |------|------|
 | `src/cs2_vision_access/` | Installable package |
-| `tests/` | Pytest suite (see `tests/README.md`) |
 | `configs/*.example.json` | Example live and train-auto configs |
 | `docs/` | Active topic docs |
 | `scripts/` | Maintenance scripts (for example notebook generator) |

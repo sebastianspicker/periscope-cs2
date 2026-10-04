@@ -6,7 +6,7 @@ A practical path through the lab. Paths are relative to the repo root unless not
 
 1. [OVERVIEW.md](OVERVIEW.md) — threat model and design takeaways
 2. [ARCHITECTURE.md](ARCHITECTURE.md) — layout and World model
-3. [BUILD-AND-TEST.md](BUILD-AND-TEST.md) — cmake / ctest
+3. [BUILD-AND-TEST.md](BUILD-AND-TEST.md) — cmake
 4. Root [README.md](../README.md) — build flags and first binaries
 
 ## 1. Shared world

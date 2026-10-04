@@ -132,20 +132,17 @@ dwPlantedC4             = 0x236E678    kIdentityStride = 0x70
 cmake -S . -B build
 cmake --build build
 ./build/bin/host_sim
-./build/bin/dma_tests
 ```
 
 ### With Make (Clang++/G++)
 ```bash
 make
 ./host_sim
-./dma_tests
 ```
 
 ### With MSVC (Windows)
 ```cmd
 cl /EHsc /std:c++20 /I. host_sim.cpp page_table_walker.cpp cs2_dma_reader.cpp /Fe:host_sim.exe
-cl /EHsc /std:c++20 /I. tests\dma_tests.cpp page_table_walker.cpp cs2_dma_reader.cpp /Fe:dma_tests.exe
 ```
 
 ## CLI
@@ -196,7 +193,6 @@ host_sim [--iommu] [--iterations N] [--quiet] [--check] [--help]
 | `page_table_walker.cpp` | x86-64 4-level page table walk (4KB/2MB/1GB) + EPROCESS scanner |
 | `cs2_dma_reader.cpp` | CS2 entity list walk via physical reads |
 | `obf.hpp` | Standalone compile-time string obfuscation |
-| `tests/dma_tests.cpp` | Unit tests for walker / entity reader / register map |
 | `CMakeLists.txt` | CMake build system |
 | `Makefile` | Clang/GCC build |
 

@@ -22,10 +22,9 @@ Reusable lab infrastructure under `src/`.
 
 Single battlefield both red and blue mutate. Team libraries and strategies plant scars here. Public include is `sim/world.hpp` (types and fields are split across `world_types.hpp`, `world_api.hpp`, and `.inc` fragments).
 
-## Lab vs tests
+## Lab code
 
 - Lab library code: `src/lab_components/lab/`
-- Tests: `tests/` (team API, depth, fps, tier full_tests, real backend smoke)
 
 ## CS2 helpers
 

@@ -28,6 +28,6 @@ Please do **not** open issues that are “how do I evade X on live VAC/FACEIT/�
 
 ## Safe defaults
 
-- Default CMake config favors simulation + tests.
+- Default CMake config favors simulation.
 - High-impact real backends (`LR_ENABLE_REAL_KERNEL`, `VMX`, `DMA`, …) default **off**.
 - Prefer `LR_MODE=sim` when exploring strategies.

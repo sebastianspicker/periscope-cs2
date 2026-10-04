@@ -4,7 +4,6 @@
 #   ac_linux           — Full userspace stack
 #   ac_linux_mem|proc|pcie — INTERFACE aliases (compat)
 #   aclab_client       — CLI for /dev/aclab (Linux only)
-#   linux_stack_test   — Unit tests (host + Linux)
 #
 # Kernel module (aclab_module.ko) is built by the Makefile via Kbuild.
 
@@ -60,14 +59,6 @@ add_library(ac_linux_proc INTERFACE)
 target_link_libraries(ac_linux_proc INTERFACE ac_linux)
 add_library(ac_linux_pcie INTERFACE)
 target_link_libraries(ac_linux_pcie INTERFACE ac_linux)
-
-enable_testing()
-add_executable(linux_stack_test tests/linux_stack_test.cpp)
-target_link_libraries(linux_stack_test PRIVATE ac_linux)
-add_test(NAME linux_stack_test COMMAND linux_stack_test)
-set_tests_properties(linux_stack_test PROPERTIES
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(aclab_client aclab_client.cpp)

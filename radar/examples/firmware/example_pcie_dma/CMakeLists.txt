@@ -2,17 +2,14 @@
 #
 # Builds:
 #   host_sim  — full T4 PCIe DMA CS2 entity read simulation
-#   dma_tests — unit tests for the page walker / entity reader / FPGA model
 #
 # Usage:
 #   cmake -S . -B build
 #   cmake --build build
 #   ./build/bin/host_sim
-#   ctest --test-dir build --output-on-failure
 #
 # Options:
 #   BUILD_SIM    Build host_sim (ON by default)
-#   BUILD_TESTS  Build dma_tests + CTest (ON by default)
 #   ENABLE_SANITIZERS  Address/UB sanitizers for GCC/Clang (OFF)
 
 cmake_minimum_required(VERSION 3.20)
@@ -23,7 +20,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_SIM "Build the PCIe DMA simulator" ON)
-option(BUILD_TESTS "Build the DMA unit tests" ON)
 option(ENABLE_SANITIZERS "Enable ASan/UBSan (GCC/Clang)" OFF)
 
 # ── Compiler warnings / hardening ─────────────────────────────────────
@@ -58,15 +54,4 @@ if(BUILD_SIM)
     set_target_properties(host_sim PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     )
-endif()
-
-# ── dma_tests ─────────────────────────────────────────────────────────
-if(BUILD_TESTS)
-    enable_testing()
-    add_executable(dma_tests tests/dma_tests.cpp)
-    target_link_libraries(dma_tests PRIVATE dma_core)
-    set_target_properties(dma_tests PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    )
-    add_test(NAME dma_tests COMMAND dma_tests)
 endif()

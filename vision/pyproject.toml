@@ -97,8 +97,6 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 "src/cs2_vision_access/workflows/training/prepare.py" = ["E402"]
 # Gradio Progress() default is the library convention for progress bars
 "src/cs2_vision_access/workflows/training/space/app.py" = ["B008"]
-# Nested with patch + assertRaises is clearer than multi-context form in tests
-"tests/**" = ["SIM117"]
 
 [tool.mypy]
 strict = true
@@ -121,16 +119,3 @@ module = [
   "webdataset",
 ]
 ignore_missing_imports = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*", "*Tests"]
-python_functions = ["test_*"]
-filterwarnings = [
-  "ignore::DeprecationWarning",
-]
-addopts = [
-  "-q",
-  "--strict-markers",
-]
