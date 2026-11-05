@@ -90,10 +90,10 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 39_capture_cv_hid | capture_cv_hid |
 | 50_dual_boot_posture | dual_boot_posture |
 | 60_aim_challenge | aim_challenge |
-| 61_iommu_policy | iommu_policy |
+| 56_iommu_policy | iommu_policy |
 | 72_desktop_duplication | desktop_duplication |
-| 73_network_multibox_aim | network_multibox_aim |
-| 84_lag_switch | lag_switch |
+| 55_network_multibox_aim | network_multibox_aim |
+| 54_lag_switch | lag_switch |
 | 85_external_clone_display | external_clone_display |
 | 96_packet_loss_disambig | packet_loss_disambig |
 | 97_clipcursor | clipcursor |

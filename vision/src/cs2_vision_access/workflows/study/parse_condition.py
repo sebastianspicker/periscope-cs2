@@ -6,15 +6,16 @@ from collections.abc import Callable
 from pathlib import Path
 
 from cs2_vision_access.application.configuration.prefs import (
-    DEFAULT_PRESET,
     OutlinePreferences,
     load_outline_preferences,
+)
+from cs2_vision_access.application.configuration.prefs.resolve import (
+    resolve_style_with_preferences,
 )
 from cs2_vision_access.domain.outline import (
     OUTLINE_PRESETS,
     STROKE_PATTERNS,
     OutlineStyle,
-    get_outline_preset,
 )
 from cs2_vision_access.workflows.study._util import (
     _optional_bool,
@@ -93,69 +94,18 @@ def resolve_condition_style(
             # prefs module raises OutlinePreferencesError; keep study surface stable.
             raise StudyError(f"could not load condition prefs: {error}") from error
 
-    if condition.outline_preset is not None:
-        preset_name = condition.outline_preset
-    elif preferences is not None:
-        preset_name = preferences.preset
-    else:
-        preset_name = DEFAULT_PRESET
-
     try:
-        base = get_outline_preset(preset_name)
-    except ValueError as error:
-        raise StudyError(str(error)) from error
-
-    def _pick(override: object, prefs_value: object, base_value: object) -> object:
-        if override is not None:
-            return override
-        if prefs_value is not None:
-            return prefs_value
-        return base_value
-
-    def _integer(value: object, field: str) -> int:
-        if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-            raise StudyError(
-                f"condition {condition.condition_id!r} {field} must be integer-compatible"
-            )
-        return int(value)
-
-    prefs_inner = None if preferences is None else preferences.inner_color
-    prefs_outer = None if preferences is None else preferences.outer_color
-    prefs_inner_width = None if preferences is None else preferences.inner_width
-    prefs_outer_width = None if preferences is None else preferences.outer_width
-    prefs_fill = None if preferences is None else preferences.fill_opacity
-    prefs_scale = None if preferences is None else preferences.scale_with_frame
-    prefs_pattern = None if preferences is None else preferences.stroke_pattern
-    prefs_period = None if preferences is None else preferences.dash_period_px
-    prefs_fill_mode = None if preferences is None else preferences.fill_mode
-    prefs_halo_blur = None if preferences is None else preferences.halo_blur
-    prefs_adapt = None if preferences is None else preferences.adapt_width_to_area
-    prefs_kernel = None if preferences is None else preferences.outline_kernel
-
-    try:
-        return OutlineStyle(
-            inner_color=str(_pick(condition.inner_color, prefs_inner, base.inner_color)),
-            outer_color=str(_pick(condition.outer_color, prefs_outer, base.outer_color)),
-            inner_width=_integer(
-                _pick(condition.inner_width, prefs_inner_width, base.inner_width), "inner_width"
-            ),
-            outer_width=_integer(
-                _pick(condition.outer_width, prefs_outer_width, base.outer_width), "outer_width"
-            ),
-            fill_opacity=float(
-                _pick(condition.fill_opacity, prefs_fill, base.fill_opacity)  # type: ignore[arg-type]
-            ),
-            scale_with_frame=bool(
-                _pick(condition.scale_with_frame, prefs_scale, base.scale_with_frame)
-            ),
-            stroke_pattern=str(_pick(condition.stroke_pattern, prefs_pattern, base.stroke_pattern)),
-            dash_period_px=_integer(
-                _pick(condition.dash_period_px, prefs_period, base.dash_period_px), "dash_period_px"
-            ),
-            fill_mode=str(_pick(None, prefs_fill_mode, base.fill_mode)),
-            halo_blur=_integer(_pick(None, prefs_halo_blur, base.halo_blur), "halo_blur"),
-            adapt_width_to_area=bool(_pick(None, prefs_adapt, base.adapt_width_to_area)),
-            outline_kernel=str(_pick(None, prefs_kernel, base.outline_kernel)),
+        return resolve_style_with_preferences(
+            preferences,
+            preset=condition.outline_preset,
+            inner_color=condition.inner_color,
+            outer_color=condition.outer_color,
+            inner_width=condition.inner_width,
+            outer_width=condition.outer_width,
+            fill_opacity=condition.fill_opacity,
+            scale_with_frame=condition.scale_with_frame,
+            stroke_pattern=condition.stroke_pattern,
+            dash_period_px=condition.dash_period_px,
         )
     except ValueError as error:
         raise StudyError(f"condition {condition.condition_id!r} style invalid: {error}") from error

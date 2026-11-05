@@ -41,7 +41,8 @@ def write_nb(path: Path, cell_list: list[dict]) -> None:
             },
             "language_info": {"name": "python", "pygments_lexer": "ipython3"},
         },
-        "cells": cell_list,
+        # nbformat 4.5 requires cell ids; stable ones keep regeneration deterministic.
+        "cells": [{"id": f"cell-{i}", **cell} for i, cell in enumerate(cell_list)],
     }
     path.write_text(json.dumps(doc, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     json.loads(path.read_text(encoding="utf-8"))

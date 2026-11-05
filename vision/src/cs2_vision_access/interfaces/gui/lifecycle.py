@@ -59,7 +59,7 @@ class LifecycleMixin(GuiAppContext):
             return
         try:
             settings = self._read_settings()
-        except (ValueError, TypeError) as error:
+        except (ValueError, TypeError, self._tk.TclError) as error:
             self._messagebox.showerror("Invalid settings", str(error))
             return
         if settings.source_type == "file" and not settings.file_path:
@@ -95,7 +95,11 @@ class LifecycleMixin(GuiAppContext):
         if controller is None:
             return
         self._log("Stopping live pipeline...")
-        controller.stop()
+        if not controller.stop():
+            self._status_var.set("Still stopping...")
+            self._log("Pipeline is still stopping; waiting for the worker to exit.")
+            return
+        self._drain_controller_logs()
         summary = controller.last_summary
         if summary is not None:
             text = GuiPipelineController.format_summary(summary)
@@ -154,7 +158,17 @@ class LifecycleMixin(GuiAppContext):
             self._log(f"Preview frame skipped: {error}")
             return None
 
+    def _drain_controller_logs(self) -> None:
+        controller = self._controller
+        while controller is not None:
+            try:
+                message = controller.pending_logs.get_nowait()
+            except queue.Empty:
+                return
+            self._log(message)
+
     def _poll_preview(self) -> None:
+        self._drain_controller_logs()
         while True:
             try:
                 png, frame_index, count = self._preview_queue.get_nowait()
@@ -168,6 +182,10 @@ class LifecycleMixin(GuiAppContext):
             elapsed = time.monotonic() - self._started_at
             fps = frame_index / elapsed if elapsed > 0 else 0.0
             self._diag_var.set(f"Frame {frame_index}  |  Predictions {count}  |  Avg FPS {fps:.1f}")
+        controller = self._controller
+        # EOF, max_frames or a pipeline error ended the worker (or a slow stop finished).
+        if controller is not None and not controller.is_running:
+            self.stop_live()
         self._root.after(PREVIEW_POLL_MS, self._poll_preview)
 
     def _clear_preview_queue(self) -> None:
@@ -209,7 +227,7 @@ class LifecycleMixin(GuiAppContext):
         try:
             settings = self._read_settings()
             saved = save_config(settings.to_config(), path, overwrite=True)
-        except (ConfigError, ValueError, TypeError) as error:
+        except (ConfigError, ValueError, TypeError, self._tk.TclError) as error:
             self._messagebox.showerror("Save failed", str(error))
             return
         self._log(f"Saved configuration to {saved}")

@@ -55,7 +55,7 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - Session-split product training needs your labels (or EdgeSAM/prepare drafts) and whole-session train/val assignment. Random frame splits are rejected for product datasets.
 - Free-tier notebooks default to COCO-person bootstrap plus self-train on a small CS2-10k slice. EdgeSAM auto-label is opt-in (`USE_EDGESAM=True`) and pulls larger ONNX teachers.
 - Live overlay on Windows expects borderless windowed CS2. Anti-cheat policy is outside this software; the code path is external capture only.
-- Global hotkeys in overlay mode are implemented on Windows (`RegisterHotKey`); other platforms are best-effort while the preview window has focus. The GUI drives the same controls cross-platform via buttons.
+- Global hotkeys in overlay mode are implemented on Windows (`RegisterHotKey`, as Ctrl+Alt+<key>); other platforms are best-effort while the preview window has focus. The GUI drives the same controls cross-platform via buttons.
 - FPS depends on hardware, resolution, model, and device. Measure with `benchmark` or live diagnostics on your machine.
 
 ## Requirements
@@ -345,9 +345,10 @@ uv run mypy --strict src/cs2_vision_access/
 uv run pytest tests/ -q
 ```
 
-CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On `main` push/PR it runs Python 3.11–3.13 ruff and mypy checks, pytest on 3.12, and a package build. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
+CI lives at monorepo root: `.github/workflows/vision-ci.yml` (path filters on `vision/**`, `working-directory: vision`). On every pull request that touches those paths (and on manual dispatch) it runs Python 3.11–3.13 ruff and mypy checks, pytest on 3.12, and a package build. No multi-epoch train and no live hardware in CI. See root `.github/` for workflows and issue/PR templates.
 
-`vision/tests/` is currently local-only: the root `.gitignore` ignores it, so a fresh clone has no `tests/` and `uv run pytest tests/` there errors. The suite still runs locally and in CI when the directory is present.
+Every `tests/test_*.py` file is tracked and runs in CI; other files under
+`tests/` (fixtures, local scratch) stay ignored by default.
 
 Package metadata: `pyproject.toml`. Lockfile: `uv.lock`.
 

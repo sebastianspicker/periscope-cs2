@@ -7,6 +7,7 @@ frontend) drives it.
 
 from __future__ import annotations
 
+import queue
 import threading
 from collections.abc import Callable
 from pathlib import Path
@@ -128,6 +129,8 @@ class GuiPipelineController:
         self.terminate_event = threading.Event()
         self.overlay: OverlayWindow | None = None
         self._thread: threading.Thread | None = None
+        # Worker-thread messages; the GUI drains this on the Tk thread.
+        self.pending_logs: queue.Queue[str] = queue.Queue()
         self._last_summary: LiveRunSummary | None = None
         self._on_log: Callable[[str], None] = _noop_printer
 
@@ -187,7 +190,7 @@ class GuiPipelineController:
                 self._last_summary = summary
             except Exception as error:  # pragma: no cover - defensive
                 self._last_summary = None
-                on_log(f"Pipeline error: {error}")
+                self.pending_logs.put(f"Pipeline error: {error}")
 
         self._thread = threading.Thread(
             target=_run,
@@ -197,18 +200,25 @@ class GuiPipelineController:
         self._thread.start()
         on_log("Live pipeline running")
 
-    def stop(self) -> None:
-        """Request termination, join the worker, and release the overlay."""
+    def stop(self) -> bool:
+        """Request termination and join the worker; release the overlay when done.
+
+        Returns False when the worker is still alive after the join timeout;
+        the thread and overlay are then kept so ``stop`` can be called again.
+        """
         self.terminate_event.set()
         thread = self._thread
         if thread is not None and thread.is_alive():
             thread.join(timeout=_THREAD_JOIN_TIMEOUT_SECONDS)
+            if thread.is_alive():
+                return False
         if self.overlay is not None:
             try:
                 self.overlay.close()
             finally:
                 self.overlay = None
         self._thread = None
+        return True
 
     def apply_action(self, action: str) -> bool:
         """Apply a named live control action; True means quit was requested."""

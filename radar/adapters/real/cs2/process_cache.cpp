@@ -7,6 +7,7 @@
 #endif
 
 #include <atomic>
+#include <mutex>
 #include <vector>
 
 namespace real::cs2 {
@@ -44,19 +45,16 @@ struct SystemProcessInfo {
 #define PROCESS_QUERY_LIMITED_INFORMATION 0x1000
 #endif
 
-static std::vector<ProcessCacheEntry> s_cache;
-static uint64_t s_lastRefreshMs = 0;
-static std::atomic<bool> s_refreshing{false};
-
-struct RefreshGuard {
-    std::atomic<bool>& flag;
-    RefreshGuard(std::atomic<bool>& f) noexcept : flag(f) {
-        flag.store(true, std::memory_order_release);
-    }
-    ~RefreshGuard() noexcept {
-        flag.store(false, std::memory_order_release);
-    }
-};
+// Three-slot ring of process lists. s_activeSlot names the list readers use;
+// a refresher fills slot (active + 2) % 3 — the slot readers have held the
+// longest, never one they still reference — then publishes by repointing
+// s_activeSlot. Refreshers serialize on s_refreshMutex; a failed refresh
+// keeps the old active and stamps s_lastRefreshMs so retries are bounded by
+// the TTL instead of hammering NtQSI on every call.
+static std::vector<ProcessCacheEntry> s_cache[3]{};
+static std::atomic<int> s_activeSlot{0};
+static std::atomic<uint64_t> s_lastRefreshMs{0};
+static std::mutex s_refreshMutex;
 
 uint64_t current_time_ms() {
     auto& api = real::win::g_Api();
@@ -81,57 +79,76 @@ const std::vector<ProcessCacheEntry>& get_cached_process_list() {
         return empty;
     }
 
-    uint64_t now = current_time_ms();
-    uint64_t cacheTTL = 5000 + (now % 4000);
+    const uint64_t now = current_time_ms();
+    const uint64_t cacheTTL = 5000 + (now % 4000);
 
-    if (!s_cache.empty() && !s_refreshing.load(std::memory_order_acquire) && (now - s_lastRefreshMs) < cacheTTL) {
-        return s_cache;
+    const int active = s_activeSlot.load(std::memory_order_acquire);
+    if (!s_cache[active].empty() &&
+        (now - s_lastRefreshMs.load(std::memory_order_acquire)) < cacheTTL) {
+        return s_cache[active];
     }
 
-    if (s_refreshing.load(std::memory_order_acquire)) {
-        return s_cache;
+    // TTL expired (or first call). Serialize refreshers on the mutex; a
+    // reader that misses the TTL briefly waits here instead of racing a
+    // second NtQSI.
+    std::lock_guard<std::mutex> guard(s_refreshMutex);
+
+    // Re-check under the lock: a queued refresher may have just published.
+    const int fresh = s_activeSlot.load(std::memory_order_acquire);
+    if (!s_cache[fresh].empty() &&
+        (now - s_lastRefreshMs.load(std::memory_order_acquire)) < cacheTTL) {
+        return s_cache[fresh];
     }
-    RefreshGuard guard(s_refreshing);
 
     ULONG bufSize = 0x10000;
     std::vector<uint8_t> buffer(bufSize);
     NTSTATUS status;
+    bool ok = true;
 
     while ((status = api.NtQuerySystemInformation(5, buffer.data(), bufSize, &bufSize)) < 0) {
         buffer.resize(bufSize);
         if (bufSize > 0x100000) {
-            return s_cache;
+            ok = false;
+            break;
         }
     }
 
-    std::vector<ProcessCacheEntry> new_cache;
-    uint8_t* pos = buffer.data();
-    while (pos) {
-        auto* info = reinterpret_cast<SystemProcessInfo*>(pos);
-        ProcessCacheEntry entry;
-        entry.pid = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(info->UniqueProcessId));
-        entry.parentPid = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(info->InheritedFromUniqueProcessId));
+    if (ok) {
+        // Fill the slot two ahead in the ring — readers never hold a
+        // reference to it, so it is safe to overwrite in place.
+        std::vector<ProcessCacheEntry> next;
+        uint8_t* pos = buffer.data();
+        while (pos) {
+            auto* info = reinterpret_cast<SystemProcessInfo*>(pos);
+            ProcessCacheEntry entry;
+            entry.pid = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(info->UniqueProcessId));
+            entry.parentPid = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(info->InheritedFromUniqueProcessId));
 
-        if (info->ImageName.Buffer && info->ImageName.Length > 0) {
-            int wideLen = info->ImageName.Length / static_cast<int>(sizeof(wchar_t));
-            if (wideLen > 0) {
-                char nameBuf[256]{};
-                for (int i = 0; i < wideLen && i < 255; ++i) {
-                    nameBuf[i] = static_cast<char>(info->ImageName.Buffer[i]);
+            if (info->ImageName.Buffer && info->ImageName.Length > 0) {
+                int wideLen = info->ImageName.Length / static_cast<int>(sizeof(wchar_t));
+                if (wideLen > 0) {
+                    char nameBuf[256]{};
+                    for (int i = 0; i < wideLen && i < 255; ++i) {
+                        nameBuf[i] = static_cast<char>(info->ImageName.Buffer[i]);
+                    }
+                    entry.name = nameBuf;
                 }
-                entry.name = nameBuf;
             }
+
+            next.push_back(std::move(entry));
+
+            if (info->NextEntryOffset == 0) break;
+            pos += info->NextEntryOffset;
         }
-
-        new_cache.push_back(std::move(entry));
-
-        if (info->NextEntryOffset == 0) break;
-        pos += info->NextEntryOffset;
+        const int publishSlot = (fresh + 2) % 3;
+        s_cache[publishSlot] = std::move(next);
+        s_activeSlot.store(publishSlot, std::memory_order_release);
     }
+    // Stamp the clock on success AND failure: a failing refresh retries on
+    // the TTL instead of on every caller.
+    s_lastRefreshMs.store(now, std::memory_order_release);
 
-    s_cache = std::move(new_cache);
-    s_lastRefreshMs = now;
-    return s_cache;
+    return s_cache[s_activeSlot.load(std::memory_order_acquire)];
 #else
     static std::vector<ProcessCacheEntry> empty;
     return empty;

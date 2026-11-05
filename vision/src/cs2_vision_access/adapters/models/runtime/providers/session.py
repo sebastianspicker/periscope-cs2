@@ -58,10 +58,6 @@ def create_ort_session(
         tensorrt_cache=tensorrt_cache,
     )
 
-    if device.startswith("cuda") or device.startswith("tensorrt"):
-        opts.enable_cuda_graph = True
-        opts.cuda_graph_id = hash(str(model_path)) & 0x7FFFFFFF
-
     try:
         session = ort.InferenceSession(
             str(model_path),

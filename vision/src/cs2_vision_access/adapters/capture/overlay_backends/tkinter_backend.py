@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 from collections.abc import Callable
 from typing import Any
 
@@ -87,11 +88,12 @@ class TkinterOverlayBackend:
         root.title(title)
         root.overrideredirect(True)
         root.attributes("-topmost", True)
-        try:
-            root.attributes("-transparentcolor", "black")
-        except tk.TclError:
-            # -transparentcolor is Windows-only; fall back to a translucent window.
-            root.attributes("-alpha", 0.95)
+        if sys.platform == "win32":
+            # -transparentcolor is Windows-only; elsewhere this is a plain opaque window.
+            try:
+                root.attributes("-transparentcolor", "black")
+            except tk.TclError as error:
+                LOGGER.debug("Tkinter -transparentcolor unavailable: %s", error)
         root.geometry(f"{width}x{height}+{self._x}+{self._y}")
         root.configure(bg="black")
 
@@ -188,6 +190,7 @@ class TkinterOverlayBackend:
             alpha = frame_rgba[:, :, 3:4].astype(np.float32) / 255.0
             bgr = (frame_rgba[:, :, :3].astype(np.float32) * alpha).astype(np.uint8)
             bgr[alpha[:, :, 0] <= _ALPHA_TRANSPARENT_THRESHOLD] = 0
+            bgr = np.ascontiguousarray(bgr[:, :, ::-1])  # RGB -> BGR for cv2/PIL below
         else:
             bgr = frame_rgba
 

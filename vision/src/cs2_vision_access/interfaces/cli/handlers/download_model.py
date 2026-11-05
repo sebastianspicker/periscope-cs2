@@ -17,15 +17,17 @@ from typing import Any
 from urllib.parse import unquote, urlparse
 
 from cs2_vision_access.application.configuration.data.model_registry import MODEL_REGISTRY
-from cs2_vision_access.interfaces.cli.handlers._model_ops import (
-    coco80_classes,
-    create_manifest,
+from cs2_vision_access.application.model_assets.downloads import (
     download_verified_https,
-    export_onnx,
     require_https_download_url,
     require_sha256,
     sha256_file,
     verify_sha256_file,
+)
+from cs2_vision_access.interfaces.cli.handlers._model_ops import (
+    coco80_classes,
+    create_manifest,
+    export_onnx,
 )
 
 # Back-compat aliases used by tests and external callers.

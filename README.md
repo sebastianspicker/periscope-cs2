@@ -3,7 +3,36 @@
 Periscope contains two independently built and licensed CS2 research projects:
 **Radar**, a simulation-first red/blue teaching lab, and **Vision**, a
 pixel-only accessibility research package. They share a subject area but no
-runtime code.
+runtime code. New here? [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) shows what
+runs where, what happens when you run each tool, and where the code lives.
+
+> _Claude was used to polish and proof-read the code and documentation of this repository._
+
+<details>
+<summary>Status and limitations</summary>
+
+Periscope is an independent exploratory research project with separate Radar teaching-lab and
+Vision pixel-based accessibility tracks. Developed independently alongside my main
+professional work. Radar defaults to simulation; Vision is pre-alpha. Both are research
+scaffolding to review, adapt and test, and their documented experiments do not establish a
+reliable live-game product.
+
+**Disclaimer.** Use real backends only within an authorized lab and follow each subtree's
+scope restrictions. Pixel-based perception can miss or misidentify visible content; it
+provides no guarantee of accessibility or anti-cheat acceptance. You are responsible for any
+capture, process access and use under applicable platform rules.
+
+</details>
+
+The two tracks stay separate in both their build and their evidence:
+
+```mermaid
+flowchart LR
+  Repo[Periscope source] --> Radar[Radar: simulated red and blue lab]
+  Repo --> Vision[Vision: visible screen or video pixels]
+  Radar --> Lessons[Portable strategy lessons and host tests]
+  Vision --> Outlines[Visible-player outline experiments]
+```
 
 ## Projects
 
@@ -14,7 +43,7 @@ runtime code.
 
 ## Quick start
 
-**Radar** — see [`radar/README.md`](radar/README.md). Build from `radar/`:
+**Radar** — see [`radar/README.md`](radar/README.md). Build from the repository root:
 
 ```bash
 cmake -S radar -B radar/build/dev -DLR_BUILD_STRATEGY_LAB=ON
@@ -46,7 +75,7 @@ uv run cs2-vision --help
 
 Each subtree has its own `README`, `LICENSE`, `CONTRIBUTING`, `SECURITY`, and docs tree. Root files do not replace those.
 
-The current dependency rules and placement guide are in
+The system map, dependency rules and placement guide are in
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Run all portable repository
 checks with:
 
@@ -68,7 +97,7 @@ Operators own compliance with platform terms, anti-cheat policy, and local law.
 | Doc | Role |
 |-----|------|
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Monorepo PR rules and verification commands |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Current system boundaries and dependency direction |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Newcomer map: overview, run paths, CI, code map, dependency rules |
 | [SECURITY.md](SECURITY.md) | Reporting and scope |
 | [NOTICE.md](NOTICE.md) | Dual licensing |
 | [radar/README.md](radar/README.md) · [radar/docs/INDEX.md](radar/docs/INDEX.md) | Radar curriculum and build |

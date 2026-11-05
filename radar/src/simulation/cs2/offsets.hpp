@@ -58,16 +58,16 @@ struct HudRadarOffsets {
 // Module-relative global RVAs (client.dll) — educational defaults matching
 // data/cs2/offsets_snapshot.json. Live attachment stays outside simulation.
 struct ModuleGlobals {
-  std::uint64_t entity_list = 0x271C8B8;
-  std::uint64_t game_entity_system = 0x271C8B8;
+  std::uint64_t entity_list = 0x271EB08;
+  std::uint64_t game_entity_system = 0x271EB08;
   std::uint64_t highest_entity_index = 0x2120;
-  std::uint64_t local_player_pawn = 0x25676D8;
-  std::uint64_t local_player_controller = 0x253EEF8;
-  std::uint64_t view_matrix = 0x256CFE0;
-  std::uint64_t view_angles = 0x257DE08;
-  std::uint64_t planted_c4 = 0x24CD930;
-  std::uint64_t csgo_input = 0x257D780;
-  std::uint64_t sensitivity = 0x25649D8;
+  std::uint64_t local_player_pawn = 0x25698C8;
+  std::uint64_t local_player_controller = 0x25413F8;
+  std::uint64_t view_matrix = 0x256F1D0;
+  std::uint64_t view_angles = 0x2580008;
+  std::uint64_t planted_c4 = 0x24CFB60;
+  std::uint64_t csgo_input = 0x257F980;
+  std::uint64_t sensitivity = 0x2566BC8;
 
   static const ModuleGlobals& get();
 };

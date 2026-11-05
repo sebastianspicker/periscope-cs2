@@ -2,10 +2,14 @@
 // Embedded CS2 offset snapshot (auto-updated by scripts/update_cs2_signatures.py).
 // Values are RVAs relative to client.dll base unless noted as field offsets.
 // Source: https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/
-// Generated: 2026-10-27T19:42:52Z
+// Generated: 2026-11-05T19:12:21Z
 //
 // NOTE: entities.cpp / live_radar_stack.cpp require the full FIELD_MAP set
 // (core + armor, dormant, spotted, bomb, observer). emit_hpp emits every key.
+//
+// PINNED DUMP — November 2026. Refresh with
+// radar/scripts/update_cs2_signatures.py; `--check` reports drift read-only.
+// Never hand-edit values here: the updater regenerates this file wholesale.
 
 #include <cstddef>
 #include <cstdint>
@@ -15,19 +19,19 @@ namespace real::cs2::snapshot {
 inline constexpr const char* kSourceUrl =
     "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/";
 inline constexpr const char* kModule = "client.dll";
-inline constexpr const char* kGeneratedAt = "2026-10-27T19:42:52Z";
+inline constexpr const char* kGeneratedAt = "2026-11-05T19:12:21Z";
 
 namespace globals {
-inline constexpr std::uint64_t dwEntityList = 0x271C8B8;
-inline constexpr std::uint64_t dwGameEntitySystem = 0x271C8B8;
+inline constexpr std::uint64_t dwEntityList = 0x271EB08;
+inline constexpr std::uint64_t dwGameEntitySystem = 0x271EB08;
 inline constexpr std::uint64_t dwGameEntitySystem_highestEntityIndex = 0x2120;
-inline constexpr std::uint64_t dwLocalPlayerPawn = 0x25676D8;
-inline constexpr std::uint64_t dwLocalPlayerController = 0x253EEF8;
-inline constexpr std::uint64_t dwViewMatrix = 0x256CFE0;
-inline constexpr std::uint64_t dwViewAngles = 0x257DE08;
-inline constexpr std::uint64_t dwPlantedC4 = 0x24CD930;
-inline constexpr std::uint64_t dwCSGOInput = 0x257D780;
-inline constexpr std::uint64_t dwSensitivity = 0x25649D8;
+inline constexpr std::uint64_t dwLocalPlayerPawn = 0x25698C8;
+inline constexpr std::uint64_t dwLocalPlayerController = 0x25413F8;
+inline constexpr std::uint64_t dwViewMatrix = 0x256F1D0;
+inline constexpr std::uint64_t dwViewAngles = 0x2580008;
+inline constexpr std::uint64_t dwPlantedC4 = 0x24CFB60;
+inline constexpr std::uint64_t dwCSGOInput = 0x257F980;
+inline constexpr std::uint64_t dwSensitivity = 0x2566BC8;
 }  // namespace globals
 
 namespace fields {

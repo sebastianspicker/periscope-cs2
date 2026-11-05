@@ -32,6 +32,13 @@ struct CachedDonorInfo {
 extern CachedDonorInfo g_cachedDonor;
 extern int g_ntqsi40_call_count;
 
+/// Count-based cooldown for NtQSI(0x40) re-enumeration. Armed when a donor
+/// lookup fails (stale cache or empty enumeration); each find_and_duplicate()
+/// call that would otherwise re-enumerate decrements it by one tick instead.
+/// setup() resets it to zero so a fresh session always gets a clean NtQSI.
+inline constexpr uint64_t kReenumCooldownTicks = 300;
+extern uint64_t g_reeenumCooldownTicks;
+
 #if LR_PLATFORM_WINDOWS
 bool is_preferred_donor_basename(const char* base) noexcept;
 std::vector<uint32_t> collect_preferred_donor_pids(uint32_t cs2Pid) noexcept;

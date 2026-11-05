@@ -136,10 +136,11 @@ def _pseudo_sidecar_path(label_path: Path) -> Path:
 
 
 def _label_is_pseudo_or_empty(label_path: Path) -> bool:
-    """True when the label is missing content or marked as pseudo.
+    """True when the label is missing or marked as pseudo.
 
-    Markers (any):
-    - empty / missing label file
+    An empty file with no marker is a human negative ("no player here") and is
+    NOT revisable. Markers (any):
+    - missing label file
     - sidecar ``*.txt.pseudo`` (preferred; Ultralytics-safe)
     - legacy first line ``# pseudo`` in the label body
     """
@@ -151,10 +152,8 @@ def _label_is_pseudo_or_empty(label_path: Path) -> bool:
         text = label_path.read_text(encoding="utf-8")
     except OSError:
         return False
-    if not text.strip():
-        return True
-    first = text.splitlines()[0].strip()
-    return first.startswith(PSEUDO_MARKER)
+    lines = text.splitlines()
+    return bool(lines) and lines[0].strip().startswith(PSEUDO_MARKER)
 
 
 def _should_skip_existing_label(label_path: Path, policy: str) -> bool:
@@ -166,7 +165,7 @@ def _should_skip_existing_label(label_path: Path, policy: str) -> bool:
     if policy == "if_absent":
         return True
     if policy == "overwrite_pseudo":
-        # Gold (non-empty, non-pseudo) is never reprocessed.
+        # Gold (incl. empty human negatives, non-pseudo) is never reprocessed.
         return not _label_is_pseudo_or_empty(label_path)
     raise SelfTrainError(f"unknown write_policy: {policy}")
 
@@ -184,7 +183,7 @@ def write_label(
     ``if_absent``:
         Never overwrite an existing file (careful merge).
     ``overwrite_pseudo``:
-        Write when missing, empty, or marked pseudo (sidecar or legacy
+        Write when missing or marked pseudo (sidecar or legacy
         ``# pseudo`` header). Never overwrite gold labels.
     ``overwrite_always``:
         Always write (dangerous; intended for tests).

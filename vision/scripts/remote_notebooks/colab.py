@@ -197,7 +197,7 @@ print("Use: cs2-vision live --model … --manifest … --class-name player")
   `best_map`, `bundle_path`, `dataset_license`.
 - `MOUNT_DRIVE=True` persists outputs across disconnects.
 - Package install: `CS2_VISION_REPO=git+https://…` or auto-clone via
-  `CS2_VISION_GIT` (fallback placeholder if unset).
+  `CS2_VISION_GIT` (no default; the cell stops if neither is set).
 """
         ),
     ]

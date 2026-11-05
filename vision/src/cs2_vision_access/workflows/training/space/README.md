@@ -83,6 +83,18 @@ images/*.jpg
 labels/*.txt
 ```
 
+Only these members are accepted (plus `train.txt`, `val.txt`, `sessions.json`,
+directory entries and one optional wrapper folder). macOS `__MACOSX/` and
+`.DS_Store` entries are skipped. Anything else, including `*.cache` files,
+rejects the whole upload, because Ultralytics unpickles a `labels.cache` it
+finds next to `labels/`.
+
+A bundle's own `train.txt` / `val.txt` (for example a session split) is kept
+when every entry is `./images/<an uploaded image>`, validation is non-empty and
+the lists do not overlap. Otherwise the Space holds out every 5th image (sorted
+by name) as validation and writes `train.txt` / `val.txt` itself. With fewer than 5 images, validation reuses the
+training images and the run warns that its metrics are train-only.
+
 Classes (fixed contract): `ct`, `ct_head`, `t`, `t_head`.
 
 ## Local smoke test

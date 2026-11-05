@@ -40,6 +40,19 @@ def _session_input_dtype(session: Any) -> np.dtype:
     return np.dtype(np.float32)
 
 
+def _num_predictions(session: Any, output_name: str, image_size: int) -> int:
+    """Prediction count of the detection output.
+
+    Uses the session's static output shape when declared; otherwise derives it
+    from the input size (anchors of the stride-8/16/32 grids: 8400 at 640).
+    """
+    for out in session.get_outputs():
+        shape = getattr(out, "shape", None)
+        if out.name == output_name and shape and len(shape) == 3 and isinstance(shape[2], int):
+            return int(shape[2])
+    return sum((image_size // stride) ** 2 for stride in (8, 16, 32))
+
+
 def _decode_nms(
     raw_output: Any,
     num_classes: int,
@@ -57,7 +70,7 @@ def _decode_nms(
     boxes, scores, class_ids = decode(raw_output, num_classes, orig_w, orig_h, det_size)
     boxes, scores, class_ids = _filter_by_confidence(boxes, scores, class_ids, confidence)
     if len(boxes) > 0:
-        # ``nms`` auto-dispatches to the CUDA kernel or CPU NumPy fallback.
+        # ``nms`` runs greedy NMS on the host (CuPy inputs are copied once).
         keep = nms(boxes, scores, iou_threshold)
         boxes = boxes[keep]
         scores = scores[keep]

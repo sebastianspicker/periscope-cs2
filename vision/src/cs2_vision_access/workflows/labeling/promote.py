@@ -30,14 +30,16 @@ def promote_drafts(
     draft_labels_dir: str | Path,
     output_labels_dir: str | Path,
     *,
-    only_accepted: bool = False,
+    only_accepted: bool = True,
+    force: bool = False,
 ) -> dict[str, object]:
     """Copy accepted draft ``.txt`` labels into a GT-layout labels directory.
 
-    Never promotes ``draft_pending`` or ``rejected`` entries. When
-    ``only_accepted`` is true, only ``accepted`` entries are copied (not
-    already-``promoted``). Otherwise both ``accepted`` and ``promoted`` are
-    eligible (re-copy). Each successfully copied accepted entry is marked
+    Never promotes ``draft_pending`` or ``rejected`` entries. By default only
+    ``accepted`` entries are copied; ``only_accepted=False`` also re-copies
+    already-``promoted`` ones. A destination that already exists with
+    different content (e.g. a hand-edited label) is skipped and reported in
+    ``skipped_existing`` unless ``force`` is true. Each copied entry is marked
     ``promoted``.
     """
     status_path = Path(draft_status_path)
@@ -100,11 +102,20 @@ def promote_drafts(
         raise BootstrapError("output labels directory must not be a symlink")
 
     promoted_stems: list[str] = []
+    skipped_existing: list[str] = []
     for stem, entry, source, destination in planned:
         try:
             text = source.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError) as error:
             raise BootstrapError(f"could not read draft label {source}: {error}") from error
+        if not force and destination.is_file():
+            try:
+                existing = destination.read_text(encoding="utf-8")
+            except (OSError, UnicodeDecodeError):
+                existing = None
+            if existing != text:
+                skipped_existing.append(stem)
+                continue
         destination.parent.mkdir(parents=True, exist_ok=True)
         write_text_atomic(destination, text)
         entry[_REVIEW_STATUS_KEY] = REVIEW_STATUS_PROMOTED
@@ -120,6 +131,7 @@ def promote_drafts(
         "output_labels_dir": str(output_root.resolve()),
         "promoted_stems": promoted_stems,
         "promoted_count": len(promoted_stems),
+        "skipped_existing": skipped_existing,
         "skipped_pending": skipped_pending,
         "skipped_rejected": skipped_rejected,
         "skipped_other": skipped_other,

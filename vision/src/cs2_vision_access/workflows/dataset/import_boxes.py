@@ -26,7 +26,9 @@ from cs2_vision_access.workflows.dataset.frames import (
 )
 from cs2_vision_access.workflows.dataset.import_copy import (
     copy_or_link,
+    discard_backup,
     prepare_session_directory,
+    restore_backup,
     write_session_json,
 )
 from cs2_vision_access.workflows.dataset.import_layout import (
@@ -142,57 +144,63 @@ def import_box_dataset(
         raise ImportBoxDatasetError("max_images filtered out every pair")
 
     session_dir = staging_root / resolved_session_id
-    prepare_session_directory(session_dir, overwrite=overwrite)
-
-    images_out = session_dir / "images"
-    labels_out = session_dir / "labels"
-    images_out.mkdir(parents=True, exist_ok=True)
-    labels_out.mkdir(parents=True, exist_ok=True)
-
-    linked_any = False
-    for image_path, label_path, relative_stem in pairs:
-        relative = Path(relative_stem)
-        dest_image = images_out / relative.with_suffix(image_path.suffix.lower())
-        dest_label = labels_out / relative.with_suffix(".txt")
-        dest_image.parent.mkdir(parents=True, exist_ok=True)
-        dest_label.parent.mkdir(parents=True, exist_ok=True)
-        if dest_image.is_symlink() or dest_label.is_symlink():
-            raise ImportBoxDatasetError(
-                f"refusing to write through symlink for stem {relative_stem!r}"
-            )
-        used_link = copy_or_link(image_path, dest_image, link=link)
-        copy_or_link(label_path, dest_label, link=link)
-        linked_any = linked_any or used_link
-
-    image_count = len(pairs)
-    provenance = SessionProvenance(
-        schema_version=SCHEMA_VERSION,
-        session_id=resolved_session_id,
-        source_stem=source.name or "imported",
-        rights=RightsPlaceholder(
-            status="placeholder",
-            source_identifier=str(source.resolve()),
-            consent_record=IMPORT_RIGHTS_NOTE,
-            redistribution="",
-            retention_notes="",
-        ),
-        capture_notes=(
-            f"import-box-dataset layout={resolved_layout}"
-            + (f" split={split_name}" if split_name else "")
-            + f"; {IMPORT_RIGHTS_NOTE}"
-        ),
-        frame_policy=FramePolicy(
-            every_n_frames=1,
-            max_saved_frames=image_count,
-            decoded_frames=image_count,
-            saved_frames=image_count,
-        ),
-    )
+    backup = prepare_session_directory(session_dir, overwrite=overwrite)
     try:
-        SessionProvenance.from_mapping(provenance.as_json())
-    except SessionProvenanceError as error:
-        raise ImportBoxDatasetError(f"invalid session provenance: {error}") from error
-    session_path = write_session_json(session_dir / SESSION_FILENAME, provenance)
+        images_out = session_dir / "images"
+        labels_out = session_dir / "labels"
+        images_out.mkdir(parents=True, exist_ok=True)
+        labels_out.mkdir(parents=True, exist_ok=True)
+
+        linked_any = False
+        for image_path, label_path, relative_stem in pairs:
+            relative = Path(relative_stem)
+            dest_image = images_out / relative.with_suffix(image_path.suffix.lower())
+            dest_label = labels_out / relative.with_suffix(".txt")
+            dest_image.parent.mkdir(parents=True, exist_ok=True)
+            dest_label.parent.mkdir(parents=True, exist_ok=True)
+            if dest_image.is_symlink() or dest_label.is_symlink():
+                raise ImportBoxDatasetError(
+                    f"refusing to write through symlink for stem {relative_stem!r}"
+                )
+            used_link = copy_or_link(image_path, dest_image, link=link)
+            copy_or_link(label_path, dest_label, link=link)
+            linked_any = linked_any or used_link
+
+        image_count = len(pairs)
+        provenance = SessionProvenance(
+            schema_version=SCHEMA_VERSION,
+            session_id=resolved_session_id,
+            source_stem=source.name or "imported",
+            rights=RightsPlaceholder(
+                status="placeholder",
+                source_identifier=str(source.resolve()),
+                consent_record=IMPORT_RIGHTS_NOTE,
+                redistribution="",
+                retention_notes="",
+            ),
+            capture_notes=(
+                f"import-box-dataset layout={resolved_layout}"
+                + (f" split={split_name}" if split_name else "")
+                + f"; {IMPORT_RIGHTS_NOTE}"
+            ),
+            frame_policy=FramePolicy(
+                every_n_frames=1,
+                max_saved_frames=image_count,
+                decoded_frames=image_count,
+                saved_frames=image_count,
+            ),
+        )
+        try:
+            SessionProvenance.from_mapping(provenance.as_json())
+        except SessionProvenanceError as error:
+            raise ImportBoxDatasetError(f"invalid session provenance: {error}") from error
+        session_path = write_session_json(session_dir / SESSION_FILENAME, provenance)
+    except BaseException:
+        if backup is not None:
+            restore_backup(backup, session_dir)
+        raise
+    if backup is not None:
+        discard_backup(backup, session_dir)
 
     return ImportBoxDatasetSummary(
         source_root=str(source.resolve()),

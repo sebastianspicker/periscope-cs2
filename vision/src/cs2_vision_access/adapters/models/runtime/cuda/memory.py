@@ -90,7 +90,6 @@ class GpuMemoryPool:
         self._prealloc("class_ids", 8400, dtype=cp.int32)
 
         # ---- NMS buffers ----
-        self._prealloc("nms_suppressed", 8400, dtype=cp.int32)
 
         # ---- Recycle host-side pinned memory for fast CPU↔GPU transfer ----
         self._host_pinned = cp.cuda.alloc_pinned_memory(
@@ -134,10 +133,6 @@ class GpuMemoryPool:
     @property
     def class_ids(self) -> Any:
         return self._buffers["class_ids_8400"]
-
-    @property
-    def nms_suppressed(self) -> Any:
-        return self._buffers["nms_suppressed_8400"]
 
     @property
     def pinned_host(self) -> memoryview[int]:

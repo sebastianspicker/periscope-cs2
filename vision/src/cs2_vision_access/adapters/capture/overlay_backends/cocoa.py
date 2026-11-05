@@ -83,9 +83,8 @@ class CocoaOverlayBackend:
 
         # Image view
         image_view = AppKit.NSImageView.alloc().initWithFrame_(
-            Quartz.CGRectMake(
-                x / backing_scale, y / backing_scale, width / backing_scale, height / backing_scale
-            )
+            # Frame is in content-view coordinates, not screen coordinates.
+            Quartz.CGRectMake(0, 0, width / backing_scale, height / backing_scale)
         )
         image_view.setImageScaling_(AppKit.NSImageScaleAxesIndependently)
         window.contentView().addSubview_(image_view)
@@ -132,10 +131,17 @@ class CocoaOverlayBackend:
 
 
 def _pil_to_nsimage(pil_image: Any, appkit: Any) -> Any:
-    """Convert a PIL Image to NSImage for use with NSImageView."""
+    """Convert a PIL Image to NSImage for use with NSImageView.
+
+    ``NSImage.initWithData_`` needs an encoded image (not raw RGBA bytes), so
+    the pixels go through an in-memory PNG; compression is minimal for speed.
+    """
+    import io
+
     if pil_image.mode != "RGBA":
         pil_image = pil_image.convert("RGBA")
-    data = pil_image.tobytes()
+    buffer = io.BytesIO()
+    pil_image.save(buffer, format="PNG", compress_level=1)
+    data = buffer.getvalue()
     ns_data = appkit.NSData.dataWithBytes_length_(data, len(data))
-    ns_image = appkit.NSImage.alloc().initWithData_(ns_data)
-    return ns_image
+    return appkit.NSImage.alloc().initWithData_(ns_data)

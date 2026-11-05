@@ -108,7 +108,7 @@ The overlay can sit anywhere and auto-aligns to the captured region or selected 
 | H | Diagnostics |
 | Q / Escape | Quit |
 
-Global hotkeys (`RegisterHotKey`) work in overlay mode on Windows even when the game has focus. Other platforms are best-effort while the preview window has focus. The desktop GUI exposes the same actions as buttons.
+Global hotkeys (`RegisterHotKey`) work in overlay mode on Windows even when the game has focus; there they are registered as **Ctrl+Alt+<key>** (for example Ctrl+Alt+Q to quit) so bare keys are not swallowed system-wide, and a warning is logged for any combination another application already owns. In the preview window the plain keys above apply. Other platforms are best-effort while the preview window has focus. The desktop GUI exposes the same actions as buttons.
 
 ## Desktop GUI
 

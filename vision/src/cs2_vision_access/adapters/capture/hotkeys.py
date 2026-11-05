@@ -4,7 +4,7 @@ Provides an interactive controls system that lets users adjust outline
 parameters (preset, width, mode, etc.) while the pipeline is running,
 without restarting.
 
-Controls (press in the display window):
+Controls (press in the display window; global overlay hotkeys on Windows are Ctrl+Alt+<key>):
   Q / Esc  — Quit
   Space    — Pause/resume
   1        — high-visibility preset

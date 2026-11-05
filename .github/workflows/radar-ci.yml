@@ -1,13 +1,7 @@
 name: Radar CI
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "radar/**"
-      - "scripts/check_architecture.py"
-      - "scripts/verify.py"
-      - ".github/workflows/radar-ci.yml"
+  workflow_dispatch:
   pull_request:
     branches: [main]
     paths:
@@ -20,6 +14,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     name: Build and test (Ubuntu)
@@ -27,9 +24,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Install CMake
-        uses: lukka/get-cmake@fffaaafeea488556c2c12dad60690008bc1caacb # v4.4.2
+        uses: lukka/get-cmake@a89e43e22a96abafcd7a62db652a65ecd33052c9 # v4.4.4
 
       - name: Check architecture
         run: python3 scripts/check_architecture.py
@@ -39,10 +38,13 @@ jobs:
 
   real-capability-composition:
     name: Real capability composition (Windows x64)
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.user.login == 'dependabot[bot]')
     runs-on: windows-latest
 
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
 
       - name: Configure the supported real capability combination
         shell: pwsh

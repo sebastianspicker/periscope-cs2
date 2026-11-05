@@ -101,6 +101,11 @@ bool FramePipeline::collect_frame() noexcept {
     // when the game window is not in the foreground.
     // Uses direct Win32 calls since this is a UI process with user32 loaded.
     static HWND s_cachedGameHwnd = nullptr;
+    if (s_cachedGameHwnd && !::IsWindow(s_cachedGameHwnd)) {
+        // The game window is gone (restart/quit) — the cached handle is
+        // stale and would gate reads forever. Drop and re-query.
+        s_cachedGameHwnd = nullptr;
+    }
     if (!s_cachedGameHwnd) {
         s_cachedGameHwnd = ::FindWindowA("Valve001", nullptr);
     }

@@ -83,6 +83,5 @@ and package construction. CUDA, live capture, GUI display, overlays, capture
 cards, the fullscreen presenter, remote services, and multi-epoch training
 require separate provisioned environments.
 
-`vision/tests/` is gitignored at the root today, so a fresh clone has no test
-directory. Restore the tracked-suite intent or drop the ignore before relying on
-`pytest` in a clean checkout.
+The contour-pipeline regression test is tracked because CI executes it. Other
+local tests remain ignored unless explicitly added as required CI coverage.

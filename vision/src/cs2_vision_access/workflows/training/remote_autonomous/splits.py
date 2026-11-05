@@ -11,6 +11,7 @@ from cs2_vision_access.workflows.training import remote_autonomous_bindings as d
 
 from .fsutil import (
     _assert_labels_compatible,
+    _clear_split_dirs,
     _ensure_dirs,
     _find_image_path,
     _link_or_copy,
@@ -32,11 +33,15 @@ def materialize_held_out_split(
     *,
     val_fraction: float = 0.2,
     seed: int = _DEFAULT_SPLIT_SEED,
+    clear_existing: bool = True,
 ) -> dict[str, list[str]]:
     """Hardlink/copy flat ``images/`` + ``labels/`` into train/val subdirs.
 
     Flat files are left in place so ``cloud.train`` preflight counts still work;
     Ultralytics is pointed at the split via :class:`Layout.SESSION_SPLIT`.
+
+    Existing files in the four split dirs are removed first (``clear_existing``)
+    so a re-run cannot leave a stem in both splits.
 
     Returns ``{"train": [stems...], "val": [stems...]}``.
     """
@@ -48,6 +53,8 @@ def materialize_held_out_split(
     stems = _list_image_stems(images_dir)
     if not stems:
         raise FileNotFoundError(f"No images under {images_dir} for held-out split")
+    if clear_existing:
+        _clear_split_dirs(data_dir)
 
     # The seed is a reproducibility contract for dataset split plans, not entropy.
     rng = _ReproducibleSplitRng(int(seed))
@@ -143,6 +150,8 @@ def _link_stem_into_split(
 
 def promote_cs2_10k_holdout_to_session_split(
     data_dir: str | Path,
+    *,
+    clear_existing: bool = True,
 ) -> dict[str, list[str]] | None:
     """Promote CS2-10k video holdout into ``images/val`` + ``labels/val``.
 
@@ -158,6 +167,8 @@ def promote_cs2_10k_holdout_to_session_split(
     val_stems = _load_cs2_10k_holdout_frame_stems(data_dir)
     if not val_stems:
         return None
+    if clear_existing:
+        _clear_split_dirs(data_dir)
 
     val_set = set(val_stems)
     # Flat pool only — never pull holdout stems into train.
@@ -217,14 +228,20 @@ def _phase_held_out_split(
     allow_leaky_val: bool,
     val_fraction: float,
     notes: list[str],
+    keep_splits: bool = False,
 ) -> _HeldOutSplitResult:
-    """Promote CS2-10k holdout or materialize a random held-out val split."""
+    """Promote CS2-10k holdout or materialize a random held-out val split.
+
+    ``keep_splits`` skips clearing existing split dirs (resume of the same dataset).
+    """
     use_split = not allow_leaky_val
     train_images_dir = images_dir
     train_labels_dir = labels_dir
     layout = deps.Layout.FLAT_BOOTSTRAP
     if use_split:
-        holdout_plan = promote_cs2_10k_holdout_to_session_split(data_dir)
+        holdout_plan = promote_cs2_10k_holdout_to_session_split(
+            data_dir, clear_existing=not keep_splits
+        )
         if holdout_plan is not None:
             notes.append(
                 f"CS2-10k video holdout → session_split "
@@ -236,6 +253,7 @@ def _phase_held_out_split(
                 data_dir,
                 val_fraction=val_fraction,
                 seed=_DEFAULT_SPLIT_SEED,
+                clear_existing=not keep_splits,
             )
             notes.append(
                 f"held-out val_fraction={val_fraction} layout=session_split "

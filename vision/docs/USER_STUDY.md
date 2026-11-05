@@ -129,9 +129,14 @@ artifacts/study-pack/
     └── …
 ```
 
-- baseline jobs copy the source clip (no model load).
+- baseline jobs copy the source clip (no model load) when the package has no `inference`
+ block; with one, baseline clips go through the same frame loop and `max_frames`/`max_seconds`
+ limits as outline clips (nothing drawn, status `trimmed`), so duration never differs by condition.
 - outline jobs run the same synchronous file-only outline path as `cs2-vision outline`.
 - Stimulus stem is `{clip_id}__{condition_id}`.
+- Two clip/condition pairs whose stimulus stems match (compared case-insensitively) are rejected.
+- Re-running never rewrites an existing `ratings.template.jsonl`; `--validate-only` leaves an
+ existing `pack-manifest.v1.json` untouched.
 - `--validate-only` expands the clip × condition plan and writes the pack manifest
  without decoding video or loading ONNX (useful for CI and dry runs).
 
@@ -176,7 +181,10 @@ One JSON object per line (UTF-8). Required keys:
 1. Consent and setup - Confirm entitled footage, consent, and that data stay local.
 2. Calibration - Show one practice baseline + one outline clip not in the scored set.
 3. Counterbalance - Randomize or Latin-square condition order per participant;
- record `presented_order` in the ratings JSONL.
+ record `presented_order` in the ratings JSONL. For a deterministic per-participant
+ shuffle use `cs2_vision_access.workflows.study.presentation_order(participant_id,
+ stimulus_ids)` (stimulus ids sorted by SHA-256 of `participant_id`, NUL, `stimulus_id`);
+ the method is also recorded in `pack-manifest.v1.json` under `presentation_order`.
 4. Per stimulus - Play the pack MP4; allow one replay; then collect the six ratings
  immediately (paper → later JSONL entry, or direct local form → JSONL).
 5. Exit questions - Preferred preset/pattern; disable/adjust needs; non-visual cue
@@ -198,6 +206,9 @@ uv run cs2-vision study-aggregate \
 
 The summary reports rating counts, participant/session counts, overall mean Likert
 fields, overall `would_enable` rate, and the same means stratified by `condition_id`.
+Rows carrying the template example note are skipped; two rows with the same
+(participant, session, clip, condition) are an error. When ratings carry `presented_order`,
+ the summary adds `by_presented_order` (mean Likert per position).
 It does not invent significance tests or pass/fail cutoffs.
 
 ## Library entry points

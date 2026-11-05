@@ -6,6 +6,7 @@ adjacent frames never cross the train/val boundary.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 
@@ -66,8 +67,11 @@ def auto_split_sessions(
     if not 0.0 < val_ratio < 1.0:
         raise ValueError("val_ratio must be in (0, 1)")
 
-    # Stable order independent of filesystem: sort by (hash, name).
-    ordered = sorted(session_ids, key=lambda s: (hash((seed, s)) & 0xFFFFFFFF, s))
+    # Stable order: sha256 (builtin hash() varies per process), then name.
+    ordered = sorted(
+        session_ids,
+        key=lambda s: (hashlib.sha256(f"{seed}:{s}".encode()).digest(), s),
+    )
     n = len(ordered)
     n_val = max(min_val, int(round(n * val_ratio)))
     if n_val >= n:

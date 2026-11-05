@@ -1,18 +1,18 @@
 {
   "source": "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/",
   "module": "client.dll",
-  "generated_at_utc": "2026-10-27T19:42:52Z",
+  "generated_at_utc": "2026-11-05T19:12:21Z",
   "globals": {
-    "dwEntityList": 41011384,
-    "dwGameEntitySystem": 41011384,
+    "dwEntityList": 41020168,
+    "dwGameEntitySystem": 41020168,
     "dwGameEntitySystem_highestEntityIndex": 8480,
-    "dwLocalPlayerPawn": 39220952,
-    "dwLocalPlayerController": 39055096,
-    "dwViewMatrix": 39243744,
-    "dwViewAngles": 39312904,
-    "dwPlantedC4": 38590768,
-    "dwCSGOInput": 39311232,
-    "dwSensitivity": 39209432
+    "dwLocalPlayerPawn": 39229640,
+    "dwLocalPlayerController": 39064568,
+    "dwViewMatrix": 39252432,
+    "dwViewAngles": 39321608,
+    "dwPlantedC4": 38599520,
+    "dwCSGOInput": 39319936,
+    "dwSensitivity": 39218120
   },
   "fields": {
     "m_iHealth": 844,

@@ -124,7 +124,17 @@ def register_review_drafts_commands(subcommands: Subcommands) -> None:
     promote_cmd.add_argument(
         "--only-accepted",
         action="store_true",
-        help=("promote only accepted entries (exclude already-promoted re-copies)"),
+        help="deprecated no-op: only accepted entries are promoted by default",
+    )
+    promote_cmd.add_argument(
+        "--include-promoted",
+        action="store_true",
+        help="also re-copy already-promoted entries (existing differing labels are still kept)",
+    )
+    promote_cmd.add_argument(
+        "--force",
+        action="store_true",
+        help="overwrite destination labels that exist with different content (e.g. hand edits)",
     )
     promote_cmd.set_defaults(handler=_handle_promote)
 
@@ -161,7 +171,8 @@ def _handle_promote(arguments: argparse.Namespace) -> int:
         arguments.draft_status,
         arguments.draft_labels_dir,
         arguments.output_labels_dir,
-        only_accepted=arguments.only_accepted,
+        only_accepted=not arguments.include_promoted,
+        force=arguments.force,
     )
     _print_json(summary)
     return 0

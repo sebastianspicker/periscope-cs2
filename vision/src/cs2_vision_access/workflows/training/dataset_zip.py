@@ -22,6 +22,26 @@ except ImportError:
 _PREFERRED_IMAGE_EXTS: tuple[str, ...] = (".jpg", ".jpeg", ".png", ".bmp", ".webp")
 
 
+_ROOT_MANIFESTS = frozenset({"dataset.yaml", "train.txt", "val.txt", "sessions.json"})
+
+# Minimum image count for a real holdout; below this val == train.
+HOLDOUT_MIN_IMAGES = 5
+
+
+def split_holdout(image_names: list[str]) -> tuple[list[str], list[str]]:
+    """Return ``(train, val)``: sorted names, every 5th into val, the rest train.
+
+    With fewer than :data:`HOLDOUT_MIN_IMAGES` names, val equals train (metrics
+    are then train-only and callers must warn).
+    """
+    ordered = sorted(image_names)
+    if len(ordered) < HOLDOUT_MIN_IMAGES:
+        return ordered, list(ordered)
+    val = ordered[4::5]
+    held = set(val)
+    return [n for n in ordered if n not in held], val
+
+
 @dataclass(frozen=True)
 class ZipExtractionLimits:
     """Metadata limits applied before any zip member is extracted."""
@@ -50,6 +70,33 @@ def is_unsafe_zip_member(name: str) -> bool:
     return bool(any(part == ".." for part in parts))
 
 
+def is_os_metadata_member(name: str) -> bool:
+    """macOS archive debris (``__MACOSX/``, ``.DS_Store``): skipped, not rejected."""
+    parts = Path(name.replace("\\", "/")).parts
+    return bool(parts) and (parts[0] == "__MACOSX" or parts[-1] == ".DS_Store")
+
+
+def is_allowed_zip_member(name: str) -> bool:
+    """Allowlist: dirs, ``images/**`` images, ``labels/**/*.txt``, root manifests.
+
+    Root manifests: ``dataset.yaml``, ``train.txt``, ``val.txt``, ``sessions.json``.
+
+    One optional top-level wrapper folder is tolerated (see ``resolve_dataset_root``).
+    Everything else (notably ``*.cache``, which Ultralytics unpickles) is rejected.
+    """
+    if name.endswith("/"):
+        return True
+    parts = Path(name.replace("\\", "/")).parts
+    if len(parts) > 1 and parts[0] not in ("images", "labels"):
+        parts = parts[1:]
+    suffix = Path(parts[-1]).suffix.lower()
+    if len(parts) == 1 and parts[0] in _ROOT_MANIFESTS:
+        return True
+    if len(parts) >= 2 and parts[0] == "images":
+        return suffix in IMAGE_EXTENSIONS
+    return len(parts) >= 2 and parts[0] == "labels" and suffix == ".txt"
+
+
 def validate_zip_members(
     zf: zipfile.ZipFile,
     limits: ZipExtractionLimits = DEFAULT_ZIP_EXTRACTION_LIMITS,
@@ -62,9 +109,16 @@ def validate_zip_members(
     total_uncompressed_bytes = 0
     for info in members:
         name = info.filename
+        if is_os_metadata_member(name):
+            continue  # Finder debris: skipped, never extracted
         if is_unsafe_zip_member(name):
             raise ValueError(
                 f"Refusing to extract unsafe zip member (path traversal or absolute path): {name!r}"
+            )
+        if not is_allowed_zip_member(name):
+            raise ValueError(
+                "Refusing to extract unexpected zip member (only images/, labels/*.txt and "
+                f"dataset.yaml are allowed; *.cache files are never accepted): {name!r}"
             )
         if info.file_size > limits.max_member_uncompressed_bytes:
             raise ValueError(
@@ -98,6 +152,8 @@ def safe_extract_zip(
     validate_zip_members(zf, limits)
     for info in members:
         name = info.filename
+        if is_os_metadata_member(name):
+            continue  # Finder debris: skipped, never extracted
         target = (dest / name).resolve()
         try:
             target.relative_to(dest)

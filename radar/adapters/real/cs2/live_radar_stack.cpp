@@ -186,8 +186,10 @@ RoundIntel read_round_intel(RemoteReadFn read, const Cs2Offsets& offsets,
   }
 
   // Planted C4: client_base + dwPlantedC4 is a pointer to C_PlantedC4.
-  std::uint64_t client_base = 0;
-  if (offsets.entity_list > snapshot::globals::dwEntityList) {
+  // Prefer the explicit client.dll base recorded on the offsets; the
+  // reverse estimate from an embedded RVA is the legacy fallback.
+  std::uint64_t client_base = offsets.client_base;
+  if (!client_base && offsets.entity_list > snapshot::globals::dwEntityList) {
     client_base = offsets.entity_list - snapshot::globals::dwEntityList;
   }
   if (client_base) {
@@ -370,18 +372,12 @@ OffsetUpdateResult auto_update_offsets(std::uint32_t cs2_pid,
   }
 
   if (r.complete || r.pattern_helped) {
-    // Write-back for patch nights
-    std::uint64_t client_base = 0;
-    if (out.entity_list > 0x100000) {
-      // entity_list is absolute; reverse-estimate client base from known RVA
-      // Prefer explicit: if process had handle, find_client_module already done.
-      // Use entity_list - dwEntityList default RVA as approximation only when needed.
-    }
-    // Prefer writing relative to cwd; use entity_list absolute with client from snapshot path
+    // Write-back for patch nights. Prefer the explicit client.dll base
+    // recorded on the offsets; the reverse estimate from the embedded
+    // dwEntityList RVA is the legacy fallback (e.g. main-module fallback).
     const char* out_path = "offsets_snapshot.json";
-    // If we have absolute entity_list and known RVA from snapshot globals
-    std::uint64_t cbase = 0;
-    if (out.entity_list > snapshot::globals::dwEntityList)
+    std::uint64_t cbase = out.client_base;
+    if (!cbase && out.entity_list > snapshot::globals::dwEntityList)
       cbase = out.entity_list - snapshot::globals::dwEntityList;
     if (cbase && write_offset_snapshot_file(out, cbase, out_path)) {
       r.wrote_snapshot = true;

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -61,6 +62,8 @@ class CaptureManager:
         self._info: CaptureInfo | None = None
         self._initial_dimensions: tuple[int, int] | None = None
         self._timing = FrameTimingDiagnostics()
+        self._failures = 0
+        self._reconnect_attempted = 0
 
     @property
     def info(self) -> CaptureInfo:
@@ -108,7 +111,8 @@ class CaptureManager:
         source_type = "screen" if isinstance(config, ScreenCapturer) else "capture-device"
         if isinstance(config, CaptureConfig):
             candidate = config.source
-            if isinstance(candidate, (str,)) and not candidate.lstrip("-").isdigit():
+            # Only an existing file is a file; device names and /dev paths stay devices.
+            if isinstance(candidate, str) and Path(candidate).is_file():
                 source_type = "file"
 
         self._info = CaptureInfo(width=width, height=height, fps=fps, source_type=source_type)
@@ -138,6 +142,7 @@ class CaptureManager:
         if not ok:
             return self._handle_read_failure(frame_index)
 
+        self._failures = 0
         self._timing.record_received()
         error = self._validate_frame(frame)
         if error:
@@ -151,10 +156,10 @@ class CaptureManager:
         Reconnect attempts back off (1, 2, 4 s) so a card renegotiating its
         signal — or a transient USB fault — cannot turn into a hot loop.
         """
-        if not hasattr(self, "_failures"):
-            self._failures = 0
+        if self._info is not None and self._info.source_type == "file":
+            return False, None, "end_of_stream"  # a failed file read is EOF
         self._failures += 1
-        attempt = getattr(self, "_reconnect_attempted", 0)
+        attempt = self._reconnect_attempted
 
         if self._failures < self._max_failures:
             return False, None, ""

@@ -29,8 +29,17 @@ def load_manifest_or_default(
     origin: str,
     license_name: str,
 ) -> ModelManifest:
-    """Load a verified manifest, or build a default COCO-80 detect manifest."""
-    if manifest_path is not None and Path(manifest_path).is_file():
+    """Load a verified manifest, or build a default COCO-80 detect manifest.
+
+    A default (unverified) manifest is only for ``manifest_path=None``; an
+    explicit path that does not exist is an error, never a silent downgrade.
+    """
+    if manifest_path is not None:
+        if not Path(manifest_path).is_file():
+            raise SegmenterError(
+                f"manifest not found: {manifest_path}. Create one with "
+                "`cs2-vision register-model --model <onnx> --manifest <json> ...`."
+            )
         _model, manifest = verify_model(model_path, manifest_path)
         return manifest
 

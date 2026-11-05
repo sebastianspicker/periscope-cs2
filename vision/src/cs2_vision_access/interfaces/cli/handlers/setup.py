@@ -16,10 +16,12 @@ from cs2_vision_access.adapters.capture.base import list_capture_devices
 from cs2_vision_access.adapters.capture.screen import list_monitors
 from cs2_vision_access.application.configuration import (
     AppConfig,
+    ConfigError,
     DisplayConfig,
     InputConfig,
     ModelConfig,
     OutlineConfig,
+    find_config_path,
     save_config,
 )
 from cs2_vision_access.interfaces.cli.handlers._model_ops import create_manifest, export_onnx
@@ -65,6 +67,11 @@ def register_setup_command(
         type=Path,
         default=None,
         help="Path to save the configuration file (default: ./cs2-vision-config.json)",
+    )
+    setup.add_argument(
+        "--overwrite-config",
+        action="store_true",
+        help="Replace an existing configuration file (default: keep it)",
     )
     setup.add_argument(
         "--input-type",
@@ -193,7 +200,8 @@ def _download_and_export_model(
             YOLO: Any = ultralytics.__dict__["YOLO"]
 
             pt_path = output_dir / f"{model_name}.pt"
-            if not pt_path.is_file():
+            downloaded_pt = not pt_path.is_file()
+            if downloaded_pt:
                 model = YOLO(f"{model_name}.pt")
                 model.save(str(pt_path))
             else:
@@ -217,7 +225,8 @@ def _download_and_export_model(
                 classes=["person"],
             )
 
-            if pt_path.is_file():
+            # Only remove a checkpoint this run fetched; keep user-supplied ones.
+            if downloaded_pt and pt_path.is_file():
                 pt_path.unlink()
 
             print(f"  Model ONNX: {onnx_path.name}")
@@ -323,7 +332,18 @@ def _write_config(
         outline=OutlineConfig(preset="maximum-visibility", output_mode=output_mode),
         display=DisplayConfig(scale=0.5, headless=False, overlay=use_overlay),
     )
-    config_path = save_config(config, path=arguments.config, overwrite=True)
+    try:
+        config_path = save_config(
+            config, path=arguments.config, overwrite=bool(arguments.overwrite_config)
+        )
+    except ConfigError as error:
+        if "already exists" not in str(error):
+            raise
+        config_path = find_config_path(arguments.config)
+        print(f"  Config already exists, keeping it: {config_path}")
+        print("  Pass --overwrite-config to replace it with these defaults.")
+        print()
+        return config_path
     print(f"  Config saved: {config_path}")
     print()
     return config_path

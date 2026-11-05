@@ -2,7 +2,7 @@
 
 ``cloud.train`` (``training/cloud.py``) requires a flat ``images/`` + ``labels/``
 tree: its preflight image/label counts walk each directory non-recursively and
-``_ensure_dataset_yaml`` defaults to ``train: images`` / ``val: images``. A
+``_ensure_dataset_yaml`` defaults to a flat holdout. A
 session-split root (``images/train``, ``images/val``, ...) fails that preflight.
 
 This module converts an assembled split tree (as produced by
@@ -42,9 +42,10 @@ def materialize_flat_cloud_bundle(
     Every labeled image under ``images/train`` and ``images/val`` (with its
     matching label) is copied into ``cloud_dir/dataset/images`` +
     ``cloud_dir/dataset/labels`` under a flattened, collision-free stem
-    (``<split>_<session>__<relative_stem>``). A flat ``dataset.yaml`` is
-    written, ``sessions.json`` provenance is copied when present, and the tree
-    is zipped to ``cloud_dir/dataset.zip`` via
+    (path parts joined by ``__``, e.g. ``train__<session>__<stem>``; duplicates
+    raise). ``train.txt`` / ``val.txt`` keep the session split and a flat
+    ``dataset.yaml`` pointing at them is written, ``sessions.json`` provenance is
+    copied when present, and the tree is zipped to ``cloud_dir/dataset.zip`` via
     :func:`cs2_vision_access.workflows.training.bundle.create_bundle`.
 
     Args:
@@ -77,12 +78,23 @@ def materialize_flat_cloud_bundle(
     flat_images.mkdir(parents=True, exist_ok=True)
     flat_labels.mkdir(parents=True, exist_ok=True)
 
-    _flatten_split_images_labels(split_root, flat_images, flat_labels)
-    write_dataset_yaml(
+    split_names = _flatten_split_images_labels(split_root, flat_images, flat_labels)
+    # train.txt / val.txt preserve the session split (flat images/ alone would be train == val).
+    for split in _SPLITS:
+        (flat_root / f"{split}.txt").write_text(
+            "".join(f"./images/{name}\n" for name in split_names[split]), encoding="utf-8"
+        )
+    yaml_path = write_dataset_yaml(
         flat_root,
         layout=Layout.FLAT_BOOTSTRAP,
         classes=class_names,
         portable_path=False,
+    )
+    yaml_path.write_text(
+        yaml_path.read_text(encoding="utf-8")
+        .replace("train: images\n", "train: train.txt\n")
+        .replace("val: images\n", "val: val.txt\n"),
+        encoding="utf-8",
     )
     sessions_dst = _copy_sessions_json(split_root, flat_root)
 
@@ -100,9 +112,13 @@ def _flatten_split_images_labels(
     split_root: Path,
     flat_images: Path,
     flat_labels: Path,
-) -> None:
-    """Copy labeled train/val pairs into a flat images/ + labels/ tree."""
-    copied = 0
+) -> dict[str, list[str]]:
+    """Copy labeled train/val pairs into a flat images/ + labels/ tree.
+
+    Returns the flat image file names per split. Raises on duplicate flat stems.
+    """
+    names: dict[str, list[str]] = {split: [] for split in _SPLITS}
+    seen: set[str] = set()
     for split in _SPLITS:
         split_images = split_root / "images" / split
         split_labels = split_root / "labels" / split
@@ -112,18 +128,23 @@ def _flatten_split_images_labels(
             if not image_path.is_file() or image_path.suffix.lower() not in IMAGE_EXTENSIONS:
                 continue
             relative_stem = image_path.relative_to(split_root / "images").with_suffix("")
-            flat_stem = relative_stem.as_posix().replace("/", "_")
+            flat_stem = "__".join(relative_stem.parts)
             label_path = split_labels / image_path.relative_to(split_images).with_suffix(".txt")
             if not label_path.is_file():
                 continue
-            shutil.copy2(image_path, flat_images / f"{flat_stem}{image_path.suffix.lower()}")
+            if flat_stem in seen:
+                raise ValueError(f"flattened stem collision for {flat_stem!r} under {split_root}")
+            seen.add(flat_stem)
+            image_name = f"{flat_stem}{image_path.suffix.lower()}"
+            shutil.copy2(image_path, flat_images / image_name)
             shutil.copy2(label_path, flat_labels / f"{flat_stem}.txt")
-            copied += 1
-    if copied == 0:
+            names[split].append(image_name)
+    if not seen:
         raise ValueError(
             f"no labeled train/val image pairs found under {split_root}; "
             "cannot build a cloud training bundle"
         )
+    return names
 
 
 def _copy_sessions_json(split_root: Path, flat_root: Path) -> Path | None:

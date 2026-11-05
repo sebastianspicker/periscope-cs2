@@ -47,7 +47,11 @@ optional zip OR CS2-10k frames
 
 1. `CS2_VISION_REPO` pip URL if set
 2. Local clone under `/content` or `/kaggle`
-3. Optional `CS2_VISION_GIT` clone when import still fails
+3. `CS2_VISION_GIT` clone when import still fails (installs from `vision/` when the
+   clone is this monorepo)
+
+There is no default repository: if none of these work, the cell stops and asks
+you to set `CS2_VISION_REPO` or `CS2_VISION_GIT`.
 
 ## Outputs
 

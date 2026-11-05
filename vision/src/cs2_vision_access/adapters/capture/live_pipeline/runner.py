@@ -147,6 +147,7 @@ def run_live_pipeline(
                 last_temporal_enabled=last_temporal_enabled,
                 last_output_mode=last_output_mode,
                 last_alpha_fill=last_alpha_fill,
+                inferred_seq=frames_inferred_total,
             )
 
             if result.termination_reason is not None:
@@ -185,10 +186,10 @@ def run_live_pipeline(
         instances_predicted=instances_predicted_total,
         instances_outlined=instances_outlined_total,
         temporal_suppressed=temporal_suppressed_total,
-        inference_ms_p50=_percentile(diag.inference_ms, 50),
-        inference_ms_p95=_percentile(diag.inference_ms, 95),
-        pipeline_ms_p50=_percentile(diag.pipeline_ms, 50),
-        pipeline_ms_p95=_percentile(diag.pipeline_ms, 95),
+        inference_ms_p50=_percentile(list(diag.inference_ms), 50),
+        inference_ms_p95=_percentile(list(diag.inference_ms), 95),
+        pipeline_ms_p50=_percentile(list(diag.pipeline_ms), 50),
+        pipeline_ms_p95=_percentile(list(diag.pipeline_ms), 95),
         elapsed_seconds=elapsed,
         capture_fps=capture_fps,
         throughput_fps=throughput_fps,

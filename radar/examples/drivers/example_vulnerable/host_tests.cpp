@@ -125,8 +125,10 @@ static void test_pack_virt() {
 
 static void test_pack_entity_and_module() {
     std::printf("\n[test] pack_entity_walk / pack_module_list / callback\n");
+    // schema offsets from the November 2026 snapshot:
+    // health 0x34C, team 0x3E7, m_vOldOrigin 0x14A4, m_hPlayerPawn 0x92C
     auto ent = gdrv::pack_entity_walk_req(
-        42, 0x1000, 0x34C, 0x3E7, 0x13B8, 0x914, 0, 64, 0x70);
+        42, 0x1000, 0x34C, 0x3E7, 0x14A4, 0x92C, 0, 64, 0x70);
     EXPECT(ent.size() == sizeof(GDRV_ENTITY_WALK_REQ), "entity pack size");
     GDRV_ENTITY_WALK_REQ er{};
     std::memcpy(&er, ent.data(), sizeof(er));

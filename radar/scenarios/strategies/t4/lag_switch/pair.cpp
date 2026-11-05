@@ -34,6 +34,5 @@ StrategyEntry entry_54_lag_switch() {
 }
 
 // Keep old symbol name if any dormant refs exist (alias).
-StrategyEntry entry_84_lag_switch() { return entry_54_lag_switch(); }
 
 }  // namespace strategies

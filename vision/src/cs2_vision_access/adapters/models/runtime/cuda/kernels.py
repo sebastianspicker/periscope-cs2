@@ -13,64 +13,6 @@
 from __future__ import annotations
 
 # =========================================================================
-# NMS — Non-Maximum Suppression
-#
-# Each thread handles box i.  It iterates over all higher-scoring boxes j
-# (j < i after score-sorted order).  If any kept box j has IoU(box_i, box_j)
-# > threshold, box i is marked suppressed.
-# =========================================================================
-
-NMS_KERNEL_CU = """
-extern "C" {
-
-__device__ float bbox_iou(
-    const float* a, const float* b
-) {
-    float inter_x1 = max(a[0], b[0]);
-    float inter_y1 = max(a[1], b[1]);
-    float inter_x2 = min(a[2], b[2]);
-    float inter_y2 = min(a[3], b[3]);
-
-    float inter_w = max(0.0f, inter_x2 - inter_x1);
-    float inter_h = max(0.0f, inter_y2 - inter_y1);
-    float inter_area = inter_w * inter_h;
-
-    float area_a = (a[2] - a[0]) * (a[3] - a[1]);
-    float area_b = (b[2] - b[0]) * (b[3] - b[1]);
-    float union_area = area_a + area_b - inter_area;
-
-    return union_area > 0.0f ? inter_area / union_area : 0.0f;
-}
-
-__global__ void nms_kernel(
-    const float* boxes,         // [N, 4] xyxy, sorted by score descending
-    const int* indices,         // [N] original indices (sorted by score)
-    bool* suppressed,           // [N] output — true = suppress this box
-    int N,
-    float iou_threshold
-) {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-    if (i >= N) return;
-
-    const float* box_i = &boxes[i * 4];
-
-    for (int j = 0; j < i; ++j) {
-        if (suppressed[j]) continue;
-        const float* box_j = &boxes[j * 4];
-        float iou = bbox_iou(box_i, box_j);
-        if (iou > iou_threshold) {
-            suppressed[i] = true;
-            return;
-        }
-    }
-    suppressed[i] = false;
-}
-
-}  // extern "C"
-"""
-
-
-# =========================================================================
 # Letterbox pre-processing
 #
 # Converts a BGR uint8 frame to a float32 CHW tensor in [0, 1] range,
@@ -146,10 +88,57 @@ __global__ void letterbox_kernel(
 
 
 # =========================================================================
+# Stretch pre-processing (Vombit detection contract)
+#
+# Mirrors ``preprocess_vombit``: BGR uint8 frame -> BGR float32 CHW tensor in
+# 0-255, stretched (no padding) to dst_w x dst_h.  Bilinear sampling uses
+# OpenCV's half-pixel convention and rounds to the nearest integer.
+# =========================================================================
+
+STRETCH_KERNEL_CU = """
+extern "C" {
+
+__global__ void stretch_kernel(
+    const unsigned char* src,   // [H, W, 3] BGR uint8
+    int src_w, int src_h,
+    int src_stride,
+    float* dst,                 // [3, dst_h, dst_w] BGR float32, 0-255
+    int dst_w, int dst_h
+) {
+    int c = blockIdx.z;
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+    if (c >= 3 || x >= dst_w || y >= dst_h) return;
+
+    float fx = fminf(fmaxf((x + 0.5f) * ((float)src_w / dst_w) - 0.5f, 0.0f), src_w - 1.0f);
+    float fy = fminf(fmaxf((y + 0.5f) * ((float)src_h / dst_h) - 0.5f, 0.0f), src_h - 1.0f);
+    int x0 = (int)floorf(fx);
+    int y0 = (int)floorf(fy);
+    int x1 = min(x0 + 1, src_w - 1);
+    int y1 = min(y0 + 1, src_h - 1);
+    float ax = fx - x0;
+    float ay = fy - y0;
+
+    float v00 = (float)src[y0 * src_stride + x0 * 3 + c];
+    float v10 = (float)src[y0 * src_stride + x1 * 3 + c];
+    float v01 = (float)src[y1 * src_stride + x0 * 3 + c];
+    float v11 = (float)src[y1 * src_stride + x1 * 3 + c];
+
+    float row0 = v00 + (v10 - v00) * ax;
+    float row1 = v01 + (v11 - v01) * ax;
+    dst[c * dst_h * dst_w + y * dst_w + x] = floorf(row0 + (row1 - row0) * ay + 0.5f);
+}
+
+}  // extern "C"
+"""
+
+
+# =========================================================================
 # YOLO box decode
 #
 # Converts the raw Ultralytics ONNX output tensor into xyxy boxes + scores
-# + class IDs.  Each thread decodes one prediction (8400 total for
+# + class IDs.  Each thread decodes one prediction (8400 for a
 # 640×640 input).
 #
 # Raw layout:  [4 + num_classes, 8400]
@@ -331,7 +320,6 @@ __global__ void marching_squares_kernel(
             emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y+1, x+1, cy);
             break;
         case 7:  // tl + tr + bl (inverted 8)
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, x, cy, cx, y+1);
             emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y+1, x+1, cy);
             break;
         case 8:  // br only
@@ -345,19 +333,16 @@ __global__ void marching_squares_kernel(
             emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y, cx, y+1);
             break;
         case 11: // tl + tr + br (inverted 4)
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, x, cy, cx, y);
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y, cx, y+1);
+            emit_contour_segment(contour_vertices, contour_counts, max_vertices, x, cy, cx, y+1);
             break;
         case 12: // bl + br (bottom edge)
             emit_contour_segment(contour_vertices, contour_counts, max_vertices, x, cy, x+1, cy);
             break;
         case 13: // tl + bl + br (inverted 2)
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y, x+1, cy);
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, x, cy, cx, y);
+            emit_contour_segment(contour_vertices, contour_counts, max_vertices, x+1, cy, cx, y);
             break;
         case 14: // tr + bl + br (inverted 1)
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y, x+1, cy);
-            emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y+1, x+1, cy);
+            emit_contour_segment(contour_vertices, contour_counts, max_vertices, cx, y, x, cy);
             break;
     }
 }
@@ -370,6 +355,6 @@ __all__ = [
     "IMAGENET_NORM_KERNEL_CU",
     "LETTERBOX_KERNEL_CU",
     "MARCHING_SQUARES_CU",
-    "NMS_KERNEL_CU",
+    "STRETCH_KERNEL_CU",
     "YOLO_DECODE_KERNEL_CU",
 ]

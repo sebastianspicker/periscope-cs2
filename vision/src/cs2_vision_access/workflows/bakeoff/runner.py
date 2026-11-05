@@ -124,6 +124,27 @@ def run_bakeoff(
     outline_renderer = renderer or renderer_factory(OutlineStyle())  # type: ignore[misc]
 
     runs: list[dict[str, object]] = []
+
+    def _report_dict() -> dict[str, object]:
+        report = BakeoffResult(
+            schema_version=SCHEMA_VERSION,
+            input=str(source),
+            max_frames=max_frames,
+            max_seconds=max_seconds,
+            runs=tuple(runs),
+        )
+        report_dict: dict[str, object] = {
+            "schema_version": report.schema_version,
+            "input": report.input,
+            "max_frames": report.max_frames,
+            "max_seconds": report.max_seconds,
+            "runs": list(report.runs),
+            "winner": report.winner,
+            "notes": report.notes,
+        }
+        _assert_report_finite(report_dict)
+        return report_dict
+
     for spec in backends:
         effective = BakeoffBackendSpec(
             backend=spec.backend,
@@ -134,50 +155,46 @@ def run_bakeoff(
             device=device if device is not None else spec.device,
             class_names=class_names if class_names is not None else spec.class_names,
         )
-        segmenter = factory(effective)
-        summary = process(
-            input_path=source,
-            segmenter=segmenter,
-            renderer=outline_renderer,
-            output_path=None,
-            display=False,
-            realtime_playback=False,
-            max_frames=max_frames,
-            overwrite=False,
-            max_seconds=max_seconds,
-            cue_log_path=None,
-        )
-        runs.append(
-            row_from_summary(
+        try:
+            segmenter = factory(effective)
+            summary = process(
+                input_path=source,
+                segmenter=segmenter,
+                renderer=outline_renderer,
+                output_path=None,
+                display=False,
+                realtime_playback=False,
+                max_frames=max_frames,
+                overwrite=False,
+                max_seconds=max_seconds,
+                cue_log_path=None,
+            )
+            row = row_from_summary(
                 summary,
                 backend=effective.backend,
                 model=effective.model,
                 manifest=effective.manifest,
                 eval_payload=None,
             )
+        except Exception as error:  # keep earlier runs when one backend fails
+            row = {
+                "backend": effective.backend,
+                "model": str(effective.model),
+                "manifest": str(effective.manifest),
+                "error": f"{type(error).__name__}: {error}",
+                "eval": None,
+            }
+        row.update(
+            confidence=effective.confidence,
+            image_size=effective.image_size,
+            device=effective.device,
         )
+        runs.append(row)
+        # Flush after every backend so a late failure cannot discard earlier runs.
+        if output_path is not None:
+            write_bakeoff_json(_report_dict(), output_path)
 
-    report = BakeoffResult(
-        schema_version=SCHEMA_VERSION,
-        input=str(source),
-        max_frames=max_frames,
-        max_seconds=max_seconds,
-        runs=tuple(runs),
-    )
-    report_dict = {
-        "schema_version": report.schema_version,
-        "input": report.input,
-        "max_frames": report.max_frames,
-        "max_seconds": report.max_seconds,
-        "runs": list(report.runs),
-        "winner": report.winner,
-        "notes": report.notes,
-    }
-    _assert_report_finite(report_dict)
-
-    if output_path is not None:
-        write_bakeoff_json(report_dict, output_path)
-    return report_dict
+    return _report_dict()
 
 
 def write_bakeoff_json(payload: Mapping[str, object], path: str | Path) -> Path:
@@ -219,6 +236,11 @@ def write_bakeoff_json(payload: Mapping[str, object], path: str | Path) -> Path:
 
 
 def _assert_row_finite(row: Mapping[str, object]) -> None:
+    if "error" in row:
+        backend = row.get("backend")
+        if not isinstance(backend, str) or not backend:
+            raise BakeoffError("backend must be a non-empty string")
+        return
     for key in _NUMERIC_RUN_FIELDS:
         value = row.get(key)
         if isinstance(value, bool) or not isinstance(value, (int, float)):

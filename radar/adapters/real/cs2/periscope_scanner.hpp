@@ -58,14 +58,16 @@ struct PeriscopeOffsets {
     uint64_t tier0_dll{};
     uint64_t engine2_dll{};
 
-    // RVA fallbacks (when patterns miss)
-    static constexpr uint64_t kDwEntityList            = 0x254EE60;
-    static constexpr uint64_t kDwLocalPlayerPawn       = 0x23A4238;
-    static constexpr uint64_t kDwLocalPlayerController = 0x237EBA0;
-    static constexpr uint64_t kDwViewAngles            = 0x23B9C78;
-    static constexpr uint64_t kDwPlantedC4             = 0x236E678;
-    static constexpr uint64_t kDwCSGOInput             = 0x23B95F0;
-    static constexpr uint64_t kDwWindowWidth           = 0x9118D0;
+    // RVA fallbacks (when patterns miss). Pinned to the November 2026
+    // a2x/cs2-dumper snapshot: client.dll RVAs unless noted. kDwWindowWidth
+    // is an engine2.dll RVA — it is applied to the engine2 base.
+    static constexpr uint64_t kDwEntityList            = 0x271EB08;
+    static constexpr uint64_t kDwLocalPlayerPawn       = 0x25698C8;
+    static constexpr uint64_t kDwLocalPlayerController = 0x25413F8;
+    static constexpr uint64_t kDwViewAngles            = 0x2580008;
+    static constexpr uint64_t kDwPlantedC4             = 0x24CFB60;
+    static constexpr uint64_t kDwCSGOInput             = 0x257F980;
+    static constexpr uint64_t kDwWindowWidth           = 0x9BCFE8;  // engine2.dll
 
     bool valid{};
 
@@ -75,17 +77,19 @@ struct PeriscopeOffsets {
 };
 
 // ====================================================================
-// Schema field offsets (FNV-1a resolved, Periscope-validated)
+// Schema field offsets (November 2026 snapshot-verified, Periscope layout)
 // ====================================================================
 struct SchemaOffsets {
     static constexpr uint64_t m_iHealth              = 0x34C;
     static constexpr uint64_t m_iTeamNum             = 0x3E7;  // uint8
-    static constexpr uint64_t m_vOldOrigin           = 0x13B8;
+    static constexpr uint64_t m_vOldOrigin           = 0x14A4;
     static constexpr uint64_t m_vecAbsOrigin         = 0xC8;
-    static constexpr uint64_t m_angEyeAngles         = 0x3340;
-    static constexpr uint64_t m_hPlayerPawn          = 0x914;
+    static constexpr uint64_t m_angEyeAngles         = 0x3600;
+    static constexpr uint64_t m_hPlayerPawn          = 0x92C;
     static constexpr uint64_t m_pGameSceneNode       = 0x330;
     static constexpr uint64_t kIdentityStride        = 0x70;
+    // Not present in the November 2026 schema dump — kept as a prototype-era
+    // value; verify against a live build before relying on it.
     static constexpr uint64_t m_iWeaponID            = 0x10B0;
 };
 
@@ -140,7 +144,11 @@ std::vector<ScanResult> scan_all_patterns(
     bool (*readFn)(uint64_t addr, void* buf, size_t size)) noexcept;
 
 /// Resolve a single RIP-relative address.
-uint64_t resolve_rip(uint64_t matchAddr, int ripOffset,
+/// matchAddr: address of the pattern match inside the target module.
+/// displacement: the int32 operand already read from the instruction bytes
+/// (e.g. from the scan chunk) — never read from matchAddr in this process.
+/// instructionLen: total length of the instruction (RIP = matchAddr + len).
+uint64_t resolve_rip(uint64_t matchAddr, int32_t displacement,
                      int instructionLen) noexcept;
 
 } // namespace real::cs2::periscope

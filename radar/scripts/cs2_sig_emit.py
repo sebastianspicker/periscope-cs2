@@ -13,6 +13,23 @@ from cs2_sig_common import (
     GLOBAL_KEYS,
 )
 
+_MONTHS = (
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December",
+)
+
+def pin_note(ts: str) -> str:
+    """Human-readable pin label, e.g. 'November 2026', derived from the
+    generated-at timestamp. Deterministic; falls back to the raw stamp."""
+    try:
+        year = int(ts[0:4])
+        month = int(ts[5:7])
+        if 1 <= month <= 12:
+            return f"{_MONTHS[month - 1]} {year}"
+    except (ValueError, IndexError):
+        pass
+    return ts
+
 def emit_hpp(snap: dict) -> str:
     """
     Emit the C++ embedded snapshot header from a snapshot dict.
@@ -70,6 +87,10 @@ def emit_hpp(snap: dict) -> str:
         "//",
         "// NOTE: entities.cpp / live_radar_stack.cpp require the full FIELD_MAP set",
         "// (core + armor, dormant, spotted, bomb, observer). emit_hpp emits every key.",
+        "//",
+        f"// PINNED DUMP — {pin_note(ts)}. Refresh with",
+        "// radar/scripts/update_cs2_signatures.py; `--check` reports drift read-only.",
+        "// Never hand-edit values here: the updater regenerates this file wholesale.",
         "",
         "#include <cstddef>",
         "#include <cstdint>",

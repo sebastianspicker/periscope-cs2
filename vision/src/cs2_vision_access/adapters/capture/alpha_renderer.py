@@ -14,7 +14,7 @@ Two output modes:
 from __future__ import annotations
 
 from collections.abc import Iterable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 
@@ -43,6 +43,7 @@ from cs2_vision_access.domain.outline import DRAW_COORDINATE_SCALE
 from cs2_vision_access.domain.predictions import InstanceMask
 
 ALPHA_OUTPUT_MODES = frozenset({"alpha", "green", "overlay"})
+_WHITE_BGR = (255, 255, 255)
 
 
 @dataclass(frozen=True)
@@ -144,6 +145,7 @@ class AlphaRenderer:
 
         # Draw outlines on a temporary BGR buffer, then composite
         bgr_buffer = np.zeros((height, width, 3), dtype=np.uint8)
+        coverage_buffer = np.zeros((height, width, 3), dtype=np.uint8)
 
         for prediction in current:
             points = np.asarray(prediction.polygon, dtype=np.float32)
@@ -163,61 +165,58 @@ class AlphaRenderer:
             if abs(float(cv2.contourArea(fixed))) <= 0:
                 continue
 
-            inner_w, outer_w = effective_instance_line_widths(self.style, height, width, points)
-            outer_bgr = parse_hex_bgr(self.style.outer_color)
-            inner_bgr = parse_hex_bgr(self.style.inner_color)
+            treatment = self.catalog.resolve(prediction.class_name) if self.catalog else None
+            style = treatment.style if treatment is not None else self.style
+            inner_w, outer_w = effective_instance_line_widths(style, height, width, points)
+            outer_bgr = parse_hex_bgr(style.outer_color)
+            inner_bgr = parse_hex_bgr(style.inner_color)
+            period = effective_dash_period(style, height)
 
-            # Draw dual-stroke outlines on the BGR buffer
-            kernel = self.style.outline_kernel
-            if kernel == "distance":
-                _draw_distance_outline(
-                    cv2,
-                    bgr_buffer,
-                    fixed,
-                    outer_bgr,
-                    inner_bgr,
-                    outer_w,
-                    inner_w,
-                )
-            elif kernel == "jfa":
-                _draw_jfa_outline(
-                    cv2,
-                    bgr_buffer,
-                    fixed,
-                    outer_bgr,
-                    inner_bgr,
-                    outer_w,
-                    inner_w,
-                )
-            else:
-                draw_styled_polylines(
-                    cv2,
-                    bgr_buffer,
-                    [fixed],
-                    outer_bgr,
-                    outer_w,
-                    pattern=self.style.stroke_pattern,
-                    period_px=effective_dash_period(self.style, height),
-                )
-                draw_styled_polylines(
-                    cv2,
-                    bgr_buffer,
-                    [fixed],
-                    inner_bgr,
-                    inner_w,
-                    pattern=self.style.stroke_pattern,
-                    period_px=effective_dash_period(self.style, height),
-                )
+            # Draw dual-stroke outlines on the BGR buffer; the same geometry in white
+            # on the coverage buffer gives alpha independent of the stroke colour.
+            for buffer, outer_c, inner_c in (
+                (bgr_buffer, outer_bgr, inner_bgr),
+                (coverage_buffer, _WHITE_BGR, _WHITE_BGR),
+            ):
+                if style.outline_kernel == "distance":
+                    _draw_distance_outline(cv2, buffer, fixed, outer_c, inner_c, outer_w, inner_w)
+                elif style.outline_kernel == "jfa":
+                    _draw_jfa_outline(cv2, buffer, fixed, outer_c, inner_c, outer_w, inner_w)
+                else:
+                    for color, width_px in ((outer_c, outer_w), (inner_c, inner_w)):
+                        draw_styled_polylines(
+                            cv2,
+                            buffer,
+                            [fixed],
+                            color,
+                            width_px,
+                            pattern=style.stroke_pattern,
+                            period_px=period,
+                        )
 
             # Role marker
-            if self.catalog is not None:
-                treatment = self.catalog.resolve(prediction.class_name)
+            if treatment is not None:
                 draw_role_marker(cv2, bgr_buffer, points, treatment, frame_height=height)
+                if treatment.marker != "none":
+                    # Contrast rules forbid an all-white style, so union two valid white/black
+                    # passes to cover every marker pixel regardless of its real colours.
+                    for outer_hex, inner_hex in (("#FFFFFF", "#000000"), ("#000000", "#FFFFFF")):
+                        probe = np.zeros_like(coverage_buffer)
+                        probe_style = replace(style, outer_color=outer_hex, inner_color=inner_hex)
+                        draw_role_marker(
+                            cv2,
+                            probe,
+                            points,
+                            replace(treatment, style=probe_style),
+                            frame_height=height,
+                        )
+                        coverage_buffer[probe > 0] = 255
+
+        coverage = coverage_buffer[:, :, 0]
 
         if output_mode == "alpha":
             # CHANGED: Build a thresholded coverage mask with smoother alpha edges.
-            gray = cv2.cvtColor(bgr_buffer, cv2.COLOR_BGR2GRAY)
-            _alpha = np.where(gray >= 8, 255, 0).astype(np.uint8)
+            _alpha = np.where(coverage > 0, 255, 0).astype(np.uint8)
             _alpha = cv2.GaussianBlur(_alpha, (5, 5), 0)
 
             # CHANGED: RGBA is RGB-ordered, while drawing uses OpenCV's BGR order.
@@ -257,7 +256,7 @@ class AlphaRenderer:
                 output[:, :, 3] = np.rint(output_alpha * 255.0).astype(np.uint8)
         else:
             # Green mode: overlay outlines on green background
-            mask = cv2.cvtColor(bgr_buffer, cv2.COLOR_BGR2GRAY) > 0
+            mask = coverage > 0
             output[mask] = bgr_buffer[mask]
 
         return output

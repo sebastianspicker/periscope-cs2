@@ -3,20 +3,43 @@
 from __future__ import annotations
 
 import ctypes
+import logging
 import sys
 from collections.abc import Callable
 from typing import Any
 
 import numpy as np
 
+LOGGER = logging.getLogger(__name__)
+
 _WIN32_CLASS_NAME = "CS2VisionOverlay"
-# Keep WNDPROC callbacks alive for the process lifetime (GC would crash Win32).
-_win32_wndproc_refs: list[Any] = []
+# One shared WNDPROC for the window class; kept alive for the process lifetime
+# (GC would crash Win32) and dispatching to open overlay instances by hwnd.
+_shared_wndproc: Any = None
+_hwnd_to_backend: dict[int, Win32OverlayBackend] = {}
+_class_registered = False
+
+# Standard Win32 window/GDI constants shared with the fullscreen presenter.
+_WIN32_CONSTANTS: dict[str, int] = {
+    "WS_EX_TOPMOST": 0x00000008,
+    "WS_EX_LAYERED": 0x00080000,
+    "WS_EX_NOACTIVATE": 0x08000000,
+    "WS_POPUP": 0x80000000,
+    "DIB_RGB_COLORS": 0,
+    "HWND_TOPMOST": -1,
+    "SWP_NOACTIVATE": 0x0010,
+    "SWP_SHOWWINDOW": 0x0040,
+    "ULW_ALPHA": 0x00000002,
+    "PM_REMOVE": 0x0001,
+}
 
 # WM_HOTKEY notification for global hotkeys registered on the overlay window.
 _WM_HOTKEY = 0x0312
 # MOD_NOREPEAT: do not auto-repeat hotkey triggers while the key is held down.
 _MOD_NOREPEAT = 0x4000
+# Ctrl+Alt prefix so bare keys (Esc, Space, letters) are not swallowed system-wide.
+_MOD_ALT = 0x0001
+_MOD_CONTROL = 0x0002
 
 # Global hotkey VK codes → hotkey action names. Per-window hotkey ids are
 # assigned 1-based in declaration order so multiple windows never collide.
@@ -69,6 +92,7 @@ class Win32OverlayBackend:
         self._dib: Any = None
         self._old_obj: Any = None
         self._bits: Any = None  # c_void_p pointing at DIB pixel storage
+        self._bits_view: np.ndarray | None = None  # (H, W, 4) uint8 over the DIB bits
         self._width: int = 0
         self._height: int = 0
         self._x: int = 0
@@ -129,37 +153,28 @@ class Win32OverlayBackend:
         if not hinstance:
             raise RuntimeError("GetModuleHandleW failed")
 
-        # WNDPROC must remain reachable; store on the instance and module list.
-        def _wnd_proc(hwnd: int, msg: int, wparam: int, lparam: int) -> int:
-            if msg == _WM_HOTKEY:
-                action = self._hotkey_id_to_action.get(int(wparam))
-                if action is not None and self._hotkey_handler is not None:
-                    self._hotkey_handler(action)
-                return 0
-            return int(b["DefWindowProcW"](hwnd, msg, wparam, lparam))
-
-        wnd_proc = b["WNDPROC"](_wnd_proc)
-        self._wnd_proc = wnd_proc
-        _win32_wndproc_refs.append(wnd_proc)
-
-        wc = b["WNDCLASSW"]()
-        wc.style = 0
-        wc.lpfnWndProc = wnd_proc
-        wc.cbClsExtra = 0
-        wc.cbWndExtra = 0
-        wc.hInstance = hinstance
-        wc.hIcon = None
-        wc.hCursor = b["LoadCursorW"](None, self._IDC_ARROW)
-        wc.hbrBackground = None
-        wc.lpszMenuName = None
-        wc.lpszClassName = _WIN32_CLASS_NAME
-        atom = b["RegisterClassW"](ctypes.byref(wc))
-        # atom==0 with ERROR_CLASS_ALREADY_EXISTS (1410) is fine on re-open.
-        if not atom:
-            err = _last_error()
-            if err not in (0, 1410):
-                raise RuntimeError(f"RegisterClassW failed (winerror={err})")
-        self._class_atom = int(atom) if atom else 0
+        global _class_registered
+        wnd_proc = _get_shared_wndproc(b)
+        if not _class_registered:
+            wc = b["WNDCLASSW"]()
+            wc.style = 0
+            wc.lpfnWndProc = wnd_proc
+            wc.cbClsExtra = 0
+            wc.cbWndExtra = 0
+            wc.hInstance = hinstance
+            wc.hIcon = None
+            wc.hCursor = b["LoadCursorW"](None, self._IDC_ARROW)
+            wc.hbrBackground = None
+            wc.lpszMenuName = None
+            wc.lpszClassName = _WIN32_CLASS_NAME
+            atom = b["RegisterClassW"](ctypes.byref(wc))
+            # atom==0 with ERROR_CLASS_ALREADY_EXISTS (1410) is fine.
+            if not atom:
+                err = _last_error()
+                if err not in (0, 1410):
+                    raise RuntimeError(f"RegisterClassW failed (winerror={err})")
+            self._class_atom = int(atom) if atom else 0
+            _class_registered = True
 
         ex_style = (
             self._WS_EX_LAYERED
@@ -185,6 +200,7 @@ class Win32OverlayBackend:
         if not hwnd:
             raise RuntimeError(f"CreateWindowExW failed (winerror={_last_error()})")
         self._window = hwnd
+        _hwnd_to_backend[int(hwnd)] = self
 
         b["SetWindowPos"](
             hwnd,
@@ -233,6 +249,10 @@ class Win32OverlayBackend:
         self._dib = dib
         self._bits = bits
         self._old_obj = b["SelectObject"](self._mem_dc, self._dib)
+        # Persistent BGRA view over the DIB so show_frame converts in place.
+        self._bits_view = np.ctypeslib.as_array(
+            (ctypes.c_uint8 * (self._width * self._height * 4)).from_address(bits.value)
+        ).reshape(self._height, self._width, 4)
         self._running = True
         self._register_hotkeys()
 
@@ -262,8 +282,22 @@ class Win32OverlayBackend:
         if self._window is None:
             return
         b = self._require_bindings()
+        modifiers = _MOD_CONTROL | _MOD_ALT | _MOD_NOREPEAT
         for hotkey_id, vk in self._hotkey_id_to_vk.items():
-            b["RegisterHotKey"](self._window, hotkey_id, _MOD_NOREPEAT, vk)
+            if not b["RegisterHotKey"](self._window, hotkey_id, modifiers, vk):
+                LOGGER.warning(
+                    "Could not register global hotkey Ctrl+Alt+%s (vk=0x%02X, action=%s, "
+                    "winerror=%d); it is probably in use by another application",
+                    _vk_label(vk),
+                    vk,
+                    self._hotkey_id_to_action[hotkey_id],
+                    _last_error(),
+                )
+
+    def _dispatch_hotkey(self, hotkey_id: int) -> None:
+        action = self._hotkey_id_to_action.get(hotkey_id)
+        if action is not None and self._hotkey_handler is not None:
+            self._hotkey_handler(action)
 
     def close(self) -> None:
         if self._window is None and self._mem_dc is None and self._dib is None:
@@ -280,7 +314,9 @@ class Win32OverlayBackend:
         if self._window:
             for hotkey_id in self._hotkey_id_to_vk:
                 b.get("UnregisterHotKey", lambda *a: None)(self._window, hotkey_id)
+            _hwnd_to_backend.pop(int(self._window), None)
             b.get("DestroyWindow", lambda *a: None)(self._window)
+        self._bits_view = None
         self._window = None
         self._mem_dc = None
         self._dib = None
@@ -290,7 +326,7 @@ class Win32OverlayBackend:
     def show_frame(self, frame_rgba: np.ndarray) -> None:
         import ctypes
 
-        if not self._running or self._window is None or self._bits is None:
+        if not self._running or self._window is None or self._bits_view is None:
             return
         if frame_rgba.ndim != 3 or frame_rgba.shape[2] != 4:
             raise ValueError("frame_rgba must have shape (H, W, 4)")
@@ -301,22 +337,18 @@ class Win32OverlayBackend:
             x, y = self._x, self._y
             self.close()
             self.open(w, h, title, x, y)
-            if not self._running or self._bits is None:
+            if not self._running or self._bits_view is None:
                 return
 
         b = self._require_bindings()
 
-        # Windows 32-bit DIBs are BGRA; caller supplies RGBA.
-        frame = np.ascontiguousarray(frame_rgba, dtype=np.uint8)
-        bgra = np.empty_like(frame)
-        bgra[:, :, 0] = frame[:, :, 2]
-        bgra[:, :, 1] = frame[:, :, 1]
-        bgra[:, :, 2] = frame[:, :, 0]
-        bgra[:, :, 3] = frame[:, :, 3]
-        nbytes = int(bgra.nbytes)
-        ctypes.memmove(self._bits, bgra.ctypes.data, nbytes)
+        # Windows 32-bit DIBs are BGRA; caller supplies RGBA. Convert straight into the DIB.
+        import cv2
 
-        pt_dst = b["POINT"](0, 0)
+        frame = np.ascontiguousarray(frame_rgba, dtype=np.uint8)
+        cv2.cvtColor(frame, cv2.COLOR_RGBA2BGRA, dst=self._bits_view)
+
+        pt_dst = b["POINT"](self._x, self._y)
         size = b["SIZE"](self._width, self._height)
         pt_src = b["POINT"](0, 0)
         blend = b["BLENDFUNCTION"](
@@ -348,9 +380,32 @@ class Win32OverlayBackend:
         b = self._require_bindings()
         msg = b["MSG"]()
         while b["PeekMessageW"](ctypes.byref(msg), None, 0, 0, self._PM_REMOVE):
-            b["TranslateMessage"](ctypes.byref(msg))
+            b["TranslateMessageW"](ctypes.byref(msg))
             b["DispatchMessageW"](ctypes.byref(msg))
         return True
+
+
+def _vk_label(vk: int) -> str:
+    """Human-readable key name for hotkey diagnostics."""
+    names = {0x1B: "Esc", 0x20: "Space", 0xBB: "=", 0xBD: "-"}
+    return names.get(vk) or chr(vk)
+
+
+def _get_shared_wndproc(b: dict[str, Any]) -> Any:
+    """Create the single WNDPROC for the overlay window class on first use."""
+    global _shared_wndproc
+    if _shared_wndproc is None:
+
+        def _wnd_proc(hwnd: int, msg: int, wparam: int, lparam: int) -> int:
+            if msg == _WM_HOTKEY:
+                backend = _hwnd_to_backend.get(int(hwnd or 0))
+                if backend is not None:
+                    backend._dispatch_hotkey(int(wparam))
+                return 0
+            return int(b["DefWindowProcW"](hwnd, msg, wparam, lparam))
+
+        _shared_wndproc = b["WNDPROC"](_wnd_proc)
+    return _shared_wndproc
 
 
 def _load_win32() -> dict[str, Any]:
@@ -570,6 +625,7 @@ def _load_win32() -> dict[str, Any]:
         "ReleaseDC": user32.ReleaseDC,
         "PeekMessageW": user32.PeekMessageW,
         "TranslateMessage": user32.TranslateMessage,
+        "TranslateMessageW": user32.TranslateMessage,
         "DispatchMessageW": user32.DispatchMessageW,
         "UpdateLayeredWindow": user32.UpdateLayeredWindow,
         "CreateCompatibleDC": gdi32.CreateCompatibleDC,
@@ -585,4 +641,5 @@ def _load_win32() -> dict[str, Any]:
         "BITMAPINFOHEADER": BITMAPINFOHEADER,
         "BITMAPINFO": BITMAPINFO,
         "MSG": MSG,
+        **_WIN32_CONSTANTS,
     }

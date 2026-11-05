@@ -162,6 +162,9 @@ class DisplayManager:
                 self._quit_requested = True
                 return False
             self._notify_style_if_changed()
+        else:
+            # The runner loops on this call while paused; avoid a busy spin.
+            time.sleep(0.03)
 
         return True
 
@@ -180,6 +183,11 @@ class DisplayManager:
         if self._overlay is not None:
             if rendered.ndim == 3 and rendered.shape[2] == 4:
                 self._overlay.show_frame(rendered)
+            elif rendered.ndim == 3 and rendered.shape[2] == 3:
+                # BGR modes have no alpha: clear the overlay instead of freezing the
+                # last outline or covering the screen with an opaque frame.
+                h, w = rendered.shape[:2]
+                self._overlay.show_frame(np.zeros((h, w, 4), dtype=np.uint8))
             return True
 
         if self._display_width <= 0 or self._display_height <= 0:

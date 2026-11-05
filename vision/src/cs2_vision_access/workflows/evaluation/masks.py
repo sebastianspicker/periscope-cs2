@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from cs2_vision_access.workflows.evaluation._io import _write_text_atomic
 from cs2_vision_access.workflows.evaluation.errors import EvaluationError
 from cs2_vision_access.workflows.evaluation.frames import (
     FrameEvaluation,
@@ -209,7 +210,7 @@ def write_metrics_json(payload: Mapping[str, Any], path: str | Path) -> Path:
     if output.parent.is_symlink():
         raise EvaluationError("output parent must not be a symlink")
     text = json.dumps(dict(payload), indent=2, sort_keys=True) + "\n"
-    output.write_text(text, encoding="utf-8")
+    _write_text_atomic(output, text)
     return output
 
 

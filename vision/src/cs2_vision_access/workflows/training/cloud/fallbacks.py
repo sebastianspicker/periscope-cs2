@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import cast
 
 __all__ = [
+    "_HOLDOUT_MIN_IMAGES",
     "_IMAGE_EXTENSIONS",
     "_PROFILES",
     "_VOMBIT_CLASSES",
@@ -27,6 +28,7 @@ __all__ = [
     "_count_labels",
     "_next_batch_on_oom",
     "_resolve_dataset_root",
+    "_split_holdout",
     "sha256_file",
     "write_model_manifest",
 ]
@@ -117,6 +119,9 @@ try:
         ZipExtractionLimits,
     )
     from cs2_vision_access.workflows.training.dataset_zip import (
+        HOLDOUT_MIN_IMAGES as _HOLDOUT_MIN_IMAGES,
+    )
+    from cs2_vision_access.workflows.training.dataset_zip import (
         count_images as _count_images,
     )
     from cs2_vision_access.workflows.training.dataset_zip import (
@@ -131,11 +136,24 @@ try:
     from cs2_vision_access.workflows.training.dataset_zip import (
         safe_extract_zip as _safe_extract_zip_impl,
     )
+    from cs2_vision_access.workflows.training.dataset_zip import (
+        split_holdout as _split_holdout,
+    )
 except ImportError:
     # Inline fallbacks for standalone import / notebook paste of cloud alone.
-    _IMAGE_EXTENSIONS = frozenset({".jpg", ".jpeg", ".png"})
+    _IMAGE_EXTENSIONS = frozenset({".jpg", ".jpeg", ".png", ".bmp", ".webp"})
 
     DEFAULT_ZIP_EXTRACTION_LIMITS = cast("ZipExtractionLimits", object())
+    _HOLDOUT_MIN_IMAGES = 5
+
+    def _split_holdout(image_names: list[str]) -> tuple[list[str], list[str]]:
+        """Sorted names, every 5th into val; val == train below 5 names."""
+        ordered = sorted(image_names)
+        if len(ordered) < _HOLDOUT_MIN_IMAGES:
+            return ordered, list(ordered)
+        val = ordered[4::5]
+        held = set(val)
+        return [n for n in ordered if n not in held], val
 
     def _is_unsafe_zip_member(name: str) -> bool:
         """Return True if a zip member path is absolute or uses path traversal."""
@@ -147,21 +165,69 @@ except ImportError:
         parts = Path(normalised).parts
         return bool(any(part == ".." for part in parts))
 
+    def _is_os_metadata_member(name: str) -> bool:
+        """Mirror of ``dataset_zip.is_os_metadata_member``."""
+        parts = Path(name.replace("\\", "/")).parts
+        return bool(parts) and (parts[0] == "__MACOSX" or parts[-1] == ".DS_Store")
+
+    def _is_allowed_zip_member(name: str) -> bool:
+        """Mirror of ``dataset_zip.is_allowed_zip_member`` (allowlist; no ``*.cache``)."""
+        if name.endswith("/"):
+            return True
+        parts = Path(name.replace("\\", "/")).parts
+        if len(parts) > 1 and parts[0] not in ("images", "labels"):
+            parts = parts[1:]
+        suffix = Path(parts[-1]).suffix.lower()
+        if len(parts) == 1 and parts[0] in {
+            "dataset.yaml",
+            "train.txt",
+            "val.txt",
+            "sessions.json",
+        }:
+            return True
+        if len(parts) >= 2 and parts[0] == "images":
+            return suffix in _IMAGE_EXTENSIONS
+        return len(parts) >= 2 and parts[0] == "labels" and suffix == ".txt"
+
     def _safe_extract_zip_impl(
         zf: zipfile.ZipFile,
         dest: Path,
         limits: ZipExtractionLimits = DEFAULT_ZIP_EXTRACTION_LIMITS,
     ) -> None:
-        """Extract zip members into ``dest``, rejecting traversal / absolute paths."""
-        del limits
+        """Allowlist-validate then extract; same size limits as ``dataset_zip``."""
+        del limits  # fixed defaults below; the vendored copy has no limits class
         dest = dest.resolve()
-        for info in zf.infolist():
+        members = zf.infolist()
+        if len(members) > 10_000:
+            raise ValueError("Dataset zip has too many members (maximum 10000).")
+        total = 0
+        for info in members:
             name = info.filename
+            if _is_os_metadata_member(name):
+                continue
             if _is_unsafe_zip_member(name):
                 raise ValueError(
                     "Refusing to extract unsafe zip member "
                     f"(path traversal or absolute path): {name!r}"
                 )
+            if not _is_allowed_zip_member(name):
+                raise ValueError(
+                    "Refusing to extract unexpected zip member (only images/, labels/*.txt "
+                    f"and dataset.yaml are allowed; *.cache is never accepted): {name!r}"
+                )
+            total += info.file_size
+            if info.file_size > 128 * 1024 * 1024 or total > 512 * 1024 * 1024:
+                raise ValueError(f"Dataset zip exceeds the expanded-size limit at {name!r}")
+            if info.file_size and (
+                info.compress_size == 0 or info.file_size / info.compress_size > 100.0
+            ):
+                raise ValueError(
+                    f"Dataset zip member exceeds the compression-ratio limit: {name!r}"
+                )
+        for info in members:
+            name = info.filename
+            if _is_os_metadata_member(name):
+                continue
             target = (dest / name).resolve()
             try:
                 target.relative_to(dest)

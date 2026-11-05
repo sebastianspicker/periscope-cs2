@@ -6,6 +6,10 @@ namespace strategies {
 namespace {
 
 StrategyResult run(sim::World& w, sim::Narrator& n) {
+  // Lab precondition: platform HV with a hypercall vendor, VBS off; the default arena has none.
+  w.trust.platform_hv_active = true;
+  w.trust.platform_hv_vendor = "LabHV";
+  w.trust.vbs = false;
   const auto red = examples::hypercall_mem_read::apply(w);
   const auto blue = examples::hypercall_mem_read::detect(w);
   StrategyResult result;

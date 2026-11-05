@@ -101,28 +101,28 @@ Flags: 0x01=READ, 0x02=WRITE, 0x04=CHAIN, 0x08=LAST, 0x10=NULL, 0x20=INT_ON_COMP
    - Client.dll VA is typically around 0x180000000
 
 3. Read entity list pointer from client.dll
-   - At RVA 0x254EE60 (dwEntityList): read the pointer
+   - At RVA 0x271EB08 (dwEntityList): read the pointer
    - Translate entity list VA -> PA via page walk
 
 4. Walk 64 entity slots at stride 0x70
    - For each slot: read 8-byte controller address
-   - Read m_hPlayerPawn (+0x914) from controller
+   - Read m_hPlayerPawn (+0x92C) from controller
    - Resolve pawn: (handle & 0x7FFF) * 0x70 + entity_list_base
-   - Read m_iHealth (+0x34C), m_iTeamNum (+0x3E7), m_vOldOrigin (+0x13B8)
-   - Read m_angEyeAngles (+0x3340) for yaw
-   - Read m_vecVelocity (+0x1170)
+   - Read m_iHealth (+0x34C), m_iTeamNum (+0x3E7), m_vOldOrigin (+0x14A4)
+   - Read m_angEyeAngles (+0x3600) for yaw
+   - Read m_vecVelocity (+0x430)
 ```
 
-## CS2 Offsets (Periscope-Validated, XOR-encrypted in fpga_dma.h)
+## CS2 Offsets (November 2026 snapshot, XOR-encrypted in fpga_dma.h)
 
 ```cpp
-dwEntityList            = 0x254EE60    m_iHealth     = 0x34C
-dwLocalPlayerPawn       = 0x23A4238    m_iTeamNum    = 0x3E7 (uint8)
-dwLocalPlayerController = 0x237EBA0    m_vOldOrigin  = 0x13B8
-dwViewAngles            = 0x23B9C78    m_angEyeAngles= 0x3340
-dwCSGOInput             = 0x23B95F0    m_hPlayerPawn = 0x914
-dwPlantedC4             = 0x236E678    kIdentityStride = 0x70
-                                       m_vecVelocity = 0x1170
+dwEntityList            = 0x271EB08    m_iHealth     = 0x34C
+dwLocalPlayerPawn       = 0x25698C8    m_iTeamNum    = 0x3E7 (uint8)
+dwLocalPlayerController = 0x25413F8    m_vOldOrigin  = 0x14A4
+dwViewAngles            = 0x2580008    m_angEyeAngles= 0x3600
+dwCSGOInput             = 0x257F980    m_hPlayerPawn = 0x92C
+dwPlantedC4             = 0x24CFB60    kIdentityStride = 0x70
+                                       m_vecVelocity = 0x430
 ```
 
 ## Build

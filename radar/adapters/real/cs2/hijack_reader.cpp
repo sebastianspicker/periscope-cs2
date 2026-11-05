@@ -50,16 +50,15 @@ bool HijackReader::ensure_handle() noexcept {
             api.CloseHandle(dupe);
         }
 
-        // Re-duplication failed — fall through (find_and_duplicate hits the
-        // cache counter check and returns false without re-enumerating)
+        // Re-duplication failed — fall through to find_and_duplicate,
+        // which decides (via the count-based cooldown) whether a fresh
+        // NtQSI re-enumeration is due.
     }
 
-    // Static re-entrancy guard: prevent repeated NtQSI re-enumeration
-    // after find_and_duplicate() has already failed in a prior call.
-    static bool s_reentering = false;
-    if (s_reentering) return false;
-
-    s_reentering = true;
+    // Clear the re-entrancy guard on every call; any state left by a prior
+    // in-flight enumeration is stale by now. The frequency of re-enums is
+    // governed by the cooldown inside find_and_duplicate().
+    m_reentering = false;
 
     // Clean up old donor state before re-enumeration
     if (m_donorProcHandle) {
@@ -68,11 +67,7 @@ bool HijackReader::ensure_handle() noexcept {
     }
     m_donorHandleValue = 0;
 
-    bool ok = find_and_duplicate();
-    if (ok) {
-        s_reentering = false;
-    }
-    return ok;
+    return find_and_duplicate();
 #else
     return false;
 #endif
@@ -86,15 +81,36 @@ bool HijackReader::setup(uint32_t cs2Pid, void* bootstrapCs2Handle) noexcept {
     m_cs2Pid = cs2Pid;
     m_bootstrapHandle = bootstrapCs2Handle;
     m_ready = false;
+    m_reentering = false;
     m_objectMatched = 0;
     m_cs2Object = nullptr;
-    // Allow a fresh NtQSI on each explicit setup() (demos call once at start).
-    // ensure_handle still avoids re-enum when cache is warm.
-    if (!g_cachedDonor.valid) g_ntqsi40_call_count = 0;
+
+    // Fresh start: drop any stale donor cache and the NtQSI call count so
+    // find_and_duplicate() does a clean enumeration, and clear the re-enum
+    // cooldown left over from a failed previous session (demos call setup
+    // once at start; ensure_handle still avoids re-enum when cache is warm).
+    g_cachedDonor = {};
+    g_ntqsi40_call_count = 0;
+    g_reeenumCooldownTicks = 0;
+
+    // Close handles left over from a previous setup() before re-acquiring.
+    close_cs2_handle();
+#if LR_PLATFORM_WINDOWS
+    if (m_donorProcHandle) {
+        auto& api = real::win::g_Api();
+        if (api.resolved && api.CloseHandle) {
+            api.CloseHandle(reinterpret_cast<HANDLE>(m_donorProcHandle));
+        }
+        m_donorProcHandle = 0;
+    }
+#endif
+    m_donorHandleValue = 0;
+
     if (!find_and_duplicate()) {
         // One more attempt with force re-enum if cache was stale.
         g_ntqsi40_call_count = 0;
         g_cachedDonor = {};
+        g_reeenumCooldownTicks = 0;
         if (!find_and_duplicate()) return false;
     }
     m_rngState = static_cast<uint64_t>(cs2Pid) ^ 0x9E3779B97F4A7C15ULL;

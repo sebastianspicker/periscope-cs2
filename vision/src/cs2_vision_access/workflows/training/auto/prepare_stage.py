@@ -106,14 +106,7 @@ def stage_prepare_data(
     )
     if plan_path:
         plan = load_split_plan(plan_path)
-        if paths.dataset_dir.exists():
-            # assemble_dataset refuses non-empty unless overwrite
-            for child in ("images", "labels", "sessions.json", "dataset.yaml"):
-                target = paths.dataset_dir / child
-                if target.is_dir():
-                    shutil.rmtree(target)
-                elif target.is_file():
-                    target.unlink()
+        # assemble_dataset validates first and swaps atomically; no pre-delete.
         summary = assemble_dataset(
             staging_root,
             paths.dataset_dir,

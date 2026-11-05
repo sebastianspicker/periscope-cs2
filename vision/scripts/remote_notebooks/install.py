@@ -40,7 +40,7 @@ except Exception as e:
     raise SystemExit(
         "run_autonomous_loop still not importable after install/clone.\n"
         f"  last error: {e}\n"
-        "  Set CS2_VISION_REPO=git+https://github.com/<you>/computer-vision-accessibility.git\n"
+        "  Set CS2_VISION_REPO=git+https://github.com/<you>/<repo>.git#subdirectory=vision\n"
         "  or clone the repo into the working directory and re-run this cell."
     ) from e
 
@@ -110,10 +110,16 @@ for root in _CLONE_ROOTS:
 if not _try_import():
     git_url = os.environ.get("CS2_VISION_GIT", "").strip()
     if not git_url:
-        # Placeholder public URL; override with CS2_VISION_GIT if your fork differs
-        git_url = "https://github.com/xai-org/computer-vision-accessibility.git"
+        raise SystemExit(
+            "cs2_vision_access is not importable and no source repo is configured.\n"
+            "  Set CS2_VISION_REPO (pip spec) or CS2_VISION_GIT (clone URL), e.g.\n"
+            "  CS2_VISION_REPO='git+https://github.com/sebastianspicker/periscope-cs2.git"
+            "#subdirectory=vision'\n"
+            "  (this project's repo; the package lives under vision/),\n"
+            "  or clone it and pip install -e vision/."
+        )
     dest = Path("/content/computer-vision-accessibility")
-    if not (dest / "src" / "cs2_vision_access").is_dir():
+    if not dest.is_dir():
         print("Cloning package (depth=1):", git_url, "→", dest)
         try:
             subprocess.check_call(
@@ -122,13 +128,15 @@ if not _try_import():
         except Exception as e:
             raise SystemExit(
                 f"git clone failed ({e}).\n"
-                "Set CS2_VISION_REPO=git+https://github.com/<you>/computer-vision-accessibility.git\n"
+                "Set CS2_VISION_REPO=git+https://github.com/<you>/<repo>.git#subdirectory=vision\n"
                 "or clone repo into /content and re-run"
             ) from e
+    # This monorepo keeps the package under vision/; a standalone fork has it at the root.
+    pkg = dest / "vision" if (dest / "vision" / "src" / "cs2_vision_access").is_dir() else dest
     try:
-        _pip("-e", str(dest))
+        _pip("-e", str(pkg))
     except Exception:
-        sys.path.insert(0, str(dest / "src"))
+        sys.path.insert(0, str(pkg / "src"))
 """
         + _INSTALL_IMPORT_AND_CUDA
     )
@@ -175,9 +183,16 @@ for root in _CLONE_ROOTS:
 if not _try_import():
     git_url = os.environ.get("CS2_VISION_GIT", "").strip()
     if not git_url:
-        git_url = "https://github.com/xai-org/computer-vision-accessibility.git"
+        raise SystemExit(
+            "cs2_vision_access is not importable and no source repo is configured.\n"
+            "  Set CS2_VISION_REPO (pip spec) or CS2_VISION_GIT (clone URL), e.g.\n"
+            "  CS2_VISION_REPO='git+https://github.com/sebastianspicker/periscope-cs2.git"
+            "#subdirectory=vision'\n"
+            "  (this project's repo; the package lives under vision/),\n"
+            "  or clone it and pip install -e vision/."
+        )
     dest = Path("/kaggle/working/computer-vision-accessibility")
-    if not (dest / "src" / "cs2_vision_access").is_dir():
+    if not dest.is_dir():
         print("Cloning package (depth=1):", git_url, "→", dest)
         try:
             subprocess.check_call(
@@ -186,13 +201,15 @@ if not _try_import():
         except Exception as e:
             raise SystemExit(
                 f"git clone failed ({e}).\n"
-                "Set CS2_VISION_REPO=git+https://github.com/<you>/computer-vision-accessibility.git\n"
+                "Set CS2_VISION_REPO=git+https://github.com/<you>/<repo>.git#subdirectory=vision\n"
                 "or clone repo into /kaggle/working and re-run"
             ) from e
+    # This monorepo keeps the package under vision/; a standalone fork has it at the root.
+    pkg = dest / "vision" if (dest / "vision" / "src" / "cs2_vision_access").is_dir() else dest
     try:
-        _pip("-e", str(dest))
+        _pip("-e", str(pkg))
     except Exception:
-        sys.path.insert(0, str(dest / "src"))
+        sys.path.insert(0, str(pkg / "src"))
 """
         + _INSTALL_IMPORT_AND_CUDA
     )

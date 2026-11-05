@@ -108,7 +108,7 @@ Runtime knobs: `LR_MODE=sim|real|hybrid`, `LR_VERBOSE=0|1`.
 LR_MODE=sim ./build/strategy_lab run 01_external_rpm
 ./build/strategy_lab all --quiet
 
-# Portable host tests (needs the local, gitignored tests/ directory)
+# Portable host tests (the required suite is included)
 ctest --test-dir build --output-on-failure
 
 # Per-tier deterministic simulation demos

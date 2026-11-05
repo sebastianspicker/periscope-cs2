@@ -12,26 +12,53 @@ from cs2_vision_access.workflows.dataset.frames import SessionProvenance
 from cs2_vision_access.workflows.dataset.import_layout import ImportBoxDatasetError
 
 
-def prepare_session_directory(session_dir: Path, *, overwrite: bool) -> None:
+def prepare_session_directory(session_dir: Path, *, overwrite: bool) -> Path | None:
+    """Ready ``session_dir``; with ``overwrite`` return the backup dir holding the old content.
+
+    The old session is moved aside, never deleted: the caller drops it with
+    :func:`discard_backup` after the import succeeds or restores it with
+    :func:`restore_backup` on failure.
+    """
     if session_dir.is_symlink():
         raise ImportBoxDatasetError(f"session directory must not be a symlink: {session_dir}")
     if not session_dir.exists():
         session_dir.mkdir(parents=True, exist_ok=True)
-        return
+        return None
     if not session_dir.is_dir():
         raise ImportBoxDatasetError(f"session path exists and is not a directory: {session_dir}")
     occupied = any(session_dir.iterdir())
     if not occupied:
-        return
+        return None
     if not overwrite:
         raise ImportBoxDatasetError(
             f"session directory is not empty: {session_dir}; pass --overwrite to replace"
         )
-    for child in session_dir.iterdir():
-        if child.is_symlink() or child.is_file():
-            child.unlink()
-        elif child.is_dir():
-            shutil.rmtree(child)
+    backup = Path(tempfile.mkdtemp(dir=session_dir.parent, prefix=f".{session_dir.name}.old-"))
+    os.replace(session_dir, backup / session_dir.name)
+    session_dir.mkdir()
+    return backup
+
+
+def _require_own_sibling(path: Path, session_dir: Path) -> None:
+    # Allowlist: only ``session_dir`` itself or a backup dir created beside it.
+    if path.is_symlink() or path.resolve().parent != session_dir.resolve().parent:
+        raise ImportBoxDatasetError(f"refusing to remove unexpected path: {path}")
+    if path != session_dir and not path.name.startswith(f".{session_dir.name}.old-"):
+        raise ImportBoxDatasetError(f"refusing to remove unexpected path: {path}")
+
+
+def discard_backup(backup: Path, session_dir: Path) -> None:
+    _require_own_sibling(backup, session_dir)
+    shutil.rmtree(backup)
+
+
+def restore_backup(backup: Path, session_dir: Path) -> None:
+    """Drop the partial new session and put the previous one back."""
+    _require_own_sibling(backup, session_dir)
+    _require_own_sibling(session_dir, session_dir)
+    shutil.rmtree(session_dir)
+    os.replace(backup / session_dir.name, session_dir)
+    backup.rmdir()
 
 
 def copy_or_link(source: Path, destination: Path, *, link: bool) -> bool:

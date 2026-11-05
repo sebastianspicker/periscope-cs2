@@ -32,8 +32,11 @@ std::vector<uint8_t> do_read(Cs2MemoryReader& reader, uint64_t addr, size_t size
   return r.bytes;
 }
 
-// Recover client.dll base from absolute global addresses (entity_list RVA).
+// Recover the client.dll base. Prefer the explicit base recorded on the
+// offsets; legacy offsets without one are derived from a known embedded
+// RVA (absolute global − embedded RVA).
 std::uint64_t client_base_from_offsets(const Cs2Offsets& offsets) {
+  if (offsets.client_base) return offsets.client_base;
   if (offsets.entity_list > snapshot::globals::dwEntityList) {
     return offsets.entity_list - snapshot::globals::dwEntityList;
   }

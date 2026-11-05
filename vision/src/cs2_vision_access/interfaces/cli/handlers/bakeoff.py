@@ -115,21 +115,6 @@ def _handle_bakeoff(arguments: argparse.Namespace) -> int:
             ):
                 raise BakeoffError("config max_seconds must be a number or null")
             max_seconds = float(raw_ms) if raw_ms is not None else None
-        if confidence is None and "confidence" in payload:
-            raw_c = payload["confidence"]
-            if isinstance(raw_c, bool) or not isinstance(raw_c, (int, float)):
-                raise BakeoffError("config confidence must be a number")
-            confidence = float(raw_c)
-        if image_size is None and "image_size" in payload:
-            raw_is = payload["image_size"]
-            if isinstance(raw_is, bool) or not isinstance(raw_is, int) or raw_is <= 0:
-                raise BakeoffError("config image_size must be a positive integer")
-            image_size = raw_is
-        if device is None and "device" in payload:
-            raw_d = payload["device"]
-            if not isinstance(raw_d, str) or not raw_d.strip():
-                raise BakeoffError("config device must be a non-empty string")
-            device = raw_d.strip()
     else:
         if backends_csv is None:
             raise BakeoffError("bakeoff requires --backends when --config is absent")
@@ -166,4 +151,6 @@ def _handle_bakeoff(arguments: argparse.Namespace) -> int:
         process_video_fn=process_video,
     )
     _print_json(report)
-    return 0
+    runs = report.get("runs")
+    failed = isinstance(runs, list) and any("error" in run for run in runs)
+    return 1 if failed else 0

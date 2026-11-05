@@ -22,6 +22,8 @@ import numpy as np
 
 from cs2_vision_access.adapters.capture.presentation import resolve_present_size
 
+_presenter_wndproc: Any = None
+
 
 class PresenterUnavailable(RuntimeError):
     """No presenter backend for this platform."""
@@ -60,6 +62,9 @@ class Win32FullscreenPresenter:
         self._old_obj: int | None = None
         self._width = 0
         self._height = 0
+        self._x = 0
+        self._y = 0
+        self._bits_view: np.ndarray | None = None
         self._bindings: dict[str, Any] | None = None
 
     def open(self, width: int, height: int, *, x: int = 0, y: int = 0) -> None:
@@ -68,12 +73,23 @@ class Win32FullscreenPresenter:
         self._bindings = b
         self._width = int(width)
         self._height = int(height)
+        self._x = int(x)
+        self._y = int(y)
         hinstance = b["GetModuleHandleW"](None)
-        wc = b["WNDCLASSW"]()
-        wc.lpfnWndProc = b["DefWindowProcW"]
-        wc.lpszClassName = "PeriscopeContourPresenter"
-        wc.hInstance = hinstance
-        b["RegisterClassW"](ctypes.byref(wc))
+        global _presenter_wndproc
+        if _presenter_wndproc is None:
+            # One WNDPROC for the class, alive for the process: the class keeps the
+            # first registration, so a per-instance callback could be freed under it.
+            _presenter_wndproc = b["WNDPROC"](
+                lambda hwnd, msg, wparam, lparam: int(
+                    b["DefWindowProcW"](hwnd, msg, wparam, lparam)
+                )
+            )
+            wc = b["WNDCLASSW"]()
+            wc.lpfnWndProc = _presenter_wndproc
+            wc.lpszClassName = "PeriscopeContourPresenter"
+            wc.hInstance = hinstance
+            b["RegisterClassW"](ctypes.byref(wc))
 
         # WS_POPUP: no chrome at all. SW_SHOWNOACTIVATE keeps the compositor
         # from stealing focus when it comes up alongside the game.
@@ -115,6 +131,11 @@ class Win32FullscreenPresenter:
         )
         self._bits = bits.value
         self._old_obj = b["SelectObject"](self._mem_dc, self._dib)
+        if self._bits:
+            # Persistent BGRA view over the DIB so show_frame converts in place.
+            self._bits_view = np.ctypeslib.as_array(
+                (ctypes.c_uint8 * (self._width * self._height * 4)).from_address(self._bits)
+            ).reshape(self._height, self._width, 4)
 
         b["SetWindowPos"](
             hwnd,
@@ -144,23 +165,19 @@ class Win32FullscreenPresenter:
         that does not match the presenter resolution is a configuration error,
         not something to scale over.
         """
-        if self._window is None or self._bits is None:
+        b = self._bindings
+        if self._window is None or self._bits_view is None or b is None:
             return
         h, w = frame_rgba.shape[:2]
         resolve_present_size(w, h, self._width, self._height)
-        b = _require_win32()
         if frame_rgba.ndim != 3 or frame_rgba.shape[2] != 4:
             raise ValueError("presenter expects RGBA frames of shape (H, W, 4)")
-        frame = np.ascontiguousarray(frame_rgba, dtype=np.uint8)
-        frame = np.ascontiguousarray(frame_rgba, dtype=np.uint8)
-        bgra = np.empty_like(frame)
-        bgra[:, :, 0] = frame[:, :, 2]
-        bgra[:, :, 1] = frame[:, :, 1]
-        bgra[:, :, 2] = frame[:, :, 0]
-        bgra[:, :, 3] = frame[:, :, 3]
-        ctypes.memmove(self._bits, bgra.ctypes.data, int(bgra.nbytes))
+        import cv2
 
-        pt_dst = b["POINT"](0, 0)
+        frame = np.ascontiguousarray(frame_rgba, dtype=np.uint8)
+        cv2.cvtColor(frame, cv2.COLOR_RGBA2BGRA, dst=self._bits_view)
+
+        pt_dst = b["POINT"](self._x, self._y)
         size = b["SIZE"](self._width, self._height)
         pt_src = b["POINT"](0, 0)
         blend = b["BLENDFUNCTION"](0, 0, 255, 1)  # AC_SRC_OVER, alpha
@@ -190,12 +207,15 @@ class Win32FullscreenPresenter:
 
     def close(self) -> None:
         """Release the window and its GDI objects."""
-        b: dict[str, Any] | None
-        try:
-            b = _require_win32()
-        except PresenterUnavailable:
-            b = self._bindings
-        if self._window is not None and b is not None:
+        b = self._bindings or {}
+        self._bits_view = None
+        if self._mem_dc and self._old_obj:
+            b.get("SelectObject", lambda *a: None)(self._mem_dc, self._old_obj)
+        if self._dib:
+            b.get("DeleteObject", lambda *a: None)(self._dib)
+        if self._mem_dc:
+            b.get("DeleteDC", lambda *a: None)(self._mem_dc)
+        if self._window is not None:
             b.get("DestroyWindow", lambda *a: None)(self._window)
         self._window = None
         self._mem_dc = None

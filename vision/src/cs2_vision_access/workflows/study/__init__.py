@@ -32,6 +32,7 @@ from cs2_vision_access.workflows.study.ratings import (
     aggregate_ratings,
     load_ratings_jsonl,
     parse_rating,
+    presentation_order,
     write_aggregate_json,
 )
 from cs2_vision_access.workflows.study.render import (
@@ -59,6 +60,7 @@ __all__ = [
     "StudyRenderJob",
     "aggregate_ratings",
     "load_ratings_jsonl",
+    "presentation_order",
     "load_study_package",
     "parse_rating",
     "parse_study_package",

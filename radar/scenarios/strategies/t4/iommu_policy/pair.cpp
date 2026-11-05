@@ -33,6 +33,4 @@ StrategyEntry entry_56_iommu_policy() {
           run};
 }
 
-StrategyEntry entry_61_iommu_policy() { return entry_56_iommu_policy(); }
-
 }  // namespace strategies

@@ -1,4 +1,4 @@
-# Stealth posture (October 2026)
+# Stealth posture (November 2026)
 
 How `live_radar` decides what to read and what to show. The posture is the
 product decision that separates a "radar" from a "radar that gets noticed".
@@ -104,14 +104,14 @@ relaxation cadence.
 Offsets come from a dump, not from pattern scanning at runtime, and the dump is
 pinned by date:
 
-- `data/cs2/*.json`, `adapters/real/cs2/offsets_snapshot.hpp` — generated `2026-10-27`
+- `data/cs2/*.json`, `adapters/real/cs2/offsets_snapshot.hpp` — generated `2026-11-05`
 - `src/simulation/cs2/offsets.hpp` and `schema.cpp` — mirrored to the same dump
 
-Current pin: dump `2026-10-27T19:42:52Z`, game build 14192.
+Current pin: dump `2026-11-05T19:12:21Z` (November 2026 snapshot).
 
 Refresh with `python3 radar/scripts/update_cs2_signatures.py`, then rebuild. The
-generated header records the dump timestamp and build number; `--check` reports
-drift without writing.
+generated header records the dump timestamp; `--check` reports drift without
+writing.
 
 ## What the posture does **not** hide
 

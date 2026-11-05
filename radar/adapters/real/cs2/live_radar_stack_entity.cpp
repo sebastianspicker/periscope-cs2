@@ -87,9 +87,22 @@ bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t en
   entity.life_state = life;
   entity.is_alive = health > 0 && life == 0;
   entity.is_local_player = (local_pawn != 0 && pawn == local_pawn);
+  // Scene node first: m_vecAbsOrigin is the current tick's position, while
+  // m_vOldOrigin (offsets.entity_origin) lags a tick. One extra read for the
+  // node pointer buys a one-tick accuracy win; fall back on node miss.
+  std::uint64_t scene = 0;
+  rd_t(fn, pawn + snapshot::fields::m_pGameSceneNode, scene);
+
+  auto read_origin = [&](ac::Vec3& out) -> bool {
+    if (scene) {
+      if (rd_t(fn, scene + snapshot::fields::m_vecAbsOrigin, out)) return true;
+    }
+    return rd_t(fn, pawn + offsets.entity_origin, out);
+  };
+
   if (!entity.is_alive && !entity.is_local_player) {
     // Still need origin for dead teammate spectator heuristics — cheap path
-    if (!rd_t(fn, pawn + offsets.entity_origin, origin)) return false;
+    if (!read_origin(origin)) return false;
     entity.origin = origin;
     // Observer services only
     std::uint64_t obs = 0;
@@ -103,7 +116,7 @@ bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t en
     }
     return true;
   }
-  if (!rd_t(fn, pawn + offsets.entity_origin, origin)) return false;
+  if (!read_origin(origin)) return false;
   entity.origin = origin;
 
   if (offsets.entity_viewangles) {
@@ -114,12 +127,10 @@ bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t en
     std::int32_t armor = 0;
     if (rd_t(fn, pawn + snapshot::fields::m_ArmorValue, armor)) entity.armor = armor;
   }
-  {
-    std::uint64_t scene = 0;
-    if (rd_t(fn, pawn + snapshot::fields::m_pGameSceneNode, scene) && scene) {
-      std::uint8_t dorm = 0;
-      if (rd_t(fn, scene + snapshot::fields::m_bDormant, dorm)) entity.dormant = dorm != 0;
-    }
+  // Dormant (reuses the scene-node read above).
+  if (scene) {
+    std::uint8_t dorm = 0;
+    if (rd_t(fn, scene + snapshot::fields::m_bDormant, dorm)) entity.dormant = dorm != 0;
   }
   {
     std::uint8_t spotted = 1;
@@ -221,7 +232,8 @@ Result<Cs2PlayerEntity> read_local_player_fn(RemoteReadFn read,
   if (!rd_t(read, offsets.local_player, local) || !local)
     return {{}, "local unavailable"};
   Cs2PlayerEntity entity{};
-  entity.pawn_handle = static_cast<std::uint32_t>(local);
+  // *local is the pawn's object pointer, not its 15-bit entity handle.
+  entity.pawn_handle = 0;
   entity.is_local_player = true;
   std::uint32_t team = 0;
   std::int32_t health = 0;
@@ -230,7 +242,14 @@ Result<Cs2PlayerEntity> read_local_player_fn(RemoteReadFn read,
   if (!rd_t(read, local + offsets.entity_team, team)) return {{}, "team"};
   if (!rd_t(read, local + offsets.entity_health, health)) return {{}, "health"};
   if (!rd_t(read, local + offsets.entity_lifestate, life)) return {{}, "life"};
-  if (!rd_t(read, local + offsets.entity_origin, origin)) return {{}, "origin"};
+  // Prefer the scene node's m_vecAbsOrigin (current tick); m_vOldOrigin lags.
+  std::uint64_t scene = 0;
+  if (rd_t(read, local + snapshot::fields::m_pGameSceneNode, scene) && scene &&
+      rd_t(read, scene + snapshot::fields::m_vecAbsOrigin, origin)) {
+    // current-tick origin
+  } else if (!rd_t(read, local + offsets.entity_origin, origin)) {
+    return {{}, "origin"};
+  }
   entity.team = team & 0xFFu;
   entity.health = health;
   entity.life_state = life;

@@ -225,16 +225,22 @@ class SuppressOnlyTemporalPolicy:
         masks: Sequence[InstanceMask],
         *,
         frame_index: int,
+        sequence: int | None = None,
     ) -> tuple[tuple[InstanceMask, ...], TemporalDiagnostics]:
         """Return masks stable for ``min_consecutive_frames``, plus held masks.
 
         Held masks (carried-forward stable geometry) are appended after the
         current frame's passed masks and never alter passed-mask identity. When
         disabled, returns the input masks unchanged (identity).
+
+        ``sequence`` is the contiguity counter (defaults to ``frame_index``); the
+        live runner passes one tick per inferred frame so capture-side frame
+        skips do not reset history.
         """
         if isinstance(frame_index, bool) or not isinstance(frame_index, int) or frame_index < 0:
             raise ValueError("frame_index must be a non-negative integer")
 
+        seq = frame_index if sequence is None else sequence
         current_masks = tuple(masks)
         if not self._config.enabled:
             return current_masks, TemporalDiagnostics(
@@ -243,7 +249,7 @@ class SuppressOnlyTemporalPolicy:
             )
 
         hold_enabled = self._config.hold_last_mask and self._config.max_dropout_frames > 0
-        contiguous = self._previous_frame is not None and frame_index == self._previous_frame + 1
+        contiguous = self._previous_frame is not None and seq == self._previous_frame + 1
         previous = self._previous if contiguous else ()
 
         geometry: list[tuple[int, tuple[float, float], tuple[float, float, float, float]]] = []
@@ -310,7 +316,7 @@ class SuppressOnlyTemporalPolicy:
                     )
 
         self._previous = tuple(next_previous)
-        self._previous_frame = frame_index
+        self._previous_frame = seq
         returned = passed + held
         return tuple(returned), TemporalDiagnostics(
             suppressed_count=len(current_masks) - len(passed),

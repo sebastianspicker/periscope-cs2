@@ -105,10 +105,32 @@ Result<Cs2PlayerEntity> read_player_at(Cs2MemoryReader& reader,
   if (!life_state) return {{}, life_state.error_msg};
   entity.life_state = *life_state;
 
-  const auto origin = read_value<ac::Vec3>(reader, *pawn + offsets.entity_origin,
-                                           OBF("m_vOldOrigin"));
-  if (!origin) return {{}, origin.error_msg};
-  entity.origin = *origin;
+  // Scene node first: m_vecAbsOrigin is the current tick's position, while
+  // m_vOldOrigin lags a tick. Fall back to m_vOldOrigin when the node is
+  // unavailable (never both reads unless the node read fails).
+  std::uint64_t scene = 0;
+  {
+    const auto sc = read_value<std::uint64_t>(
+        reader, *pawn + snapshot::fields::m_pGameSceneNode, OBF("m_pGameSceneNode"));
+    if (sc) scene = *sc;
+  }
+  ac::Vec3 origin{};
+  bool have_origin = false;
+  if (scene) {
+    const auto abs = read_value<ac::Vec3>(
+        reader, scene + snapshot::fields::m_vecAbsOrigin, OBF("m_vecAbsOrigin"));
+    if (abs) {
+      origin = *abs;
+      have_origin = true;
+    }
+  }
+  if (!have_origin) {
+    const auto old_origin = read_value<ac::Vec3>(reader, *pawn + offsets.entity_origin,
+                                                 OBF("m_vOldOrigin"));
+    if (!old_origin) return {{}, old_origin.error_msg};
+    origin = *old_origin;
+  }
+  entity.origin = origin;
 
   entity.is_alive = entity.health > 0 && entity.life_state == 0;
   entity.is_local_player = (local_pawn != 0 && *pawn == local_pawn);
@@ -126,15 +148,11 @@ Result<Cs2PlayerEntity> read_player_at(Cs2MemoryReader& reader,
     if (armor) entity.armor = *armor;
   }
 
-  // Dormant: CGameSceneNode::m_bDormant via m_pGameSceneNode.
-  {
-    const auto scene = read_value<std::uint64_t>(
-        reader, *pawn + snapshot::fields::m_pGameSceneNode, OBF("m_pGameSceneNode"));
-    if (scene && *scene != 0) {
-      const auto dorm = read_value<std::uint8_t>(
-          reader, *scene + snapshot::fields::m_bDormant, OBF("m_bDormant"));
-      if (dorm) entity.dormant = (*dorm) != 0;
-    }
+  // Dormant: CGameSceneNode::m_bDormant (reuses the node read above).
+  if (scene) {
+    const auto dorm = read_value<std::uint8_t>(
+        reader, scene + snapshot::fields::m_bDormant, OBF("m_bDormant"));
+    if (dorm) entity.dormant = (*dorm) != 0;
   }
 
   // Spotted: EntitySpottedState_t at m_entitySpottedState + m_bSpotted.
@@ -244,7 +262,10 @@ Result<Cs2PlayerEntity> read_local_player(Cs2MemoryReader& reader,
   }
 
   Cs2PlayerEntity entity;
-  entity.pawn_handle = static_cast<std::uint32_t>(*local);
+  // *local is the pawn's object pointer, not its entity handle (a 15-bit
+  // identity index). The real handle only comes from a reverse
+  // controller-list walk, so leave it 0 rather than masquerading a pointer.
+  entity.pawn_handle = 0;
   entity.is_local_player = true;
 
   const auto team = read_value<std::uint32_t>(reader, *local + offsets.entity_team, OBF("m_iTeamNum"));

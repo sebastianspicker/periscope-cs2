@@ -183,16 +183,23 @@ def match_instances(
     if not 0.0 <= iou_threshold <= 1.0:
         raise EvaluationError("iou_threshold must be in [0, 1]")
     candidates: list[tuple[float, int, int]] = []
+    # Rasterize each polygon at most once (lazily, so unpaired ones cost nothing).
+    gt_masks: dict[int, np.ndarray] = {}
+    pred_masks: dict[int, np.ndarray] = {}
+
+    def _mask(cache: dict[int, np.ndarray], index: int, instance: PolygonInstance) -> np.ndarray:
+        if index not in cache:
+            cache[index] = rasterize_polygon(instance.polygon, height=height, width=width)
+        return cache[index]
+
     for gt_index, gt in enumerate(ground_truth):
         for pred_index, pred in enumerate(predictions):
             if gt.class_id != pred.class_id:
                 continue
-            iou = mask_iou(
-                gt.polygon,
-                pred.polygon,
-                height=height,
-                width=width,
-            )
+            gt_mask = _mask(gt_masks, gt_index, gt)
+            pred_mask = _mask(pred_masks, pred_index, pred)
+            union = int(np.logical_or(gt_mask, pred_mask).sum())
+            iou = float(np.logical_and(gt_mask, pred_mask).sum()) / float(union) if union else 0.0
             if iou > 0.0 and iou >= iou_threshold:
                 candidates.append((iou, gt_index, pred_index))
     candidates.sort(key=lambda item: (-item[0], item[1], item[2]))

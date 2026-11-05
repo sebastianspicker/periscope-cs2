@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections import deque
 from dataclasses import dataclass, field
 
 # Re-export the neutral shared linear-interpolation percentile.
@@ -12,8 +13,8 @@ __all__ = ["_Diagnostics", "_percentile"]
 
 @dataclass
 class _Diagnostics:
-    inference_ms: list[float] = field(default_factory=list)
-    pipeline_ms: list[float] = field(default_factory=list)
+    inference_ms: deque[float] = field(default_factory=lambda: deque(maxlen=10_000))
+    pipeline_ms: deque[float] = field(default_factory=lambda: deque(maxlen=10_000))
     _last_print: float = 0.0
     _accumulated_pause: float = 0.0
 
@@ -30,11 +31,8 @@ class _Diagnostics:
         elapsed = now - started - self._accumulated_pause
         if now - self._last_print >= interval:
             effective_fps = frame_index / elapsed if elapsed > 0 else 0.0
-            avg_inference = (
-                sum(self.inference_ms[-100:]) / len(self.inference_ms[-100:])
-                if self.inference_ms
-                else 0.0
-            )
+            recent = list(self.inference_ms)[-100:]
+            avg_inference = sum(recent) / len(recent) if recent else 0.0
             print(
                 f"[live] frame={frame_index} fps={effective_fps:.1f} "
                 f"infer={avg_inference:.1f}ms behind={frames_behind} "

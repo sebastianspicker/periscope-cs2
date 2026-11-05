@@ -1,9 +1,8 @@
-"""Non-Maximum Suppression — GPU-accelerated with automatic CPU fallback.
+"""Non-Maximum Suppression — greedy NumPy implementation.
 
-The CUDA kernel sorts boxes by confidence score, then runs a parallel
-suppression check: each thread handles one box and checks IoU against
-all higher-scoring boxes.  This is significantly faster than the CPU
-sequential loop when there are many detections (50+ boxes per frame).
+Greedy NMS is sequential (each kept box suppresses later ones), so it runs on
+the host.  CuPy inputs are copied to the host once; the input is already
+confidence-filtered, so the arrays are small.
 
 Usage::
 
@@ -17,9 +16,6 @@ from __future__ import annotations
 
 import numpy as np
 
-from cs2_vision_access.adapters.models.runtime.cuda.kernels import NMS_KERNEL_CU
-from cs2_vision_access.adapters.models.runtime.cuda.utils import cuda_available
-
 # ---------------------------------------------------------------------------
 # CPU fallback
 # ---------------------------------------------------------------------------
@@ -32,8 +28,8 @@ def _nms_cpu(
 ) -> list[int]:
     """Non-maximum suppression on CPU (NumPy).
 
-    This is the reference implementation — identical logic to the CUDA
-    kernel, but runs on CPU.
+    Greedy: boxes are visited by descending score and each kept box
+    suppresses the later boxes that overlap it above ``iou_threshold``.
     """
     if len(boxes) == 0:
         return []
@@ -66,48 +62,6 @@ def _nms_cpu(
 
 
 # ---------------------------------------------------------------------------
-# GPU (CuPy RawKernel)
-# ---------------------------------------------------------------------------
-
-_NMS_GPU_BLOCK = 256
-
-
-def _nms_gpu(
-    boxes: np.ndarray,
-    scores: np.ndarray,
-    iou_threshold: float = 0.5,
-) -> list[int]:
-    """Non-maximum suppression on GPU via a CUDA RawKernel.
-
-    The kernel operates on score-sorted boxes for efficient suppression.
-    """
-    import cupy as cp
-
-    N = len(boxes)
-    if N == 0:
-        return []
-
-    # Sort by score descending
-    order = cp.argsort(-cp.asarray(scores))
-    sorted_boxes = cp.asarray(boxes, dtype=cp.float32)[order]
-    suppressed = cp.zeros(N, dtype=cp.bool_)
-
-    # Launch kernel
-    blocks = (N + _NMS_GPU_BLOCK - 1) // _NMS_GPU_BLOCK
-    kernel = cp.RawKernel(NMS_KERNEL_CU, "nms_kernel")
-    kernel(
-        (blocks,),
-        (_NMS_GPU_BLOCK,),
-        (sorted_boxes, cp.arange(N, dtype=cp.int32), suppressed, N, cp.float32(iou_threshold)),
-    )
-
-    # Gather kept indices (unsorted back to original order via order array)
-    suppressed_cpu = cp.asnumpy(suppressed)
-    keep_sorted = [int(order[i]) for i in range(N) if not suppressed_cpu[i]]
-    return keep_sorted
-
-
-# ---------------------------------------------------------------------------
 # Public API — auto-dispatch
 # ---------------------------------------------------------------------------
 
@@ -119,8 +73,7 @@ def nms(
 ) -> list[int]:
     """Run Non-Maximum Suppression on bounding boxes.
 
-    Automatically dispatches to the CUDA kernel when a GPU is available
-    and falls back to CPU NumPy otherwise.
+    CuPy inputs are copied to the host once before suppression.
 
     Args:
         boxes: ``[N, 4]`` array of ``(x1, y1, x2, y2)`` boxes.
@@ -130,12 +83,11 @@ def nms(
     Returns:
         List of kept box indices (sorted by descending score).
     """
-    if cuda_available():
-        try:
-            return _nms_gpu(boxes, scores, iou_threshold)
-        except (ImportError, RuntimeError):
-            # A missing CUDA backend or failed kernel falls through to NumPy.
-            pass
+    if hasattr(boxes, "__cuda_array_interface__"):
+        import cupy as cp
+
+        boxes = cp.asnumpy(boxes)
+        scores = cp.asnumpy(scores)
     return _nms_cpu(boxes, scores, iou_threshold)
 
 

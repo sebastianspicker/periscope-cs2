@@ -1,4 +1,4 @@
-"""Direct GPU letterbox preprocess into a pre-allocated input buffer."""
+"""Direct GPU stretch preprocess into a pre-allocated input buffer."""
 
 from __future__ import annotations
 
@@ -18,20 +18,17 @@ def _preprocess_gpu_direct(
     target_size: int,
     pool: GpuMemoryPool | None,
 ) -> None:
-    """Upload a BGR frame directly into the GPU input buffer with letterbox.
+    """Upload a BGR frame directly into the GPU input buffer.
 
-    The letterbox kernel always writes ``float32``; when the bound input
+    Matches ``preprocess_vombit`` (the CPU contract): stretch to
+    ``target_size`` square, BGR order, 0-255 values, no padding.  The
+    stretch kernel always writes ``float32``; when the bound input
     buffer is ``float16`` (an FP16 model), the kernel result is first staged
     in a temporary float32 buffer and then down-cast on device.
     """
     import cupy as cp
 
     h, w = frame_bgr.shape[:2]
-    scale = target_size / max(h, w)
-    new_w = int(round(w * scale))
-    new_h = int(round(h * scale))
-    pad_left = (target_size - new_w) // 2
-    pad_top = (target_size - new_h) // 2
 
     # Upload frame to GPU — pinned-memory fast path with plain fallback.
     src_gpu: Any = None
@@ -50,10 +47,10 @@ def _preprocess_gpu_direct(
     if src_gpu is None:
         src_gpu = cp.asarray(frame_bgr)
 
-    # Run letterbox kernel into a float32 destination (kernel writes float32).
-    from cs2_vision_access.adapters.models.runtime.cuda.kernels import LETTERBOX_KERNEL_CU
+    # Run stretch kernel into a float32 destination (kernel writes float32).
+    from cs2_vision_access.adapters.models.runtime.cuda.kernels import STRETCH_KERNEL_CU
 
-    kernel = cp.RawKernel(LETTERBOX_KERNEL_CU, "letterbox_kernel")
+    kernel = cp.RawKernel(STRETCH_KERNEL_CU, "stretch_kernel")
     threads = (16, 16, 1)
     blocks = (
         (target_size + 15) // 16,
@@ -72,14 +69,10 @@ def _preprocess_gpu_direct(
             src_gpu,
             w,
             h,
-            frame_bgr.strides[0],
+            src_gpu.strides[0],
             tmp if tmp is not None else dst_buffer,
             target_size,
             target_size,
-            cp.float32(w / new_w),
-            cp.float32(h / new_h),
-            pad_left,
-            pad_top,
         ),
     )
 

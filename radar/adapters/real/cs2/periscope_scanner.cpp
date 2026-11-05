@@ -106,13 +106,11 @@ const std::vector<PatternEntry>& get_patterns() noexcept {
     return patterns;
 }
 
-uint64_t resolve_rip(uint64_t matchAddr, int ripOffset,
+uint64_t resolve_rip(uint64_t matchAddr, int32_t displacement,
                      int instructionLen) noexcept {
-    // Read signed 32-bit displacement at matchAddr + ripOffset
-    int32_t displacement = 0;
-    std::memcpy(&displacement,
-                reinterpret_cast<const void*>(matchAddr + ripOffset),
-                sizeof(displacement));
+    // matchAddr is in the TARGET process: the signed 32-bit displacement must
+    // be passed in (read from the scan chunk), never read from this address
+    // space. RIP = instruction end = matchAddr + instructionLen.
     return matchAddr + instructionLen + static_cast<int64_t>(displacement);
 }
 
@@ -129,28 +127,34 @@ std::vector<ScanResult> scan_all_patterns(
         results.push_back(result);
     }
 
-    // Chunked scan: 64KB chunks with pattern size overlap
+    // Chunked scan: read kChunkSize + maxPatternLen so a pattern straddling
+    // a chunk boundary stays fully visible, then advance by kChunkSize.
     constexpr size_t kChunkSize = 0x10000;
+    size_t maxPatternLen = 0;
+    for (const auto& p : patterns) {
+        if (p.bytes.size() > maxPatternLen) maxPatternLen = p.bytes.size();
+    }
 
     for (size_t pi = 0; pi < patterns.size(); ++pi) {
         const auto& pattern = patterns[pi];
         size_t patternLen = pattern.bytes.size();
 
-        if (patternLen == 0 || patternLen > kChunkSize) continue;
+        if (patternLen == 0 || patternLen > kChunkSize + maxPatternLen) continue;
 
-        std::vector<uint8_t> chunk(kChunkSize);
+        std::vector<uint8_t> chunk(kChunkSize + maxPatternLen);
 
         for (uint64_t offset = 0; offset < moduleSize; offset += kChunkSize) {
-            size_t readSize = kChunkSize;
+            size_t readSize = kChunkSize + maxPatternLen;
             if (offset + readSize > moduleSize) {
                 readSize = moduleSize - offset;
             }
+            if (readSize < patternLen) break;  // no full match fits in the tail
 
             if (!readFn(moduleBase + offset, chunk.data(), readSize)) {
                 continue;
             }
 
-            size_t scanEnd = (readSize > patternLen) ? readSize - patternLen : 0;
+            const size_t scanEnd = readSize - patternLen;
             for (size_t i = 0; i <= scanEnd; ++i) {
                 bool match = true;
                 for (size_t j = 0; j < patternLen; ++j) {
@@ -161,27 +165,25 @@ std::vector<ScanResult> scan_all_patterns(
                     }
                 }
 
-                if (match) {
-                    uint64_t matchAddr = moduleBase + offset + i;
+                if (!match) continue;
+                uint64_t matchAddr = moduleBase + offset + i;
 
-                    // Resolve RIP-relative if applicable
-                    if (pattern.ripOffset >= 0 && pattern.instructionLen > 0) {
-                        // We need to read the displacement from the remote memory
-                        // Since we already have the chunk data with the offset,
-                        // we can compute it directly
-                        int32_t displacement = 0;
-                        std::memcpy(&displacement,
-                                    chunk.data() + i + pattern.ripOffset,
-                                    sizeof(displacement));
-                        matchAddr = matchAddr + pattern.instructionLen +
-                                    static_cast<int64_t>(displacement);
-                    }
-
-                    results[pi].address = matchAddr;
-                    results[pi].found = true;
-                    break;
+                // Resolve RIP-relative if applicable. The displacement comes
+                // from the chunk (target memory already in local hands).
+                if (pattern.ripOffset >= 0 && pattern.instructionLen > 0) {
+                    int32_t displacement = 0;
+                    std::memcpy(&displacement,
+                                chunk.data() + i + pattern.ripOffset,
+                                sizeof(displacement));
+                    matchAddr = resolve_rip(matchAddr, displacement,
+                                            pattern.instructionLen);
                 }
+
+                results[pi].address = matchAddr;
+                results[pi].found = true;
+                break;  // first hit wins; stop scanning this pattern
             }
+            if (results[pi].found) break;  // done with this pattern
         }
     }
 

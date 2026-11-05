@@ -265,26 +265,12 @@ def _run_edgesam_teacher(
             )
             if plan_path and config.mode == "session_split":
                 try:
-                    import shutil
-
                     from cs2_vision_access.workflows.dataset.split import (
                         assemble_dataset,
                         load_split_plan,
                     )
 
                     plan = load_split_plan(plan_path)
-                    if paths.dataset_dir.exists():
-                        for child in (
-                            "images",
-                            "labels",
-                            "sessions.json",
-                            "dataset.yaml",
-                        ):
-                            target = paths.dataset_dir / child
-                            if target.is_dir():
-                                shutil.rmtree(target)
-                            elif target.is_file():
-                                target.unlink()
                     summary = assemble_dataset(
                         staging_root,
                         paths.dataset_dir,

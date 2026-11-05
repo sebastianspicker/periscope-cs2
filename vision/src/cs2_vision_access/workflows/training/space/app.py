@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
-import os  # noqa: F401  # retained for direct Space security tests
+import os
 import shutil
 import sys
 import tempfile

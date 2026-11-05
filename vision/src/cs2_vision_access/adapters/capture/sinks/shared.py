@@ -5,12 +5,13 @@ tool) can live in a second process. A named shared-memory ring carries the
 rendered frames across without touching the filesystem, so there is nothing to
 poll, nothing to lock, and nothing left behind when the producer dies.
 
-Wire format (little-endian, naturally aligned), HEADER_FORMAT:
+Wire format (little-endian, packed — no padding), HEADER_FORMAT:
 
     magic u32 "CV1S", version u32, width u32, height u32, stride u32,
     channels u32, fps_hint u32, frame_index u64, timestamp_ns u64, state u32
 
-That is 7 u32, then 2 u64, then 1 u32 — 48 bytes total. It is followed by
+That is 7 u32, then 2 u64, then 1 u32 — 48 bytes total (frame_index at
+offset 28, timestamp_ns at 36, state at 44). It is followed by
 ``slots`` frames of ``stride * height`` bytes each. The producer never waits:
 ``send`` writes the slot frame_index would land on and flips the header to
 ready. Consumers compare the frame index before and after a copy to detect a
@@ -29,7 +30,8 @@ import numpy as np
 
 HEADER_FORMAT = "<7I2QI"  # magic, ver, w, h, stride, ch, fps | idx, ts | state
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
-assert HEADER_SIZE == 48, "header must stay naturally aligned"
+INDEX_OFFSET = struct.calcsize("<7I")  # packed: frame_index sits at 28, not 32
+assert HEADER_SIZE == 48, "header layout changed (packed: idx 28, ts 36, state 44)"
 MAGIC = 0x4356_3153  # "CV1S"
 VERSION = 1
 
@@ -191,16 +193,16 @@ def read_shared_frame(shm: Any, width: int, height: int, slots: int) -> np.ndarr
     stride = width * 4
     frame_bytes = stride * height
     while True:
-        before = struct.unpack_from("<Q", shm.buf, 32)[0]
+        before = struct.unpack_from("<Q", shm.buf, INDEX_OFFSET)[0]
         if before == 0:
             raise RuntimeError("ring has no published frames yet")
-        slot = (int(before) - 1) % slots
+        slot = int(before) % slots
         base = HEADER_SIZE + slot * frame_bytes
         frame = (
             np.frombuffer(shm.buf, dtype=np.uint8, count=frame_bytes, offset=base)
             .reshape(height, width, 4)
             .copy()
         )
-        after = struct.unpack_from("<Q", shm.buf, 32)[0]
+        after = struct.unpack_from("<Q", shm.buf, INDEX_OFFSET)[0]
         if after == before:
             return frame

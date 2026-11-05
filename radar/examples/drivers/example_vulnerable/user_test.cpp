@@ -43,7 +43,7 @@
 #endif
 
 // ═══════════════════════════════════════════════════════════════════════
-// CS2 offsets (Periscope-validated lab defaults; XOR-obfuscated at rest)
+// CS2 offsets (November 2026 a2x/cs2-dumper snapshot; XOR-obfuscated at rest)
 // ═══════════════════════════════════════════════════════════════════════
 
 struct Cs2Offsets {
@@ -64,19 +64,21 @@ struct Cs2Offsets {
 
 static constexpr uint64_t kOffsetKey = 0xA5A5A5A5A5A5A5A5ULL;
 
+// Globals are client.dll RVAs; window_width is an engine2.dll RVA.
+// m_iWeaponID stays out of this struct (not in the Nov 2026 schema dump).
 static Cs2Offsets g_offsets = {
-    0x254EE60 ^ kOffsetKey,
-    0x23A4238 ^ kOffsetKey,
-    0x237EBA0 ^ kOffsetKey,
-    0x23B9C78 ^ kOffsetKey,
-    0x23B95F0 ^ kOffsetKey,
-    0x236E678 ^ kOffsetKey,
-    0x9118D0  ^ kOffsetKey,
+    0x271EB08 ^ kOffsetKey,
+    0x25698C8 ^ kOffsetKey,
+    0x25413F8 ^ kOffsetKey,
+    0x2580008 ^ kOffsetKey,
+    0x257F980 ^ kOffsetKey,
+    0x24CFB60 ^ kOffsetKey,
+    0x9BCFE8  ^ kOffsetKey,
     0x34C     ^ kOffsetKey,
     0x3E7     ^ kOffsetKey,
-    0x13B8    ^ kOffsetKey,
-    0x3340    ^ kOffsetKey,
-    0x914     ^ kOffsetKey,
+    0x14A4    ^ kOffsetKey,
+    0x3600    ^ kOffsetKey,
+    0x92C     ^ kOffsetKey,
     0x70      ^ kOffsetKey,
 };
 

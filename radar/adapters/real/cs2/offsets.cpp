@@ -233,19 +233,14 @@ Pattern Pattern::from_bytes(const std::string& name,
   return result;
 }
 
-// Legacy AOB table kept for educational pattern-scan demos.
-// Primary live path uses dump RVAs (offsets_from_snapshot).
-static auto g_enc_dwEntityList = win::obf::encrypted_pattern<10>(
-    {0x48, 0x8B, 0x0D, 0, 0, 0, 0, 0x48, 0x89, 0x7C}, build::kXorKeySeed);
-static auto g_enc_dwLocalPlayer = win::obf::encrypted_pattern<8>(
-    {0x48, 0x8D, 0x05, 0, 0, 0, 0, 0xC3}, build::kXorKeySeed);
-static auto g_enc_dwViewMatrix = win::obf::encrypted_pattern<11>(
-    {0x48, 0x8D, 0x0D, 0, 0, 0, 0, 0x48, 0xC1, 0xE0, 0x06}, build::kXorKeySeed);
-
+// Schema-field table (relative object offsets, from the snapshot). The live
+// path resolves globals from dump RVAs via offsets_from_snapshot(), so these
+// entries carry no scan bytes: resolve_offsets() assigns them directly.
+// (Process-relative AOB scanning of client.dll lives in periscope_scanner.cpp;
+// scan_pattern() here stays available for callers with a module base.)
 const std::vector<Pattern>& default_patterns() {
   static const std::vector<Pattern> patterns = []() -> std::vector<Pattern> {
     std::vector<Pattern> result;
-    // Schema fields (relative object offsets) — always from snapshot.
     result.emplace_back(Pattern::from_bytes("entity_controller_pawn", {},
         static_cast<std::int32_t>(snapshot::fields::m_hPlayerPawn)));
     result.emplace_back(Pattern::from_bytes("entity_team", {},
@@ -303,18 +298,18 @@ Result<std::uint64_t> scan_pattern(std::uint32_t pid, std::uint64_t base,
 
 Result<Cs2Offsets> resolve_offsets(std::uint32_t cs2_pid, std::uint64_t cs2_base,
                                    std::size_t cs2_image_size) {
-  // Prefer dump RVAs over AOB when base is client.dll.
+  (void)cs2_pid;
+  (void)cs2_image_size;
+  // With a module base, dump RVAs are authoritative — no scanning needed.
   if (cs2_base != 0) {
     return Result<Cs2Offsets>(offsets_from_snapshot(cs2_base));
   }
+  // No base: schema field offsets only. Rel32 pattern results cannot be
+  // anchored without one, so the scan is skipped rather than returning
+  // baseless addresses.
   Cs2Offsets offsets = offsets_from_snapshot(0);
   for (const Pattern& pattern : default_patterns()) {
-    if (pattern.bytes.empty()) {
-      assign_offset(offsets, pattern, static_cast<std::uint64_t>(pattern.additional_offset));
-      continue;
-    }
-    const auto result = scan_pattern(cs2_pid, cs2_base, cs2_image_size, pattern);
-    assign_offset(offsets, pattern, result ? result.value : 0);
+    assign_offset(offsets, pattern, static_cast<std::uint64_t>(pattern.additional_offset));
   }
   return Result<Cs2Offsets>(offsets);
 }
@@ -357,23 +352,32 @@ bool find_client_module(std::uint32_t cs2_pid, std::uint64_t process_handle,
 Cs2Offsets offsets_from_snapshot(std::uint64_t client_base) {
   Cs2Offsets o{};
   apply_schema_fields(o);
+  o.client_base = client_base;
 
   // Prefer runtime JSON globals if loaded; else embedded snapshot.
+  // Per-key fallback: the runtime file may omit optional keys (view matrix /
+  // angles / sensitivity are allowed-missing by load_runtime_globals), and a
+  // zero RVA would resolve to client_base + 0 — the DOS header.
   const std::uint64_t ent_rva = g_runtime_globals.valid
                                     ? g_runtime_globals.dwEntityList
                                     : snapshot::globals::dwEntityList;
   const std::uint64_t pawn_rva = g_runtime_globals.valid
                                      ? g_runtime_globals.dwLocalPlayerPawn
                                      : snapshot::globals::dwLocalPlayerPawn;
-  const std::uint64_t vm_rva = g_runtime_globals.valid
-                                   ? g_runtime_globals.dwViewMatrix
-                                   : snapshot::globals::dwViewMatrix;
-  const std::uint64_t va_rva = g_runtime_globals.valid
-                                   ? g_runtime_globals.dwViewAngles
-                                   : snapshot::globals::dwViewAngles;
-  const std::uint64_t sens_rva = g_runtime_globals.valid
-                                     ? g_runtime_globals.dwSensitivity
-                                     : snapshot::globals::dwSensitivity;
+  // view/angles/sensitivity are optional in the runtime JSON; a missing or
+  // zero entry keeps the embedded snapshot RVA instead of falling to 0.
+  const auto pick = [](std::uint64_t runtime, std::uint64_t embedded) {
+    return runtime ? runtime : embedded;
+  };
+  const std::uint64_t vm_rva = pick(
+      g_runtime_globals.valid ? g_runtime_globals.dwViewMatrix : 0,
+      snapshot::globals::dwViewMatrix);
+  const std::uint64_t va_rva = pick(
+      g_runtime_globals.valid ? g_runtime_globals.dwViewAngles : 0,
+      snapshot::globals::dwViewAngles);
+  const std::uint64_t sens_rva = pick(
+      g_runtime_globals.valid ? g_runtime_globals.dwSensitivity : 0,
+      snapshot::globals::dwSensitivity);
 
   if (client_base != 0) {
     // Absolute addresses of globals (read_entity_list dereferences these).
@@ -445,12 +449,17 @@ Result<Cs2Offsets> resolve_offsets_for_process(std::uint32_t cs2_pid,
 
   std::uint64_t client_base = 0;
   std::size_t client_size = 0;
-  if (!find_client_module(cs2_pid, process_handle, client_base, client_size)) {
+  const bool found_client_dll =
+      find_client_module(cs2_pid, process_handle, client_base, client_size);
+  if (!found_client_dll) {
     // Fall back to main module (usually cs2.exe) — dump RVAs will not match.
     client_base = main_base;
   }
 
   Cs2Offsets offsets = offsets_from_snapshot(client_base);
+  if (!found_client_dll) {
+    offsets.client_base = 0; // main-module fallback is not a client.dll base
+  }
   if (have_runtime) {
     // Overlay schema fields from JSON (globals already applied if present).
     if (runtime_fields.entity_health) offsets.entity_health = runtime_fields.entity_health;
@@ -497,6 +506,7 @@ bool Cs2Offsets::is_complete() const {
 std::string Cs2Offsets::describe() const {
   std::ostringstream output;
   output << std::hex << std::showbase;
+  output << "client_base=" << client_base << '\n';
   output << "entity_list=" << entity_list << '\n';
   output << "entity_list_entry=" << entity_list_entry << '\n';
   output << "entity_controller=" << entity_controller << '\n';

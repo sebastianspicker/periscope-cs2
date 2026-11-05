@@ -20,7 +20,11 @@ contracts: [DATASET.md](DATASET.md).
 
 `session_split` with `train.backend=cloud` is accepted: the split tree is
 flattened into a flat `images/` + `labels/` bundle under `{run_dir}/cloud/`
-(`dataset/` + `dataset.zip`) before cloud training.
+(`dataset/` + `dataset.zip`) before cloud training. The bundle keeps the
+session split through `train.txt` / `val.txt`, so validation never sees
+training sessions. Flattened names join path parts with `__`; a name collision
+stops the bundle. A resumed autonomous run is ignored when the dataset
+fingerprint changed.
 
 ## Stage order
 

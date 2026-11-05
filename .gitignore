@@ -230,7 +230,13 @@ cs2-vision-config.json
 /kilo.json
 
 # Removed internal test directories
-/radar/tests/
+/radar/tests/*
+!/radar/tests/CMakeLists.txt
+!/radar/tests/stack_posture_test.cpp
 /radar/adapters/real/linux/tests/
 /radar/examples/firmware/example_pcie_dma/tests/
-/vision/tests/
+/vision/tests/*
+!/vision/tests/test_*.py
+
+# Local maintenance inventory
+/THINGS_TO_DO_LEDGER.md

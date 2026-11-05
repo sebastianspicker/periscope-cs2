@@ -2,7 +2,7 @@
 
 Chains all GPU operations into a single zero-alloc pipeline:
 
-    capture → letterbox(GPU) → ONNX inference(GPU) → decode(GPU) → NMS(GPU) → result
+    capture → stretch(GPU) → ONNX inference(GPU) → decode(GPU) → NMS(host) → result
 
 Keeps all intermediate tensors in GPU memory until the final result is
 transferred to CPU (or used by the overlay renderer on the same GPU).
@@ -20,12 +20,12 @@ from cs2_vision_access.adapters.models.runtime.cuda.memory import GpuMemoryPool,
 from cs2_vision_access.adapters.models.runtime.cuda.pipeline_postprocess import (
     _decode_nms,
     _filter_by_confidence,
+    _num_predictions,
     _session_input_dtype,
 )
 from cs2_vision_access.adapters.models.runtime.cuda.pipeline_preprocess_gpu import (
     _preprocess_gpu_direct,
 )
-from cs2_vision_access.adapters.models.runtime.cuda.preprocess import gpu_letterbox
 from cs2_vision_access.adapters.models.runtime.cuda.utils import cuda_available
 
 logger = logging.getLogger(__name__)
@@ -144,7 +144,7 @@ class GpuInferencePipeline:
         This avoids the default CPU-based tensor transfer and keeps data
         on the GPU throughout the pipeline.  The bound input buffer uses the
         model's actual input element type (float32/float16) so the allocation,
-        the IO-binding element type and the data written by the letterbox
+        the IO-binding element type and the data written by the stretch
         kernel all agree (no FP16/FP32 mismatch).
         """
         import cupy as cp
@@ -175,7 +175,14 @@ class GpuInferencePipeline:
 
             # Output
             step = "output binding"
-            det_output_gpu = cp.empty((1, 4 + self.num_classes, 8400), dtype=cp.float32)
+            det_output_gpu = cp.empty(
+                (
+                    1,
+                    4 + self.num_classes,
+                    _num_predictions(self.session, self.det_output_name, self.image_size),
+                ),
+                dtype=cp.float32,
+            )
             binding.bind_output(
                 name=self.det_output_name,
                 device_type="cuda",
@@ -251,11 +258,11 @@ class GpuInferencePipeline:
 
         t0 = time.perf_counter()
 
-        # ---- Step 1: Preprocess (letterbox) — GPU ----
+        # ---- Step 1: Preprocess (stretch) — GPU ----
         h, w = frame_bgr.shape[:2]
 
         if self.cuda_available and self._io_binding is not None:
-            # Direct GPU letterbox into pre-allocated input buffer.  When
+            # Direct GPU stretch into pre-allocated input buffer.  When
             # streaming is enabled, upload + kernel run on the transfer
             # stream so they can overlap with inference of previous frames.
             if self._streams_enabled():
@@ -289,15 +296,31 @@ class GpuInferencePipeline:
                 )
         else:
             # CPU path
-            input_tensor, scale_x, scale_y, pad_l, pad_t = gpu_letterbox(
-                frame_bgr,
-                self.image_size,
+            # Same contract as ``preprocess_vombit``: stretch, BGR, 0-255.
+            import cv2
+
+            resized = cv2.resize(
+                frame_bgr, (self.image_size, self.image_size), interpolation=cv2.INTER_LINEAR
+            )
+            input_tensor = np.expand_dims(
+                np.transpose(resized.astype(self._input_dtype), (2, 0, 1)), axis=0
             )
 
         t1 = time.perf_counter()
 
         # ---- Step 2: ONNX Inference — GPU ----
         if self._io_binding is not None:
+            # ORT must not read the input before the preprocess kernel is done
+            # (it ran on the non-blocking transfer stream or CuPy's stream).
+            import cupy as cp
+
+            from cs2_vision_access.adapters.models.runtime.cuda.stream import (
+                STREAM_TRANSFER,
+                sync_stream,
+            )
+
+            sync_stream(STREAM_TRANSFER)
+            cp.cuda.get_current_stream().synchronize()
             self.session.run_with_iobinding(self._io_binding)
             raw_output = self._io_output  # already on GPU
         else:

@@ -164,6 +164,7 @@ def run_self_test(script_dir: Path, code_dir: Path) -> int:
         _assert("m_iHealth = 0x34C" in hpp, "health hex")
         _assert("entity_identity_stride = 0x70" in hpp, "stride")
         _assert('kGeneratedAt = "2000-01-01T00:00:00Z"' in hpp, "timestamp")
+        _assert("PINNED DUMP — January 2000" in hpp, "pin note from timestamp")
         # Extended symbols must appear — incomplete 8-field emit cannot pass.
         _assert("m_bDormant = 0x103" in hpp, "extended m_bDormant in header")
         _assert("m_ArmorValue = 0x1C9C" in hpp, "extended m_ArmorValue in header")

@@ -21,7 +21,11 @@ import zipfile
 from pathlib import Path
 
 from cs2_vision_access.workflows.training.contracts import VOMBIT_CLASSES
-from cs2_vision_access.workflows.training.dataset_zip import find_image_for_stem
+from cs2_vision_access.workflows.training.dataset_zip import (
+    HOLDOUT_MIN_IMAGES,
+    find_image_for_stem,
+    split_holdout,
+)
 
 # Match contracts / dataset.yaml bootstrap defaults (id-order names from VOMBIT_CLASSES).
 DEFAULT_NAMES: list[str] = [VOMBIT_CLASSES[i] for i in sorted(VOMBIT_CLASSES)]
@@ -57,6 +61,10 @@ def build_dataset_yaml(
                 if stripped.startswith("path:") or stripped.startswith("path "):
                     lines.append("path: .")
                     path_set = True
+                elif stripped.startswith("train:"):
+                    lines.append("train: train.txt")
+                elif stripped.startswith("val:"):
+                    lines.append("val: val.txt")
                 else:
                     lines.append(line)
             if not path_set:
@@ -68,7 +76,7 @@ def build_dataset_yaml(
 
     nc = len(names)
     name_lines = "\n".join(f"  {i}: {n}" for i, n in enumerate(names))
-    return f"path: .\ntrain: images\nval: images\nnc: {nc}\nnames:\n{name_lines}\n"
+    return f"path: .\ntrain: train.txt\nval: val.txt\nnc: {nc}\nnames:\n{name_lines}\n"
 
 
 def collect_pairs(
@@ -133,6 +141,26 @@ def create_bundle(
 
     with zipfile.ZipFile(output_path, "w", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("dataset.yaml", yaml_content)
+        packed = {archive_name for _, _, archive_name in pairs}
+        train, val = split_holdout(sorted(packed))
+        # A prepared train.txt + val.txt pair (e.g. session split) wins over the
+        # holdout; one file alone would mix two splits, so it is ignored. Entries
+        # are rewritten to ./images/<name> so no absolute path leaves the machine.
+        prepared = [input_dir / "train.txt", input_dir / "val.txt"]
+        use_prepared = all(p.is_file() for p in prepared)
+        for path, default in zip(prepared, (train, val), strict=True):
+            if use_prepared:
+                names_in = [
+                    Path(ln.strip()).name
+                    for ln in path.read_text(encoding="utf-8").splitlines()
+                    if ln.strip()
+                ]
+                chosen = [n for n in names_in if n in packed]
+            else:
+                chosen = list(default)
+            zf.writestr(path.name, "".join(f"./images/{n}\n" for n in chosen))
+        if len(packed) < HOLDOUT_MIN_IMAGES:
+            print(f"WARNING: only {len(packed)} images; val == train, so metrics are train-only.")
         for i, (img_path, label_path, archive_name) in enumerate(pairs, start=1):
             stem = label_path.stem
             zf.write(img_path, f"images/{archive_name}")

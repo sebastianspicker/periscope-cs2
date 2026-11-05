@@ -80,6 +80,7 @@ struct LocalPlayerData {
 
 struct BombData {
     bool planted{};
+    bool defusing{};
     Vector3 position{};
     float timer{};
 };

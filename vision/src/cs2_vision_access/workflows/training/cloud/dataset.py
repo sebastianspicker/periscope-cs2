@@ -9,10 +9,13 @@ from pathlib import Path
 
 from .constants import _DEFAULT_ZIP_SEARCH_ROOTS, DEFAULT_CLASSES
 from .fallbacks import (
+    _HOLDOUT_MIN_IMAGES,
+    _IMAGE_EXTENSIONS,
     _count_images,
     _count_labels,
     _resolve_dataset_root,
     _safe_extract_zip,
+    _split_holdout,
 )
 
 
@@ -25,13 +28,66 @@ def _classes_to_yaml_names(classes: Mapping[int, str] | Mapping[str, str]) -> di
     return out
 
 
+def _uploaded_split(data_dir: Path, image_names: set[str]) -> bool:
+    """True when uploaded train.txt/val.txt only list ``./images/<existing image>``,
+    val is non-empty and the two lists are disjoint (e.g. a session-split bundle).
+    """
+    lists: list[set[str]] = []
+    for name in ("train.txt", "val.txt"):
+        path = data_dir / name
+        if not path.is_file() or path.is_symlink():
+            return False
+        entries = set()
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if not line.startswith("./images/") or line[len("./images/") :] not in image_names:
+                return False
+            entries.add(line)
+        lists.append(entries)
+    train, val = lists
+    return bool(train) and bool(val) and not (train & val)
+
+
+def _write_holdout_split(data_dir: Path) -> bool:
+    """Write ``train.txt`` / ``val.txt`` (every 5th sorted image is val).
+
+    Entries are ``./images/<file>`` (relative to the txt's folder, as Ultralytics
+    expects). Returns False and prints a warning when there are too few images
+    for a holdout (val == train, so metrics are train-only).
+    """
+    images_dir = data_dir / "images"
+    names = [
+        p.name
+        for p in images_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in _IMAGE_EXTENSIONS
+    ]
+    uploaded = _uploaded_split(data_dir, set(names))
+    if uploaded:
+        print("  Keeping the uploaded train.txt / val.txt split.")
+        return True
+    if (data_dir / "train.txt").exists() or (data_dir / "val.txt").exists():
+        print("  WARNING: uploaded train.txt / val.txt invalid; using an every-5th holdout.")
+    train, val = _split_holdout(names)
+    (data_dir / "train.txt").write_text("".join(f"./images/{n}\n" for n in train), encoding="utf-8")
+    (data_dir / "val.txt").write_text("".join(f"./images/{n}\n" for n in val), encoding="utf-8")
+    if len(names) < _HOLDOUT_MIN_IMAGES:
+        print(
+            f"  WARNING: only {len(names)} images (< {_HOLDOUT_MIN_IMAGES}); "
+            "val == train, so metrics are train-only."
+        )
+        return False
+    return True
+
+
 def _format_dataset_yaml(data_dir: Path, classes: Mapping[int, str]) -> str:
     """Build dataset.yaml text with absolute path and class names."""
     names_block = "\n".join(f"  {idx}: {name}" for idx, name in sorted(classes.items()))
     return (
         f"path: {data_dir.resolve().as_posix()}\n"
-        f"train: images\n"
-        f"val: images\n"
+        f"train: train.txt\n"
+        f"val: val.txt\n"
         f"nc: {len(classes)}\n"
         f"names:\n"
         f"{names_block}\n"
@@ -82,6 +138,8 @@ def create_space_dataset_yaml(data_dir: str | Path) -> Path:
                     f"unsupported class id in {label_path.name}:{line_number}: {class_id}"
                 )
 
+    # Uploaded train.txt / val.txt are never trusted; always regenerate the holdout.
+    _write_holdout_split(root)
     yaml_path = root / "dataset.yaml"
     yaml_path.write_text(_format_dataset_yaml(root, DEFAULT_CLASSES), encoding="utf-8")
     return yaml_path
@@ -102,6 +160,15 @@ def _ensure_dataset_yaml(
 
     if yaml_path.is_file():
         text = yaml_path.read_text(encoding="utf-8")
+        # Legacy flat manifest (train == val == images): swap in a holdout.
+        if (
+            re.search(r"(?m)^train:\s*images\s*$", text)
+            and re.search(r"(?m)^val:\s*images\s*$", text)
+            and not (data_dir / "train.txt").is_file()
+        ):
+            _write_holdout_split(data_dir)
+            text = re.sub(r"(?m)^train:\s*images\s*$", "train: train.txt", text)
+            text = re.sub(r"(?m)^val:\s*images\s*$", "val: val.txt", text)
         # Update path line to absolute dataset root; keep names/nc if present.
         abs_path = data_dir.resolve().as_posix()
         if re.search(r"(?m)^path:\s*", text):
@@ -118,6 +185,7 @@ def _ensure_dataset_yaml(
         yaml_path.write_text(text if text.endswith("\n") else text + "\n", encoding="utf-8")
         return yaml_path
 
+    _write_holdout_split(data_dir)
     yaml_path.write_text(_format_dataset_yaml(data_dir, class_map), encoding="utf-8")
     print(f"  Created dataset.yaml with {len(class_map)} classes: {list(class_map.values())}")
     return yaml_path

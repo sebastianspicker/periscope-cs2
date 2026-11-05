@@ -95,6 +95,10 @@ private:
     uint64_t m_nextRotationAt{900};
     uint64_t m_rngState{};
     bool     m_ready{};
+    /// True only while a full NtQSI(0x40) re-enumeration is in flight.
+    /// ensure_handle() clears it on every call; the rate limit for failed
+    /// lookups is the count-based cooldown in find_and_duplicate().
+    bool     m_reentering{};
     const char* m_lastError{"not started"};
     uint32_t m_candidatesSeen{};
     uint32_t m_preferredSeen{};

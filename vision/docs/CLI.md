@@ -55,6 +55,17 @@ Stages: `ingest`, `prepare_data`, `label`, `validate`, `train`, `export`, `self_
 
 See [TRAIN_AUTO.md](TRAIN_AUTO.md).
 
+## review-drafts promote
+
+Promotes accepted drafts only. A destination label that already exists with different
+content (for example a hand edit) is skipped and listed under `skipped_existing`; pass
+`--force` to overwrite it. `--include-promoted` also re-copies already-promoted entries.
+
+## setup
+
+An existing `cs2-vision-config.json` is kept; pass `--overwrite-config` to replace it.
+A user-supplied `<output-dir>/<model>.pt` is never deleted.
+
 ## download-model
 
 ```bash

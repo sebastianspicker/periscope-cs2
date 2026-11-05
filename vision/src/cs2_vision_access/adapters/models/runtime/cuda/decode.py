@@ -30,7 +30,7 @@ def decode_gpu(
     num_preds = raw.shape[-1]
     scale_fw = cp.float32(det_size)
 
-    if pool is not None:
+    if pool is not None and num_preds <= pool.boxes.shape[0]:
         boxes_buf = pool.boxes[:num_preds]
         scores_buf = pool.scores[:num_preds]
         ids_buf = pool.class_ids[:num_preds]
@@ -109,7 +109,7 @@ def decode(
     if cuda_available() and hasattr(raw, "__cuda_array_interface__"):
         try:
             return decode_gpu(raw, num_classes, orig_w, orig_h, det_size)
-        except (ImportError, RuntimeError):
-            # A missing CUDA backend or failed kernel falls back to NumPy.
+        except (ImportError, RuntimeError, ValueError):
+            # A missing CUDA backend, failed kernel or shape mismatch falls back to NumPy.
             pass
     return decode_cpu(raw, num_classes, orig_w, orig_h, det_size)

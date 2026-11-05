@@ -79,7 +79,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `58_elam_bypass` | ELAM / Secure Launch bypass | T3 | Evasion | Clear ELAM+Secure Launch; plant early non-AC boot driver | Ranked deny if !elam||!secure_launch; early boot audit |
 | `59_cr3_stealth_target` | CR3 stealth target | T3 | Evasion | Personal HV; target by CR3; hv_read without name-based open | Detect personal_hv+no VM_READ / bridge+cr3; policy fail |
 | `60_aim_challenge` | Aim challenge residual | T4 | Delivery | Multi-sample capture/serial aim fails server challenge | Multi-reason challenge+input+capture; fog |
-| `61_iommu_policy` | IOMMU ranked policy | T4 | Delivery | DMA+IOMMU-off + optional dma_read; policy unset by red | ranked_requires_iommu; multi-reason deny + fog |
+| `56_iommu_policy` | IOMMU ranked policy | T4 | Delivery | DMA+IOMMU-off + optional dma_read; policy unset by red | ranked_requires_iommu; multi-reason deny + fog |
 | `62_silent_aim_desync` | Silent aim desync | all | Feature | silent_aim_active with camera/server aim angle desync | Detect silent_aim flag or abs(camera-server) > threshold |
 | `63_veh_exception_cf` | VEH exception CF | all | Evasion | Elevate VEH handlers or dirty veh_chain_clean | Detect !veh_chain_clean || veh_handlers > baseline |
 | `64_iat_eat_hook` | IAT / EAT hook scar | T0 | Evasion | Set client.dll iat_hooked and/or eat_hooked on the game process | Any is_game module with iat_hooked || eat_hooked |
@@ -91,7 +91,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `70_secure_kernel_view` | Secure Kernel dual-view | T3 | Evasion | Guest AC self-hash clean while Secure Kernel sees tamper | Detect secure_kernel_view_dirty even if guest clean; ranked deny |
 | `71_hvci_race` | HVCI race / continuous policy | T3 | Evasion | Race or disable HVCI (hvci_enabled=false); optional personal HV | Continuous policy: !hvci_enabled → ranked deny / detect |
 | `72_desktop_duplication` | Desktop duplication residual | T4 | Delivery | DXGI desktop dup + clean process; no OpenProcess | Multi-reason desktop_dup+clean; fog mitigate |
-| `73_network_multibox_aim` | Network multibox aim | T4 | Delivery | Remote aim stream + multi-sample serial/kmbox + net residual | Multi-reason multibox or net+HID correlation; fog |
+| `55_network_multibox_aim` | Network multibox aim | T4 | Delivery | Remote aim stream + multi-sample serial/kmbox + net residual | Multi-reason multibox or net+HID correlation; fog |
 | `74_overwatch_queue` | Overwatch delayed queue | all | Detection | Mild handle + no_rage + second weak (vpn/report) | weak_handle + multi-invariant; multi_reason handle&&overwatch |
 | `75_polymorphic_build` | Polymorphic per-buyer build | all | Evasion | Unique binary_build_id + buyer process + handle + wm/c2 | Hash miss; multi-reason handle+(poly_cluster|wm) — not hash-only |
 | `76_gdi_bitblt` | GDI BitBlt screen capture | T0 | Feature | gdi_bitblt_capture=true; no OpenProcess to game | Detect gdi_bitblt_capture; fog mitigate optional |
@@ -102,7 +102,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `81_wfp_ndis_filter` | WFP/NDIS packet filter | T2 | Evasion | Kernel reader + WFP/NDIS filter + lag + SCM filter service | KernelAc + WFP/SCM/lag multi-signal detect |
 | `82_ci_options` | Code integrity options disabled | T3 | Structural | Disable CI options (ci_options_disabled=true) | Ranked deny if ci_options_disabled |
 | `83_feature_control_msr` | Feature-control MSR spoof | T3 | Evasion | Spoof IA32_FEATURE_CONTROL; optional personal HV | Detect feature_control_spoofed; ranked policy deny |
-| `84_lag_switch` | Lag switch residual | T4 | Delivery | lag_switch_active + net residual; distinct from packet_loss | Detect lag; disambig vs packet_loss; fog mitigate |
+| `54_lag_switch` | Lag switch residual | T4 | Delivery | lag_switch_active + net residual; distinct from packet_loss | Detect lag; disambig vs packet_loss; fog mitigate |
 | `85_external_clone_display` | External clone display residual | T4 | Delivery | external_display_clone + clean process; no OpenProcess | Multi-reason clone+clean; fog mitigate |
 | `86_vpn_proxy_graph` | VPN / proxy account graph | all | Detection | vpn_proxy_active; ≥3 accounts share vpn_res_1; optional payment | multi_reason vpn_flag&&ip_cluster |
 | `87_build_watermark` | Per-buyer build watermark | all | Evasion | wm_buyer_deadbeef + unique id; handle or account link | Multi-reason watermark && (handle || poly_link) — not wm alone |

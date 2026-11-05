@@ -73,6 +73,7 @@ def run_frame(
     last_temporal_enabled: bool,
     last_output_mode: str,
     last_alpha_fill: bool,
+    inferred_seq: int = 0,
 ) -> _FrameResult:
 
     result = _FrameResult(
@@ -129,7 +130,9 @@ def run_frame(
 
     temporal_suppressed = 0
     if temporal_policy is not None:
-        predictions, temporal_diag = temporal_policy.filter(predictions, frame_index=frame_index)
+        predictions, temporal_diag = temporal_policy.filter(
+            predictions, frame_index=frame_index, sequence=inferred_seq
+        )
         temporal_suppressed = temporal_diag.suppressed_count
 
     current_output_mode = control_state.output_mode
@@ -162,7 +165,7 @@ def run_frame(
         cfg.output_sink.send(rendered, frame_index)
 
     if not cfg.headless and not display_mgr.show_frame(
-        rendered, frame_index, diag.inference_ms, len(predictions), started
+        rendered, frame_index, list(diag.inference_ms)[-100:], len(predictions), started
     ):
         result.termination_reason = "user_stop"
         return result

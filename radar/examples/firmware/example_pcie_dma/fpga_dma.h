@@ -151,28 +151,30 @@ static_assert(sizeof(DmaDescriptor) == 36, "Randomized descriptors=36B (was 32B)
 // Reference: Periscope prototype/src/cs2/entity.hpp
 //            Periscope prototype/src/cs2/offsets.hpp
 
-// Periscope-validated CS2 offsets (RVA within client.dll).
-// All values are XOR-encrypted with kKey to defeat static scanning.
+// CS2 offsets from the November 2026 a2x/cs2-dumper snapshot
+// (RVA within client.dll). All values are XOR-encrypted with kKey to
+// defeat static scanning.
 struct Cs2Offsets {
     static constexpr uint64_t kKey                  = 0xA5A5A5A5A5A5A5A5ULL;
-    static constexpr uint64_t dwEntityList            = 0x254EE60ULL ^ kKey;
-    static constexpr uint64_t dwLocalPlayerPawn       = 0x23A4238ULL ^ kKey;
-    static constexpr uint64_t dwLocalPlayerController = 0x237EBA0ULL ^ kKey;
-    static constexpr uint64_t dwViewAngles            = 0x23B9C78ULL ^ kKey;
-    static constexpr uint64_t dwCSGOInput             = 0x23B95F0ULL ^ kKey;
-    static constexpr uint64_t dwPlantedC4             = 0x236E678ULL ^ kKey;
+    static constexpr uint64_t dwEntityList            = 0x271EB08ULL ^ kKey;
+    static constexpr uint64_t dwLocalPlayerPawn       = 0x25698C8ULL ^ kKey;
+    static constexpr uint64_t dwLocalPlayerController = 0x25413F8ULL ^ kKey;
+    static constexpr uint64_t dwViewAngles            = 0x2580008ULL ^ kKey;
+    static constexpr uint64_t dwCSGOInput             = 0x257F980ULL ^ kKey;
+    static constexpr uint64_t dwPlantedC4             = 0x24CFB60ULL ^ kKey;
     static constexpr uint64_t kIdentityStride         = 0x70ULL ^ kKey;
     static constexpr uint64_t kMaxPlayers             = 64ULL ^ kKey;
 
     // Schema field offsets (within C_BaseEntity / CCSPlayerController / C_CSPlayerPawn)
     static constexpr uint64_t m_iHealth              = 0x34CULL ^ kKey;
     static constexpr uint64_t m_iTeamNum             = 0x3E7ULL ^ kKey;  // uint8
-    static constexpr uint64_t m_vOldOrigin           = 0x13B8ULL ^ kKey;
-    static constexpr uint64_t m_angEyeAngles         = 0x3340ULL ^ kKey;
-    static constexpr uint64_t m_hPlayerPawn          = 0x914ULL ^ kKey;
+    static constexpr uint64_t m_vOldOrigin           = 0x14A4ULL ^ kKey;
+    static constexpr uint64_t m_angEyeAngles         = 0x3600ULL ^ kKey;
+    static constexpr uint64_t m_hPlayerPawn          = 0x92CULL ^ kKey;
     static constexpr uint64_t m_pGameSceneNode       = 0x330ULL ^ kKey;
+    // m_iWeaponID is not in the Nov 2026 schema dump — prototype-era value.
     static constexpr uint64_t m_iWeaponID            = 0x10B0ULL ^ kKey;
-    static constexpr uint64_t m_vecVelocity          = 0x1170ULL ^ kKey;
+    static constexpr uint64_t m_vecVelocity          = 0x430ULL ^ kKey;
 
     // Decrypt helper: XOR with kKey to restore original value
     static constexpr uint64_t dec(uint64_t v) noexcept { return v ^ kKey; }

@@ -22,6 +22,7 @@ namespace detail {
 
 CachedDonorInfo g_cachedDonor{};
 int g_ntqsi40_call_count = 0;
+uint64_t g_reeenumCooldownTicks = 0;
 
 // Preferred donor basenames — discovered via process list (Toolhelp/NtQSI
 // cache), NOT per-handle OpenProcess+QueryFullProcessImageName. That keeps
@@ -281,48 +282,65 @@ bool HijackReader::find_and_duplicate() noexcept {
         }
     }
 
-    // Enforce max 1 call to NtQSI(0x40) — cached donor info is used on retry
+    // A full NtQSI(0x40) has already run this session — reuse the cached
+    // donor instead of re-enumerating.
     if (g_ntqsi40_call_count >= 1) {
         if (g_cachedDonor.valid) {
             m_donorPid = g_cachedDonor.donorPid;
             m_donorHandleValue = g_cachedDonor.donorHandleValue;
             auto& api = real::win::g_Api();
-            if (!api.resolved) {
+            bool ok = false;
+            if (api.resolved) {
+                HANDLE donorProc = open_donor_for_dup(m_donorPid);
+                if (donorProc) {
+                    HANDLE dupe = nullptr;
+                    NTSTATUS dupResult = duplicate_cs2_handle(
+                        donorProc, reinterpret_cast<HANDLE>(m_donorHandleValue),
+                        &dupe);
+                    if (dupResult >= 0 && dupe) {
+                        DWORD dupePid = api.GetProcessId ? api.GetProcessId(dupe) : 0;
+                        if (dupePid == 0) dupePid = ::GetProcessId(dupe);
+                        if (dupePid == m_cs2Pid) {
+                            m_donorProcHandle = reinterpret_cast<uint64_t>(donorProc);
+                            m_cs2Handle = reinterpret_cast<uint64_t>(dupe);
+                            m_donorPid = g_cachedDonor.donorPid;
+                            ok = true;
+                        } else {
+                            api.CloseHandle(dupe);
+                            set_error("cached donor dupe pid mismatch");
+                            ++m_pidMismatch;
+                        }
+                    } else {
+                        set_error("duplicate from cached donor failed");
+                        ++m_dupFail;
+                    }
+                    if (!ok) api.CloseHandle(donorProc);
+                } else {
+                    set_error("OpenProcess(DUP_HANDLE) on cached donor failed (rights?)");
+                    ++m_openFail;
+                }
+            } else {
                 set_error("api table not resolved (cache path)");
-                return false;
             }
-            HANDLE donorProc = open_donor_for_dup(m_donorPid);
-            if (!donorProc) {
-                set_error("OpenProcess(DUP_HANDLE) on cached donor failed (rights?)");
-                ++m_openFail;
-                return false;
-            }
-            HANDLE dupe = nullptr;
-            NTSTATUS dupResult = duplicate_cs2_handle(
-                donorProc, reinterpret_cast<HANDLE>(m_donorHandleValue), &dupe);
-            if (dupResult < 0 || !dupe) {
-                api.CloseHandle(donorProc);
-                set_error("duplicate from cached donor failed");
-                ++m_dupFail;
-                return false;
-            }
-            DWORD dupePid = api.GetProcessId ? api.GetProcessId(dupe) : 0;
-            if (dupePid == 0) dupePid = ::GetProcessId(dupe);
-            if (dupePid == m_cs2Pid) {
-                m_donorProcHandle = reinterpret_cast<uint64_t>(donorProc);
-                m_cs2Handle = reinterpret_cast<uint64_t>(dupe);
-                m_donorPid = g_cachedDonor.donorPid;
+            if (ok) {
+                g_reeenumCooldownTicks = 0;
                 set_error("ok");
                 return true;
             }
-            api.CloseHandle(dupe);
-            api.CloseHandle(donorProc);
-            set_error("cached donor dupe pid mismatch");
-            ++m_pidMismatch;
+            // A failed cached-donor attempt means the cache is stale (donor
+            // exited, handle table churned, game restarted). Invalidate it
+            // and arm the count-based cooldown before any fresh re-enum.
+            g_cachedDonor = {};
+            g_reeenumCooldownTicks = kReenumCooldownTicks;
             return false;
         }
-        set_error("NtQSI already used and no valid donor cache");
-        return false;
+        // No valid donor cached: NtQSI(0x40) is VAC-monitored, so re-enums
+        // drain a count-based cooldown instead of firing on every call.
+        if (g_reeenumCooldownTicks > 0) {
+            --g_reeenumCooldownTicks;
+            set_error("NtQSI re-enum cooling down");
+            return false;
+        }
     }
 
     // Reset all cached state before attempting re-enumeration.
@@ -338,6 +356,12 @@ bool HijackReader::find_and_duplicate() noexcept {
         set_error("api table not resolved");
         return false;
     }
+
+    // Re-entrancy: only one full enumeration at a time. ensure_handle()
+    // clears the guard on each call; the frequency of re-enums is bounded
+    // by the count-based cooldown above.
+    if (m_reentering) return false;
+    m_reentering = true;
 
     // Quick PID existence check via NtOpenProcess instead of a full
     // NtQSI(SystemProcessInformation) enumeration. The cached process
@@ -368,6 +392,8 @@ bool HijackReader::find_and_duplicate() noexcept {
     real::win::yield();
 
     if (status < 0) {
+        m_reentering = false;
+        g_reeenumCooldownTicks = kReenumCooldownTicks;
         set_error("NtQuerySystemInformation(0x40) failed (buffer/rights)");
         return false;
     }
@@ -527,6 +553,8 @@ bool HijackReader::find_and_duplicate() noexcept {
         objectHits.size() + preferred.size() + others.size());
 
     if (objectHits.empty() && preferred.empty() && others.empty()) {
+        m_reentering = false;
+        g_reeenumCooldownTicks = kReenumCooldownTicks;
         set_error(m_cs2Object
                       ? "zero system handles reference CS2 Object (no donor)"
                       : "zero handle candidates on system (no donor process)");
@@ -563,12 +591,16 @@ bool HijackReader::find_and_duplicate() noexcept {
             g_cachedDonor.donorPid = m_donorPid;
             g_cachedDonor.donorHandleValue = m_donorHandleValue;
             g_cachedDonor.valid = true;
+            m_reentering = false;
+            g_reeenumCooldownTicks = 0;
             set_error("ok");
             return true;
         }
     }
 
     g_cachedDonor = {};
+    m_reentering = false;
+    g_reeenumCooldownTicks = kReenumCooldownTicks;
     set_error("all candidates failed OpenProcess(DUP_HANDLE)/Duplicate/pid-check");
     return false;
 #else
@@ -577,9 +609,5 @@ bool HijackReader::find_and_duplicate() noexcept {
 #endif
 }
 
-// ═══════════════════════════════════════════════════════════════════════
-// ensure_handle: re-duplicate if our CS2 handle was closed.
-// ═══════════════════════════════════════════════════════════════════════
-
-} // namespace real::cs2::hijack
+}  // namespace real::cs2::hijack
 

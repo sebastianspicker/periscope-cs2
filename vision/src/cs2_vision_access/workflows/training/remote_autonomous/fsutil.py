@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import os
 import shutil
 from collections.abc import Mapping
@@ -49,6 +50,40 @@ def _link_or_copy(src: Path, dst: Path) -> None:
         os.link(src, dst)
     except OSError:
         shutil.copy2(src, dst)
+
+
+def _clear_split_dirs(data_dir: Path) -> None:
+    """Unlink files in ``images/{train,val}`` and ``labels/{train,val}`` only.
+
+    Allowlist: just these four dirs, each resolved and required to sit inside
+    ``data_dir`` (a symlink pointing elsewhere is refused, never followed).
+    """
+    root = data_dir.resolve()
+    for kind in ("images", "labels"):
+        for split in ("train", "val"):
+            target = data_dir / kind / split
+            if not target.is_dir():
+                continue
+            if not target.resolve().is_relative_to(root):
+                raise ValueError(f"refusing to clear split dir outside data_dir: {target}")
+            for entry in target.iterdir():
+                if entry.is_file() or entry.is_symlink():
+                    entry.unlink()
+
+
+def _dataset_fingerprint(images_dir: Path, labels_dir: Path) -> str:
+    """Cheap sha256 over flat image stems and flat label names.
+
+    Label sizes are left out on purpose: leaky-val self-training rewrites the flat
+    labels in place, which must not make a resume look like a different dataset.
+    """
+    digest = hashlib.sha256()
+    for stem in _list_image_stems(images_dir):
+        digest.update(f"i:{stem}\n".encode())
+    if labels_dir.is_dir():
+        for path in sorted(labels_dir.glob("*.txt")):
+            digest.update(f"l:{path.name}\n".encode())
+    return digest.hexdigest()
 
 
 def _extract_map_metric(metrics: Mapping[str, float]) -> tuple[float | None, float | None]:

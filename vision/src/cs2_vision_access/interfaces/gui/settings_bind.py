@@ -17,6 +17,7 @@ class SettingsBindMixin(GuiAppContext):
     """Apply / read settings, parsers, and outline-preset handlers."""
 
     def _apply_settings(self, settings: GuiSettings) -> None:
+        self._current_settings = settings
         self._source_type.set(settings.source_type)
         self._region_override = settings.region
         self._monitor_var.set(self._monitor_label(settings.monitor_index))
@@ -147,7 +148,8 @@ class SettingsBindMixin(GuiAppContext):
             overlay_monitor=self._overlay_monitor.get(),
             output_sink=self._output_sink.get().strip() or None,
             window_title=self._window_title.get().strip(),
-            max_frames=0,
+            max_frames=self._current_settings.max_frames,
+            outline_kernel=self._current_settings.outline_kernel,
         )
 
     @staticmethod

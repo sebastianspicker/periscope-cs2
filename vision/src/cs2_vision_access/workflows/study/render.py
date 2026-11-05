@@ -9,10 +9,13 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 
+import numpy as np
+
 from cs2_vision_access.application.configuration.prefs import load_outline_preferences
 from cs2_vision_access.application.ports.rendering import OutlineRenderer
 from cs2_vision_access.application.ports.segmentation import Segmenter, create_segmenter
 from cs2_vision_access.domain.outline import OutlineStyle
+from cs2_vision_access.domain.predictions import InstanceMask
 from cs2_vision_access.domain.safety import validate_video_input, validate_video_output
 from cs2_vision_access.domain.video import VideoRunSummary
 from cs2_vision_access.workflows.study._util import (
@@ -29,6 +32,7 @@ from cs2_vision_access.workflows.study.models import (
     RATING_LIKERT_FIELDS,
     RATING_SCHEMA_VERSION,
     SCHEMA_VERSION,
+    TEMPLATE_EXAMPLE_NOTE,
     StudyInference,
     StudyPackage,
     StudyRenderJob,
@@ -57,6 +61,7 @@ def plan_study_render(
     stimuli_dir = out_root / "stimuli"
     base = package.base_directory
     jobs: list[StudyRenderJob] = []
+    seen_ids: set[str] = set()
 
     inference = package.inference
     for clip in package.clips:
@@ -78,9 +83,17 @@ def plan_study_render(
                     base_directory=base,
                     prefs_loader=load_outline_preferences,
                 )
+            if inference is not None:
+                # Baseline stimuli get the same length limits as outline ones.
                 max_frames = inference.max_frames
                 max_seconds = inference.max_seconds
             stim_id = stimulus_id_for(clip.clip_id, condition.condition_id)
+            if stim_id.casefold() in seen_ids:
+                raise StudyError(
+                    f"stimulus id {stim_id!r} collides with another clip/condition "
+                    "(ids are compared case-insensitively); rename a clip or condition"
+                )
+            seen_ids.add(stim_id.casefold())
             output_path = stimuli_dir / f"{stim_id}.mp4"
             jobs.append(
                 StudyRenderJob(
@@ -159,27 +172,34 @@ def render_study_pack(
         except ValueError as error:
             raise StudyError(f"stimulus output invalid for {job.stimulus_id!r}: {error}") from error
 
-        if job.kind == "baseline":
+        if job.kind == "baseline" and inference is None:
             _copy_video_stimulus(job.input_path, job.output_path, overwrite=overwrite)
             entry["status"] = "copied"
             entry["frames_processed"] = None
             rendered.append(entry)
             continue
 
-        if inference is None or job.style is None:
-            raise StudyError(f"outline job {job.stimulus_id!r} missing inference or style")
-
-        if segmenter is None:
-            factory = segmenter_factory or _default_segmenter_factory
-            segmenter = factory(inference, base)
+        if inference is None:
+            raise StudyError(f"job {job.stimulus_id!r} missing inference")
+        job_segmenter: Segmenter
+        if job.kind == "baseline":
+            # Same frame loop and limits as outline stimuli, but nothing is drawn.
+            job_segmenter = _NoInstanceSegmenter()
+        else:
+            if job.style is None:
+                raise StudyError(f"outline job {job.stimulus_id!r} missing style")
+            if segmenter is None:
+                factory = segmenter_factory or _default_segmenter_factory
+                segmenter = factory(inference, base)
+            job_segmenter = segmenter
 
         if renderer_factory is None:
             raise StudyError("a rendering adapter must be supplied at the composition boundary")
         assert process is not None
         summary = process(
             input_path=job.input_path,
-            segmenter=segmenter,
-            renderer=renderer_factory(job.style),
+            segmenter=job_segmenter,
+            renderer=renderer_factory(job.style or OutlineStyle()),
             output_path=job.output_path,
             display=False,
             realtime_playback=False,
@@ -188,7 +208,7 @@ def render_study_pack(
             max_seconds=job.max_seconds,
             cue_log_path=None,
         )
-        entry["status"] = "rendered"
+        entry["status"] = "rendered" if job.kind == "outline" else "trimmed"
         entry["frames_processed"] = summary.frames_processed
         entry["termination_reason"] = summary.termination_reason
         entry["instances_outlined"] = summary.instances_outlined
@@ -204,6 +224,10 @@ def render_study_pack(
         "jobs": rendered,
         "clips": [clip.as_json() for clip in package.clips],
         "conditions": [condition.as_json() for condition in package.conditions],
+        "presentation_order": {
+            "method": "sort stimulus_id by sha256(participant_id + NUL + stimulus_id)",
+            "function": "cs2_vision_access.workflows.study.presentation_order",
+        },
         "rating_fields": {
             "likert": list(RATING_LIKERT_FIELDS),
             "likert_range": [LIKERT_MIN, LIKERT_MAX],
@@ -215,17 +239,27 @@ def render_study_pack(
 
     if not validate_only:
         _write_json_atomic(out_root / "pack-manifest.v1.json", manifest)
-        _write_ratings_template(out_root / "ratings.template.jsonl", package)
+        template_path = out_root / "ratings.template.jsonl"
+        if not template_path.exists():  # users edit the template in place
+            _write_ratings_template(template_path, package)
         manifest["pack_directory"] = str(out_root.resolve())
         manifest["manifest_path"] = str((out_root / "pack-manifest.v1.json").resolve())
     else:
         # Still useful for operators / tests: emit plan without writing media.
         out_root.mkdir(parents=True, exist_ok=True)
-        if not out_root.is_symlink():
+        # Never clobber the manifest of an already rendered pack with "planned" rows.
+        if not out_root.is_symlink() and not (out_root / "pack-manifest.v1.json").exists():
             _write_json_atomic(out_root / "pack-manifest.v1.json", manifest)
             manifest["manifest_path"] = str((out_root / "pack-manifest.v1.json").resolve())
 
     return manifest
+
+
+class _NoInstanceSegmenter:
+    """Segmenter that never predicts; yields unmodified frames for baseline stimuli."""
+
+    def predict(self, frame_bgr: np.ndarray, *, frame_index: int) -> tuple[InstanceMask, ...]:
+        return ()
 
 
 def _default_segmenter_factory(inference: StudyInference, base_directory: Path) -> Segmenter:
@@ -290,7 +324,7 @@ def _write_ratings_template(path: Path, package: StudyPackage) -> None:
             "error_confusion": 3,
             "would_enable": False,
         },
-        "notes": "replace with participant response; delete unused example lines",
+        "notes": TEMPLATE_EXAMPLE_NOTE,
     }
     text = json.dumps(example, sort_keys=True) + "\n"
     path.write_text(text, encoding="utf-8")

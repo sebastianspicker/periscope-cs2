@@ -71,6 +71,14 @@ def _load_autonomous_state(path: Path) -> dict[str, Any] | None:
     return data if isinstance(data, dict) else None
 
 
+def _matching_prior_state(path: Path, fingerprint: str) -> dict[str, Any] | None:
+    """Prior state only when it was written for the same dataset fingerprint."""
+    prior = _load_autonomous_state(path)
+    if prior is None or prior.get("dataset_fingerprint") != fingerprint:
+        return None
+    return prior
+
+
 def _save_autonomous_state(path: Path, state: Mapping[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(dict(state), indent=2) + "\n", encoding="utf-8")

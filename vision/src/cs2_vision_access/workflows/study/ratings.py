@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Sequence
 from pathlib import Path
@@ -11,6 +12,7 @@ from cs2_vision_access.workflows.study._util import (
     _optional_text,
     _path_segment,
     _required_text,
+    _write_json_atomic,
 )
 from cs2_vision_access.workflows.study.errors import StudyError
 from cs2_vision_access.workflows.study.models import (
@@ -19,6 +21,7 @@ from cs2_vision_access.workflows.study.models import (
     RATING_BOOL_FIELDS,
     RATING_LIKERT_FIELDS,
     RATING_SCHEMA_VERSION,
+    TEMPLATE_EXAMPLE_NOTE,
     RatingAggregate,
     StudyRating,
 )
@@ -143,8 +146,32 @@ def load_ratings_jsonl(path: str | Path) -> tuple[StudyRating, ...]:
     return tuple(ratings)
 
 
+def presentation_order(participant_id: str, stimulus_ids: Sequence[str]) -> list[str]:
+    """Deterministic per-participant shuffle: sort by sha256(participant, stimulus)."""
+
+    def _key(stimulus_id: str) -> str:
+        return hashlib.sha256(f"{participant_id}\0{stimulus_id}".encode()).hexdigest()
+
+    return sorted(stimulus_ids, key=_key)
+
+
 def aggregate_ratings(ratings: Sequence[StudyRating]) -> RatingAggregate:
-    """Compute offline means and would-enable rates from validated ratings."""
+    """Compute offline means and would-enable rates from validated ratings.
+
+    Rows carrying the template example note are skipped; duplicate
+    (participant, session, clip, condition) rows raise ``StudyError``.
+    """
+    ratings = [rating for rating in ratings if rating.notes != TEMPLATE_EXAMPLE_NOTE]
+    seen: set[tuple[str, str, str, str]] = set()
+    for rating in ratings:
+        key = (rating.participant_id, rating.session_id, rating.clip_id, rating.condition_id)
+        if key in seen:
+            raise StudyError(
+                "duplicate rating for participant/session/clip/condition: "
+                f"{rating.participant_id!r}/{rating.session_id!r}/"
+                f"{rating.clip_id!r}/{rating.condition_id!r}"
+            )
+        seen.add(key)
     if not ratings:
         return RatingAggregate(
             schema_version=RATING_SCHEMA_VERSION,
@@ -185,8 +212,18 @@ def aggregate_ratings(ratings: Sequence[StudyRating]) -> RatingAggregate:
             ),
         }
 
+    by_presented_order: dict[str, dict[str, float]] = {}
+    positions = sorted({r.presented_order for r in ratings if r.presented_order is not None})
+    for position in positions:
+        subset = [rating for rating in ratings if rating.presented_order == position]
+        by_presented_order[str(position)] = {
+            name: _mean([float(item.ratings[name]) for item in subset])  # type: ignore[arg-type]
+            for name in RATING_LIKERT_FIELDS
+        }
+
     return RatingAggregate(
         schema_version=RATING_SCHEMA_VERSION,
+        by_presented_order=by_presented_order,
         rating_count=len(ratings),
         participant_count=len(participants),
         session_count=len(sessions),
@@ -208,6 +245,4 @@ def write_aggregate_json(aggregate: RatingAggregate, path: str | Path) -> Path:
     destination.parent.mkdir(parents=True, exist_ok=True)
     if destination.parent.is_symlink():
         raise StudyError("aggregate output parent must not be a symlink")
-    text = json.dumps(aggregate.as_dict(), indent=2, sort_keys=True) + "\n"
-    destination.write_text(text, encoding="utf-8")
-    return destination.resolve()
+    return _write_json_atomic(destination, aggregate.as_dict())

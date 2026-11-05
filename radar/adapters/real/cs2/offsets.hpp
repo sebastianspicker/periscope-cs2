@@ -39,6 +39,13 @@ struct ResolvedOffset {
 /// These mirror the educational offsets in cs2/offsets.hpp but are
 /// resolved from the REAL cs2.exe process at runtime.
 struct Cs2Offsets {
+  // ── Module base ────────────────────────────────────────────────
+  /// client.dll base address (0 when only RVAs are known). Consumers that
+  /// need a base (bomb reads, diagnostics) use this instead of deriving
+  /// base = entity_list − embedded_RVA, which breaks when a runtime JSON
+  /// carries a different dwEntityList than the compiled-in snapshot.
+  std::uint64_t client_base = 0;
+
   // ── Entity System ──────────────────────────────────────────────
   std::uint64_t entity_list = 0;         ///< dwEntityList
   std::uint64_t entity_list_entry = 0;   ///< Entity list entry stride

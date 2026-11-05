@@ -14,6 +14,8 @@ CONDITION_KINDS = frozenset({"baseline", "outline"})
 LIKERT_MIN = 1
 LIKERT_MAX = 5
 DEFAULT_MAX_FRAMES = 18_000
+# Notes text of the ratings-template example line; aggregation skips such rows.
+TEMPLATE_EXAMPLE_NOTE = "replace with participant response; delete unused example lines"
 
 # Protocol scales from docs/USER_STUDY.md / ACCESSIBILITY design.
 RATING_LIKERT_FIELDS = (
@@ -238,9 +240,11 @@ class RatingAggregate:
     mean_likert: dict[str, float]
     would_enable_rate: float
     by_condition: dict[str, dict[str, object]]
+    # Mean Likert ratings per presented_order position (only when ratings carry it).
+    by_presented_order: dict[str, dict[str, float]] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, object]:
-        return {
+        payload: dict[str, object] = {
             "schema_version": self.schema_version,
             "rating_count": self.rating_count,
             "participant_count": self.participant_count,
@@ -251,3 +255,8 @@ class RatingAggregate:
             "would_enable_rate": self.would_enable_rate,
             "by_condition": {key: dict(value) for key, value in self.by_condition.items()},
         }
+        if self.by_presented_order:
+            payload["by_presented_order"] = {
+                key: dict(value) for key, value in self.by_presented_order.items()
+            }
+        return payload

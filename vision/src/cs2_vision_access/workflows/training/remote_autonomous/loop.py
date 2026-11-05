@@ -8,14 +8,16 @@ from pathlib import Path
 from cs2_vision_access.workflows.training import remote_autonomous_bindings as deps
 
 from .bootstrap import _phase_bootstrap_labels
-from .fsutil import _auto_device
+from .fsutil import _auto_device, _dataset_fingerprint
 from .models import (
     _DEFAULT_CS2_10K_HOLDOUT_VIDEO_FRACTION,
+    _STATE_FILENAME,
     AutonomousReport,
 )
 from .package import _phase_package_report
 from .resolve import _phase_resolve_data
 from .splits import _phase_held_out_split
+from .state import _matching_prior_state
 from .train_loop import _phase_train_self_train_loop
 
 
@@ -235,6 +237,11 @@ def run_autonomous_loop(
     )
 
     # --- Phase: held-out split ----------------------------------------------
+    fingerprint = _dataset_fingerprint(images_dir, labels_dir)
+    state_path = data_dir / _STATE_FILENAME
+    resume_ok = resume and _matching_prior_state(state_path, fingerprint) is not None
+    if resume and not resume_ok and state_path.is_file():
+        notes.append("resume ignored: dataset differs from the saved autonomous state")
     split = _phase_held_out_split(
         data_dir,
         images_dir=images_dir,
@@ -243,6 +250,7 @@ def run_autonomous_loop(
         allow_leaky_val=allow_leaky_val,
         val_fraction=val_fraction,
         notes=notes,
+        keep_splits=resume_ok,
     )
 
     print(
@@ -275,7 +283,8 @@ def run_autonomous_loop(
         use_teacher_gate=use_teacher_gate,
         teacher_min_iou=teacher_min_iou,
         continue_on_self_train_error=continue_on_self_train_error,
-        resume=resume,
+        resume=resume_ok,
+        dataset_fingerprint=fingerprint,
         stop_on_plateau_iters=stop_on_plateau_iters,
         notes=notes,
         status=status,

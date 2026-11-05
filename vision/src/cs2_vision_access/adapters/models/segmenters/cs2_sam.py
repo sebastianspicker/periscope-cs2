@@ -18,6 +18,7 @@ Pre-trained weights
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any, cast
 
@@ -41,6 +42,8 @@ from cs2_vision_access.adapters.models.segmenters.protocol import (
     SegmenterError,
     resolve_class_ids,
 )
+from cs2_vision_access.application.configuration.data.model_registry import MODEL_REGISTRY
+from cs2_vision_access.application.model_assets import ModelDownloadError, verify_sha256_file
 from cs2_vision_access.application.model_assets.manifest import verify_model
 from cs2_vision_access.domain.predictions import InstanceMask
 
@@ -84,7 +87,42 @@ class Cs2SamSegmenter:
         self.device = device
         self.backend = CS2_SAM_BACKEND
 
-        # 2. Load Vombit detector.
+        # 2. Resolve and checksum-verify the EdgeSAM files before any ORT session.
+        encoder_path = resolve_model_path(
+            sam_encoder_path,
+            model_dir / _DEFAULT_ENCODER,
+            "CS2_SAM_ENCODER",
+            "https://huggingface.co/chongzhou/EdgeSAM",
+        )
+        decoder_path = resolve_model_path(
+            sam_decoder_path,
+            model_dir / _DEFAULT_DECODER,
+            "CS2_SAM_DECODER",
+            "https://huggingface.co/chongzhou/EdgeSAM",
+        )
+
+        # The default files (what download-model fetches) must match their pins; an
+        # explicit path or env override is a deliberate custom export and only logged.
+        for path, default, key in (
+            (encoder_path, model_dir / _DEFAULT_ENCODER, "edgesam-encoder"),
+            (decoder_path, model_dir / _DEFAULT_DECODER, "edgesam-decoder"),
+        ):
+            path = Path(path)
+            if not path.is_file():
+                raise SegmenterError(f"{key} not found: {path}")
+            if path.resolve() != default.resolve():
+                logging.getLogger(__name__).warning(
+                    "%s at %s is user-supplied; not checked against the pinned SHA-256",
+                    key,
+                    path,
+                )
+                continue
+            try:
+                verify_sha256_file(path, MODEL_REGISTRY[key]["sha256"])
+            except (ModelDownloadError, OSError) as error:
+                raise SegmenterError(f"{key} failed SHA-256 verification: {error}") from error
+
+        # 3. Load Vombit detector.
         from cs2_vision_access.adapters.models import create_ort_session
 
         self._detector = create_ort_session(model_path, device=device)
@@ -100,20 +138,7 @@ class Cs2SamSegmenter:
         self._det_output_name = det_io["output_name"]
         self._det_num_classes = det_io["num_classes"]
 
-        # 3. Load EdgeSAM encoder + decoder.
-        encoder_path = resolve_model_path(
-            sam_encoder_path,
-            model_dir / _DEFAULT_ENCODER,
-            "CS2_SAM_ENCODER",
-            "https://huggingface.co/chongzhou/EdgeSAM",
-        )
-        decoder_path = resolve_model_path(
-            sam_decoder_path,
-            model_dir / _DEFAULT_DECODER,
-            "CS2_SAM_DECODER",
-            "https://huggingface.co/chongzhou/EdgeSAM",
-        )
-
+        # 4. Load EdgeSAM encoder + decoder.
         self._sam_encoder = create_ort_session(encoder_path, device=device)
         self._sam_decoder = create_ort_session(decoder_path, device=device)
 

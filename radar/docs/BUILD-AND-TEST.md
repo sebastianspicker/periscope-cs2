@@ -45,10 +45,9 @@ policy and read-shaping posture in `tests/stack_posture_test.cpp`: burst bounds,
 floor restore, ladder-survives-shaper, pin immunity, relaxation cadence). It runs
 with the default simulation configuration on every platform.
 
-`tests/` is listed in the root `.gitignore`, so a fresh clone has no test
-directory and CMake configure fails at `add_subdirectory(tests)`. Keep the
-directory present locally (it is needed by `enable_testing()`), or drop the
-ignore rule before relying on a clean-clone build.
+The portable host test and its CMake definition are tracked because the default
+build and CI require them. Other local test and lab directories remain ignored.
+A clean checkout includes the suite used by `ctest`.
 
 Strategy lesson sources are tracked even though `build_*/` is ignored — the
 `crosscutting/build_watermark/` pair has a narrow `.gitignore` exception because

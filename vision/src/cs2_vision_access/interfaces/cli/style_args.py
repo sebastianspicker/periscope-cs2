@@ -12,12 +12,14 @@ from cs2_vision_access.adapters.rendering.renderer import (
     OUTLINE_PRESETS,
     STROKE_PATTERNS,
     OutlineStyle,
-    get_outline_preset,
 )
 from cs2_vision_access.application.configuration.prefs import (
     DEFAULT_PRESET,
     OutlinePreferences,
     load_outline_preferences,
+)
+from cs2_vision_access.application.configuration.prefs.resolve import (
+    resolve_style_with_preferences,
 )
 
 
@@ -174,71 +176,19 @@ def _outline_style(arguments: argparse.Namespace) -> OutlineStyle:
     if getattr(arguments, "prefs", None) is not None:
         preferences = load_outline_preferences(arguments.prefs)
 
-    if arguments.outline_preset is not None:
-        preset_name = arguments.outline_preset
-    elif preferences is not None:
-        preset_name = preferences.preset
-    else:
-        preset_name = DEFAULT_PRESET
-
-    base = get_outline_preset(preset_name)
-
-    def _pick(cli_value: object, prefs_value: object, base_value: object) -> object:
-        if cli_value is not None:
-            return cli_value
-        if prefs_value is not None:
-            return prefs_value
-        return base_value
-
-    def _integer(value: object, field: str) -> int:
-        if isinstance(value, bool) or not isinstance(value, (int, float, str)):
-            raise ValueError(f"{field} must be an integer-compatible value")
-        return int(value)
-
-    prefs_inner = None if preferences is None else preferences.inner_color
-    prefs_outer = None if preferences is None else preferences.outer_color
-    prefs_inner_width = None if preferences is None else preferences.inner_width
-    prefs_outer_width = None if preferences is None else preferences.outer_width
-    prefs_fill = None if preferences is None else preferences.fill_opacity
-    prefs_scale = None if preferences is None else preferences.scale_with_frame
-    prefs_pattern = None if preferences is None else preferences.stroke_pattern
-    prefs_period = None if preferences is None else preferences.dash_period_px
-    prefs_fill_mode = None if preferences is None else preferences.fill_mode
-    prefs_halo_blur = None if preferences is None else preferences.halo_blur
-    prefs_adapt = None if preferences is None else preferences.adapt_width_to_area
-    prefs_kernel = None if preferences is None else preferences.outline_kernel
-
-    if arguments.fixed_widths:
-        scale_with_frame = False
-    else:
-        scale_with_frame = bool(_pick(None, prefs_scale, base.scale_with_frame))
-
-    if getattr(arguments, "adapt_width", False):
-        adapt_width_to_area = True
-    else:
-        adapt_width_to_area = bool(_pick(None, prefs_adapt, base.adapt_width_to_area))
-
-    return OutlineStyle(
-        inner_color=str(_pick(arguments.inner_color, prefs_inner, base.inner_color)),
-        outer_color=str(_pick(arguments.outer_color, prefs_outer, base.outer_color)),
-        inner_width=_integer(
-            _pick(arguments.inner_width, prefs_inner_width, base.inner_width), "inner_width"
-        ),
-        outer_width=_integer(
-            _pick(arguments.outer_width, prefs_outer_width, base.outer_width), "outer_width"
-        ),
-        fill_opacity=float(
-            _pick(arguments.fill_opacity, prefs_fill, base.fill_opacity)  # type: ignore[arg-type]
-        ),
-        scale_with_frame=scale_with_frame,
-        stroke_pattern=str(_pick(arguments.stroke_pattern, prefs_pattern, base.stroke_pattern)),
-        dash_period_px=_integer(
-            _pick(arguments.dash_period, prefs_period, base.dash_period_px), "dash_period_px"
-        ),
-        fill_mode=str(_pick(arguments.fill_mode, prefs_fill_mode, base.fill_mode)),
-        halo_blur=_integer(
-            _pick(arguments.halo_blur, prefs_halo_blur, base.halo_blur), "halo_blur"
-        ),
-        adapt_width_to_area=adapt_width_to_area,
-        outline_kernel=str(_pick(arguments.outline_kernel, prefs_kernel, base.outline_kernel)),
+    return resolve_style_with_preferences(
+        preferences,
+        preset=arguments.outline_preset,
+        inner_color=arguments.inner_color,
+        outer_color=arguments.outer_color,
+        inner_width=arguments.inner_width,
+        outer_width=arguments.outer_width,
+        fill_opacity=arguments.fill_opacity,
+        scale_with_frame=False if arguments.fixed_widths else None,
+        stroke_pattern=arguments.stroke_pattern,
+        dash_period_px=arguments.dash_period,
+        fill_mode=arguments.fill_mode,
+        halo_blur=arguments.halo_blur,
+        adapt_width_to_area=True if getattr(arguments, "adapt_width", False) else None,
+        outline_kernel=arguments.outline_kernel,
     )

@@ -331,13 +331,15 @@ uv run cs2-vision review-drafts reject \
 uv run cs2-vision review-drafts promote \
   --draft-status data/staging/boxes/labels_draft/draft_status.json \
   --draft-labels-dir data/staging/boxes/labels_draft \
-  --output-labels-dir data/cs2_players/labels/train \
-  --only-accepted
+  --output-labels-dir data/cs2_players/labels/train
 ```
 
 `accept` / `reject` rewrite `draft_status.json` atomically. `promote` copies only
 eligible `.txt` labels (mirroring nested relative paths) and sets those entries to
-`promoted`. Pass `--only-accepted` to exclude already-promoted re-copies. Symlinked
+`promoted`. By default only `accepted` entries are copied; `--include-promoted`
+also re-copies already-promoted ones. A destination label that exists with
+different content (for example a hand fix) is skipped and reported unless
+`--force` is passed. Symlinked
 status/label paths fail closed.
 
 ## Training

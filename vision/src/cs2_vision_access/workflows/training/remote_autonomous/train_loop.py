@@ -21,7 +21,7 @@ from .models import (
 )
 from .state import (
     _cache_best_pt,
-    _load_autonomous_state,
+    _matching_prior_state,
     _rank_and_write_uncertain_review,
     _resolve_self_train_teacher,
     _save_autonomous_state,
@@ -55,6 +55,7 @@ def _phase_train_self_train_loop(
     teacher_min_iou: float,
     continue_on_self_train_error: bool,
     resume: bool,
+    dataset_fingerprint: str,
     stop_on_plateau_iters: int,
     notes: list[str],
     status: str,
@@ -73,7 +74,7 @@ def _phase_train_self_train_loop(
     plateau_streak = 0
 
     if resume:
-        prior = _load_autonomous_state(state_path)
+        prior = _matching_prior_state(state_path, dataset_fingerprint)
         if prior is not None:
             completed = int(prior.get("completed_iters", 0) or 0)
             if completed > 0:
@@ -305,6 +306,7 @@ def _phase_train_self_train_loop(
                 _save_autonomous_state(
                     state_path,
                     {
+                        "dataset_fingerprint": dataset_fingerprint,
                         "completed_iters": it - 1,
                         "best_iteration": best_iteration,
                         "best_map": best_map,
@@ -383,6 +385,7 @@ def _phase_train_self_train_loop(
         _save_autonomous_state(
             state_path,
             {
+                "dataset_fingerprint": dataset_fingerprint,
                 "completed_iters": it,
                 "best_iteration": best_iteration,
                 "best_map": best_map,

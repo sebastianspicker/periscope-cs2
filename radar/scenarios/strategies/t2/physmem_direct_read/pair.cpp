@@ -6,6 +6,8 @@ namespace strategies {
 namespace {
 
 StrategyResult run(sim::World& w, sim::Narrator& n) {
+  // Lab precondition: DSE disabled, otherwise red bails and blue is never exercised.
+  w.trust.dse_enforced = false;
   const auto red = examples::physmem_direct_read::apply(w);
   const auto blue = examples::physmem_direct_read::detect(w);
   StrategyResult result;

@@ -34,8 +34,4 @@ StrategyEntry entry_55_network_multibox_aim() {
           run};
 }
 
-StrategyEntry entry_73_network_multibox_aim() {
-  return entry_55_network_multibox_aim();
-}
-
 }  // namespace strategies

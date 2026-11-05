@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -9,6 +10,8 @@ import numpy as np
 
 from cs2_vision_access.adapters.models.runtime.providers.detect import gpu_info
 from cs2_vision_access.adapters.models.runtime.providers.session import create_ort_session
+
+logger = logging.getLogger(__name__)
 
 
 def benchmark_device(
@@ -24,19 +27,14 @@ def benchmark_device(
     session = create_ort_session(model_path, device=device)
 
     inp = session.get_inputs()[0]
-    shape = inp.shape
-    if len(shape) == 4:
-        n, c, h, w = shape
-        if h is None:
-            h = input_size[0]
-        if w is None:
-            w = input_size[1]
-    else:
-        h, w = input_size
-        c = 3
-        n = batch
-
-    dummy = np.random.randn(n, c, h, w).astype(np.float32)
+    # Dynamic dims arrive as str/None; fall back to batch / 3 channels / input_size.
+    defaults = (batch, 3, *input_size)
+    shape = tuple(inp.shape) if len(inp.shape) == 4 else (None,) * 4
+    dims = [
+        d if isinstance(d, int) and d > 0 else fb for d, fb in zip(shape, defaults, strict=True)
+    ]
+    dtype = np.float16 if inp.type == "tensor(float16)" else np.float32
+    dummy = np.random.randn(*dims).astype(dtype)
     input_name = inp.name
     output_name = session.get_outputs()[0].name
 
@@ -103,4 +101,5 @@ def _benchmark_candidate(model_path: str | Path, candidate: str) -> dict[str, An
     try:
         return benchmark_device(model_path, device=candidate, n_warmup=5, n_bench=20)
     except (OSError, RuntimeError, TypeError, ValueError):
+        logger.warning("Benchmark of device %r failed", candidate, exc_info=True)
         return None

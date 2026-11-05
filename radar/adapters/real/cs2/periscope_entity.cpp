@@ -2,6 +2,7 @@
 
 #include "real/cs2/periscope_entity.hpp"
 #include "real/cs2/periscope_scanner.hpp"
+#include "real/cs2/offsets_snapshot.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -82,24 +83,28 @@ bool EntityCollector::collect_controller(uint64_t addr, PlayerData& out,
 bool EntityCollector::collect_pawn(uint64_t addr, PlayerData& out,
     bool (*readFn)(uint64_t addr, void* buf, size_t size)) noexcept
 {
-    // Batch read health, origin, eye angles
+    // One batch read spanning health (int32 @ 0x34C), origin (m_vOldOrigin
+    // @ 0x14A4) and eye angles (m_angEyeAngles @ 0x3600). Pads are derived
+    // from the pinned schema constants so a future layout shift moves them.
     struct PawnData {
-        float health;
-        uint8_t pad1[0x13B8 - 0x34C - 4];
+        int32_t health;
+        uint8_t pad1[SchemaOffsets::m_vOldOrigin -
+                    SchemaOffsets::m_iHealth - sizeof(int32_t)];
         Vector3 origin;
-        uint8_t pad2[0x3340 - 0x13B8 - 12];
+        uint8_t pad2[SchemaOffsets::m_angEyeAngles -
+                    SchemaOffsets::m_vOldOrigin - sizeof(Vector3)];
         Vector3 eyeAngles;
     };
 
-    PawnData data;
-    if (!readFn(addr + 0x34C, &data, sizeof(data)))
+    PawnData data{};
+    if (!readFn(addr + SchemaOffsets::m_iHealth, &data, sizeof(data)))
         return false;
 
-    out.health = data.health;
+    out.health = static_cast<float>(data.health);
     out.origin = data.origin;
     out.eyeAngles = data.eyeAngles;
     out.pawnAddr = addr;
-    out.alive = (data.health > 0.0f && data.health <= 100.0f);
+    out.alive = (data.health > 0);
     return true;
 }
 
@@ -130,23 +135,41 @@ bool EntityCollector::collect_bomb(uint64_t bombAddr,
 {
     if (!bombAddr) return false;
 
+    // C_PlantedC4 (November 2026 schema):
+    //   0x1288 m_bBombTicking (u8)  0x128C m_nBombSite (i32)
+    //   0x12B8 m_flC4Blow (f32)     0x12C4 m_bBeingDefused (u8)
     struct BombDataRaw {
-        uint8_t pad1[0x6C];
-        uint32_t bombSite;
-        uint8_t pad2[4];
-        uint8_t isPlanted;
-        uint8_t pad3[0xB0 - 0x6C - 4 - 4 - 1];
-        Vector3 origin;
-        float timer;
+        uint8_t pad1[snapshot::fields::m_bBombTicking];
+        uint8_t bombTicking;
+        uint8_t pad2[snapshot::fields::m_nBombSite -
+                    snapshot::fields::m_bBombTicking - 1];
+        int32_t bombSite;
+        uint8_t pad3[snapshot::fields::m_flC4Blow -
+                    snapshot::fields::m_nBombSite - sizeof(int32_t)];
+        float blowTime;
+        uint8_t pad4[snapshot::fields::m_bBeingDefused -
+                    snapshot::fields::m_flC4Blow - sizeof(float)];
+        uint8_t beingDefused;
     };
 
-    BombDataRaw raw;
+    BombDataRaw raw{};
     if (!readFn(bombAddr, &raw, sizeof(raw)))
         return false;
 
-    m_bomb.planted = (raw.isPlanted != 0);
-    m_bomb.position = raw.origin;
-    m_bomb.timer = raw.timer;
+    m_bomb.planted = (raw.bombTicking != 0);
+    m_bomb.defusing = (raw.beingDefused != 0);
+    m_bomb.timer = raw.blowTime;
+
+    // Origin via the game scene node (m_pGameSceneNode -> m_vecAbsOrigin);
+    // a defused/unplanted C4 has a null node and keeps the previous position.
+    uint64_t scene = 0;
+    if (readFn(bombAddr + snapshot::fields::m_pGameSceneNode, &scene,
+               sizeof(scene)) && scene) {
+        Vector3 origin{};
+        if (readFn(scene + snapshot::fields::m_vecAbsOrigin, &origin,
+                   sizeof(origin)))
+            m_bomb.position = origin;
+    }
     return m_bomb.planted;
 }
 
@@ -204,10 +227,11 @@ size_t EntityCollector::collect(uint64_t entityListAddr,
     rng_state ^= rng_state >> 7;
     rng_state ^= rng_state << 17;
 
-    // Build shuffled slot index list (45-63 slots per frame)
+    // Build shuffled slot index list (45-63 slots per frame). Slot 0 is the
+    // null entity — controllers start at index 1.
     int indices[kMaxPlayers];
     int count = 45 + static_cast<int>(rng_state % 19);
-    for (int i = 0; i < count; ++i) indices[i] = i;
+    for (int i = 0; i < count; ++i) indices[i] = i + 1;
 
     // Fisher-Yates shuffle with PRNG advancement
     for (int i = count - 1; i > 0; --i) {
@@ -227,11 +251,23 @@ size_t EntityCollector::collect(uint64_t entityListAddr,
         is_dummy[rng_state % count] = true;
     }
 
+    // Chunked entity identity (Source2): the list object holds a table of
+    // chunk pointers at +0x10; chunk n = table + n*8, and the slot for
+    // index i is chunk + (i & 0x1FF) * 0x70 (holds the entity pointer).
+    // Every controller index in this walk is < 512, so the chunk-0 pointer
+    // is read once here and reused per slot.
+    uint64_t chunk0 = 0;
+    if (!readFn(entityListAddr + snapshot::constants::entity_chunk_table_offset,
+                &chunk0, sizeof(chunk0)) || !chunk0)
+        return 0;
+    const uint32_t chunkMask =
+        (1u << snapshot::constants::entity_chunk_shift) - 1u;
+
     // Iterate shuffled slots (non-sequential, randomized stride)
     for (int idx = 0; idx < count; ++idx) {
         uint32_t i = static_cast<uint32_t>(indices[idx]);
-        uint64_t entryAddr = entityListAddr +
-            static_cast<uint64_t>(i) * SchemaOffsets::kIdentityStride;
+        uint64_t entryAddr = chunk0 +
+            static_cast<uint64_t>(i & chunkMask) * SchemaOffsets::kIdentityStride;
 
         // Dummy read: touch the slot but discard — breaks stride detection
         if (is_dummy[idx]) {
@@ -251,19 +287,31 @@ size_t EntityCollector::collect(uint64_t entityListAddr,
         if (!collect_controller(controllerAddr, player, readFn))
             continue;
 
-        // Read pawn handle from controller
-        uint64_t pawnHandle = 0;
+        // Read pawn handle from controller (4-byte handle, 15-bit index)
+        uint32_t pawnHandle = 0;
         if (!readFn(controllerAddr + SchemaOffsets::m_hPlayerPawn,
                     &pawnHandle, sizeof(pawnHandle)))
             continue;
 
         if (pawnHandle) {
-            uint32_t pawnIndex = static_cast<uint32_t>(pawnHandle & 0x7FFF);
-            uint64_t pawnEntryAddr = entityListAddr +
-                static_cast<uint64_t>(pawnIndex) * SchemaOffsets::kIdentityStride;
+            const uint32_t pawnIndex =
+                pawnHandle & snapshot::constants::entity_handle_index_mask;
+            // Pawn may live in any chunk: resolve its chunk pointer, then
+            // the slot, then the pawn object pointer.
+            uint64_t chunk = 0;
+            const uint64_t chunkTableEntry =
+                entityListAddr + snapshot::constants::entity_chunk_table_offset +
+                static_cast<uint64_t>(
+                    pawnIndex >> snapshot::constants::entity_chunk_shift) *
+                    sizeof(uint64_t);
             uint64_t pawnAddr = 0;
-            if (readFn(pawnEntryAddr, &pawnAddr, sizeof(pawnAddr)) && pawnAddr) {
-                collect_pawn(pawnAddr, player, readFn);
+            if (readFn(chunkTableEntry, &chunk, sizeof(chunk)) && chunk) {
+                const uint64_t pawnEntryAddr = chunk +
+                    static_cast<uint64_t>(pawnIndex & chunkMask) *
+                        SchemaOffsets::kIdentityStride;
+                if (readFn(pawnEntryAddr, &pawnAddr, sizeof(pawnAddr)) && pawnAddr) {
+                    collect_pawn(pawnAddr, player, readFn);
+                }
             }
         }
 

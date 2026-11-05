@@ -14,6 +14,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -130,40 +131,55 @@ def assemble_dataset(
             "assign them): " + ", ".join(unused)
         )
 
-    _prepare_output_root(output, overwrite=overwrite)
+    _check_output_root(output, overwrite=overwrite)
 
+    # Validate every session before touching the output root.
+    collected: list[tuple[str, str, list[tuple[Path, Path, str]]]] = []
+    for split in REQUIRED_SPLITS + OPTIONAL_SPLITS:
+        for session_id in plan.sessions_for(split):
+            collected.append(
+                (split, session_id, _collect_session_pairs(sessions[session_id], session_id))
+            )
+
+    output.mkdir(parents=True, exist_ok=True)
+    # Build beside the output so the final swap is a same-filesystem rename.
+    work = Path(tempfile.mkdtemp(dir=output.parent, prefix=f".{output.name}.assemble-"))
+    build = work / "new"
+    build.mkdir()
     image_count = 0
     label_count = 0
     copied_files = 0
-    for split in REQUIRED_SPLITS + OPTIONAL_SPLITS:
-        session_ids = plan.sessions_for(split)
-        if not session_ids:
-            continue
-        for session_id in session_ids:
-            pairs = _collect_session_pairs(sessions[session_id], session_id)
+    try:
+        for split, session_id, pairs in collected:
             for image_path, label_path, relative_stem in pairs:
                 relative = Path(relative_stem)
                 destination_image = (
-                    output
+                    build
                     / "images"
                     / split
                     / session_id
                     / relative.with_suffix(image_path.suffix.lower())
                 )
                 destination_label = (
-                    output / "labels" / split / session_id / relative.with_suffix(".txt")
+                    build / "labels" / split / session_id / relative.with_suffix(".txt")
                 )
                 destination_image.parent.mkdir(parents=True, exist_ok=True)
                 destination_label.parent.mkdir(parents=True, exist_ok=True)
-                if destination_image.is_symlink() or destination_label.is_symlink():
-                    raise DatasetSplitError(f"refusing to overwrite symlink under {session_id}")
                 shutil.copy2(image_path, destination_image)
                 shutil.copy2(label_path, destination_label)
                 image_count += 1
                 label_count += 1
                 copied_files += 2
+        _write_sessions_json(build, plan)
+        _swap_into_place(build, output, work / "old")
+    except _RollbackFailedError:
+        raise  # work/ still holds the previous dataset; keep it for manual recovery
+    except BaseException:
+        _remove_work_dir(work, output)
+        raise
+    _remove_work_dir(work, output)
 
-    sessions_path = _write_sessions_json(output, plan)
+    sessions_path = (output / DEFAULT_SESSIONS_FILENAME).resolve()
     return AssembleDatasetSummary(
         staging_root=str(staging.resolve()),
         output_root=str(output.resolve()),
@@ -177,30 +193,65 @@ def assemble_dataset(
     )
 
 
-def _prepare_output_root(output: Path, *, overwrite: bool) -> None:
+class _RollbackFailedError(DatasetSplitError):
+    """Swap failed and the previous dataset could not be restored."""
+
+
+_MANAGED_NAMES = ("images", "labels", DEFAULT_SESSIONS_FILENAME)
+
+
+def _check_output_root(output: Path, *, overwrite: bool) -> None:
+    """Reject a bad output root without modifying it."""
     if not output.exists():
-        output.mkdir(parents=True, exist_ok=True)
         return
     if not output.is_dir():
         raise DatasetSplitError(f"output root is not a directory: {output}")
-    managed = (
-        output / "images",
-        output / "labels",
-        output / DEFAULT_SESSIONS_FILENAME,
-    )
-    existing = [path for path in managed if path.exists() or path.is_symlink()]
-    if not existing:
-        return
-    if not overwrite:
+    existing = [
+        name for name in _MANAGED_NAMES if (output / name).exists() or (output / name).is_symlink()
+    ]
+    if existing and not overwrite:
         raise DatasetSplitError(
             "output root already has images/, labels/, or sessions.json; "
             "pass overwrite=True / --overwrite to replace the assembled dataset"
         )
-    for path in existing:
-        if path.is_symlink() or path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            shutil.rmtree(path)
+
+
+def _swap_into_place(build: Path, output: Path, old: Path) -> None:
+    """Move the old managed entries aside, move the new ones in; roll back on failure."""
+    old.mkdir()
+    moved_old: list[str] = []
+    moved_new: list[str] = []
+    try:
+        for name in _MANAGED_NAMES:
+            target = output / name
+            if target.exists() or target.is_symlink():
+                os.replace(target, old / name)
+                moved_old.append(name)
+            os.replace(build / name, target)
+            moved_new.append(name)
+    except BaseException as error:  # incl. KeyboardInterrupt: never leave output half-swapped
+        try:
+            for name in moved_new:
+                os.replace(output / name, build / name)
+            for name in moved_old:
+                os.replace(old / name, output / name)
+        except OSError as rollback_error:
+            raise _RollbackFailedError(
+                f"could not restore previous dataset ({rollback_error}); it is kept in {old}"
+            ) from error
+        if isinstance(error, OSError):
+            raise DatasetSplitError(f"could not replace assembled dataset: {error}") from error
+        raise
+
+
+def _remove_work_dir(work: Path, output: Path) -> None:
+    """Remove the temp dir this call created; refuse anything that is not one."""
+    expected_parent = output.parent.resolve()
+    if work.resolve().parent != expected_parent or not work.name.startswith(
+        f".{output.name}.assemble-"
+    ):
+        raise DatasetSplitError(f"refusing to remove unexpected work directory: {work}")
+    shutil.rmtree(work)
 
 
 def _collect_session_pairs(session_dir: Path, session_id: str) -> list[tuple[Path, Path, str]]:

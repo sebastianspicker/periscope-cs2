@@ -10,6 +10,7 @@ from typing import Any
 
 import numpy as np
 
+from cs2_vision_access.adapters.rendering.renderer.roi import contour_roi, shift_contours
 from cs2_vision_access.domain.outline import (
     DRAW_COORDINATE_SHIFT,
     OutlineStyle,
@@ -28,17 +29,23 @@ def apply_tint_fill(
     Composites a solid-colour polygon fill over the frame via
     ``cv2.addWeighted``.
     """
-    overlay = output.copy()
+    height, width = output.shape[:2]
+    x0, y0, x1, y1 = contour_roi(
+        contours, 2, height, width
+    )  # fillPoly rounds fractional vertices up
+    result = output.copy()
+    if x1 <= x0 or y1 <= y0:
+        return result
+    region = result[y0:y1, x0:x1]
+    overlay = region.copy()
     cv2.fillPoly(
         overlay,
-        contours,
+        shift_contours(contours, x0, y0),
         parse_hex_bgr(style.inner_color),
         shift=DRAW_COORDINATE_SHIFT,
     )
-    return np.asarray(
-        cv2.addWeighted(overlay, style.fill_opacity, output, 1.0 - style.fill_opacity, 0),
-        dtype=np.uint8,
-    )
+    region[:] = cv2.addWeighted(overlay, style.fill_opacity, region, 1.0 - style.fill_opacity, 0)
+    return result
 
 
 def apply_halo_fill(
@@ -52,14 +59,19 @@ def apply_halo_fill(
     ``fill_opacity`` is glow strength in [0, 0.35].  Dual-stroke outlines
     are drawn separately on top by the caller.
     """
-    height, width = output.shape[:2]
-    mask = np.zeros((height, width), dtype=np.uint8)
-    cv2.fillPoly(mask, contours, 255, shift=DRAW_COORDINATE_SHIFT)
-
     blur = int(style.halo_blur)
     if blur % 2 == 0:
         blur += 1
     kernel_span = max(3, blur)
+
+    # Dilate + blur only reach ~kernel_span px past the contours; work on that bbox.
+    height, width = output.shape[:2]
+    x0, y0, x1, y1 = contour_roi(contours, kernel_span + blur, height, width)
+    result = output.copy()
+    if x1 <= x0 or y1 <= y0:
+        return result
+    mask = np.zeros((y1 - y0, x1 - x0), dtype=np.uint8)
+    cv2.fillPoly(mask, shift_contours(contours, x0, y0), 255, shift=DRAW_COORDINATE_SHIFT)
 
     structuring = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_span, kernel_span))
     expanded = cv2.dilate(mask, structuring)
@@ -68,7 +80,8 @@ def apply_halo_fill(
     alpha = (blurred.astype(np.float32) / 255.0) * float(style.fill_opacity)
     color = np.array(parse_hex_bgr(style.outer_color), dtype=np.float32)
 
-    out_f = output.astype(np.float32)
+    out_f = result[y0:y1, x0:x1].astype(np.float32)
     for channel in range(3):
         out_f[:, :, channel] = out_f[:, :, channel] * (1.0 - alpha) + color[channel] * alpha
-    return np.clip(out_f, 0, 255).astype(np.uint8)
+    result[y0:y1, x0:x1] = np.clip(out_f, 0, 255).astype(np.uint8)
+    return result

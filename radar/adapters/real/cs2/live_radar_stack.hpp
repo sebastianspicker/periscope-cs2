@@ -225,7 +225,7 @@ struct BlueDualConfig {
 
 BlueDualScore score_blue_dual(const BlueDualConfig& cfg) noexcept;
 
-// ── Intel exposure + stealth shaping (Oct-2026 posture) ──────────
+// ── Intel exposure + stealth shaping (Nov-2026 posture) ──────────
 // The policy itself lives in real/cs2/posture.hpp so it stays pure and
 // host-testable: IntelMode, IntelPolicy, BehaviorShaper, DegradeLadder and the
 // apply_posture composition. Ordering is load-bearing — the event shaper raises
