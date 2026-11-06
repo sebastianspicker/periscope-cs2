@@ -140,6 +140,19 @@ StrategyEntry entry_151_uefi_dma_bypass();
 StrategyEntry entry_152_uefi_txt_measured_boot();
 StrategyEntry entry_153_pe_timestamp_clone();
 
+// Wave 18: assessment-ledger pairs E18–E28 (IDs 154–164)
+StrategyEntry entry_154_handle_rights_strip();
+StrategyEntry entry_155_cpuid_hypercall_channel();
+StrategyEntry entry_156_eprocess_derivation();
+StrategyEntry entry_157_auditor_introspection_spoof();
+StrategyEntry entry_158_loader_addr_registry();
+StrategyEntry entry_159_dual_view_shadow_pages();
+StrategyEntry entry_160_zero_run_carving();
+StrategyEntry entry_161_torn_snapshot_artifacts();
+StrategyEntry entry_162_dirty_bitmap_invalidation();
+StrategyEntry entry_163_stale_chunk_cache();
+StrategyEntry entry_164_escalation_cost_curve();
+
 // Wave 8: remaining tier and crosscutting strategy pairs (IDs 29-99)
 StrategyEntry entry_29_process_cooccurrence();
 StrategyEntry entry_31_parent_lineage();
@@ -279,6 +292,13 @@ const std::vector<StrategyEntry>& catalog() {
            // UEFI firmware strategies
            entry_150_uefi_secureboot_bypass(),       entry_151_uefi_dma_bypass(),
            entry_152_uefi_txt_measured_boot(),        entry_153_pe_timestamp_clone(),
+           // Wave 18: assessment-ledger pairs E18–E28 (IDs 154–164)
+           entry_154_handle_rights_strip(),          entry_155_cpuid_hypercall_channel(),
+           entry_156_eprocess_derivation(),          entry_157_auditor_introspection_spoof(),
+           entry_158_loader_addr_registry(),         entry_159_dual_view_shadow_pages(),
+           entry_160_zero_run_carving(),             entry_161_torn_snapshot_artifacts(),
+           entry_162_dirty_bitmap_invalidation(),    entry_163_stale_chunk_cache(),
+           entry_164_escalation_cost_curve(),
            // Wave 8: remaining tier and crosscutting strategy pairs
            entry_29_process_cooccurrence(),          entry_31_parent_lineage(),
            entry_32_inmatch_only(),                  entry_33_driver_allowlist(),

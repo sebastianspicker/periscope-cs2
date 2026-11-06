@@ -23,7 +23,9 @@ from cs2_vision_access.adapters.capture.live_pipeline.frame import _create_rende
 from cs2_vision_access.adapters.capture.manager import CaptureManager
 from cs2_vision_access.adapters.models.segmenters import Segmenter
 from cs2_vision_access.adapters.rendering.renderer import OutlineStyle
+from cs2_vision_access.application.live.inference.scene import SceneChangeDetector
 from cs2_vision_access.application.live.inference.temporal import SuppressOnlyTemporalPolicy
+from cs2_vision_access.application.live.inference.tracks import TrackAnimator
 
 _DIAGNOSTIC_PRINT_INTERVAL = 5.0
 
@@ -93,12 +95,32 @@ def run_live_pipeline(
     )
     display_mgr.open(actual_width, actual_height)
 
+    # Ledger E7/E6/E31: build the opt-in per-frame filters from the config.
+    quality_gate = (
+        cfg.quality_gate_config
+        if cfg.quality_gate_config is not None and cfg.quality_gate_config.enabled
+        else None
+    )
+    track_animator = (
+        TrackAnimator(cfg.track_smoothing_config)
+        if cfg.track_smoothing_config is not None and cfg.track_smoothing_config.enabled
+        else None
+    )
+    scene_detector = (
+        SceneChangeDetector(cfg.scene_change_config)
+        if cfg.scene_change_config is not None and cfg.scene_change_config.enabled
+        else None
+    )
+
     frame_index = 0
     frames_inferred_total = 0
     capture_age_dropped = 0
     instances_predicted_total = 0
     instances_outlined_total = 0
     temporal_suppressed_total = 0
+    predictions_gated_total = 0
+    scene_cuts_total = 0
+    tracks_active_last = 0
     diag = _Diagnostics()
     started = time.perf_counter()
     termination_reason = "running"
@@ -148,6 +170,9 @@ def run_live_pipeline(
                 last_output_mode=last_output_mode,
                 last_alpha_fill=last_alpha_fill,
                 inferred_seq=frames_inferred_total,
+                quality_gate=quality_gate,
+                track_animator=track_animator,
+                scene_detector=scene_detector,
             )
 
             if result.termination_reason is not None:
@@ -163,6 +188,9 @@ def run_live_pipeline(
             instances_predicted_total += result.instances_predicted_delta
             instances_outlined_total += result.instances_outlined_delta
             temporal_suppressed_total += result.temporal_suppressed_delta
+            predictions_gated_total += result.gated_delta
+            scene_cuts_total += 1 if result.scene_cut else 0
+            tracks_active_last = result.tracks_active
             last_temporal_enabled = result.last_temporal_enabled
             last_output_mode = result.last_output_mode
             last_alpha_fill = result.last_alpha_fill
@@ -195,4 +223,7 @@ def run_live_pipeline(
         throughput_fps=throughput_fps,
         termination_reason=termination_reason,
         capture_age_dropped=capture_age_dropped,
+        predictions_gated=predictions_gated_total,
+        tracks_active_last=tracks_active_last,
+        scene_cuts=scene_cuts_total,
     )

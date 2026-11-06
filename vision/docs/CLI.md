@@ -102,7 +102,7 @@ When none are given, the overlay auto-aligns to the captured screen region or se
 
 Second-device composite (HDMI into another machine, contour fullscreen there): [CONTOUR_PIPELINE.md](CONTOUR_PIPELINE.md). Flags: `--output-stream shm:<name>` (shared-memory ring sink), `--fourcc MJPG` (capture codec), `--max-capture-age-ms N` (latency bound). The fullscreen presenter itself is a library backend (`create_fullscreen_presenter`), not a live flag yet.
 
-`--segmenter-backend` defaults to `ultralytics-onnx`. Other backends: `ultralytics-detect`, `rfdetr`, `cs2-sam`, `yolov10`, `nanodet`. Temporal: `--temporal-enabled` (suppress-only); optional `--temporal-hold` / `--temporal-max-dropout`.
+`--segmenter-backend` defaults to `ultralytics-onnx`. Other backends: `ultralytics-detect`, `rfdetr`, `cs2-sam`, `yolov10`, `nanodet`. Temporal: `--temporal-enabled` (suppress-only); optional `--temporal-hold` / `--temporal-max-dropout`. Per-frame filters (all opt-in): `--quality-gate` (plausibility), `--smooth-tracks` (persistent-track smoothing/animation), `--scene-reset` (scene-cut history reset).
 
 Capture-device input and its hardening flags:
 

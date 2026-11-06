@@ -69,6 +69,9 @@ uv run cs2-vision live --config cs2-vision-config.json
 | `--temporal-min-frames` | Consecutive matches required before draw (default 2 when enabled) |
 | `--temporal-hold` | Optional hold-last-mask across short dropouts (off by default) |
 | `--temporal-max-dropout` | Max hold frames when hold is on (`0` = no carry) |
+| `--quality-gate` | Drop implausible detections before rendering: confidence floor, area bounds, finite geometry. Gated predictions are never drawn (`--quality-min-confidence`, `--quality-min-area-px` override the defaults) |
+| `--smooth-tracks` | Persistent-track smoothing: exponential bbox smoothing (`1-exp(-k)` per update), fade-in on appear, bounded fade-out on vanish; geometry is always an affine transform of detector output, never invented |
+| `--scene-reset` | Frame-difference scene-cut detection; a cut resets temporal and track association history so stale state never crosses a cut |
 
 Full help: `uv run cs2-vision live --help`.
 

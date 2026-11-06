@@ -54,6 +54,7 @@ struct LiveRadarLoopArgs {
   bool ui_holds_cs2_handle = false;
   bool full_intel = false;  // --full: pinned all-entity intel mode
   bool strict_intel = false;  // --strict-intel: unreadable spotted ⇒ hidden
+  int max_fps = 0;  // --max-fps N: explicit frame cap (0 = fuzzed 16/22 ms)
   BlipFilter filter = BlipFilter::All;
   real::gpu::gui::RadarPanelSettings* settings = nullptr;
   real::gpu::gui::GuiSystem* gui = nullptr;

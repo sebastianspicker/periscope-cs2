@@ -17,10 +17,13 @@ from cs2_vision_access.adapters.capture.live_pipeline.diagnostics import _Diagno
 from cs2_vision_access.adapters.models.segmenters import Segmenter
 from cs2_vision_access.adapters.rendering.renderer import OutlineRenderer, OutlineStyle
 from cs2_vision_access.adapters.rendering.renderer.debug import draw_debug_overlay
+from cs2_vision_access.application.live.inference.scene import SceneChangeDetector
 from cs2_vision_access.application.live.inference.temporal import (
     SuppressOnlyTemporalPolicy,
     TemporalStabilityConfig,
 )
+from cs2_vision_access.application.live.inference.tracks import TrackAnimator
+from cs2_vision_access.application.live.quality import PredictionGateConfig, gate_predictions
 
 
 @dataclass
@@ -38,6 +41,10 @@ class _FrameResult:
     # across frames (hotkey toggles rebind local variables only).
     renderer: AlphaRenderer | OutlineRenderer | None = None
     temporal_policy: SuppressOnlyTemporalPolicy | None = None
+    # Ledger E7/E6/E31 per-frame deltas.
+    gated_delta: int = 0
+    scene_cut: bool = False
+    tracks_active: int = 0
 
 
 def _create_renderer(
@@ -75,6 +82,9 @@ def run_frame(
     last_output_mode: str,
     last_alpha_fill: bool,
     inferred_seq: int = 0,
+    quality_gate: PredictionGateConfig | None = None,
+    track_animator: TrackAnimator | None = None,
+    scene_detector: SceneChangeDetector | None = None,
 ) -> _FrameResult:
 
     result = _FrameResult(
@@ -116,6 +126,27 @@ def run_frame(
     inference_elapsed = (time.perf_counter() - inference_start) * 1000.0
     diag.inference_ms.append(inference_elapsed)
 
+    # Ledger E31: a scene cut invalidates every association — reset the
+    # temporal history and the track table before they carry stale state
+    # across the cut.
+    if scene_detector is not None and scene_detector.update(frame):
+        result.scene_cut = True
+        if temporal_policy is not None:
+            temporal_policy.reset()
+        if track_animator is not None:
+            track_animator.reset()
+
+    # Ledger E7: plausibility gate before any downstream consumer. Gated
+    # predictions are counted and never rendered (degrade to "don't draw").
+    if quality_gate is not None:
+        predictions, gate_diag = gate_predictions(
+            predictions,
+            quality_gate,
+            frame_width=int(frame.shape[1]),
+            frame_height=int(frame.shape[0]),
+        )
+        result.gated_delta = gate_diag.dropped_count
+
     if control_state.temporal_enabled != result.last_temporal_enabled:
         temporal_policy = (
             SuppressOnlyTemporalPolicy(
@@ -135,6 +166,14 @@ def run_frame(
             predictions, frame_index=frame_index, sequence=inferred_seq
         )
         temporal_suppressed = temporal_diag.suppressed_count
+
+    # Ledger E6/E9: persistent-track smoothing and in/out animation. Runs
+    # after the temporal filter so fading geometry is also smoothed.
+    tracks_active = 0
+    if track_animator is not None:
+        predictions, _track_diag = track_animator.update(predictions, frame_index=frame_index)
+        tracks_active = _track_diag.active_tracks
+    result.tracks_active = tracks_active
 
     current_output_mode = control_state.output_mode
     current_alpha_fill = control_state.alpha_fill
@@ -176,6 +215,14 @@ def run_frame(
 
     pipeline_elapsed = (time.perf_counter() - inference_start) * 1000.0
     diag.pipeline_ms.append(pipeline_elapsed)
+
+    # Ledger E8: the rendered frame is an immutable snapshot from here on.
+    # Every consumer (sink, presenter, recorder, GUI preview) receives a
+    # read-only array; a consumer that needs to mutate must copy first. This
+    # is the single-writer contract that keeps the fan-out torn-free.
+    setflags_fn = getattr(rendered, "setflags", None)
+    if setflags_fn is not None:
+        rendered.setflags(write=False)
 
     if on_frame is not None:
         on_frame(rendered, frame_index, len(predictions))

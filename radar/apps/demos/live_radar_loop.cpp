@@ -1,6 +1,8 @@
 // live_radar_loop.cpp — main overlay frame loop for live_radar demo.
 #include "demos/live_radar_support.hpp"
 #include "demos/radar_shared.hpp"
+#include "real/cs2/entity_cache.hpp"
+#include "real/cs2/frame_pacing.hpp"
 #include "real/cs2/hijack_reader.hpp"
 #include "real/cs2/periscope_radar.hpp"
 #include "real/win/api_table.hpp"
@@ -84,6 +86,15 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   throttle.arm_far(std::chrono::steady_clock::now());
   real::cs2::EntityReadResult entities{};
   real::Result<real::cs2::Cs2PlayerEntity> local{};
+  // Ledger E14: event-diff entity cache. Every successful walk is synced in
+  // (upserts + removals); rendering consumes the cache's torn-free snapshot,
+  // so a failed read holds the last good state instead of drawing nothing.
+  real::cs2::cache::EntityCache<real::cs2::Cs2PlayerEntity> entity_cache;
+  real::cs2::cache::CacheSnapshot<real::cs2::Cs2PlayerEntity> entity_snapshot{};
+  // Ledger E15: idle debouncer for the frame cap.
+  real::cs2::pacing::IdleDebouncer idle_debouncer{30};
+  // Ledger E12: one functional offset validation after the first good walk.
+  bool offsets_validation_done = false;
   real::cs2::stack::RoundIntel round_intel{};
   ac::Vec3 prev_local_origin{};
   bool have_prev_local = false;
@@ -226,6 +237,24 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       entities = real::cs2::stack::read_entity_list_scattered(live_read, offsets, walk);
       throttle.arm_full(now_steady);
       if (do_far) throttle.arm_far(now_steady);
+      if (entities.read_successful) {
+        entity_snapshot = entity_cache.sync(
+            entities.entities,
+            [](const real::cs2::Cs2PlayerEntity& e) { return e.controller_handle; });
+      }
+      // Ledger E12: freshness is necessary but not sufficient — classify the
+      // offsets once against live data and log the verdict (fail-open: the
+      // posture ladder and hud-echo already bound what a wrong read can show).
+      if (!offsets_validation_done && entities.read_successful &&
+          a.reader != nullptr && a.reader->is_attached()) {
+        offsets_validation_done = true;
+        const auto report = real::cs2::validate_offsets_live(*a.reader, offsets);
+        if (report) {
+          logf("[offsets] %s\n", report->describe().c_str());
+        } else {
+          logf("[offsets] validation unavailable: %s\n", report.error_msg.c_str());
+        }
+      }
     }
     if ((do_full || do_local) && offsets.local_player != 0) {
       local = real::cs2::stack::read_local_player_fn(live_read, offsets);
@@ -252,7 +281,8 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
                            std::isfinite(hud_snap.mapTextureScale) &&
                            hud_snap.mapTextureScale > 0.f;
 
-    if (local && local->is_alive && entities.read_successful) {
+    if (local && local->is_alive &&
+        (entities.read_successful || !entity_snapshot.entities.empty())) {
       float yaw_deg = have_view_yaw ? view_yaw_deg : local->eye_angles.y;
       if (!std::isfinite(yaw_deg)) yaw_deg = 0.f;
       if (!have_smooth_yaw) {
@@ -347,7 +377,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       round_intel.is_round = hud_snap.isRound;
       round_intel.map_texture_scale = hud_snap.mapTextureScale;
       round_intel.radar_scale = hud_snap.radarScale;
-      for (const auto& ent : entities.entities) {
+      for (const auto& ent : entity_snapshot.entities) {
         if (ent.is_bomb) continue;
         if (ent.is_alive) {
           if (ent.team == 2) ++round_intel.alive_t;
@@ -529,11 +559,28 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       blue_window_start = now_steady;
     }
 
-    // Slightly longer sleep when no entities (menu/loading) — lower CPU + IPC.
-    if (entities.entity_count <= 0)
-      real::win::fuzzed_sleep(22, 12);
-    else
-      real::win::fuzzed_sleep(16, 10);
+    // Ledger E15: hybrid pacing — sleep most of the inter-frame gap, spin
+    // the last ~2 ms for sub-tick precision. Idle (no entities for a while)
+    // engages only after a debounce so one empty frame never pays the idle
+    // latency. The anti-fingerprint jitter on the sleep is preserved.
+    const bool idle_now = idle_debouncer.vote(entities.entity_count <= 0);
+    if (a.max_fps > 0) {
+      const int period_ms = a.max_fps > 0 ? (1000 / (a.max_fps > 1000 ? 1000 : a.max_fps)) : 16;
+      real::win::fuzzed_sleep(period_ms - 2 < 1 ? 1 : period_ms - 2, 8);
+      const auto spin_until =
+          std::chrono::steady_clock::now() + std::chrono::milliseconds(2);
+      while (std::chrono::steady_clock::now() < spin_until) real::win::yield();
+    } else if (idle_now) {
+      real::win::fuzzed_sleep(22 - 2, 12);
+      const auto spin_until =
+          std::chrono::steady_clock::now() + std::chrono::milliseconds(2);
+      while (std::chrono::steady_clock::now() < spin_until) real::win::yield();
+    } else {
+      real::win::fuzzed_sleep(16 - 2, 10);
+      const auto spin_until =
+          std::chrono::steady_clock::now() + std::chrono::milliseconds(2);
+      while (std::chrono::steady_clock::now() < spin_until) real::win::yield();
+    }
   }
 
   // Persist GUI panel settings to disk.

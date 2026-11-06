@@ -12,7 +12,10 @@ from cs2_vision_access.adapters.capture.hotkeys import LiveControlState
 from cs2_vision_access.adapters.capture.outputs import OutputSink
 from cs2_vision_access.adapters.capture.overlay import OverlayWindow
 from cs2_vision_access.adapters.capture.screen import ScreenCapturer
+from cs2_vision_access.application.live.inference.scene import SceneChangeConfig
 from cs2_vision_access.application.live.inference.temporal import TemporalStabilityConfig
+from cs2_vision_access.application.live.inference.tracks import TrackSmoothingConfig
+from cs2_vision_access.application.live.quality import PredictionGateConfig
 from cs2_vision_access.domain.predictions import InstanceMask
 from cs2_vision_access.domain.safety import MAX_FRAME_PIXELS
 
@@ -47,6 +50,15 @@ class LivePipelineConfig:
     alpha_output_mode: str = "overlay"
     enable_alpha_fill: bool = False
     temporal_config: TemporalStabilityConfig | None = None
+    # Ledger E7: plausibility gate applied before temporal filtering and
+    # rendering. Degrade to "don't draw": gated predictions are never shown.
+    quality_gate_config: PredictionGateConfig | None = None
+    # Ledger E6/E9: persistent-track smoothing and in/out animation
+    # (frame-stable overlay state keyed by stable track identity).
+    track_smoothing_config: TrackSmoothingConfig | None = None
+    # Ledger E31: scene-cut detection resets association history so a cut
+    # never carries stale tracks or stability state across it.
+    scene_change_config: SceneChangeConfig | None = None
     enable_hotkeys: bool = True
     output_sink: OutputSink | None = None
     max_consecutive_read_failures: int = 3
@@ -82,3 +94,7 @@ class LiveRunSummary:
     throughput_fps: float
     termination_reason: str
     capture_age_dropped: int = 0
+    # Ledger E7/E6/E31 counters (0 when the features are off).
+    predictions_gated: int = 0
+    tracks_active_last: int = 0
+    scene_cuts: int = 0

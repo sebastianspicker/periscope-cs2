@@ -16,6 +16,7 @@
 
 #pragma once
 
+#include "real/cs2/offsets_validate.hpp"
 #include "real/error.hpp"
 #include "real/mode/mode.hpp"
 #include "real/platform.hpp"
@@ -25,6 +26,8 @@
 #include <vector>
 
 namespace real::cs2 {
+
+class Cs2MemoryReader;  // memory.hpp (offsets.hpp is included from it)
 
 /// A single resolved offset value.
 struct ResolvedOffset {
@@ -116,6 +119,22 @@ Cs2Offsets offsets_from_snapshot(std::uint64_t client_base);
 /// discovery is disabled unless LR_CS2_ALLOW_LEGACY_CWD_SNAPSHOT=1; failure
 /// leaves the embedded snapshot in use.
 bool try_load_runtime_snapshot_file(Cs2Offsets& out_fields_only);
+
+/// Functional validation of the resolved offsets against the live process
+/// (assessment ledger E12). Walks the entity list once through ``reader``,
+/// tallies how many controllers/pawns resolve and how many field reads land
+/// inside sanity ranges, and classifies the offsets as Ok / NoPlayers /
+/// Wrong. Freshness (dump timestamp) is necessary but not sufficient — this
+/// is the semantic half of the offset gate.
+struct OffsetsValidationReport {
+  validate::OffsetsValidation validation = validate::OffsetsValidation::Wrong;
+  validate::Observation observation{};
+
+  std::string describe() const;
+};
+
+Result<OffsetsValidationReport> validate_offsets_live(Cs2MemoryReader& reader,
+                                                      const Cs2Offsets& offsets);
 
 /// Locate client.dll base/size inside the process. Returns false if missing.
 bool find_client_module(std::uint32_t cs2_pid, std::uint64_t process_handle,

@@ -21,15 +21,6 @@
 
 namespace real::kernel {
 
-bool is_valid_device_handle(DeviceHandle device) {
-  if (device.native == 0) return false;
-  // INVALID_HANDLE_VALUE on Windows is (HANDLE)-1
-  if (device.native == static_cast<std::uint64_t>(static_cast<std::intptr_t>(-1))) {
-    return false;
-  }
-  return true;
-}
-
 std::vector<std::string> device_path_candidates_from_name(const std::string& driver_or_device) {
   std::vector<std::string> out;
   if (driver_or_device.empty()) return out;

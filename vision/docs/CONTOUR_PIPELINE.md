@@ -1,7 +1,7 @@
 # Contour composite pipeline - second-device setup
 
-The vision track never opens the game process, reads its memory, or injects
-input - so there is nothing for an anti-cheat to observe on the gaming machine.
+This pipeline does not open the game process, read its memory, or inject
+input, so nothing runs on the gaming machine for an anti-cheat to observe.
 This document describes the primary deployment: an HDMI-only topology with the
 inference and compositing on a second Windows machine.
 
@@ -116,6 +116,12 @@ The presenter is a library backend, not a CLI subcommand yet. ``presenter.py``,
   should use ``--output-mode overlay`` on the gaming machine instead.
 
 ## Single-machine alternative
+
+On one machine the same segmenter/renderer stack can draw into a transparent
+overlay window instead of the second-device presenter; the topology trade-offs
+(in-process hook, host-window adoption, external layered window,
+second-device composite) are compared in
+[OVERLAY_TOPOLOGIES.md](OVERLAY_TOPOLOGIES.md).
 
 The same pipeline works on the gaming machine with ``--overlay`` (Win32 layered
 window above the game). In that mode the composite is alpha-only over the game,

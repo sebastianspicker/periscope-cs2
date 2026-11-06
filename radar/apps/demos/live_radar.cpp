@@ -43,9 +43,13 @@ int main(int argc, char** argv) {
   // the degrade ladder free to tighten it, never to relax past hud-echo.
   bool full_intel = false;
   bool strict_intel = false;
+  int max_fps = 0;
   for (int i = 1; i < argc; ++i) {
     if (std::strcmp(argv[i], "--full") == 0) full_intel = true;
     if (std::strcmp(argv[i], "--strict-intel") == 0) strict_intel = true;
+    if (std::strcmp(argv[i], "--max-fps") == 0 && i + 1 < argc) {
+      max_fps = std::atoi(argv[++i]);
+    }
   }
   setvbuf(stdout, nullptr, _IONBF, 0);
   setvbuf(stderr, nullptr, _IONBF, 0);
@@ -364,6 +368,7 @@ int main(int argc, char** argv) {
   loop.hud_ok = hud_ok;
   loop.ui_holds_cs2_handle = ui_holds_cs2_handle;
   loop.full_intel = full_intel;
+  loop.max_fps = max_fps;
   loop.strict_intel = strict_intel;
   loop.settings = &settings;
   loop.gui = &gui;

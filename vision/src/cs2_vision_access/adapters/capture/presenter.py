@@ -66,6 +66,7 @@ class Win32FullscreenPresenter:
         self._y = 0
         self._bits_view: np.ndarray | None = None
         self._bindings: dict[str, Any] | None = None
+        self._streamproof_mode: str = "inactive"
 
     def open(self, width: int, height: int, *, x: int = 0, y: int = 0) -> None:
         """Create the fullscreen window for the target monitor."""
@@ -150,13 +151,37 @@ class Win32FullscreenPresenter:
             self._apply_display_affinity()
 
     def _apply_display_affinity(self) -> None:
-        """Exclude the presenter window from capture (OBS / game capture)."""
+        """Exclude the presenter window from capture (OBS / game capture).
+
+        Ledger E10 fallback ladder: prefer ``WDA_EXCLUDEFROMCAPTURE`` (Win10
+        2004+, window invisible to captures but visible on the desktop); when
+        the call fails — older Windows, RDP sessions, some drivers — retry
+        with ``WDA_MONITOR`` (window captures as black on device 2 instead of
+        being excluded). The applied affinity is recorded in
+        ``streamproof_mode`` so operators can see which tier engaged; a total
+        failure leaves the mode as ``"none"`` and does not abort the open.
+        """
         b = self._bindings
         if b is None or self._window is None:
             return
-        wda_excludefromcapture = 1 << 4  # WDA_EXCLUDEFROMCAPTURE, Win10 2004+
-        if "SetWindowDisplayAffinity" in b:
-            b["SetWindowDisplayAffinity"](self._window, wda_excludefromcapture)
+        if "SetWindowDisplayAffinity" not in b:
+            self._streamproof_mode = "unsupported"
+            return
+        wda_excludefromcapture = 0x11  # WDA_EXCLUDEFROMCAPTURE, Win10 2004+
+        wda_monitor = 0x1  # WDA_MONITOR, Win7+: captures show black
+        applied: str | None = None
+        if b["SetWindowDisplayAffinity"](self._window, wda_excludefromcapture):
+            applied = "WDA_EXCLUDEFROMCAPTURE"
+        if applied is None and b["SetWindowDisplayAffinity"](self._window, wda_monitor):
+            applied = "WDA_MONITOR"
+        self._streamproof_mode = applied if applied is not None else "none"
+
+    @property
+    def streamproof_mode(self) -> str:
+        """Which capture-exclusion tier engaged: a mode name, ``"none"``, or
+        ``"unsupported"`` (no ``SetWindowDisplayAffinity`` binding). Only
+        meaningful after ``open`` and only when ``streamproof`` was set."""
+        return self._streamproof_mode
 
     def show_frame(self, frame_rgba: np.ndarray) -> None:
         """Blit a native-resolution RGBA frame onto the presenter surface.

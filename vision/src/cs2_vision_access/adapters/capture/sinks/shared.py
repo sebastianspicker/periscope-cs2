@@ -135,9 +135,14 @@ class SharedFrameSink:
     def send(self, frame: np.ndarray, frame_index: int) -> None:
         """Publish one RGBA frame. Never blocks; the oldest slot is recycled.
 
-        ``frame_index`` is the pipeline's 0-based frame counter; the ring's
-        1-based publish sequence is derived from it, so slot arithmetic is
-        stable across producer restarts that replay the same index.
+        Transfer contract (ledger E32): exactly **one** bulk copy per frame —
+        the payload is made contiguous once and written into its slot in a
+        single slice assignment; there are no per-element or per-channel
+        transfers. ``frame_index`` is the pipeline's 0-based frame counter;
+        the ring's 1-based publish sequence is derived from it, so slot
+        arithmetic is stable across producer restarts that replay the same
+        index. Read-only input frames (the pipeline's rendered-snapshot
+        contract, ledger E8) are accepted.
         """
         if self._closed:
             return

@@ -479,3 +479,97 @@
   bool steam_hook_checked = false;
   bool steam_hook_detected = false;
 
+  // ── Wave 18: assessment-ledger pairs E18–E28 (IDs 154–164) ──
+
+  // 154: handle_rights_strip — ObRegisterCallbacks-style handle-rights strip
+  // on protected pids vs kernel-attach reads that never need a handle.
+  bool ob_handle_rights_strip_active = false;  // blue strips rights on protected pids
+  std::uint32_t rights_strip_target_pid = 0;   // pid protected by the strip
+  int rights_strip_downgrades = 0;             // handle opens downgraded by the strip
+  bool kernel_attach_read_active = false;      // red attach-based read scar
+  int kernel_attach_read_ops = 0;              // successful attach-context reads
+
+  // 155: cpuid_hypercall_channel — CPUID-magic-key hypercall covert channel.
+  bool cpuid_hypercall_channel_active = false;
+  int cpuid_leaf_probes = 0;                   // abnormal CPUID leaf-probing count
+  int hypercall_channel_reads = 0;             // reads through the covert channel
+  std::uint32_t cpuid_channel_magic = 0;       // magic leaf key (lab constant)
+  bool cpuid_channel_unauthenticated = false;  // any local process may use the channel
+  std::uint32_t cpuid_channel_consumer_pid = 0;
+
+  // 156: eprocess_derivation — runtime structural offset derivation probes.
+  bool structural_derivation_active = false;
+  int derivation_probe_reads = 0;
+  bool derivation_list_cycle_ok = false;     // list-cycle invariant
+  bool derivation_dtb_probe_ok = false;      // DTB self-probe invariant
+  bool derivation_peb_ldr_cycle_ok = false;  // PEB Ldr cyclic-list invariant
+  int derivation_churn_rescans = 0;          // re-derivations after layout churn
+
+  // 157: auditor_introspection_spoof — red lies to the in-game auditor scan.
+  bool auditor_crc_report_spoofed = false;      // reported module CRC rewritten
+  int auditor_crc_rewrites = 0;
+  bool diagnostic_dump_nulled_overlap = false;  // dumps overlapping red nulled
+  int diagnostic_dump_nulls = 0;
+  bool prologue_string_copy_feedback = false;   // original bytes fed via string copy
+  bool auditor_crc_of_crc_checked = false;      // blue: verify the CRC report itself
+  bool auditor_second_path_prologue_read = false;  // blue: second-path prologue read
+
+  // 158: loader_addr_registry — loader-resolved encrypted address registry.
+  bool encrypted_addr_registry_active = false;  // addresses resolved out-of-process
+  bool addr_registry_section_encrypted = true;  // registry section stays encrypted
+  int registry_decode_ops = 0;                  // decode-time accesses
+  bool registry_data_section_patched = false;   // decode writes into the data section
+  bool offset_drift_recovered = false;          // sub-scenario: drift resilience
+  int registry_drift_recoveries = 0;
+
+  // 159: dual_view_shadow_pages — execute-view patched / read-view pristine.
+  bool dual_view_shadow_active = false;
+  bool dual_view_exec_patched = false;    // execute view carries the patch
+  bool dual_view_read_pristine = true;    // read view still reports pristine bytes
+  int dual_view_cross_reads = 0;          // cross-view consistency self-reads
+  double dual_view_probe_delta_ns = 0.0;  // timing probe delta between views
+  int dual_view_tlb_effects = 0;          // INVEPT/ITC flush effects observed
+
+  // 160: zero_run_carving — code placed in verified zero pages, no allocation API.
+  bool zero_run_carve_active = false;
+  int zero_run_pages_carved = 0;
+  int zero_run_bytes_written = 0;
+  bool zero_run_vad_reserved = false;         // false = placement absent from VAD
+  int zero_run_vad_mismatch_pages = 0;        // PTE-valid pages with no VAD entry
+  bool zero_run_allocation_api_used = false;  // red path uses no allocation API
+
+  // 161: torn_snapshot_artifacts — multi-transaction reads produce torn records.
+  bool torn_multi_read_active = false;
+  int torn_read_transactions = 0;
+  int torn_implausible_records = 0;
+  bool single_transaction_read_done = false;  // red control comparison
+  std::vector<ac::EntitySnapshot> torn_read_records;  // records red assembled
+
+  // 162: dirty_bitmap_invalidation — selective flush vs broadcast-storm intel.
+  bool dirty_bitmap_invalidation_active = false;  // blue: only flagged consumers flush
+  int dirty_selective_flushes = 0;
+  int dirty_flagged_consumers = 0;
+  bool broadcast_invalidation_storm = false;  // global invalidation storm scar
+  int global_invalidation_events = 0;
+  bool storm_observation_active = false;      // red watches the storm
+  int storm_observations = 0;
+  std::uint32_t storm_observer_pid = 0;
+
+  // 163: stale_chunk_cache — memoized container chunks vs blue churn pressure.
+  bool chunk_cache_memoized = false;
+  int memoized_chunk_ptrs = 0;
+  std::uint32_t memoized_chunk_generation = 0;  // list generation at memoize time
+  int stale_chunk_reads = 0;                    // reads served from memoized chunks
+  std::uint32_t container_list_generation = 1;  // bumped on every reallocation
+  int container_reallocations = 0;              // blue-induced churn events
+  int stale_generation_reads = 0;               // blue-observed generation mismatches
+  bool chunk_generation_tagged = false;         // blue tags chunks with generations
+
+  // 164: escalation_cost_curve — access rungs leave priced mutation footprints.
+  bool escalation_ladder_used = false;
+  int escalation_rungs = 0;                  // 1=RPM 2=syscall 3=kernel driver
+  bool escalation_driver_loaded = false;
+  bool blocklist_registry_toggled = false;   // HVCI / driver-blocklist registry toggles
+  bool pending_reboot_required = false;      // escalation left a pending reboot
+  int escalation_footprints = 0;             // persistent mutations blue can price
+

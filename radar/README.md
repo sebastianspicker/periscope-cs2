@@ -1,6 +1,6 @@
 # Radar
 
-The game-facing radar product of [Periscope](../README.md): real adapters, live CS2 reading, a web radar service and an outbound relay. Not a cheat product and not a production anti-cheat.
+The game-facing radar product of [Periscope](../README.md): real adapters, live CS2 reading, a web radar service and an outbound relay. Attaching to a live, running game is a supported path ([decision 0002](../docs/decisions/0002-live-game-use-permitted.md)); it is not a production anti-cheat.
 
 The tiered red/blue teaching lab that shares this tree's history moved to
 [`../anti-cheat/`](../anti-cheat/README.md). The dependency is strictly
@@ -130,7 +130,11 @@ are enabled. It uses simulated entities and does not require a game process.
 degrade ladder drop to hud-echo when blue risk rises, never relaxing back past
 hud-echo on its own. `--full` pins all-entity intel, `--strict-intel` pins
 hud-echo and fails closed on an unreadable spotted flag. `I` cycles the policy
-at runtime.
+at runtime. `--max-fps N` caps the loop with hybrid sleep+spin pacing (0, the
+default, keeps the fuzzed 16/22 ms cadence); entity walks use bulk page reads
+with per-field fallback, publish into an event-diff entity cache (rendering
+consumes a torn-free snapshot), and the first successful walk runs a
+functional offsets validation logged as `[offsets] validation=...`.
 Posture, read shaping, and the degrade ladder: [../anti-cheat/docs/STEALTH-POSTURE.md](../anti-cheat/docs/STEALTH-POSTURE.md).
 
 The web radar service and the outbound relay (`relay/`) let a game PC with no
@@ -157,9 +161,9 @@ inbound ports share a radar session with remote viewers; see
 
 ## Safety / ethics
 
-- Example vulnerable driver and DMA firmware are for controlled lab use. Do not load them on production machines.
-- Real backends exercise OS APIs that commercial anti-cheat watches. Expect detection if you point them at a live game.
-- This tree does not bypass HVCI/VBS, and it does not ship VMT hooks, injectors, or game-memory writers for gameplay advantage. The simulation demos plant scars on the lab's `sim::World`; real mode is read-oriented educational scaffolding.
+- Example vulnerable driver and DMA firmware require elevated setup (test-signing, special hardware). Run them where that is acceptable - typically a dedicated machine.
+- Real backends exercise OS APIs that anti-cheat systems can observe; treat observability as part of the design space when pointing them at a live game.
+- The real adapters are read-oriented. HVCI/VBS bypass, VMT hooks, injectors, and game-memory writers are not part of this tree. The simulation demos plant scars on the lab's `sim::World`.
 - See [SECURITY.md](SECURITY.md).
 
 ---

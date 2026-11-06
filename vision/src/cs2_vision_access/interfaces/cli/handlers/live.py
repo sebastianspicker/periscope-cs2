@@ -68,7 +68,10 @@ from cs2_vision_access.adapters.models.segmenters import (
     create_segmenter,
 )
 from cs2_vision_access.application.configuration import AppConfig, find_config_path, load_config
+from cs2_vision_access.application.live.inference.scene import SceneChangeConfig
 from cs2_vision_access.application.live.inference.temporal import TemporalStabilityConfig
+from cs2_vision_access.application.live.inference.tracks import TrackSmoothingConfig
+from cs2_vision_access.application.live.quality import PredictionGateConfig
 from cs2_vision_access.application.live.recording import SessionRecorder
 from cs2_vision_access.interfaces.cli.common import _print_json
 from cs2_vision_access.interfaces.cli.inference_args import _parse_segmenter_backend
@@ -319,6 +322,45 @@ def register_live_commands(subcommands: Subcommands) -> None:
         help=(
             "Max consecutive frames to hold a stable mask when hold-last-mask is "
             "enabled (default 0 = no carry)."
+        ),
+    )
+    live.add_argument(
+        "--quality-gate",
+        action="store_true",
+        default=None,
+        help=(
+            "Drop implausible detections before rendering (confidence floor, area "
+            "bounds, class allow-list). Gated predictions are never drawn."
+        ),
+    )
+    live.add_argument(
+        "--quality-min-confidence",
+        type=float,
+        default=None,
+        help="Confidence floor for --quality-gate (default 0.1).",
+    )
+    live.add_argument(
+        "--quality-min-area-px",
+        type=float,
+        default=None,
+        help="Minimum bounding-box area in px^2 for --quality-gate (default 64).",
+    )
+    live.add_argument(
+        "--smooth-tracks",
+        action="store_true",
+        default=None,
+        help=(
+            "Associate detections into persistent tracks, smooth outline jitter, "
+            "and fade tracks in/out (ledger E6/E9)."
+        ),
+    )
+    live.add_argument(
+        "--scene-reset",
+        action="store_true",
+        default=None,
+        help=(
+            "Detect scene cuts (frame-difference) and reset temporal/track "
+            "association history so stale state never crosses a cut (ledger E31)."
         ),
     )
 
@@ -641,6 +683,23 @@ def _handle_live(arguments: argparse.Namespace) -> int:
         )
 
     # --- Build pipeline config ---
+    # Ledger E7/E6/E31: opt-in per-frame filters.
+    quality_gate_config = None
+    if arguments.quality_gate:
+        quality_gate_config = PredictionGateConfig(
+            enabled=True,
+            min_confidence=(
+                arguments.quality_min_confidence
+                if arguments.quality_min_confidence is not None
+                else 0.1
+            ),
+            min_area_px=(
+                arguments.quality_min_area_px if arguments.quality_min_area_px is not None else 64.0
+            ),
+        )
+    track_smoothing_config = TrackSmoothingConfig(enabled=True) if arguments.smooth_tracks else None
+    scene_change_config = SceneChangeConfig(enabled=True) if arguments.scene_reset else None
+
     pipeline_config = LivePipelineConfig(
         capture=capture,
         max_frames=(
@@ -656,6 +715,9 @@ def _handle_live(arguments: argparse.Namespace) -> int:
             hold_last_mask=temporal_hold,
             max_dropout_frames=temporal_max_dropout,
         ),
+        quality_gate_config=quality_gate_config,
+        track_smoothing_config=track_smoothing_config,
+        scene_change_config=scene_change_config,
         output_sink=output_sink,
         overlay_window=overlay_window,
         max_capture_age_ms=(

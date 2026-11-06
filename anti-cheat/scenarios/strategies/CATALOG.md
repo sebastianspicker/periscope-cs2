@@ -37,6 +37,7 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 77_wh_mouse_hook | wh_mouse_hook |
 | 88_printwindow | printwindow |
 | 89_block_input | block_input |
+| 161_torn_snapshot_artifacts | torn_snapshot_artifacts |
 
 ## T1 - `strategies/t1/`
 
@@ -50,6 +51,9 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 45_etw_blind | etw_blind |
 | 54_module_stomp | module_stomp |
 | 55_process_hollow | process_hollow |
+| 156_eprocess_derivation | eprocess_derivation |
+| 158_loader_addr_registry | loader_addr_registry |
+| 163_stale_chunk_cache | stale_chunk_cache |
 
 ## T2 - `strategies/t2/`
 
@@ -63,6 +67,10 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 35_callback_shadow | callback_shadow |
 | 46_early_load_race | early_load_race |
 | 47_object_callback_strip | object_callback_strip |
+| 154_handle_rights_strip | handle_rights_strip |
+| 157_auditor_introspection_spoof | auditor_introspection_spoof |
+| 160_zero_run_carving | zero_run_carving |
+| 164_escalation_cost_curve | escalation_cost_curve |
 
 ## T3 - `strategies/t3/`
 
@@ -81,6 +89,9 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 71_hvci_race | hvci_race |
 | 82_ci_options | ci_options |
 | 83_feature_control_msr | feature_control_msr |
+| 155_cpuid_hypercall_channel | cpuid_hypercall_channel |
+| 159_dual_view_shadow_pages | dual_view_shadow_pages |
+| 162_dirty_bitmap_invalidation | dirty_bitmap_invalidation |
 
 ## T4 - `strategies/t4/`
 

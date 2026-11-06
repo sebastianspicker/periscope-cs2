@@ -51,6 +51,11 @@ struct ReadThrottle {
 struct EntityWalkOptions {
   bool scatter_indices = true;   // shuffle 1..N BEFORE resolve
   bool jitter_us = true;
+  /// Bulk fast path (assessment ledger E11): one read of the first controller
+  /// page plus one window read per live pawn, falling back to the per-field
+  /// walk on any failure. Purely an optimization; correctness never depends
+  /// on it.
+  bool bulk_reads = true;
   int max_controllers = 64;
   /// When true, only indices that previously yielded alive/spotted (sticky).
   bool priority_filter = false;
