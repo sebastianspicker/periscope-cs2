@@ -10,7 +10,7 @@ This lab is a tier-first, sim-backed training ground for that adversary class an
 
 | Is | Is not |
 |----|--------|
-| Educational red/blue exercises on `sim::World` | Production product or cheat pack |
+| Educational red/blue exercises on `sim::World` | A production anti-cheat product |
 | Multi-step strategy catalog + T0–T4 team libs | Single-bool flag detectors as the quality bar |
 | Multi-sensor blue (graph, trust, fog, behavior) | Drop-in commercial AC replacement |
 | Headless C++ demos and `strategy_lab` | Full 3D game client |

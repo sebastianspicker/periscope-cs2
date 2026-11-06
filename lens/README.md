@@ -6,8 +6,10 @@ smartphone pointed at the game monitor, capturing the game with its
 camera, running vision enhancement on-device, connected to the PC by
 cable to feed aim assistance.
 
-Camera-only by construction: the game PC runs nothing and shares nothing.
-Actuation is lab-only opt-in; nothing here is a supported cheat product.
+Camera-first by construction: the phone watches the monitor; today the game
+PC runs nothing. Actuation paths are opt-in (see
+[docs/decisions/0002-live-game-use-permitted.md](../docs/decisions/0002-live-game-use-permitted.md)
+for the project's live-use policy).
 
 ## Status
 
@@ -59,7 +61,7 @@ the one derived stub live in `NOTICE.md`.
 
 ## Posture summary
 
-- Capture: camera only - posture-clean, no game-PC access at all.
+- Capture: camera-first - no game-PC process today.
 - Output: HID gadget / PC agent / targets-only, all opt-in.
-- Hardware injector kits (kmbox-class): documented as compatible, never
+- Hardware injector kits (kmbox-class): documented as compatible, not yet
   implemented here.

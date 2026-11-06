@@ -118,7 +118,8 @@ writing.
 - A `PROCESS_VM_READ` handle still exists somewhere (UI, donor, or worker). The
   attach ladder exists to move that scar off the UI process, not to erase it.
 - The overlay window is a real top-level window on the gaming machine. If that
-  matters, run the vision track instead - it never opens the game process.
+  matters, prefer a capture-based presentation path (the vision track's
+  second-device topology) or reduce window exposure.
 - Read volume is reduced, not eliminated.
 
 ## See also

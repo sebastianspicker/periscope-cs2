@@ -48,9 +48,9 @@
 ## Safety checklist
 
 - [ ] No private gameplay frames, credentials, or local model weights committed
-- [ ] **anti-cheat:** simulation-only; no real adapters, drivers, or firmware in the tree
-- [ ] **radar:** educational / simulation scope only; no live-game weaponization payloads
-- [ ] **vision:** remains external-capture / local-video only - no process memory, injection, or simulated game input
-- [ ] **lens:** camera-only; actuation paths stay lab-only opt-in
+- [ ] **anti-cheat:** stays simulation-based (`sim::World`); real-process capability belongs in `radar/`
+- [ ] **radar:** real-backend changes documented with build flags and risk notes
+- [ ] **vision:** new capabilities (memory, input) placed behind adapters and documented
+- [ ] **lens:** actuation paths opt-in and documented
 - [ ] Docs updated if CLI, config, or build behavior changed
 - [ ] No breaking public surface change, or called out above with migration notes

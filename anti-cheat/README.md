@@ -2,7 +2,7 @@
 
 Tiered red/blue teaching lab for external "legit" radar - tools that read game memory and draw a map without aiming for you - and the detection techniques that push back. Every lesson runs over a simulated, CS2-shaped world (`sim::World`); the lab has no real backends.
 
-This is the anti-cheat track of [Periscope](../README.md). Sister tracks: [`../radar/`](../radar/) (the game-facing radar product, which consumes this tree's libraries), [`../vision/`](../vision/) and [`../lens/`](../lens/). Not a cheat product and not a production anti-cheat.
+This is the anti-cheat track of [Periscope](../README.md). Sister tracks: [`../radar/`](../radar/) (the game-facing radar product, which consumes this tree's libraries), [`../vision/`](../vision/) and [`../lens/`](../lens/). It is not a production anti-cheat.
 
 One way to run it:
 
@@ -137,8 +137,8 @@ Live catalog truth is always `anti-cheat/build/dev/strategy_lab list` (hundreds 
 
 ## Safety / ethics
 
-- This tree is simulation-only: red plants scars on `sim::World`; nothing here opens a process, reads game memory, or touches hardware.
-- The example vulnerable driver and DMA firmware are not in this tree; they are lab-only material of the radar tree - see [`../radar/README.md`](../radar/README.md) and [`../radar/SECURITY.md`](../radar/SECURITY.md).
+- Every lesson in this tree runs on `sim::World`: red plants scars, blue detects them. Live-process capability lives in the radar tree.
+- The example vulnerable driver and DMA firmware are not in this tree; they are part of the radar tree - see [`../radar/README.md`](../radar/README.md) and [`../radar/SECURITY.md`](../radar/SECURITY.md).
 - See [SECURITY.md](SECURITY.md).
 
 ---

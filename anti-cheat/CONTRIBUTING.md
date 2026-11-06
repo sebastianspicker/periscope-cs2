@@ -10,9 +10,8 @@ Educational anti-cheat lab (anti-cheat track of the Periscope monorepo). Useful 
 
 ## Ground rules
 
-- Keep it educational. Do not ship ready-to-run cheat tooling aimed at live competitive play.
-- Prefer multi-step red and multi-reason blue. One-bool "detected = true" lessons are not the quality bar.
-- This tree is simulation-only. No `real/` (or `adapters/real/`) includes under `src/` or `scenarios/` - the architecture checker enforces it - and there are no real CMake flags here. Real backends live in [`../radar/`](../radar/).
+- Keep each lesson a genuine red/blue exercise with multi-step reds and multi-reason blues. One-bool "detected = true" lessons are not the quality bar.
+- This tree's sources stay simulation-based: no `real/` (or `adapters/real/`) includes under `src/` or `scenarios/` - the architecture checker enforces it - and there are no real CMake flags here. Real-process capability lives in [`../radar/`](../radar/).
 - Match existing style in the folder you touch. Headers and sources live together under `src/` and `src/lab_components/teams/`.
 
 ## New strategy pair

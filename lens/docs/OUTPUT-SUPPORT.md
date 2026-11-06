@@ -1,9 +1,9 @@
 # Lens output-path support matrix (ledger L8)
 
 How the computed assist reaches the PC. Read with
-[`TOPOLOGY.md`](TOPOLOGY.md): actuation is lab-only opt-in;
+[`TOPOLOGY.md`](TOPOLOGY.md): actuation is opt-in;
 nothing here is default-on, and hardware injectors (kmbox-class) are
-documented as compatible hardware, never implemented.
+documented as compatible hardware, not implemented.
 
 ## The decision ladder (implemented in [`../src/periscope_lens/output.py`](../src/periscope_lens/output.py))
 

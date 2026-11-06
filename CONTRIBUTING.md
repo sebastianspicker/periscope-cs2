@@ -93,7 +93,7 @@ Details: [`vision/CONTRIBUTING.md`](vision/CONTRIBUTING.md).
 
 ## Ground rules (all trees)
 
-- Keep work educational / research / accessibility-oriented. Do not ship ready-to-run cheat product packaging aimed at live competitive play.
-- Vision: no process memory access, no input injection, no aim assist.
-- Anti-cheat: simulation-only; no `real/` includes under `src/` or `scenarios/`, and no real backends in the tree.
+- Keep work research- and accessibility-oriented, and document every capability you add (build flags, risk notes, architecture placement).
+- Vision: current capture paths are pixel-based. Memory-access or input paths are permitted additions (see [decision 0002](docs/decisions/0002-live-game-use-permitted.md)) and belong behind adapters with updated docs.
+- Anti-cheat: the lab's sources stay simulation-based (`sim::World`); real-process capability lives in `radar/`.
 - Radar: simulation demos are the default path; real backends stay behind CMake flags and should degrade cleanly when hardware or the game is missing.

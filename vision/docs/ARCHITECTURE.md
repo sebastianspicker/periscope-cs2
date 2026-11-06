@@ -1,8 +1,10 @@
 # Architecture
 
 Vision is the Python track of Periscope. It outlines visible players using only
-local media, capture-device frames, or screen pixels. It does not open the game
-process, read memory, synthesize input, or provide aim automation.
+local media, capture-device frames, or screen pixels. Game-memory and input
+paths are permitted project directions
+([decision 0002](../../docs/decisions/0002-live-game-use-permitted.md)) that this
+package does not implement yet.
 
 The installed package is `cs2_vision_access`. User entry points remain the
 `cs2-vision` command and `python -m cs2_vision_access`.

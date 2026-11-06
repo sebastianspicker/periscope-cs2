@@ -43,9 +43,9 @@ Still under `scenarios/strategies/`; family is catalog metadata, not a separate 
 ## 5. Real path (Windows, optional)
 
 1. Configure with the real flags you need (`live_radar` requires real RPM, syscall, and GPU capabilities)
-2. Build and run `live_radar` against CS2 on a supported Windows lab host
+2. Build and run `live_radar` against CS2 on a supported Windows host
 3. Use [ARCHITECTURE.md](../../radar/docs/ARCHITECTURE.md) (radar tree) and [TOOLS.md](TOOLS.md) for the supported composition paths
-4. Stay on lab machines for kernel / VMX / DMA experiments ([SECURITY.md](../SECURITY.md))
+4. Run kernel / VMX / DMA experiments where elevated setup (test-signing, driver load, DMA) is acceptable ([SECURITY.md](../SECURITY.md))
 
 ## 6. Depth
 

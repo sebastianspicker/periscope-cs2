@@ -43,15 +43,15 @@ body:
     id: scope
     attributes:
       label: Scope check
-      description: Confirm this stays within published project boundaries.
+      description: Confirm this matches the selected subtree's architecture.
       options:
-        - label: "vision: does not require aim assist, memory R/W, injection, or game input (external capture / offline only)"
+        - label: "vision: new capabilities (memory R/W, input, aim assistance) are placed behind adapters and documented (decision 0002)"
           required: false
-        - label: "radar: educational / simulation intent; not a live-game weaponization request"
+        - label: "radar: real-backend changes come with build flags and risk notes"
           required: false
-        - label: "anti-cheat: simulation-only lesson or docs change; no real backend"
+        - label: "anti-cheat: lesson or docs change in the simulation lab (real backends live in radar)"
           required: false
-        - label: "lens: camera-only / portable core; actuation stays lab opt-in"
+        - label: "lens: camera-first core; actuation paths opt-in and documented"
           required: false
         - label: I understand the above for the project I selected
           required: true

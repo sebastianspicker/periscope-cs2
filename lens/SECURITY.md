@@ -9,17 +9,17 @@ shares nothing - capture is light the phone sees.
 
 ## What it is not
 
-- Not a supported cheat pack; not a production anti-cheat product.
-- Not an input injector by default: the output paths (`output.py`,
-  `policy.py`) compute deltas; wiring them to HID/OS input is lab opt-in.
+- Research tooling; not a production anti-cheat product.
+- The output paths (`output.py`,
+  `policy.py`) compute deltas today; wiring them to HID/OS input is an opt-in extension.
 - Not an Android release: `android/` is a source drop, runtime-unverified.
 
 ## Posture
 
 | Path | Status |
 |------|--------|
-| camera capture (`phone.py`) | posture-clean by construction |
-| HID gadget / PC agent (`output.py`) | lab-only opt-in, never default |
+| camera capture (`phone.py`) | camera-first by construction |
+| HID gadget / PC agent (`output.py`) | opt-in, not default |
 | targets-only (`output.py` ladder fallback) | always available |
 | hardware injectors (kmbox-class) | compatible hardware, not implemented |
 
@@ -34,5 +34,6 @@ shares nothing - capture is light the phone sees.
 ## Reporting
 
 Report repository-side issues (build surprise, docs/code mismatch about
-read-only behavior) via the Periscope security channel. “How do I evade X
-on live VAC/FACEIT” is out of scope here.
+read-only behavior) via the Periscope security channel. Live game usage
+policy: see
+[`../docs/decisions/0002-live-game-use-permitted.md`](../docs/decisions/0002-live-game-use-permitted.md).

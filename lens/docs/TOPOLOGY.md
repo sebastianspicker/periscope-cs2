@@ -57,10 +57,10 @@ exposes only subtle defaults.
 - Camera capture is posture-clean by construction: the game PC runs
   nothing and shares nothing; the phone watches the same light a human
   watches.
-- Actuation paths (L8/L9) are lab-only opt-in, mirroring
+- Actuation paths (L8/L9) are opt-in, mirroring
   `radar/adapters/real/` gating; nothing default-on.
-- Everything in this track is read-only/camera-only; hardware injectors
-  (kmbox-class) are documented as compatible hardware, never implemented.
+- This track's capture is camera-based today; hardware injectors
+  (kmbox-class) are documented as compatible hardware, not implemented.
 
 ## Optical reality (why L4 exists)
 

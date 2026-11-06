@@ -9,7 +9,7 @@ Game-facing radar product (radar track of the Periscope monorepo): real adapters
 
 ## Ground rules
 
-- Keep it educational. Do not ship ready-to-run cheat tooling aimed at live competitive play.
+- Keep the tree a coherent research product: document every real-backend capability you add (build flags, risk notes, docs).
 - Simulation is the default path. Real backends stay behind CMake flags and should degrade cleanly when hardware or the game is missing.
 - Radar consumes the anti-cheat lab one-way (`LR_ANTI_CHEAT_DIR`); do not add code paths that the lab would need to import from radar.
 - Match existing style in the folder you touch. Headers and sources live together under `src/` and `adapters/real/`.

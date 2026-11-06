@@ -4,12 +4,9 @@
 
 Simulation-only teaching lab (anti-cheat track under the Periscope monorepo): a tiered red/blue lab over a deterministic, CS2-shaped `sim::World`. Nothing in this tree touches a game, a process, a device, or a network - the tier model (T0–T4) is a *simulation* played out on World fields, and the `LAB_ALLOW_*` flags widen simulated surfaces only.
 
-## What it is not
+## Position
 
-- Not a supported cheat pack.
-- Not a production anti-cheat product.
-- Not a toolkit for bypassing HVCI, VBS, Secure Boot, or commercial AC in the wild.
-- Not a source of real drivers, firmware, or live backends.
+A teaching lab over a simulated, CS2-shaped world. Real-process capability (drivers, firmware, live backends) lives in [`../radar/SECURITY.md`](../radar/SECURITY.md); live game usage in that tree is in scope ([../docs/decisions/0002-live-game-use-permitted.md](../docs/decisions/0002-live-game-use-permitted.md)). This tree itself is not a production anti-cheat.
 
 ## Real-path material lives in radar
 
@@ -19,17 +16,15 @@ keeps its posture there:
 
 | Path (radar tree) | Risk |
 |------|------|
-| `../radar/examples/drivers/example_vulnerable/` | Vulnerable driver pattern. Requires test-signing. Lab machines only. |
+| `../radar/examples/drivers/example_vulnerable/` | Vulnerable driver pattern. Requires test-signing. Run where test-signing is acceptable. |
 | `../radar/examples/firmware/example_pcie_dma/` | DMA host / FPGA examples. Needs special hardware. |
 | `../radar/adapters/real/` | Process open, memory read, IOCTL, VMX, DMA helpers when enabled. |
 
-Do not load the sample driver or run elevated real backends on systems you care about. See [`../radar/SECURITY.md`](../radar/SECURITY.md).
+The sample driver requires test-signing; run elevated real backends on a machine where that is acceptable. See [`../radar/SECURITY.md`](../radar/SECURITY.md).
 
 ## Reporting issues
 
 Report vulnerabilities in this track via the Periscope repository security channel (private advisory if the host supports it). Examples in scope: a build script that does something surprising, accidental credential material, or a doc/code mismatch about simulation-only behavior. If private reporting is unavailable, open a normal issue without exploit detail.
-
-Please do **not** open issues that are "how do I evade X on live VAC/FACEIT/…". Those are out of scope.
 
 ## Safe defaults
 

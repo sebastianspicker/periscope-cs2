@@ -1,6 +1,6 @@
 # CS2 Vision Access
 
-Vision track of [Periscope](../README.md) (`periscope/vision`). Sister track: [`../radar/`](../radar/) (memory-path radar lab, MIT). This track is pixels-only: offline video and live screen/device capture. It does not open the game process, read game memory, or inject input.
+Vision track of [Periscope](../README.md) (`periscope/vision`). Sister track: [`../radar/`](../radar/) (memory-path radar, MIT). This track works on pixels today: offline video and live screen/device capture. Game-memory access and input automation are permitted project directions ([decision 0002](../docs/decisions/0002-live-game-use-permitted.md)) that this package does not implement yet.
 
 Pre-alpha research tooling for Counter-Strike 2: segment visible player pixels and draw dual-stroke outlines. Offline file pipelines and a live screen/device path share the same segmenter and renderer stack. The primary live deployment is a second Windows device fed by an HDMI capture card, so the gaming machine runs nothing that touches the process - see [docs/CONTOUR_PIPELINE.md](docs/CONTOUR_PIPELINE.md).
 
@@ -22,10 +22,10 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - Role-catalog multi-signifier treatments and opt-in temporal suppress-only anti-flash
 - Segmenter backends: Ultralytics ONNX seg, `ultralytics-detect` (boxes), optional RF-DETR, Vombit+EdgeSAM (`cs2-sam`) for labeling
 
-### Out of scope
+### Permitted directions not yet implemented
 
-- Aim assistance, recoil control, or any simulated game input
-- Reading or writing CS2 process memory
+- Aim assistance, recoil control, or simulated game input
+- Reading or writing CS2 process memory (the memory path today is the radar track)
 - Shipping commercial CS2-10k-trained weights without a separate rights review (CS2-10k is CC BY-NC 4.0)
 
 ## Capabilities and limitations
@@ -54,7 +54,7 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - COCO `person` models are plumbing checks, not CS2-validated player models.
 - Session-split product training needs your labels (or EdgeSAM/prepare drafts) and whole-session train/val assignment. Random frame splits are rejected for product datasets.
 - Free-tier notebooks default to COCO-person bootstrap plus self-train on a small CS2-10k slice. EdgeSAM auto-label is opt-in (`USE_EDGESAM=True`) and pulls larger ONNX teachers.
-- Live overlay on Windows expects borderless windowed CS2. Anti-cheat policy is outside this software; the code path is external capture only.
+- Live overlay on Windows expects borderless windowed CS2. The shipped code path consumes external pixels; see [decision 0002](../docs/decisions/0002-live-game-use-permitted.md) for the project's live-use policy.
 - Global hotkeys in overlay mode are implemented on Windows (`RegisterHotKey`, as Ctrl+Alt+<key>); other platforms are best-effort while the preview window has focus. The GUI drives the same controls cross-platform via buttons.
 - FPS depends on hardware, resolution, model, and device. Measure with `benchmark` or live diagnostics on your machine.
 
@@ -389,7 +389,7 @@ Promote ONNX + `.model.json` into a stable path under `artifacts/` for live/outl
 - Do not attach gameplay frames with personal data, tokens, or private weights to public issues.
 - Model manifests bind ONNX files by SHA-256; prefer loading with matching manifests.
 - Zip extract paths reject `..` traversal in training cloud helpers.
-- Live mode is external capture only; follow platform and anti-cheat terms for your environment.
+- Live mode consumes external pixels today; follow platform and anti-cheat terms for your environment.
 - The shared-memory ring is local to one machine and has no authentication; any local process that guesses the name can read frames. Treat it as display data, not a secret channel.
 - Streamproof mode (`WDA_EXCLUDEFROMCAPTURE`) hides the presenter from device-2 captures; it does not change what the gaming machine can see.
 - CS2-10k and other third-party datasets carry their own licenses (for example CC BY-NC 4.0).

@@ -1,8 +1,8 @@
 # DMA scatter-read policy integration (ledger R10)
 
 Status: portable policies implemented and tested; the live wiring below is
-lab-only and follows the same opt-in posture as the rest of
-`adapters/real/` (see `../SECURITY.md`, including its lab-only component
+implemented behind the same opt-in flags as the rest of
+`adapters/real/` (see `../SECURITY.md`, including its higher-risk component
 table).
 
 ## What is already portable (tested, no hardware)

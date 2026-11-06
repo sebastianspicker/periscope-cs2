@@ -1,6 +1,6 @@
 # Periscope
 
-Periscope is a set of four CS2 research projects with different threat models and licenses. None of them is a packaged cheat product. The closest thing to one is Radar, and even Radar is lab-grade scaffolding that you build and configure yourself.
+Periscope is a set of four CS2 research projects with different threat models and licenses. They are research tools you build and configure yourself, and targeting a live, running game is in scope ([decision 0002](docs/decisions/0002-live-game-use-permitted.md)).
 
 | If you want to... | Start here | What you get | Status |
 |---|---|---|---|
@@ -58,9 +58,9 @@ Each tree has its own README with the full build and runtime notes.
 
 ## State of the project
 
-This is independent exploratory work developed alongside a day job. The anti-cheat lab is simulation only. Radar real backends are opt-in and default to off. Vision and Lens are pre-alpha. The documented experiments do not establish a reliable live-game product.
+This is independent exploratory work developed alongside a day job. The anti-cheat lab runs on a simulated world. Radar's real backends are opt-in and default to off. Vision and Lens are pre-alpha. The documented experiments do not yet establish a polished live-game product.
 
-Use real backends on a lab machine and follow the scope notes in each tree. Pixel-based perception can miss or misidentify visible content. None of this guarantees accessibility or anti-cheat acceptance. You are responsible for capture, process access and platform rules.
+Live game usage is in scope (see [decision 0002](docs/decisions/0002-live-game-use-permitted.md)); follow the usage notes in each tree. Pixel-based perception can miss or misidentify visible content. None of this guarantees accessibility or anti-cheat acceptance. You are responsible for capture, process access and platform rules.
 
 ## Repository layout
 

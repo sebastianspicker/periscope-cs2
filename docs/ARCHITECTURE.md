@@ -18,7 +18,7 @@ share a subject area but no runtime code
 - Lens (`lens/`, Python + Kotlin companion, AGPL-3.0-only) is a
   camera-only phone track: a smartphone pointed at the monitor supplies the
   pixels; portable modules cover calibration, optical preflight, USB target
-  transport, latency compensation and lab-only output shaping.
+  transport, latency compensation and opt-in output shaping.
 
 This page is the newcomer's map: what runs where, what happens when you run
 each tool, and where the code lives. Per-project detail stays in
@@ -77,9 +77,11 @@ anti-cheat edge: radar consumes the lab's libraries (types, world, teams,
 strategies), and the lab never imports radar code. No Radar target includes or
 links Vision or Lens, and neither Python package imports Radar or the lab. The default Radar build never
 compiles `real`: every real-platform backend sits behind its own
-`LR_ENABLE_REAL_*` CMake option (all `OFF`). Vision never opens the game
-process. Its only input is pixels. The `strategy_lab` you get from a default
-lab build refuses `attach` and `mode real`.
+`LR_ENABLE_REAL_*` CMake option (all `OFF`). Vision's input is pixels today;
+memory-based or input paths are permitted directions
+([decision 0002](decisions/0002-live-game-use-permitted.md)) that the package
+does not implement yet. The `strategy_lab` you get from a default
+lab build runs the simulation half; real mode is a radar capability.
 
 Where in the code
 
@@ -342,8 +344,9 @@ Read in this order:
 
 - Vision preserves the `cs2-vision-access` distribution, `cs2-vision` command,
   `python -m cs2_vision_access`, documented public imports, backend names,
-  configuration and artifact schemas, model checksum binding, and pixel-only
-  safety boundary.
+  configuration and artifact schemas, model checksum binding, and the
+  pixel-input contract of the shipped CLI (new capabilities follow
+  [decision 0002](decisions/0002-live-game-use-permitted.md)).
 - Radar preserves documented executable and CMake option names, real-mode
   opt-in flags, offset snapshot formats, and versioned
   driver, firmware, IPC, and network layouts.

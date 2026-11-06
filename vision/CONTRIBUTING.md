@@ -49,7 +49,7 @@ Paths below are relative to `vision/` inside the Periscope monorepo.
 | `configs/*.example.json` | Example live and train-auto configs |
 | `docs/` | Active topic docs |
 | `scripts/` | Maintenance scripts (for example notebook generator) |
-| `../radar/` | Sister Periscope track (out of scope for vision PRs) |
+| `../radar/` | Sister Periscope track (separate scope for vision PRs) |
 | monorepo `.github/workflows/vision-ci.yml` | CI for this track |
 
 ## Style
@@ -57,7 +57,7 @@ Paths below are relative to `vision/` inside the Periscope monorepo.
 - Prefer small, tested modules over one-off scripts for library behavior.
 - Training helpers that notebooks call should stay importable without interactive UI.
 - Session-split datasets assign whole `session_id` values to train/val/test; do not introduce random adjacent-frame splits for product layouts.
-- Do not add aim assist, memory access, or input injection paths.
+- New memory-access or input paths are permitted additions ([decision 0002](../docs/decisions/0002-live-game-use-permitted.md)); put them behind adapters and update the capability docs when you add them.
 
 ## Pull requests
 

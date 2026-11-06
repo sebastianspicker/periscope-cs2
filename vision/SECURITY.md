@@ -8,10 +8,10 @@ This file covers the **vision** track (`cs2-vision-access` / `cs2-vision`) insid
 
 ## Operating assumptions
 
-- This software captures external pixels (screen or capture device) or reads local video files. It does not implement process injection or game-memory access.
+- This software captures external pixels (screen or capture device) or reads local video files. Game-memory access and input automation are permitted directions ([../docs/decisions/0002-live-game-use-permitted.md](../docs/decisions/0002-live-game-use-permitted.md)) that this track does not implement yet.
 - Operators are responsible for compliance with platform terms, anti-cheat policies, and local law.
 - Third-party datasets and base weights carry their own licenses (for example Ultralytics AGPL defaults, CS2-10k CC BY-NC 4.0).
-- The sister `radar/` track is a separate lab with different capabilities and license; do not assume vision-track boundaries apply there.
+- The sister `radar/` track is a separate track with different capabilities and license; do not assume vision-track capabilities apply there.
 
 ## Model integrity
 
