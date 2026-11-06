@@ -473,14 +473,14 @@ nvtx = [
 
 [[package]]
 name = "cupy"
-version = "13.6.0"
+version = "14.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "fastrlock" },
+    { name = "cuda-pathfinder" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a7/95/c2c7b5dca22dd7409308d076c33c681f810efd77e2b62e5107027cc98597/cupy-13.6.0.tar.gz", hash = "sha256:3cba30ae3dd32b5d5c6536e710cb98015227cd4ba83c46b3f1825a7ae55b6667", size = 3319720, upload-time = "2025-08-18T08:33:04.503Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/dc/10/059a92d40b161ea24607c9e41a75098812ca7021f2b565524f87beba15c9/cupy-14.2.0.tar.gz", hash = "sha256:cfed725e612178cfbdbf62f4a3a598b60edecbbca718c0d4580c21a16ae4a62c", size = 4057114, upload-time = "2026-08-20T02:42:12.036Z" }
 
 [[package]]
 name = "cupy-cuda11x"
