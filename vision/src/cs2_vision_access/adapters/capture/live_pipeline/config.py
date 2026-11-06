@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import threading
+from collections.abc import Iterable
 from dataclasses import dataclass, field
+from typing import Protocol
 
 from cs2_vision_access.adapters.capture.base import CaptureConfig
 from cs2_vision_access.adapters.capture.hotkeys import LiveControlState
@@ -11,11 +13,27 @@ from cs2_vision_access.adapters.capture.outputs import OutputSink
 from cs2_vision_access.adapters.capture.overlay import OverlayWindow
 from cs2_vision_access.adapters.capture.screen import ScreenCapturer
 from cs2_vision_access.application.live.inference.temporal import TemporalStabilityConfig
+from cs2_vision_access.domain.predictions import InstanceMask
 from cs2_vision_access.domain.safety import MAX_FRAME_PIXELS
 
 
 class LivePipelineError(RuntimeError):
     """Live pipeline encountered a non-recoverable error."""
+
+
+class FrameRecorder(Protocol):
+    """Port the pipeline uses to persist per-frame predictions (ledger V2).
+
+    Defined here so the adapter depends on a shape, not on the
+    application-layer implementation.
+    """
+
+    def record_indexed(
+        self,
+        frame_index: int,
+        instances: Iterable[InstanceMask],
+        timestamp_ns: int | None = None,
+    ) -> bool: ...
 
 
 @dataclass(frozen=True)
@@ -40,6 +58,11 @@ class LivePipelineConfig:
     # time) are dropped before inference rather than being presented late.
     # 0 disables the age check (the frame_skip_threshold logic still applies).
     max_capture_age_ms: float = 0.0
+    # Ledger V6: render boxes/labels/timing on the composite for field
+    # debugging. Debug output is a diagnostic surface, never a default.
+    debug_viz: bool = False
+    # Ledger V2 wiring: optional sanitized recorder fed every inferred frame.
+    recorder: FrameRecorder | None = None
 
 
 @dataclass(frozen=True)

@@ -69,6 +69,7 @@ from cs2_vision_access.adapters.models.segmenters import (
 )
 from cs2_vision_access.application.configuration import AppConfig, find_config_path, load_config
 from cs2_vision_access.application.live.inference.temporal import TemporalStabilityConfig
+from cs2_vision_access.application.live.recording import SessionRecorder
 from cs2_vision_access.interfaces.cli.common import _print_json
 from cs2_vision_access.interfaces.cli.inference_args import _parse_segmenter_backend
 from cs2_vision_access.interfaces.cli.style_args import _add_style_arguments, _outline_style
@@ -254,6 +255,25 @@ def register_live_commands(subcommands: Subcommands) -> None:
         help=(
             "Drop capture frames older than this (milliseconds of capture "
             "time) instead of presenting them late. 0 disables the check."
+        ),
+    )
+    live.add_argument(
+        "--debug-viz",
+        action="store_true",
+        default=None,
+        help=(
+            "Render field-debug annotations (boxes, class labels, fps and "
+            "inference timing) on the composite. Diagnostic surface only."
+        ),
+    )
+    live.add_argument(
+        "--record",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "Record sanitized per-frame predictions as bounded NDJSON "
+            "(ledger V2 format; playback via SessionReplay)."
         ),
     )
 
@@ -607,6 +627,19 @@ def _handle_live(arguments: argparse.Namespace) -> int:
             height,
         )
 
+    # --- Ledger V2: optional sanitized recording (opened before the config) ---
+    record_handle = None
+    recorder = None
+    if arguments.record is not None:
+        arguments.record.parent.mkdir(parents=True, exist_ok=True)
+        record_handle = arguments.record.open("w", encoding="utf-8")
+        recorder = SessionRecorder(
+            record_handle,
+            width=width,
+            height=height,
+            source_label=f"live {source_type}",
+        )
+
     # --- Build pipeline config ---
     pipeline_config = LivePipelineConfig(
         capture=capture,
@@ -628,6 +661,8 @@ def _handle_live(arguments: argparse.Namespace) -> int:
         max_capture_age_ms=(
             arguments.max_capture_age_ms if arguments.max_capture_age_ms is not None else 0.0
         ),
+        debug_viz=bool(arguments.debug_viz),
+        recorder=recorder,
     )
 
     # --- Style ---
@@ -638,11 +673,26 @@ def _handle_live(arguments: argparse.Namespace) -> int:
     segmenter = _build_segmenter(arguments, model_config)
 
     # --- Run ---
-    summary = run_live_pipeline(
-        segmenter=segmenter,
-        config=pipeline_config,
-        outline_style=style,
-    )
+    try:
+        summary = run_live_pipeline(
+            segmenter=segmenter,
+            config=pipeline_config,
+            outline_style=style,
+        )
+    finally:
+        if record_handle is not None:
+            record_handle.close()
+
+    if recorder is not None and recorder.stopped:
+        print(
+            f"[live] recording stopped at the {recorder.records}-record cap "
+            f"({len(recorder.dropped_reasons)} sanitized drops counted)"
+        )
+    elif recorder is not None:
+        print(
+            f"[live] recorded {recorder.records} frame(s) to {arguments.record} "
+            f"({len(recorder.dropped_reasons)} sanitized drops counted)"
+        )
 
     _print_summary(summary)
     return 0

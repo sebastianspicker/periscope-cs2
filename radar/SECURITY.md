@@ -31,3 +31,16 @@ Please do **not** open issues that are “how do I evade X on live VAC/FACEIT/�
 - Default CMake config favors simulation.
 - High-impact real backends (`LR_ENABLE_REAL_KERNEL`, `VMX`, `DMA`, …) default **off**.
 - Prefer `LR_MODE=sim` when exploring strategies.
+
+## Field context (recorded 2026-11-06, ledger X4 — not a policy source)
+
+An upstream maintainer reported on 2026-10-09 that Valve's servers appeared
+to be running a VACnet model with high recall and low precision: triggerbot,
+aimbot and recoil-control usage triggered cooldowns, and *kill timing* (the
+delta between an opponent's first visibility and the kill) looked like a
+detection signal even for apparently legitimate play. One author's
+unverified observation — recorded here because it is consistent with this
+project's standing posture decision: **read-only/pixel-only/camera-only
+surfaces are the low-risk half of the design space, and everything that
+acts (input synthesis, memory writes) is lab-gated and opt-in.** Treat it
+as context, not authority.

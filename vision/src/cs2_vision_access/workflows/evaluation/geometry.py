@@ -166,6 +166,29 @@ def mask_iou(
     return float(intersection) / float(union)
 
 
+def _polygon_bbox(polygon: Sequence[Point]) -> tuple[float, float, float, float]:
+    """Axis-aligned bounding box ``(min_x, min_y, max_x, max_y)`` of a polygon.
+
+    Empty polygons yield an inverted box that never overlaps anything.
+    """
+    if not polygon:
+        return (math.inf, math.inf, -math.inf, -math.inf)
+    xs = [point[0] for point in polygon]
+    ys = [point[1] for point in polygon]
+    return (min(xs), min(ys), max(xs), max(ys))
+
+
+def _boxes_overlap(
+    first: tuple[float, float, float, float],
+    second: tuple[float, float, float, float],
+) -> bool:
+    """Closed-box overlap; touching edges count as overlapping so a
+    single-pixel bridge is never prefiltered away (IoU would decide > 0)."""
+    return not (
+        first[2] < second[0] or second[2] < first[0] or first[3] < second[1] or second[3] < first[1]
+    )
+
+
 def match_instances(
     ground_truth: Sequence[PolygonInstance],
     predictions: Sequence[PolygonInstance],
@@ -187,14 +210,24 @@ def match_instances(
     gt_masks: dict[int, np.ndarray] = {}
     pred_masks: dict[int, np.ndarray] = {}
 
+    # Bounding boxes are computed once per polygon from its vertices — orders
+    # of magnitude cheaper than rasterization (ledger V4). A pair with
+    # disjoint bounding boxes has IoU 0 by construction, so both rasterizations
+    # are skipped; the match output is bit-identical to the unfiltered path.
+    gt_boxes = [_polygon_bbox(instance.polygon) for instance in ground_truth]
+    pred_boxes = [_polygon_bbox(instance.polygon) for instance in predictions]
+
     def _mask(cache: dict[int, np.ndarray], index: int, instance: PolygonInstance) -> np.ndarray:
         if index not in cache:
             cache[index] = rasterize_polygon(instance.polygon, height=height, width=width)
         return cache[index]
 
     for gt_index, gt in enumerate(ground_truth):
+        gt_box = gt_boxes[gt_index]
         for pred_index, pred in enumerate(predictions):
             if gt.class_id != pred.class_id:
+                continue
+            if not _boxes_overlap(gt_box, pred_boxes[pred_index]):
                 continue
             gt_mask = _mask(gt_masks, gt_index, gt)
             pred_mask = _mask(pred_masks, pred_index, pred)

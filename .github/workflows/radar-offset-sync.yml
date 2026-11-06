@@ -1,0 +1,123 @@
+name: Radar offset sync
+
+# Ledger R8 (docs/ADAPTATION_LEDGER.md). Adapted from the cs2-dma release
+# offset-sync workflow (Apache-2.0, NOTICE recorded): resolve the newest
+# *trusted* a2x/cs2-dumper ref, regenerate the local snapshot on drift, and
+# open a bot PR so the portable Radar CI builds it before anything merges.
+#
+# Hardening carried over:
+# - PR sources are vetted by author association (OWNER/MEMBER/COLLABORATOR)
+#   and a future-timestamp skew guard, inside resolve_dumper_ref.py.
+# - The dump is fetched at the resolved commit SHA (pinned URL base), so the
+#   generated snapshot is reproducible and reviewable.
+# - The workflow never commits directly to main; the bot PR carries the diff.
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "Regenerate even when --check reports no drift"
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: "23 * * * *"
+
+concurrency:
+  group: radar-offset-sync
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+
+      - name: Resolve newest trusted dumper ref
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 radar/scripts/resolve_dumper_ref.py \
+            --repo a2x/cs2-dumper --json-out /tmp/dumper-ref.json
+          python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+
+          selection = json.loads(pathlib.Path("/tmp/dumper-ref.json").read_text())
+          output = pathlib.Path(os.environ.get("GITHUB_OUTPUT", "/dev/null"))
+          # Plain string writing keeps this step free of shell interpolation.
+          with output.open("a", encoding="utf-8") as handle:
+              handle.write(f"url_base={selection['url_base']}\n")
+              handle.write(f"label={selection['label']}\n")
+              handle.write(f"sha={selection['sha']}\n")
+          PY
+
+      - name: Check for snapshot drift
+        id: drift
+        if: ${{ inputs.force != true }}
+        run: |
+          set -uo pipefail
+          if python3 radar/scripts/update_cs2_signatures.py \
+              --url-base "${{ steps.resolve.outputs.url_base }}" --check; then
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+          else
+            code=$?
+            if [ "$code" -eq 2 ]; then
+              echo "drift=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "update_cs2_signatures --check failed with $code" >&2
+              exit "$code"
+            fi
+          fi
+
+      - name: Regenerate snapshot from the pinned dump
+        if: ${{ inputs.force == true || steps.drift.outputs.drift == 'true' }}
+        run: |
+          python3 radar/scripts/update_cs2_signatures.py \
+            --url-base "${{ steps.resolve.outputs.url_base }}"
+          # Regeneration must be idempotent: a second check against the
+          # freshly written files must report no drift.
+          python3 radar/scripts/update_cs2_signatures.py \
+            --url-base "${{ steps.resolve.outputs.url_base }}" --check
+
+      - name: Run resolver self-test (portable, on every run)
+        run: python3 radar/scripts/resolve_dumper_ref.py --self-test
+
+      - name: Open the snapshot bot PR
+        if: ${{ inputs.force == true || steps.drift.outputs.drift == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_SHA: ${{ steps.resolve.outputs.sha }}
+          PR_LABEL: ${{ steps.resolve.outputs.label }}
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- radar/data/cs2; then
+            echo "No file changes after regeneration; nothing to submit."
+            exit 0
+          fi
+          branch="bot/cs2-offsets-$(date -u +%Y%m%d-%H%M%S)"
+          git config user.name "periscope-offset-bot"
+          git config user.email "periscope-offset-bot@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add radar/data/cs2
+          git commit -m \
+            "chore(radar): refresh CS2 offset snapshot from ${PR_LABEL}" \
+            --no-verify
+          gh auth setup-git
+          git push origin "$branch"
+          gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore(radar): CS2 offset snapshot from ${PR_LABEL}" \
+            --body "Automated ledger-R8 sync from a2x/cs2-dumper (${PR_LABEL}, sha ${PR_SHA}). Portable Radar CI must pass before merge."

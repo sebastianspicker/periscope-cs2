@@ -16,6 +16,7 @@ from cs2_vision_access.adapters.capture.live_pipeline.config import LivePipeline
 from cs2_vision_access.adapters.capture.live_pipeline.diagnostics import _Diagnostics
 from cs2_vision_access.adapters.models.segmenters import Segmenter
 from cs2_vision_access.adapters.rendering.renderer import OutlineRenderer, OutlineStyle
+from cs2_vision_access.adapters.rendering.renderer.debug import draw_debug_overlay
 from cs2_vision_access.application.live.inference.temporal import (
     SuppressOnlyTemporalPolicy,
     TemporalStabilityConfig,
@@ -155,6 +156,23 @@ def run_frame(
     rendered = renderer.render(frame, predictions, frame_index=frame_index)
 
     current_frame_preds = [p for p in predictions if p.frame_index == frame_index]
+
+    if cfg.recorder is not None:
+        # Ledger V2 wiring: one sanitized absolute record per inferred frame.
+        cfg.recorder.record_indexed(frame_index, current_frame_preds)
+
+    if cfg.debug_viz:
+        recent_inference = list(diag.inference_ms)[-100:]
+        avg_inference = sum(recent_inference) / len(recent_inference) if recent_inference else 0.0
+        now = time.perf_counter()
+        elapsed = max(now - started - diag._accumulated_pause, 1e-6)
+        rendered = draw_debug_overlay(
+            rendered,
+            current_frame_preds,
+            fps=frame_index / elapsed,
+            avg_inference_ms=avg_inference,
+            frame_index=frame_index,
+        )
 
     pipeline_elapsed = (time.perf_counter() - inference_start) * 1000.0
     diag.pipeline_ms.append(pipeline_elapsed)

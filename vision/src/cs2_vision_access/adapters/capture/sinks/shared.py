@@ -32,12 +32,29 @@ HEADER_FORMAT = "<7I2QI"  # magic, ver, w, h, stride, ch, fps | idx, ts | state
 HEADER_SIZE = struct.calcsize(HEADER_FORMAT)
 INDEX_OFFSET = struct.calcsize("<7I")  # packed: frame_index sits at 28, not 32
 assert HEADER_SIZE == 48, "header layout changed (packed: idx 28, ts 36, state 44)"
-MAGIC = 0x4356_3153  # "CV1S"
+MAGIC = 0x4356_3153  # big-endian spelling of "CV1S"; wire bytes read "S1VC"
+# (little-endian). Pre-existing wire contract, guarded by
+# test_contour_pipeline.py::test_ring_header_wire_contract — header_to_json
+# derives its display text with the big-endian spelling so docs, mirror and
+# constant agree on the *name* while the wire bytes stay untouched.
 VERSION = 1
 
 STATE_IDLE = 0
 STATE_READY = 1
 STATE_GONE = 2
+
+KNOWN_PROTOCOL_VERSIONS = frozenset({VERSION})
+
+
+class ProtocolVersionError(ValueError):
+    """The wire contract version is not supported by this reader/writer.
+
+    Raised on the clean-rejection path of ledger V1: a reader that does not
+    speak a producer's version must fail with this error (never decode
+    garbage). Add new versions to ``KNOWN_PROTOCOL_VERSIONS`` together with a
+    migration note in the module docstring; old readers keep rejecting
+    unknown versions loudly instead of silently misreading bytes.
+    """
 
 
 def _open_shm(name: str, size: int) -> Any:
@@ -158,14 +175,44 @@ class SharedFrameSink:
         self.close()
 
 
+def negotiate_protocol(version: int) -> int:
+    """Returns the protocol version to speak, or raises.
+
+    Both sides call this with the version they found on the wire (readers)
+    or intend to write (producers). Unknown versions are a loud, typed
+    failure — the A3 incident class was silent byte-level misreads.
+    """
+    if version in KNOWN_PROTOCOL_VERSIONS:
+        return version
+    raise ProtocolVersionError(
+        f"ring protocol version {version} unsupported (known: {sorted(KNOWN_PROTOCOL_VERSIONS)})"
+    )
+
+
+def header_to_json(header: SharedFrameHeader) -> str:
+    """Canonical JSON mirror of a decoded header (tooling/test contract).
+
+    Fixed field order, integer types only — the mirror must be byte-stable
+    for golden comparisons and must never contain frame payload bytes. The
+    magic text is derived from the wire constant so the two cannot drift.
+    """
+    magic_text = struct.pack(">I", MAGIC).decode("ascii")
+    return (
+        f'{{"magic":"{magic_text}","version":{VERSION},"width":{header.width},'
+        f'"height":{header.height},"stride":{header.stride},'
+        f'"channels":{header.channels},"fps_hint":{header.fps_hint},'
+        f'"frame_index":{header.frame_index},'
+        f'"timestamp_ns":{header.timestamp_ns},"state":{header.state}}}'
+    )
+
+
 def read_shared_header(shm: Any) -> SharedFrameHeader:
     """Decode the ring header from an attached shared-memory mapping."""
     values = struct.unpack_from(HEADER_FORMAT, shm.buf, 0)
     magic, version, width, height, stride, channels, fps, frame_index, ts, state = values
     if magic != MAGIC:
         raise ValueError("not a shared contour ring (magic mismatch)")
-    if version != VERSION:
-        raise ValueError(f"unsupported ring protocol version {version}")
+    negotiate_protocol(version)  # raises ProtocolVersionError on mismatch
     return SharedFrameHeader(
         width=width,
         height=height,

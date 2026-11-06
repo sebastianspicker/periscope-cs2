@@ -21,7 +21,23 @@ set(LR_DOMAIN_FILES
   "${_domain}/server/info_advantage.cpp"
   "${_domain}/server/info_advantage.hpp"
   "${_domain}/server/interest_mgmt.cpp"
-  "${_domain}/server/interest_mgmt.hpp")
+  "${_domain}/server/interest_mgmt.hpp"
+  # Radar snapshot/sampling/projection policies (ledger R1-R4, R7, R9, R12).
+  "${_domain}/radar/snapshot.hpp"
+  "${_domain}/radar/snapshot.cpp"
+  "${_domain}/radar/sampling.hpp"
+  "${_domain}/radar/snapshot_ring.hpp"
+  "${_domain}/radar/projection.hpp"
+  "${_domain}/radar/projection.cpp"
+  "${_domain}/radar/intervals.hpp"
+  "${_domain}/radar/mini_radar.hpp"
+  "${_domain}/radar/mini_radar.cpp"
+  "${_domain}/radar/offset_overrides.hpp"
+  "${_domain}/radar/offset_overrides.cpp"
+  "${_domain}/radar/scatter_batch.hpp"
+  "${_domain}/radar/scatter_batch.cpp"
+  "${_domain}/radar/los_bvh.hpp"
+  "${_domain}/radar/los_bvh.cpp")
 foreach(_domain_file IN LISTS LR_DOMAIN_FILES)
   file(READ "${_domain_file}" _domain_contents)
   if(_domain_contents MATCHES "#include[ \\t]+[<\"](sim|ac_sim|cs2|fps|lab|adapters|real|application|scenarios)/")
@@ -36,6 +52,25 @@ lr_library(ac_common
   "${_domain}/ac/telemetry.cpp"
   "${_domain}/ac/types.cpp")
 target_include_directories(ac_common PUBLIC "${_domain}")
+# Radar domain policies (ledger R1-R4, R7, R9-R12): pure, portable, tested.
+lr_library(radar_snapshot
+  "${_domain}/radar/snapshot.cpp"
+  "${_domain}/radar/projection.cpp"
+  "${_domain}/radar/mini_radar.cpp"
+  "${_domain}/radar/offset_overrides.cpp"
+  "${_domain}/radar/scatter_batch.cpp"
+  "${_domain}/radar/los_bvh.cpp")
+target_include_directories(radar_snapshot PUBLIC "${_domain}")
+# Web-radar service core (ledger R5): transport-independent, fake-client tested.
+lr_library(radar_webradar
+  "${_application}/radar/webradar_service.cpp")
+target_include_directories(radar_webradar PUBLIC "${_application}" "${_domain}")
+target_link_libraries(radar_webradar PUBLIC radar_snapshot)
+# Map-collision `.tri` file format (ledger R11 portable half).
+lr_library(radar_collision
+  "${_application}/radar/tri_loader.cpp")
+target_include_directories(radar_collision PUBLIC "${_application}" "${_domain}")
+target_link_libraries(radar_collision PUBLIC radar_snapshot)
 lr_library(ac_strategy_core
   "${_application}/strategies/catalog_util.cpp"
   "${_application}/strategies/framework_meta.cpp"
