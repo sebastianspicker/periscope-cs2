@@ -25,7 +25,7 @@ def _affine_camera_to_screen(
             [0.0, 0.0, 1.0],
         ]
     )
-    markers = screen_marker_positions(width, height)[0]
+    markers = screen_marker_positions(width, height)
     homogeneous = np.column_stack([markers, np.ones(len(markers))])
     projected = homogeneous @ matrix.T
     camera = projected[:, :2] / projected[:, 2:3]
@@ -47,7 +47,7 @@ def test_exact_solve_recovers_mapping() -> None:
 def test_perspective_projection_is_recoverable() -> None:
     """A true projective warp (keystone) — the case plain affine cannot fit."""
     width, height = 1280, 720
-    markers = screen_marker_positions(width, height)[0]
+    markers = screen_marker_positions(width, height)
     projective = np.array(
         [
             [0.35, 0.01, 150.0],
@@ -118,3 +118,20 @@ def test_drift_monitor_patience() -> None:
     assert monitor.rolling_residual > 0.0
     with pytest.raises(CalibrationError):
         monitor.observe(-1.0)
+
+
+def test_marker_positions_are_one_array() -> None:
+    markers = screen_marker_positions(1920, 1080)
+    assert isinstance(markers, np.ndarray)
+    assert markers.shape == (8, 2)
+
+
+def test_residual_for_rejects_malformed_points() -> None:
+    calibration = solve_homography(
+        [(0, 0), (1, 0), (0, 1), (1, 1)],
+        [(0, 0), (10, 0), (0, 10), (10, 10)],
+    )
+    with pytest.raises(CalibrationError, match=r"\(N, 2\)"):
+        residual_for(calibration, [(0, 0, 0), (1, 1, 1)], [(0, 0), (1, 1)])
+    with pytest.raises(CalibrationError, match="finite"):
+        residual_for(calibration, [(0, 0), (float("inf"), 1)], [(0, 0), (1, 1)])

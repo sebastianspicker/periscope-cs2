@@ -230,7 +230,8 @@ bool KernelRadar::pull_entities() {
       std::vector<std::uint8_t> eb;
       if (!world_.device_ioctl_read(ui_pid_, device_, game_pid_,
                                     g->base + 0x10 + i * sizeof(Ent),
-                                    sizeof(Ent), eb)) {
+                                    sizeof(Ent), eb) ||
+          eb.size() < sizeof(Ent)) {
         return false;
       }
       Ent e{};

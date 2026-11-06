@@ -1,7 +1,7 @@
 # DMA scatter-read policy integration (ledger R10)
 
 Status: portable policies implemented and tested; the live wiring below is
-**lab-only** and follows the same opt-in posture as the rest of
+lab-only and follows the same opt-in posture as the rest of
 `adapters/real/` (see `../SECURITY.md`, including its lab-only component
 table).
 
@@ -18,23 +18,23 @@ table).
 
 ## Required live-adapter rules (upstream evidence, ledger R10)
 
-1. **Batch sizing** (oasis): never issue more scatter reads than the FPGA can
+1. Batch sizing (oasis): never issue more scatter reads than the FPGA can
    keep in flight; reads beyond that stall the pipe for several milliseconds.
    The adapter must chunk with `plan_scatter_batches` using the device's
    measured in-flight capacity, not a constant guess.
-2. **Pointer-cache revalidation** (oasis): keep each entity-slot's resolved
+2. Pointer-cache revalidation (oasis): keep each entity-slot's resolved
    pointer between frames; every frame re-reads pointer + payload in the same
    batch and only consumes the payload when `classify_revalidation` returns
    `Unchanged`. `Moved` entries are re-resolved next frame; `GenerationGap`
    is treated as respawn; `ReadFailed` drops the slot for the frame.
-3. **Dual-device split** (oasis): action/entity reads and camera reads use
+3. Dual-device split (oasis): action/entity reads and camera reads use
    separate FPGA device indexes to avoid USB contention; the camera worker
    runs at `kCameraHz`, the data worker at `kDataHz`.
-4. **Recovery windows** (cs2-dma): after a bulk eviction (scene change,
+4. Recovery windows (cs2-dma): after a bulk eviction (scene change,
    device reset) consumers hold the last good frame for
    `within_bulk_recovery_window` instead of flapping; recovery state lives in
    exactly one place (the data worker), never in a second cache.
-5. **Scene watermark**: every batch is stamped with the current
+5. Scene watermark: every batch is stamped with the current
    `SceneWatermark` serial; results from an older serial are discarded
    wholesale.
 

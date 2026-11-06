@@ -1,6 +1,6 @@
-# 37_attestation — Platform attestation gate
+# 37_attestation - Platform attestation gate
 
-Family: Structural. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Structural. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::attestation::run_red` in `red_example.cpp` / `red_example.hpp`
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Break attestation quote / PCR — Invalidate signature and PCR match so ranked gate cannot trust host.
+1. Narrator move: Break attestation quote / PCR - Invalidate signature and PCR match so ranked gate cannot trust host.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- trust.attestation_valid — HostTrust.attestation_valid = false
-- trust.attestation_pcr_ok — HostTrust.attestation_pcr_ok = false
-- trust.vbs — HostTrust.vbs = false
+- trust.attestation_valid - HostTrust.attestation_valid = false
+- trust.attestation_pcr_ok - HostTrust.attestation_pcr_ok = false
+- trust.vbs - HostTrust.vbs = false
 
 Achieved when: `red.quote_broken || red.pcr_broken`
 
@@ -34,7 +34,7 @@ Entry: `examples::attestation::run_blue` in `blue_example.cpp` / `blue_example.h
 
 What blue does in the lab:
 
-1. Narrator counter: Attestation ranked gate — Hard deny when quote signature or PCR is not known-good.
+1. Narrator counter: Attestation ranked gate - Hard deny when quote signature or PCR is not known-good.
 2. Multi-reason scan over World scars (see sensors list below).
 
 Team / depth sensors:
@@ -46,7 +46,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `false`
 - mitigated := `blue.mitigated()`
-- Pass narrative: mitigation-only (fog/policy/structural) — detect may stay false; that is still a blue win.
+- Pass narrative: mitigation-only (fog/policy/structural) - detect may stay false; that is still a blue win.
 
 ## Takeaway
 
@@ -67,6 +67,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `attestation/red_example.cpp` — full red multi-step
-- `attestation/blue_example.cpp` — full blue multi-reason
-- `attestation/pair.cpp` — StrategyEntry wiring + narrator
+- `attestation/red_example.cpp` - full red multi-step
+- `attestation/blue_example.cpp` - full blue multi-reason
+- `attestation/pair.cpp` - StrategyEntry wiring + narrator

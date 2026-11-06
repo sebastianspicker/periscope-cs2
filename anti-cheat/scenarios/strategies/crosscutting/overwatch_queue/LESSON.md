@@ -1,6 +1,6 @@
-# 74_overwatch_queue — Overwatch delayed queue
+# 74_overwatch_queue - Overwatch delayed queue
 
-Family: Detection. Tiers: all. Area: xc/ops. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Detection. Tiers: all. Area: xc/ops. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,21 +16,21 @@ Entry: `examples::overwatch_queue::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Legit-looking weak multi-scar — Mild handle + no rage + optional vpn/report second signal.
-2. Step 1: legit-looking play — no silent aim, no rage input storm.
-3. Step 2: mild scar only — short-lived external handle (weak signal).
-4. Step 3: optional second weak signal — low VPN residual (not full farm).
+1. Narrator move: Legit-looking weak multi-scar - Mild handle + no rage + optional vpn/report second signal.
+2. Step 1: legit-looking play - no silent aim, no rage input storm.
+3. Step 2: mild scar only - short-lived external handle (weak signal).
+4. Step 3: optional second weak signal - low VPN residual (not full farm).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- silent_aim_active — World.silent_aim_active = false
-- vpn_proxy_active — World.vpn_proxy_active = true
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- spawn() — Spawn actor process on World process list.
-- push_input() — Push InputEvent (injected vs raw_hid provenance).
-- add_account() — Plant Account row (hwid/payment/ip/report_count graph).
+- silent_aim_active - World.silent_aim_active = false
+- vpn_proxy_active - World.vpn_proxy_active = true
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- spawn() - Spawn actor process on World process list.
+- push_input() - Push InputEvent (injected vs raw_hid provenance).
+- add_account() - Plant Account row (hwid/payment/ip/report_count graph).
 
 Achieved when: `r.mild_handle && r.no_rage`
 
@@ -40,10 +40,10 @@ Entry: `examples::overwatch_queue::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Overwatch / delayed review queue — weak_handle + multi-invariant; multi_reason (not queue alone).
+1. Narrator counter: Overwatch / delayed review queue - weak_handle + multi-invariant; multi_reason (not queue alone).
 2. Step 1: weak handle signal on game process.
-3. Step 2: delayed multi-invariant path with FP budget — not instant ban.
-4. Step 3: only queue when a weak signal is present — not queue alone.
+3. Step 2: delayed multi-invariant path with FP budget - not instant ban.
+4. Step 3: only queue when a weak signal is present - not queue alone.
 
 Team / depth sensors:
 - `depth::MultiInvariantScorer`
@@ -85,9 +85,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `overwatch_queue/red_example.cpp` — full red multi-step
-- `overwatch_queue/blue_example.cpp` — full blue multi-reason
-- `overwatch_queue/pair.cpp` — StrategyEntry wiring + narrator
+- `overwatch_queue/red_example.cpp` - full red multi-step
+- `overwatch_queue/blue_example.cpp` - full blue multi-reason
+- `overwatch_queue/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `depth/multi_invariant_scorer.hpp`

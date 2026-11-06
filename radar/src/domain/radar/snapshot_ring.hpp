@@ -41,6 +41,10 @@ class SnapshotRing {
     Slot& slot = slots_[write_slot_];
     const std::uint64_t s0 = slot.seq.load(std::memory_order_relaxed);
     slot.seq.store(s0 + 1, std::memory_order_relaxed);  // odd: writing
+    // Release fence: on weakly ordered hosts (ARM) plain payload stores may
+    // otherwise become visible before the odd sequence store, letting a
+    // reader that samples the old even value twice accept a torn copy.
+    std::atomic_thread_fence(std::memory_order_release);
     // Feed the payload bytes through the slot. Trivially-copyable payloads
     // (the intended use) memcpy; anything else uses the copy-assign path.
     if constexpr (std::is_trivially_copyable_v<T>) {

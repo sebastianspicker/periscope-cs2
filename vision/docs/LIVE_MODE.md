@@ -6,7 +6,7 @@ Captures frames from screen, a capture device, or a file, runs a segmenter, and 
 
 Second-device composite (HDMI capture card on another machine, contours shown fullscreen): [CONTOUR_PIPELINE.md](CONTOUR_PIPELINE.md).
 
-Desktop alternative: `cs2-vision gui` — same engine, tkinter dashboard. See [CLI.md](CLI.md).
+Desktop alternative: `cs2-vision gui` - same engine, tkinter dashboard. See [CLI.md](CLI.md).
 
 ## Prerequisites
 
@@ -88,7 +88,7 @@ Offline multi-backend timing: [BAKEOFF.md](BAKEOFF.md). Package map: [ARCHITECTU
 
 ### Temporal filter
 
-Default is frame-sync only (policy off). With `--temporal-enabled`, unstable one-frame blips are suppressed until a detection matches for N consecutive frames. No track IDs. Hold-last-mask is a separate opt-in (`--temporal-hold`) and is not the default accessibility path — holding stale geometry risks outlining empty space or occluders. Outline CLI uses the same suppress-only idea under `--temporal-suppress` ([ACCESSIBILITY.md](ACCESSIBILITY.md)).
+Default is frame-sync only (policy off). With `--temporal-enabled`, unstable one-frame blips are suppressed until a detection matches for N consecutive frames. No track IDs. Hold-last-mask is a separate opt-in (`--temporal-hold`) and is not the default accessibility path - holding stale geometry risks outlining empty space or occluders. Outline CLI uses the same suppress-only idea under `--temporal-suppress` ([ACCESSIBILITY.md](ACCESSIBILITY.md)).
 
 ## Overlay positioning
 

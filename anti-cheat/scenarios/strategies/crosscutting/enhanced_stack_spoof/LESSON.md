@@ -1,6 +1,6 @@
-# 59_enhanced_stack_spoof — Enhanced stack spoof
+# 59_enhanced_stack_spoof - Enhanced stack spoof
 
-Family: Evasion. Tiers: T1. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::enhanced_stack_spoof::apply` in `red_example.cpp` / `red_examp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Enhanced stack spoof — forge a four-frame, trusted-module-looking return chain (ntdll → kernel32 → game.dll → reader) before the read.
+1. Narrator move: Enhanced stack spoof - forge a four-frame, trusted-module-looking return chain (ntdll → kernel32 → game.dll → reader) before the read.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -29,11 +29,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - read_mem() a 4-byte entity sample; verify the handle graph is non-empty.
 
 World scars and lab surfaces (from shipped red code):
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- enhanced_stack_spoof — World.enhanced_stack_spoof = true.
-- spoofed_call_depth — World.spoofed_call_depth = 4.
-- stack_spoof_on_read — World.stack_spoof_on_read = true.
-- spawn() — Spawn actor process on World process list.
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- enhanced_stack_spoof - World.enhanced_stack_spoof = true.
+- spoofed_call_depth - World.spoofed_call_depth = 4.
+- stack_spoof_on_read - World.stack_spoof_on_read = true.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `handle_open && spoofed_call_depth >= 2`
 
@@ -44,7 +44,7 @@ Entry: `examples::enhanced_stack_spoof::detect` in `blue_example.cpp` / `blue_ex
 What blue does in the lab:
 
 1. Narrator counter: Deep forged return chains exceed a shallow normal call chain.
-2. Narrator counter: The foreign VM_READ handle survives the spoof — origin attribution degrades, but the scar does not.
+2. Narrator counter: The foreign VM_READ handle survives the spoof - origin attribution degrades, but the scar does not.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -82,6 +82,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `enhanced_stack_spoof/red_example.cpp` — full red multi-step
-- `enhanced_stack_spoof/blue_example.cpp` — full blue multi-reason
-- `enhanced_stack_spoof/pair.cpp` — StrategyEntry wiring + narrator
+- `enhanced_stack_spoof/red_example.cpp` - full red multi-step
+- `enhanced_stack_spoof/blue_example.cpp` - full blue multi-reason
+- `enhanced_stack_spoof/pair.cpp` - StrategyEntry wiring + narrator

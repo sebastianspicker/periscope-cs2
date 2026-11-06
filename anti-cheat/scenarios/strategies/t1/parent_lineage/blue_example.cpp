@@ -84,6 +84,7 @@ BlueResult detect(sim::World& w) {
                 (foreign_handle && lineage_hits > 0);
   if (r.risk >= 0.8) w.ranked_access_denied = true;
   r.detail = "lineage=" + std::to_string(lineage_hits) +
+             " suspicious_under_shell=" + std::to_string(suspicious_under_shell) +
              " vm_under_shell=" + std::to_string(vm_read_under_shell) +
              " signals=" + std::to_string(r.signals);
   std::printf("[blue:parent_lineage] %s detected=%d mitigated=%d\n",

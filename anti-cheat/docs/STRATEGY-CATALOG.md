@@ -58,7 +58,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `36_nested_hv` | Nested personal hypervisor | T3 | Delivery | Platform HV + disable VBS; personal ACLABHV | Detect personal under Microsoft-only platform; policy fail |
 | `37_attestation` | Platform attestation gate | T3 | Structural | Break quote signature / PCR match | Ranked deny if attestation invalid or PCR not known-good |
 | `38_timing_spoof` | HV timing spoof | T3 | Evasion | Personal HV; fake CPUID latency near baseline | Multi-invariant: vendor / spoof flag / latency×vendor |
-| `39_capture_cv_hid` | Capture card CV + HID | T4 | Delivery | Vision from capture card; multi-sample serial MCU — no memory scar | Multi-reason capture+input; fog residual |
+| `39_capture_cv_hid` | Capture card CV + HID | T4 | Delivery | Vision from capture card; multi-sample serial MCU - no memory scar | Multi-reason capture+input; fog residual |
 | `40_entity_stream_crypto` | Entity stream crypto | all | Structural | Read/decrypt client entity stream when key is present | Encrypt without client key + interest management |
 | `41_ac_self_integrity` | AC self-integrity | all | Detection | Multi-step: AC text_hash=tampered + iat/headers residual | Dirty is_ac modules + hook residual; multi_reason; fail closed |
 | `42_handle_hide_on_enum` | Handle hide on enum | T0 | Evasion | OpenProcess(VM_READ) then hide handle during AC enumeration | Single-sample may miss; count_hidden / continuous include_hidden detects |
@@ -94,7 +94,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `72_desktop_duplication` | Desktop duplication residual | T4 | Delivery | DXGI desktop dup + clean process; no OpenProcess | Multi-reason desktop_dup+clean; fog mitigate |
 | `55_network_multibox_aim` | Network multibox aim | T4 | Delivery | Remote aim stream + multi-sample serial/kmbox + net residual | Multi-reason multibox or net+HID correlation; fog |
 | `74_overwatch_queue` | Overwatch delayed queue | all | Detection | Mild handle + no_rage + second weak (vpn/report) | weak_handle + multi-invariant; multi_reason handle&&overwatch |
-| `75_polymorphic_build` | Polymorphic per-buyer build | all | Evasion | Unique binary_build_id + buyer process + handle + wm/c2 | Hash miss; multi-reason handle+(poly_cluster|wm) — not hash-only |
+| `75_polymorphic_build` | Polymorphic per-buyer build | all | Evasion | Unique binary_build_id + buyer process + handle + wm/c2 | Hash miss; multi-reason handle+(poly_cluster|wm) - not hash-only |
 | `76_gdi_bitblt` | GDI BitBlt screen capture | T0 | Feature | gdi_bitblt_capture=true; no OpenProcess to game | Detect gdi_bitblt_capture; fog mitigate optional |
 | `77_wh_mouse_hook` | WH_MOUSE / mouse hook scar | T0 | Feature | wh_mouse_hook=true; optional inject inputs | Detect wh_mouse_hook |
 | `78_thread_hide_dbg` | ThreadHideFromDebugger / PEB spoof | T1 | Evasion | thread_hide_from_debugger=true, peb_being_debugged_spoofed=true; may open handle | Detect either thread_hide_from_debugger or peb_being_debugged_spoofed |
@@ -106,7 +106,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `54_lag_switch` | Lag switch residual | T4 | Delivery | lag_switch_active + net residual; distinct from packet_loss | Detect lag; disambig vs packet_loss; fog mitigate |
 | `85_external_clone_display` | External clone display residual | T4 | Delivery | external_display_clone + clean process; no OpenProcess | Multi-reason clone+clean; fog mitigate |
 | `86_vpn_proxy_graph` | VPN / proxy account graph | all | Detection | vpn_proxy_active; ≥3 accounts share vpn_res_1; optional payment | multi_reason vpn_flag&&ip_cluster |
-| `87_build_watermark` | Per-buyer build watermark | all | Evasion | wm_buyer_deadbeef + unique id; handle or account link | Multi-reason watermark && (handle || poly_link) — not wm alone |
+| `87_build_watermark` | Per-buyer build watermark | all | Evasion | wm_buyer_deadbeef + unique id; handle or account link | Multi-reason watermark && (handle || poly_link) - not wm alone |
 | `88_printwindow` | PrintWindow screen capture | T0 | Feature | printwindow_capture=true; no OpenProcess to game | Detect printwindow_capture; fog mitigate optional |
 | `89_block_input` | BlockInput session lock | T0 | Feature | block_input_active=true | Detect block_input_active |
 | `90_sedebug_priv` | SeDebugPrivilege enable | T1 | Evasion | sedebug_privilege=true; may open handle | Detect sedebug_privilege |
@@ -118,7 +118,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `96_packet_loss_disambig` | Packet loss vs lag-switch disambig | T4 | Delivery | packet_loss_faked without lag_switch; net residual optional | Disambig loss_only; multi-reason + fog |
 | `97_clipcursor` | ClipCursor confine residual | T4 | Delivery | clipcursor_confined + HID; no game handle | Multi-reason confine+HID; fog mitigate |
 | `98_overwatch_multisignal` | Overwatch multi-signal score | all | Detection | Handle + vpn + unique build; overwatch_score starts 0 | Score≥2 from multi signals; queue; multi_reason handle+vpn+poly |
-| `99_clipboard_token` | Clipboard token leak | all | Evasion | leak + loader + CDN/auth net; optional handle/mapper | Multi-reason leak && (net||loader||handle) — not bool-echo |
+| `99_clipboard_token` | Clipboard token leak | all | Evasion | leak + loader + CDN/auth net; optional handle/mapper | Multi-reason leak && (net||loader||handle) - not bool-echo |
 
 ## Path index by area
 
@@ -126,10 +126,10 @@ See `scenarios/strategies/CATALOG.md` for the path-oriented index (all strategie
 
 ## Adding a strategy
 
-1. Create `red_example` / `blue_example` / `pair.cpp` under the correct tier or crosscutting folder.  
+1. Create `red_example` / `blue_example` / `pair.cpp` under the correct tier or crosscutting folder.
 2. Register `entry_NN_*` in `scenarios/strategies/framework/registry.cpp` and add the sources to `cmake/ScenarioSources.cmake`.
-3. Multi-step red + multi-reason blue; LESSON.md accuracy.  
-4. Extend the relevant `*_full_tests` if the pair is a new lesson class.  
+3. Multi-step red + multi-reason blue; LESSON.md accuracy.
+4. Extend the relevant `*_full_tests` if the pair is a new lesson class.
 5. Update this file via `strategy_lab list` regeneration when shipping docs.
 
 ## 29_pattern_offset_scan (T0 Delivery)

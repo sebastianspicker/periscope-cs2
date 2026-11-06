@@ -2,7 +2,7 @@
 
 **Live truth:** `./anti-cheat/build/dev/strategy_lab list` and `framework/registry.cpp`.
 
-Rough size: ~180+ pair folders under `t0/` … `t4/` and `crosscutting/`. IDs are not a pure sequence (later waves added higher numbers and some reused prefixes). Tables below are a path index — regenerate mentally from the tree when they drift.
+Rough size: ~180+ pair folders under `t0/` … `t4/` and `crosscutting/`. IDs are not a pure sequence (later waves added higher numbers and some reused prefixes). Tables below are a path index - regenerate mentally from the tree when they drift.
 
 Full one-liners: [`../../docs/STRATEGY-CATALOG.md`](../../docs/STRATEGY-CATALOG.md).
 
@@ -15,7 +15,7 @@ Full one-liners: [`../../docs/STRATEGY-CATALOG.md`](../../docs/STRATEGY-CATALOG.
 
 Locations are tier-first: `strategies/<tier>/<folder>/`.
 
-## T0 — `strategies/t0/`
+## T0 - `strategies/t0/`
 
 | ID | Folder |
 |----|--------|
@@ -38,7 +38,7 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 88_printwindow | printwindow |
 | 89_block_input | block_input |
 
-## T1 — `strategies/t1/`
+## T1 - `strategies/t1/`
 
 | ID | Folder |
 |----|--------|
@@ -51,7 +51,7 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 54_module_stomp | module_stomp |
 | 55_process_hollow | process_hollow |
 
-## T2 — `strategies/t2/`
+## T2 - `strategies/t2/`
 
 | ID | Folder |
 |----|--------|
@@ -64,7 +64,7 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 46_early_load_race | early_load_race |
 | 47_object_callback_strip | object_callback_strip |
 
-## T3 — `strategies/t3/`
+## T3 - `strategies/t3/`
 
 | ID | Folder |
 |----|--------|
@@ -82,7 +82,7 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 82_ci_options | ci_options |
 | 83_feature_control_msr | feature_control_msr |
 
-## T4 — `strategies/t4/`
+## T4 - `strategies/t4/`
 
 | ID | Folder |
 |----|--------|

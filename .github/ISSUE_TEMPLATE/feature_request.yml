@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Periscope monorepo: `radar/` (educational AC / strategy lab) and `vision/` (CS2 vision accessibility tooling).
+        Periscope monorepo: `anti-cheat/` (simulation lab), `radar/` (live radar product), `vision/` (pixel-only accessibility) and `lens/` (phone-camera track).
         Stay within each project's published safety scope.
 
   - type: dropdown
@@ -15,8 +15,10 @@ body:
       label: Project
       description: Which part of the monorepo?
       options:
+        - anti-cheat
         - radar
         - vision
+        - lens
         - monorepo meta
     validations:
       required: true
@@ -46,6 +48,10 @@ body:
         - label: "vision: does not require aim assist, memory R/W, injection, or game input (external capture / offline only)"
           required: false
         - label: "radar: educational / simulation intent; not a live-game weaponization request"
+          required: false
+        - label: "anti-cheat: simulation-only lesson or docs change; no real backend"
+          required: false
+        - label: "lens: camera-only / portable core; actuation stays lab opt-in"
           required: false
         - label: I understand the above for the project I selected
           required: true

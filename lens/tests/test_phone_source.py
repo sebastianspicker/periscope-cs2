@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 import numpy as np
 import pytest
 
@@ -9,6 +11,7 @@ from periscope_lens.phone import (
     SUPPORTED_PHONE_BACKENDS,
     PhoneCameraSource,
     PhoneSourceError,
+    _import_cv2,
     build_scrcpy_command,
     describe_source,
     validate_backend,
@@ -133,3 +136,9 @@ def test_source_validation_and_summary() -> None:
     assert summary["backend"] == "droidcam"
     assert summary["consecutive_failures"] == 0
     assert summary["closed"] is False
+
+
+def test_missing_cv2_has_actionable_error(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setitem(sys.modules, "cv2", None)
+    with pytest.raises(PhoneSourceError, match="capture"):
+        _import_cv2()

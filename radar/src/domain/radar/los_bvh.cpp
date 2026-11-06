@@ -110,6 +110,9 @@ std::uint32_t LosBvh::build(std::size_t begin, std::size_t end) {
   const std::uint32_t node_index = static_cast<std::uint32_t>(nodes_.size());
   nodes_.emplace_back();
   BvhNode& node = nodes_[node_index];
+  // Start from inverted bounds so the box fits the triangles, not the origin.
+  node.min_x = node.min_y = node.min_z = std::numeric_limits<float>::max();
+  node.max_x = node.max_y = node.max_z = std::numeric_limits<float>::lowest();
 
   for (std::size_t i = begin; i < end; ++i) {
     const Triangle& tri = triangles_[ordered_indices_[i]];

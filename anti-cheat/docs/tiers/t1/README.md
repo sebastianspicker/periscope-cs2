@@ -1,6 +1,6 @@
-# T1 — Syscall / soft external
+# T1 - Syscall / soft external
 
-**Scar:** still a handle; path bypasses usermode API hooks.  
+**Scar:** still a handle; path bypasses usermode API hooks.
 **Blue:** handle truth (not ntdll hooks) + staging signals.
 
 ## Run

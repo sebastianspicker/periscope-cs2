@@ -15,19 +15,19 @@ Per-project detail: [`anti-cheat/SECURITY.md`](anti-cheat/SECURITY.md), [`radar/
 
 ### Lens track posture (added 2026-11-06, ledger X6)
 
-The Lens subtree (`lens/`) is **camera-only**: the phone watches the same
+The Lens subtree (`lens/`) is camera-only: the phone watches the same
 light a human watches; the game PC runs nothing and shares nothing. Its
-output/actuation paths (HID gadget, PC agent — `lens/src/periscope_lens/output.py`,
-`lens/src/periscope_lens/policy.py`) compute motion deltas but are **lab-only
-opt-in** like radar's real backends; nothing is default-on, hardware
+output/actuation paths (HID gadget, PC agent - `lens/src/periscope_lens/output.py`,
+`lens/src/periscope_lens/policy.py`) compute motion deltas but are lab-only
+opt-in like radar's real backends; nothing is default-on, hardware
 injectors (kmbox-class) are documented as compatible hardware and are never
 implemented here. See [`lens/docs/TOPOLOGY.md`](lens/docs/TOPOLOGY.md).
 
 ## Reporting
 
-- Prefer a **private** report to the repository owner when a contact channel exists.
-- Do **not** open public issues that are “how do I evade X on live VAC/FACEIT/…” or that include exploit recipes for live anti-cheat.
-- Do **not** attach private gameplay frames, account data, API tokens, private model weights, or credentials.
+- Prefer a private report to the repository owner when a contact channel exists.
+- Do not open public issues that are “how do I evade X on live VAC/FACEIT/…” or that include exploit recipes for live anti-cheat.
+- Do not attach private gameplay frames, account data, API tokens, private model weights, or credentials.
 
 If the only channel is a public issue tracker, describe the repository-side bug (build script surprise, accidental secrets, docs/code mismatch about read-only behavior) without a full exploit write-up.
 
@@ -41,7 +41,7 @@ These exist for teaching. Use them only on disposable lab machines.
 | `radar/examples/firmware/example_pcie_dma/` | DMA / FPGA host examples |
 | `radar/adapters/real/` | Process open, memory read, IOCTL, VMX, DMA helpers when enabled |
 
-High-impact CMake flags (`LR_ENABLE_REAL_*`, kernel/VMX/DMA) default **off**. Prefer simulation when exploring strategies.
+High-impact CMake flags (`LR_ENABLE_REAL_*`, kernel/VMX/DMA) default off. Prefer simulation when exploring strategies.
 
 ## Vision: external capture only
 

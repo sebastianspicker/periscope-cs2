@@ -1,12 +1,12 @@
-# 152_uefi_txt_measured_boot — UEFI TXT measured boot evasion
+# 152_uefi_txt_measured_boot - UEFI TXT measured boot evasion
 
-Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
 Red: Modify the TPM event log post-measured-launch to hide an early component; spoof PCRs to match
 
-Blue: Verify TPM event log integrity — recalculate PCRs from log, compare against signed quotes, detect entry removal
+Blue: Verify TPM event log integrity - recalculate PCRs from log, compare against signed quotes, detect entry removal
 
 Arena: sim::World only. Both sides share the same scar surface; neither side is a stub one-liner.
 
@@ -16,7 +16,7 @@ Entry: `examples::uefi_txt_measured_boot::Red::apply` in `red_example.cpp` / `re
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Measured-boot evasion — remove early-load measurement entries and spoof PCR 17-18 values so the machine still claims to pass attestation.
+1. Narrator move: Measured-boot evasion - remove early-load measurement entries and spoof PCR 17-18 values so the machine still claims to pass attestation.
 2. Direct World trust/note mutations (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -28,10 +28,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Set Trust.secure_launch = false (measured launch no longer active).
 
 World scars and lab surfaces (from shipped red code):
-- Trust.attestation_pcr_ok — flipped to false.
-- Trust.secure_launch — cleared.
-- Trust.attestation_valid — kept true, creating a claim-vs-evidence contradiction.
-- w.note() — TPM event-log read / entry-removal residuals.
+- Trust.attestation_pcr_ok - flipped to false.
+- Trust.secure_launch - cleared.
+- Trust.attestation_valid - kept true, creating a claim-vs-evidence contradiction.
+- w.note() - TPM event-log read / entry-removal residuals.
 
 Achieved when: `!w.trust.attestation_pcr_ok || !w.trust.secure_launch`
 
@@ -41,9 +41,9 @@ Entry: `examples::uefi_txt_measured_boot::Blue::detect` in `blue_example.cpp` / 
 
 What blue does in the lab:
 
-1. Narrator counter: PCR value mismatch — recalculated measurements differ from the quote.
+1. Narrator counter: PCR value mismatch - recalculated measurements differ from the quote.
 2. Narrator counter: Secure launch / measured boot not active.
-3. Narrator counter: Attestation claims valid despite PCR mismatch — the contradiction is itself a signal.
+3. Narrator counter: Attestation claims valid despite PCR mismatch - the contradiction is itself a signal.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -61,7 +61,7 @@ Win conditions for this pair:
 
 ## Takeaway
 
-Measured boot is a chain-of-trust mechanism: the event log must reconstruct the PCRs, and the PCRs must match a signed quote. Red cannot keep the log, the PCRs, and the attestation claim consistent at once, which is exactly the contradiction blue is designed to catch — and why failing attestation is the appropriate response.
+Measured boot is a chain-of-trust mechanism: the event log must reconstruct the PCRs, and the PCRs must match a signed quote. Red cannot keep the log, the PCRs, and the attestation claim consistent at once, which is exactly the contradiction blue is designed to catch - and why failing attestation is the appropriate response.
 
 ## Run
 
@@ -78,6 +78,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `uefi_txt_measured_boot/red_example.cpp` — full red multi-step
-- `uefi_txt_measured_boot/blue_example.cpp` — full blue multi-reason
-- `uefi_txt_measured_boot/pair.cpp` — StrategyEntry wiring + narrator
+- `uefi_txt_measured_boot/red_example.cpp` - full red multi-step
+- `uefi_txt_measured_boot/blue_example.cpp` - full blue multi-reason
+- `uefi_txt_measured_boot/pair.cpp` - StrategyEntry wiring + narrator

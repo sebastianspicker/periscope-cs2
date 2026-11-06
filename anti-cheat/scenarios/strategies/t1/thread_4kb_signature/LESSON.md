@@ -1,4 +1,4 @@
-# thread_4kb_signature — Thread 4KB Signature Buffer Evasion
+# thread_4kb_signature - Thread 4KB Signature Buffer Evasion
 
 Family: Evasion. Tiers: T1.
 
@@ -31,6 +31,6 @@ Red must start threads at an address where the first 4KB is CLEAN:
 ## Lesson
 Thread start address must be a legitimate module. The 4KB at that
 address must not contain suspicious patterns. This is why thread
-hijacking (starting in kernel32) still fails — the 4KB of kernel32
+hijacking (starting in kernel32) still fails - the 4KB of kernel32
 code is clean, but the RETURN ADDRESS back to red's code is also
 captured.

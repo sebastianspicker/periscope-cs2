@@ -1,6 +1,6 @@
-# 61_dkom_token_steal — DKOM token steal
+# 61_dkom_token_steal - DKOM token steal
 
-Family: Delivery. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::dkom_token_steal::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: DKOM token steal — load a lab driver, copy the SYSTEM token, then open a full-access handle to the game.
+1. Narrator move: DKOM token steal - load a lab driver, copy the SYSTEM token, then open a full-access handle to the game.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -30,12 +30,12 @@ Expanded team path (what the wrapper actually does on sim::World):
 - read_mem() a 4-byte entity sample through the full-access handle.
 
 World scars and lab surfaces (from shipped red code):
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- dkom_token_stolen — World.dkom_token_stolen = true.
-- dkom_token_source_pid — World.dkom_token_source_pid = 4.
-- token_bypasses_handle_acls — World.token_bypasses_handle_acls = true.
-- spawn() — Spawn actor process on World process list.
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- dkom_token_stolen - World.dkom_token_stolen = true.
+- dkom_token_source_pid - World.dkom_token_source_pid = 4.
+- token_bypasses_handle_acls - World.token_bypasses_handle_acls = true.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `dkom_token_stolen && dkom_token_source_pid == 4 && token_bypasses_handle_acls`
 
@@ -45,8 +45,8 @@ Entry: `examples::dkom_token_steal::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Full-access handle is the delivery scar — VmRead+VmWrite+VmOperation on a non-AC process.
-2. Narrator counter: Token anomaly — a SYSTEM token assigned to a non-SYSTEM process is itself suspicious.
+1. Narrator counter: Full-access handle is the delivery scar - VmRead+VmWrite+VmOperation on a non-AC process.
+2. Narrator counter: Token anomaly - a SYSTEM token assigned to a non-SYSTEM process is itself suspicious.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -85,6 +85,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `dkom_token_steal/red_example.cpp` — full red multi-step
-- `dkom_token_steal/blue_example.cpp` — full blue multi-reason
-- `dkom_token_steal/pair.cpp` — StrategyEntry wiring + narrator
+- `dkom_token_steal/red_example.cpp` - full red multi-step
+- `dkom_token_steal/blue_example.cpp` - full blue multi-reason
+- `dkom_token_steal/pair.cpp` - StrategyEntry wiring + narrator

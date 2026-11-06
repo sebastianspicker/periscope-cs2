@@ -1,6 +1,6 @@
-# T3 — Hypervisor
+# T3 - Hypervisor
 
-**Scar:** VBS/HVCI off, personal HV, thin bridge driver.  
+**Scar:** VBS/HVCI off, personal HV, thin bridge driver.
 **Blue:** ranked trust policy, HV probes, bridge intel, server residual.
 
 ## Run

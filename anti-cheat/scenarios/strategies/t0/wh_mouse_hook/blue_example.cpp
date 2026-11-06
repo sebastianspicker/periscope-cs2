@@ -5,7 +5,7 @@
 namespace examples::wh_mouse_hook {
 
 BlueResult detect(sim::World& w) {
-  BlueResult result{false, 0, {}};
+  BlueResult result{false, false, 0, 0.0, {}, ""};
   const auto game_pid = w.game_pid();
   const auto* game = w.proc(game_pid);
   if (!game || !game->is_game) {

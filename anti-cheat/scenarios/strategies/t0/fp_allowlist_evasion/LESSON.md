@@ -1,6 +1,6 @@
-# 30_fp_allowlist_evasion — FP allowlist evasion
+# 30_fp_allowlist_evasion - FP allowlist evasion
 
-Family: Evasion. Tiers: T0. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T0. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::fp_allowlist_evasion::apply` in `red_example.cpp` / `red_examp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: FP allowlist evasion — Rename to nvidia-overlay, claim looks_reputable, still VM_READ.
+1. Narrator move: FP allowlist evasion - Rename to nvidia-overlay, claim looks_reputable, still VM_READ.
 
 Team / depth APIs used:
 
 World scars and lab surfaces (from shipped red code):
-- Process.looks_reputable — Process.looks_reputable = true
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- read_mem() — ReadProcessMemory-style entity/bytes pull through handle.
-- spawn() — Spawn actor process on World process list.
+- Process.looks_reputable - Process.looks_reputable = true
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- read_mem() - ReadProcessMemory-style entity/bytes pull through handle.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `count > 0`
 
@@ -34,7 +34,7 @@ Entry: `examples::fp_allowlist_evasion::detect` in `blue_example.cpp` / `blue_ex
 
 What blue does in the lab:
 
-1. Narrator counter: Beyond name allowlist — Name allowlist alone misses; foreign VM_READ when reputation != safe.
+1. Narrator counter: Beyond name allowlist - Name allowlist alone misses; foreign VM_READ when reputation != safe.
 2. Multi-sample composition: reputation claim + continuous handle truth.
 3. local `naive_suppressed` init=0
 4. local `foreign_alerts` init=0
@@ -46,7 +46,7 @@ What blue does in the lab:
 Team / depth sensors:
 - `depth::MultiSampleHandleDetector`
   - push multiple sample(w, i) then evaluate: composed_hit, race_detected, continuous_hit.
-  - Not a single World bool — composition across samples + lineage + continuous truth.
+  - Not a single World bool - composition across samples + lineage + continuous truth.
 - call `det.push()`
 - call `det.sample()`
 - call `det.evaluate()`
@@ -64,7 +64,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `foreign_alerts > 0 || allowlist_vmread_flags > 0 || ms.reputation_evasion || ms.composed_hit`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -85,9 +85,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `fp_allowlist_evasion/red_example.cpp` — full red multi-step
-- `fp_allowlist_evasion/blue_example.cpp` — full blue multi-reason
-- `fp_allowlist_evasion/pair.cpp` — StrategyEntry wiring + narrator
+- `fp_allowlist_evasion/red_example.cpp` - full red multi-step
+- `fp_allowlist_evasion/blue_example.cpp` - full blue multi-reason
+- `fp_allowlist_evasion/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `depth/handle_multisample.hpp`

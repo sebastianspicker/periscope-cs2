@@ -1,10 +1,10 @@
-# handle_inherit_detect — Process Handle Inheritance Detection
+# handle_inherit_detect - Process Handle Inheritance Detection
 
 Family: Detection. Tiers: T0.
 
 ## Battlefield
 Red: Creates a child process that inherits the game handle. The handle
-     is visible in the child process — no need for the child to call OpenProcess.
+     is visible in the child process - no need for the child to call OpenProcess.
 Blue: Detects handles inherited from parent processes. A process with
      a VM_READ handle to cs2.exe, whose parent also has a handle, is suspicious.
 

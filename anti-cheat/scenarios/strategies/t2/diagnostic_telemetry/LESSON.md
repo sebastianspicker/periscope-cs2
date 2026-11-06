@@ -1,4 +1,4 @@
-# diagnostic_telemetry — Message 159 Diagnostic Telemetry
+# diagnostic_telemetry - Message 159 Diagnostic Telemetry
 
 Family: Detection. Tiers: T2. Area: DllStatusResponse.
 

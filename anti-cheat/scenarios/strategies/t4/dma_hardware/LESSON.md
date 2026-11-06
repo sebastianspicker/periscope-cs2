@@ -1,6 +1,6 @@
-# 06_dma_hardware — DMA / hardware off-box
+# 06_dma_hardware - DMA / hardware off-box
 
-Family: Delivery. Tiers: T4. Area: t4. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T4. Area: t4. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::dma_hardware::run_red` in `red_example.cpp` / `red_example.hpp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: DMA / FPGA / 2nd PC — PCIe reads physical RAM; game PC may have no cheat process.
-2. Narrator move: Full residual loop — Enable DMA path, pull entities off-box, plant residual scars.
+1. Narrator move: DMA / FPGA / 2nd PC - PCIe reads physical RAM; game PC may have no cheat process.
+2. Narrator move: Full residual loop - Enable DMA path, pull entities off-box, plant residual scars.
 3. Prefer multi-step run_full_loop; map report fields onto RedResult.
 
 Team / depth APIs used:
@@ -42,9 +42,9 @@ Entry: `examples::dma_hardware::run_blue` in `blue_example.cpp` / `blue_example.
 
 What blue does in the lab:
 
-1. Narrator counter: IOMMU / device policy (limited) — Where product allows: DMA remapping, unexpected bus masters.
-2. Narrator counter: Multi-sensor residual scan — Platform + residual scars + structural fog + behavioral.
-3. Narrator counter: Structural + behavioral residual — Fog-of-war + info-advantage still apply without client scars.
+1. Narrator counter: IOMMU / device policy (limited) - Where product allows: DMA remapping, unexpected bus masters.
+2. Narrator counter: Multi-sensor residual scan - Platform + residual scars + structural fog + behavioral.
+3. Narrator counter: Structural + behavioral residual - Fog-of-war + info-advantage still apply without client scars.
 4. Prefer multi-sensor full() when available; map into BlueResult.
 
 Team / depth sensors:
@@ -86,6 +86,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `dma_hardware/red_example.cpp` — full red multi-step
-- `dma_hardware/blue_example.cpp` — full blue multi-reason
-- `dma_hardware/pair.cpp` — StrategyEntry wiring + narrator
+- `dma_hardware/red_example.cpp` - full red multi-step
+- `dma_hardware/blue_example.cpp` - full blue multi-reason
+- `dma_hardware/pair.cpp` - StrategyEntry wiring + narrator

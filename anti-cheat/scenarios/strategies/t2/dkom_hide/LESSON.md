@@ -1,6 +1,6 @@
-# 68_dkom_hide — DKOM process hide
+# 68_dkom_hide - DKOM process hide
 
-Family: Evasion. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,16 +16,16 @@ Entry: `examples::dkom_hide::run_red` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: DKOM process hide — Unlink cheat from weak process lists; keep handle or reader_active.
+1. Narrator move: DKOM process hide - Unlink cheat from weak process lists; keep handle or reader_active.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- Process.hidden_from_weak_enum — Process.hidden_from_weak_enum = true
-- Process.reader_active — Process.reader_active = true
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- spawn() — Spawn actor process on World process list.
+- Process.hidden_from_weak_enum - Process.hidden_from_weak_enum = true
+- Process.reader_active - Process.reader_active = true
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.achieved()`
 
@@ -35,9 +35,9 @@ Entry: `examples::dkom_hide::run_blue` in `blue_example.cpp` / `blue_example.hpp
 
 What blue does in the lab:
 
-1. Narrator counter: Weak process list — list_processes(true) is DKOM-blind; miss is expected under hide.
-2. Narrator counter: Strong process list — list_processes(false) walks full process set (ground truth).
-3. Narrator counter: Handle graph + reader_active — Foreign VM_READ / reader_active independent of process lists.
+1. Narrator counter: Weak process list - list_processes(true) is DKOM-blind; miss is expected under hide.
+2. Narrator counter: Strong process list - list_processes(false) walks full process set (ground truth).
+3. Narrator counter: Handle graph + reader_active - Foreign VM_READ / reader_active independent of process lists.
 4. local `weak_sees` init=false
 5. reads handle graph via handles_to()
 6. enumerates processes via list_processes()
@@ -59,7 +59,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `strong_hit || handle_hit || reader_active_hit`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -80,6 +80,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `dkom_hide/red_example.cpp` — full red multi-step
-- `dkom_hide/blue_example.cpp` — full blue multi-reason
-- `dkom_hide/pair.cpp` — StrategyEntry wiring + narrator
+- `dkom_hide/red_example.cpp` - full red multi-step
+- `dkom_hide/blue_example.cpp` - full blue multi-reason
+- `dkom_hide/pair.cpp` - StrategyEntry wiring + narrator

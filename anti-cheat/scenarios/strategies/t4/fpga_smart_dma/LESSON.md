@@ -1,6 +1,6 @@
-# 63_fpga_smart_dma — FPGA smart DMA
+# 63_fpga_smart_dma - FPGA smart DMA
 
-Family: Delivery. Tiers: T4. Area: t4. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T4. Area: t4. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::fpga_smart_dma::apply` in `red_example.cpp` / `red_example.hpp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: FPGA smart DMA — a DMA-capable PCIe device with no IOMMU containment performs autonomous scatter-gather entity reads; no process or handle scars.
+1. Narrator move: FPGA smart DMA - a DMA-capable PCIe device with no IOMMU containment performs autonomous scatter-gather entity reads; no process or handle scars.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -28,10 +28,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Record World.fpga_scatter_reads and World.fpga_hidden_rescan.
 
 World scars and lab surfaces (from shipped red code):
-- fpga_smart_dma_active — World.fpga_smart_dma_active = true.
-- fpga_scatter_reads — World.fpga_scatter_reads = 3.
-- fpga_hidden_rescan — World.fpga_hidden_rescan = entities obtained.
-- dma_read() — Direct physical read helper (no process or handle scars).
+- fpga_smart_dma_active - World.fpga_smart_dma_active = true.
+- fpga_scatter_reads - World.fpga_scatter_reads = 3.
+- fpga_hidden_rescan - World.fpga_hidden_rescan = entities obtained.
+- dma_read() - Direct physical read helper (no process or handle scars).
 
 Achieved when: `fpga_smart_dma_active && scatter_reads == 3 && entities_obtained`
 
@@ -41,8 +41,8 @@ Entry: `examples::fpga_smart_dma::detect` in `blue_example.cpp` / `blue_example.
 
 What blue does in the lab:
 
-1. Narrator counter: Clean process list is not a pass — DMA leaves no local process or game-memory handle.
-2. Narrator counter: IOMMU posture is the primary scar — a DMA-capable device without IOMMU containment.
+1. Narrator counter: Clean process list is not a pass - DMA leaves no local process or game-memory handle.
+2. Narrator counter: IOMMU posture is the primary scar - a DMA-capable device without IOMMU containment.
 
 Team / depth sensors:
 - Direct World reads + local risk scoring in blue_example.cpp.
@@ -80,6 +80,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `fpga_smart_dma/red_example.cpp` — full red multi-step
-- `fpga_smart_dma/blue_example.cpp` — full blue multi-reason
-- `fpga_smart_dma/pair.cpp` — StrategyEntry wiring + narrator
+- `fpga_smart_dma/red_example.cpp` - full red multi-step
+- `fpga_smart_dma/blue_example.cpp` - full blue multi-reason
+- `fpga_smart_dma/pair.cpp` - StrategyEntry wiring + narrator

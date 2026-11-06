@@ -185,3 +185,25 @@ def test_breakdown_prefers_measured_over_assumed() -> None:
 
     with pytest.raises(LatencyError):
         breakdown(camera_to_detect_ms=-1.0, rtt=RoundTrip())
+
+
+def test_encode_rejects_out_of_range_fields() -> None:
+    cases = [
+        Hello(app_build=0x10000, flags=0),
+        Hello(app_build=0, flags=0x1_0000_0000),
+        Ping(t0_ns=-1, is_reply=False),
+        State(0x10000, 60, 0, 0, 0, 0, 0),
+        State(60, 60, 0, 0, 0, 0, 0x100),
+        Calib(matrix=((1.0, 0.0, 0.0), (0.0, 1.0, 0.0)), t_ns=0, rms=0.0),
+    ]
+    for message in cases:
+        with pytest.raises(ProtocolError):
+            encode(message)  # type: ignore[arg-type]
+
+
+def test_encode_rejects_out_of_range_targets() -> None:
+    box = TargetBox(0, 0.5, 1.0, 2.0, 3.0, 4.0)
+    with pytest.raises(ProtocolError, match="class_id"):
+        encode(Targets(1, 2, (TargetBox(256, 0.5, 1.0, 2.0, 3.0, 4.0),)))
+    with pytest.raises(ProtocolError, match="frame_id"):
+        encode(Targets(-1, 2, (box,)))

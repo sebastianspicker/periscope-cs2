@@ -1,4 +1,4 @@
-# Dummy FPS — Counter-Strike-inspired bomb defuse lab
+# Dummy FPS - Counter-Strike-inspired bomb defuse lab
 
 Educational stand-in game for the anti-cheat-legit-radar lab. Headless C++
 scenario on a simple map (`dusty_yard`): two teams (attackers plant, defenders
@@ -113,7 +113,7 @@ instead of anonymous fixtures. The bridge does not reimplement netcode or 3D.
 ## Link to anti-cheat lab
 
 After `make_lab_world_from_scenario`, a T0-style reader can OpenProcess +
-ReadProcessMemory the lab game process and pull entity XY — same path as
+ReadProcessMemory the lab game process and pull entity XY - same path as
 `01_external_rpm`, with a real bomb-round narrative.
 
 See also: [LESSON.md](LESSON.md).

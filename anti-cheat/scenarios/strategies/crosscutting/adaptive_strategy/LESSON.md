@@ -1,10 +1,10 @@
-# 148_adaptive_strategy — Adaptive strategy
+# 148_adaptive_strategy - Adaptive strategy
 
-Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
-Red: Adaptive multi-tier evasion — probes blue sensors, selects the optimal tier
+Red: Adaptive multi-tier evasion - probes blue sensors, selects the optimal tier
 
 Blue: Detect adaptive multi-tier evasion via tier-hopping, opsec, and C2 analysis
 
@@ -16,7 +16,7 @@ Entry: `examples::adaptive_strategy::Red::apply` in `red_example.cpp` / `red_exa
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Adaptive multi-tier evasion — profile blue sensors, score each tier, pick the best one, and layer in opsec and C2 resilience.
+1. Narrator move: Adaptive multi-tier evasion - profile blue sensors, score each tier, pick the best one, and layer in opsec and C2 resilience.
 2. Uses `ops_red::AdaptiveStrategy` wrapper on the World.
 
 Team / depth APIs used:
@@ -37,10 +37,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Sets World.adaptive_strategy_active = true and writes an AdaptiveStrategyReport residual.
 
 World scars and lab surfaces (from shipped red code):
-- adaptive_strategy_active — World.adaptive_strategy_active = true.
-- multi_tick_opsec_active / opsec_pattern_count — opsec residuals.
-- c2_fallback_endpoint_count / c2_fallback_chain_active — C2 residuals.
-- w.note() — tier / evasion / profiled / opsec / c2 summary.
+- adaptive_strategy_active - World.adaptive_strategy_active = true.
+- multi_tick_opsec_active / opsec_pattern_count - opsec residuals.
+- c2_fallback_endpoint_count / c2_fallback_chain_active - C2 residuals.
+- w.note() - tier / evasion / profiled / opsec / c2 summary.
 
 Achieved when: `w.adaptive_strategy_active` (pair marks red_achieved = true after apply).
 
@@ -50,7 +50,7 @@ Entry: `examples::adaptive_strategy::Blue::detect` in `blue_example.cpp` / `blue
 
 What blue does in the lab:
 
-1. Narrator counter: Tier-hopping — switching active tier is itself a behavioral scar.
+1. Narrator counter: Tier-hopping - switching active tier is itself a behavioral scar.
 2. Narrator counter: Multi-tick opsec patterns and C2 fallback chains add corroborating reasons.
 
 Team / depth sensors:
@@ -71,7 +71,7 @@ Win conditions for this pair:
 
 ## Takeaway
 
-A cheat that adapts to its detector is detectable precisely because adaptation is noisy: tier hops, repeated opsec ticks, and C2 fallback endpoints are themselves residuals. Blue's response is to force the red actor back to a single tier and clear the adaptive state — resetting posture instead of chasing one technique.
+A cheat that adapts to its detector is detectable precisely because adaptation is noisy: tier hops, repeated opsec ticks, and C2 fallback endpoints are themselves residuals. Blue's response is to force the red actor back to a single tier and clear the adaptive state - resetting posture instead of chasing one technique.
 
 ## Run
 
@@ -88,6 +88,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `adaptive_strategy/red_example.cpp` — full red multi-step
-- `adaptive_strategy/blue_example.cpp` — full blue multi-reason
-- `adaptive_strategy/pair.cpp` — StrategyEntry wiring + narrator
+- `adaptive_strategy/red_example.cpp` - full red multi-step
+- `adaptive_strategy/blue_example.cpp` - full blue multi-reason
+- `adaptive_strategy/pair.cpp` - StrategyEntry wiring + narrator

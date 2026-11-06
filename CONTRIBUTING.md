@@ -10,11 +10,11 @@ Periscope is a monorepo of four independent research trees. Pick the subtree you
 | `radar/**` | [`radar/CONTRIBUTING.md`](radar/CONTRIBUTING.md) |
 | `vision/**` | [`vision/CONTRIBUTING.md`](vision/CONTRIBUTING.md) |
 | `lens/**` | [`lens/CONTRIBUTING.md`](lens/CONTRIBUTING.md) |
-| Root policy / CI only (`README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `NOTICE.md`, root `.gitignore`, `.github/`) | Keep them accurate for both trees; do not invent shared APIs that do not exist |
+| Root policy / CI only (`README.md`, `CONTRIBUTING.md`, `SECURITY.md`, `NOTICE.md`, root `.gitignore`, `.github/`) | Keep them accurate for all four trees; do not invent shared APIs that do not exist |
 
 ## Pull request hygiene
 
-- **One concern per PR.** Do not mix unrelated anti-cheat, radar, vision and lens changes unless the change is truly shared infra (for example root docs or ignore rules).
+- One concern per PR. Do not mix unrelated anti-cheat, radar, vision and lens changes unless the change is truly shared infra (for example root docs or ignore rules).
 - Say which subtree you touched and what you ran (build flags / test filters).
 - Match style in the folder you edit. Do not “fix” the other tree in the same PR.
 
@@ -85,9 +85,9 @@ From the repository root, the same complete lane is
 `python3 scripts/verify.py architecture` after changing boundaries or moving
 code.
 
-`lens/tests/` is tracked; `vision/tests/` and `radar/tests/` are listed in the root `.gitignore`, so a fresh
-clone has neither directory: `pytest tests/` errors in `vision/`, and radar CMake
-configure fails. Keep them locally until the ignore rules are revisited.
+The `tests/` directories of `anti-cheat/`, `radar/`, `vision/` and `lens/`
+are tracked (the root `.gitignore` allowlists their test files). A fresh
+clone can therefore run every lane without the local tree being present.
 
 Details: [`vision/CONTRIBUTING.md`](vision/CONTRIBUTING.md).
 

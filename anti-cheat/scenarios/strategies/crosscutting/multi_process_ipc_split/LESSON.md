@@ -1,10 +1,10 @@
-# 65_multi_process_ipc_split — Multi-process IPC split
+# 65_multi_process_ipc_split - Multi-process IPC split
 
-Family: Evasion. Tiers: T0. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T0. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
-Red: Split the cheat into 3 IPC processes — holder, reader, UI
+Red: Split the cheat into 3 IPC processes - holder, reader, UI
 
 Blue: Detect via section IPC + handle-process mismatch
 
@@ -16,7 +16,7 @@ Entry: `examples::multi_process_ipc_split::apply` in `red_example.cpp` / `red_ex
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Multi-process IPC split — one process holds the game handle, another reads, a third renders; no single process looks like the cheat.
+1. Narrator move: Multi-process IPC split - one process holds the game handle, another reads, a third renders; no single process looks like the cheat.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -30,11 +30,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Set World.multi_process_split_active / split_holder_pid / split_reader_pid / split_ui_pid.
 
 World scars and lab surfaces (from shipped red code):
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- add_section() — Shared section edges (creator→consumer, carries entity bytes).
-- add_overlay() — Topmost overlay window.
-- multi_process_split_active — World.multi_process_split_active = true.
-- spawn() — Spawn actor processes on World process list.
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- add_section() - Shared section edges (creator→consumer, carries entity bytes).
+- add_overlay() - Topmost overlay window.
+- multi_process_split_active - World.multi_process_split_active = true.
+- spawn() - Spawn actor processes on World process list.
 
 Achieved when: `multi_process_split_active && holder_has_handle && !reader_has_handle && !ui_has_handle && reader_to_ui_section`
 
@@ -44,8 +44,8 @@ Entry: `examples::multi_process_ipc_split::detect` in `blue_example.cpp` / `blue
 
 What blue does in the lab:
 
-1. Narrator counter: Shared sections carrying entity bytes — the IPC surface.
-2. Narrator counter: Handle-process mismatch — the holder differs from the UI, and a system-named process holds the game handle.
+1. Narrator counter: Shared sections carrying entity bytes - the IPC surface.
+2. Narrator counter: Handle-process mismatch - the holder differs from the UI, and a system-named process holds the game handle.
 3. Narrator counter: audiodg.exe with a VM_READ handle is a classic masquerade tell.
 
 Team / depth sensors:
@@ -85,6 +85,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `multi_process_ipc_split/red_example.cpp` — full red multi-step
-- `multi_process_ipc_split/blue_example.cpp` — full blue multi-reason
-- `multi_process_ipc_split/pair.cpp` — StrategyEntry wiring + narrator
+- `multi_process_ipc_split/red_example.cpp` - full red multi-step
+- `multi_process_ipc_split/blue_example.cpp` - full blue multi-reason
+- `multi_process_ipc_split/pair.cpp` - StrategyEntry wiring + narrator

@@ -1,6 +1,6 @@
-# 51_report_velocity — Report velocity
+# 51_report_velocity - Report velocity
 
-Family: Detection. Tiers: all. Area: xc/ops. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Detection. Tiers: all. Area: xc/ops. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::report_velocity::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Report-velocity farm — ≥3 smurfs same payment/IP with high reports; one clean control.
-2. Step 1: farm seats — same payment + IP class, elevated report counts.
-3. Step 2: clean control account (noise / cover) — different payment.
+1. Narrator move: Report-velocity farm - ≥3 smurfs same payment/IP with high reports; one clean control.
+2. Step 1: farm seats - same payment + IP class, elevated report counts.
+3. Step 2: clean control account (noise / cover) - different payment.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- add_account() — Plant Account row (hwid/payment/ip/report_count graph).
+- add_account() - Plant Account row (hwid/payment/ip/report_count graph).
 
 Achieved when: `r.farm_accounts >= 3 && r.report_sum >= 20`
 
@@ -34,8 +34,8 @@ Entry: `examples::report_velocity::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Report velocity multi-reason — high_report_accounts AND payment_cluster_sum — not one account.
-2. multi_reason: need BOTH high-report accounts AND payment-cluster sum —
+1. Narrator counter: Report velocity multi-reason - high_report_accounts AND payment_cluster_sum - not one account.
+2. multi_reason: need BOTH high-report accounts AND payment-cluster sum -
 3. local `kReportThreshold` init=10
 4. local `kPaymentClusterSumThreshold` init=25
 
@@ -53,7 +53,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `r.multi_reason`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -74,6 +74,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `report_velocity/red_example.cpp` — full red multi-step
-- `report_velocity/blue_example.cpp` — full blue multi-reason
-- `report_velocity/pair.cpp` — StrategyEntry wiring + narrator
+- `report_velocity/red_example.cpp` - full red multi-step
+- `report_velocity/blue_example.cpp` - full blue multi-reason
+- `report_velocity/pair.cpp` - StrategyEntry wiring + narrator

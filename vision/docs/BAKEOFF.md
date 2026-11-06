@@ -95,4 +95,4 @@ Backend names match `create_segmenter` / `--segmenter-backend` ([ARCHITECTURE.md
 
 ## Module
 
-`src/cs2_vision_access/bakeoff/` — config + runner orchestration; injectable `process_video_fn` / `segmenter_factory` for unit tests without GPU or weights.
+`src/cs2_vision_access/bakeoff/` - config + runner orchestration; injectable `process_video_fn` / `segmenter_factory` for unit tests without GPU or weights.

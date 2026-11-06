@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """resolve_dumper_ref.py — pick the newest trusted a2x/cs2-dumper output ref.
 
-R8 of docs/ADAPTATION_LEDGER.md, adapted from the cs2-dma release offset-sync
+R8 research item, adapted from the cs2-dma release offset-sync
 workflow (Apache-2.0, NOTICE recorded). Hardening preserved:
 
 - Only PRs whose author GitHub considers trusted for the upstream repository

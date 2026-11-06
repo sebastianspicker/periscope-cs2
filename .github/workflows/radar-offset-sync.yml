@@ -1,6 +1,6 @@
 name: Radar offset sync
 
-# Ledger R8 (docs/ADAPTATION_LEDGER.md). Adapted from the cs2-dma release
+# Research item R8. Adapted from the cs2-dma release
 # offset-sync workflow (Apache-2.0, NOTICE recorded): resolve the newest
 # *trusted* a2x/cs2-dumper ref, regenerate the local snapshot on drift, and
 # open a bot PR so the portable Radar CI builds it before anything merges.
@@ -34,6 +34,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # The bot branch is pushed and a PR is opened from this job.
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Check out repository
@@ -102,7 +106,7 @@ jobs:
           PR_LABEL: ${{ steps.resolve.outputs.label }}
         run: |
           set -euo pipefail
-          if git diff --quiet -- radar/data/cs2; then
+          if git diff --quiet -- radar/data/cs2 radar/adapters/real/cs2; then
             echo "No file changes after regeneration; nothing to submit."
             exit 0
           fi
@@ -110,7 +114,7 @@ jobs:
           git config user.name "periscope-offset-bot"
           git config user.email "periscope-offset-bot@users.noreply.github.com"
           git checkout -b "$branch"
-          git add radar/data/cs2
+          git add radar/data/cs2 radar/adapters/real/cs2
           git commit -m \
             "chore(radar): refresh CS2 offset snapshot from ${PR_LABEL}" \
             --no-verify

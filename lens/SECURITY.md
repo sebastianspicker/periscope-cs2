@@ -1,11 +1,11 @@
-# Security — Periscope Lens
+# Security - Periscope Lens
 
 ## What this project is
 
 Pre-alpha phone-camera track for studying camera-based assist for
 Counter-Strike 2: a smartphone watches the monitor, portable modules compute
 targets, motion deltas and output reports. The game PC runs nothing and
-shares nothing — capture is light the phone sees.
+shares nothing - capture is light the phone sees.
 
 ## What it is not
 
@@ -25,7 +25,7 @@ shares nothing — capture is light the phone sees.
 
 ## Data handling
 
-- The L6 transport carries compact targets only — never raw camera frames.
+- The L6 transport carries compact targets only - never raw camera frames.
 - The sanitized recording format (Vision V2) contains no addresses; the
   lens transport contains no identifiers beyond frame ids/timestamps.
 - Session/room tokens for any relay are the Vision track's concern; the

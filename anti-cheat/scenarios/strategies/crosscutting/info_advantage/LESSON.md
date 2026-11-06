@@ -1,6 +1,6 @@
-# 25_info_advantage — Info-advantage behavior
+# 25_info_advantage - Info-advantage behavior
 
-Family: Structural. Tiers: all. Area: xc/structural. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Structural. Tiers: all. Area: xc/structural. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::info_advantage::apply` in `red_example.cpp` / `red_example.hpp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Legit radar play — Multi-frame pre-aim without vision/sound; optional radar SaaS net.
-2. Step 1: multi-frame hostile demo — pre-aim without vision/sound.
+1. Narrator move: Legit radar play - Multi-frame pre-aim without vision/sound; optional radar SaaS net.
+2. Step 1: multi-frame hostile demo - pre-aim without vision/sound.
 3. Step 2 (optional residual): radar SaaS net for correlation path.
 
 Team / depth APIs used:
 - `server::DemoFrame`
 
 World scars and lab surfaces (from shipped red code):
-- add_net() — Plant NetFlow residual (radar SaaS / C2).
+- add_net() - Plant NetFlow residual (radar SaaS / C2).
 
 Achieved when: `r.frames_planted`
 
@@ -34,7 +34,7 @@ Entry: `examples::info_advantage::detect` in `blue_example.cpp` / `blue_example.
 
 What blue does in the lab:
 
-1. Narrator counter: Classic + multi-invariant scorers — InfoAdvantageScorer + MultiInvariantScorer; residual correlation.
+1. Narrator counter: Classic + multi-invariant scorers - InfoAdvantageScorer + MultiInvariantScorer; residual correlation.
 2. Path A: classic InfoAdvantageScorer on demo frames.
 3. Path B: multi-invariant depth scorer (vision + latency + reports).
 4. Path C: world residual (radar SaaS planted by red).
@@ -60,7 +60,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `r.classic_hit || r.multi_hit || (r.residual_hit && cr.hits >= 2)`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -81,9 +81,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `info_advantage/red_example.cpp` — full red multi-step
-- `info_advantage/blue_example.cpp` — full blue multi-reason
-- `info_advantage/pair.cpp` — StrategyEntry wiring + narrator
+- `info_advantage/red_example.cpp` - full red multi-step
+- `info_advantage/blue_example.cpp` - full blue multi-reason
+- `info_advantage/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `depth/multi_invariant_scorer.hpp`

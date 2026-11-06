@@ -2,7 +2,7 @@
 
 Binary, little-endian, versioned. Frame layout:
 
-    u8 protocol_version, u8 message_type, u16 payload_length, payload
+    u8 protocol_version, u8 message_type, u32 payload_length, payload
 
 Carried over from the research ledger (R5/R6 doctrine, applied to the cable):
 
@@ -100,35 +100,74 @@ class State:
     flags: int
 
 
+def _check_u(label: str, value: int, maximum: int) -> int:
+    if not 0 <= value <= maximum:
+        raise ProtocolError(f"{label} out of range for the wire field: {value}")
+    return value
+
+
+def _pack(struct_type: struct.Struct, *values: Any) -> bytes:
+    """Pack a message payload, mapping bare struct errors to ProtocolError."""
+    try:
+        return struct_type.pack(*values)
+    except struct.error as error:
+        raise ProtocolError(f"payload does not fit the message type: {error}") from error
+
+
 def encode(message: Hello | Targets | Ping | Calib | State) -> bytes:
     """Encodes one frame including the header."""
     if isinstance(message, Hello):
-        payload = _HELLO.pack(message.app_build, message.flags)
+        payload = _pack(
+            _HELLO,
+            _check_u("app_build", message.app_build, 0xFFFF),
+            _check_u("flags", message.flags, 0xFFFFFFFF),
+        )
         return _frame(TYPE_HELLO, payload)
     if isinstance(message, Targets):
         if len(message.boxes) > 255:
             raise ProtocolError(f"{len(message.boxes)} boxes exceed the u8 count field")
-        head = _TARGETS_HEAD.pack(message.frame_id, message.t_capture_ns, len(message.boxes))
+        head = _pack(
+            _TARGETS_HEAD,
+            _check_u("frame_id", message.frame_id, 0xFFFFFFFFFFFFFFFF),
+            _check_u("t_capture_ns", message.t_capture_ns, 0xFFFFFFFFFFFFFFFF),
+            len(message.boxes),
+        )
         body = b"".join(
-            _TARGET_BOX.pack(box.class_id, box.confidence, box.cx, box.cy, box.width, box.height)
+            _pack(
+                _TARGET_BOX,
+                _check_u("class_id", box.class_id, 0xFF),
+                box.confidence,
+                box.cx,
+                box.cy,
+                box.width,
+                box.height,
+            )
             for box in message.boxes
         )
         return _frame(TYPE_TARGETS, head + body)
     if isinstance(message, Ping):
-        return _frame(TYPE_PONG if message.is_reply else TYPE_PING, _PING.pack(message.t0_ns))
+        return _frame(
+            TYPE_PONG if message.is_reply else TYPE_PING,
+            _pack(_PING, _check_u("t0_ns", message.t0_ns, 0xFFFFFFFFFFFFFFFF)),
+        )
     if isinstance(message, Calib):
+        if len(message.matrix) != 3 or any(len(row) != 3 for row in message.matrix):
+            raise ProtocolError("calibration matrix must be 3x3")
         flat = tuple(value for row in message.matrix for value in row)
-        payload = _CALIB.pack(*flat, message.t_ns, message.rms)
+        payload = _pack(
+            _CALIB, *flat, _check_u("t_ns", message.t_ns, 0xFFFFFFFFFFFFFFFF), message.rms
+        )
         return _frame(TYPE_CALIB, payload)
     if isinstance(message, State):
-        payload = _STATE.pack(
-            message.fps_measured,
-            message.fps_target,
-            message.roi_x,
-            message.roi_y,
-            message.roi_w,
-            message.roi_h,
-            message.flags,
+        payload = _pack(
+            _STATE,
+            _check_u("fps_measured", message.fps_measured, 0xFFFF),
+            _check_u("fps_target", message.fps_target, 0xFFFF),
+            _check_u("roi_x", message.roi_x, 0xFFFF),
+            _check_u("roi_y", message.roi_y, 0xFFFF),
+            _check_u("roi_w", message.roi_w, 0xFFFF),
+            _check_u("roi_h", message.roi_h, 0xFFFF),
+            _check_u("flags", message.flags, 0xFF),
         )
         return _frame(TYPE_STATE, payload)
     raise ProtocolError(f"unsupported message: {message!r}")

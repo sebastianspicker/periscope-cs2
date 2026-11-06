@@ -1,10 +1,10 @@
-# 101_gaming_chair — Gaming chair product suite
+# 101_gaming_chair - Gaming chair product suite
 
-Family: Feature. Tiers: all. Area: xc/features. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: all. Area: xc/features. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
-Red: Multi-step product suite — proxy read path + high-volume entity stream + ESP
+Red: Multi-step product suite - proxy read path + high-volume entity stream + ESP
 
 Blue: Multi-reason detection on feature residuals (high reads, high volume, product suite)
 
@@ -16,7 +16,7 @@ Entry: `examples::gaming_chair::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Gaming-chair suite — compose proxy read, schema/band4, ESP glow, and aimbot into one delivery.
+1. Narrator move: Gaming-chair suite - compose proxy read, schema/band4, ESP glow, and aimbot into one delivery.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -29,10 +29,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - aimbot: set World.triggerbot_active.
 
 World scars and lab surfaces (from shipped red code):
-- handle_proxy_active — World.handle_proxy_active = true.
-- remote_read_ops / remote_read_bytes — high-volume read residuals.
-- object_glow_product / schema_cache_active — product-surface residuals.
-- w.note() — "gaming_chair:" feature summary.
+- handle_proxy_active - World.handle_proxy_active = true.
+- remote_read_ops / remote_read_bytes - high-volume read residuals.
+- object_glow_product / schema_cache_active - product-surface residuals.
+- w.note() - "gaming_chair:" feature summary.
 
 Achieved when: `r.active >= 2 && w.remote_read_ops > 200`
 
@@ -43,7 +43,7 @@ Entry: `examples::gaming_chair::detect` in `blue_example.cpp` / `blue_example.hp
 What blue does in the lab:
 
 1. Narrator counter: High read counts and high byte volume are volume residuals.
-2. Narrator counter: The product suite itself — proxy, glow, or schema cache — corroborates.
+2. Narrator counter: The product suite itself - proxy, glow, or schema cache - corroborates.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -59,11 +59,11 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `r.count >= 2`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win (blue also clears handle_proxy_active / object_glow_product on detect).
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win (blue also clears handle_proxy_active / object_glow_product on detect).
 
 ## Takeaway
 
-A "gaming chair" is a bundled feature suite, and each bundled feature leaves a measurable residual — read volume, proxy activity, or glow state. Blue wins by composing those residuals rather than hunting a single flag, which mirrors how product suites surface as multi-signal anomalies in telemetry rather than as one clean signature.
+A "gaming chair" is a bundled feature suite, and each bundled feature leaves a measurable residual - read volume, proxy activity, or glow state. Blue wins by composing those residuals rather than hunting a single flag, which mirrors how product suites surface as multi-signal anomalies in telemetry rather than as one clean signature.
 
 ## Run
 
@@ -80,6 +80,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `gaming_chair/red_example.cpp` — full red multi-step
-- `gaming_chair/blue_example.cpp` — full blue multi-reason
-- `gaming_chair/pair.cpp` — StrategyEntry wiring + narrator
+- `gaming_chair/red_example.cpp` - full red multi-step
+- `gaming_chair/blue_example.cpp` - full blue multi-reason
+- `gaming_chair/pair.cpp` - StrategyEntry wiring + narrator

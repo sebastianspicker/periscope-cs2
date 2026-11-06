@@ -1,4 +1,4 @@
-# Contributing — Periscope Lens
+# Contributing - Periscope Lens
 
 - Keep the package self-contained: `src/periscope_lens/` imports numpy and
   its own modules only (no imports from `vision/` or `radar/`). The
@@ -17,6 +17,6 @@
   ```
 
 - The Android drop follows the same rule at its own level: pure Kotlin only
-  in encoders/helpers, honest gap notes when something is not wired.
+  in encoders/helpers, gap notes when something is not wired.
 - Never claim runtime verification that did not happen; use “runtime-
   unverified” explicitly (house style).

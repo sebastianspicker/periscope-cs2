@@ -1,10 +1,10 @@
-# 149_behavioral_decoupler — Behavioral decoupler
+# 149_behavioral_decoupler - Behavioral decoupler
 
-Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
-Red: Behavioral decoupling — frame skip, entity omission, blind spots, position fuzzing
+Red: Behavioral decoupling - frame skip, entity omission, blind spots, position fuzzing
 
 Blue: Detect behavioral decoupling via skip patterns, latency consistency, fuzz detection, and VACnet risk
 
@@ -16,7 +16,7 @@ Entry: `examples::behavioral_decoupler::Red::apply` in `red_example.cpp` / `red_
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Behavioral decoupling — configure skip/omit/fuzz rates and blind spots, then process a batch so telemetry no longer correlates with the aim.
+1. Narrator move: Behavioral decoupling - configure skip/omit/fuzz rates and blind spots, then process a batch so telemetry no longer correlates with the aim.
 2. Uses `features::BehavioralDecoupler` wrapper on the World.
 
 Team / depth APIs used:
@@ -32,7 +32,7 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Publish a report (frames_skipped / entities_omitted / entities_fuzzed / avg_latency_ticks / vacnet_risk_score) into the World log.
 
 World scars and lab surfaces (from shipped red code):
-- w.log — "behavioral_decoupler:" residual entries with frames_skipped, omitted, fuzzed, latency, risk.
+- w.log - "behavioral_decoupler:" residual entries with frames_skipped, omitted, fuzzed, latency, risk.
 
 Achieved when: `red.apply()` completes and logs the report (pair marks red_achieved = true).
 
@@ -42,9 +42,9 @@ Entry: `examples::behavioral_decoupler::Blue::detect` in `blue_example.cpp` / `b
 
 What blue does in the lab:
 
-1. Narrator counter: Skip patterns — frame/entity omission leaves a statistical signature.
+1. Narrator counter: Skip patterns - frame/entity omission leaves a statistical signature.
 2. Narrator counter: Latency consistency and fuzz patterns corroborate.
-3. Narrator counter: VACnet risk — a learned behavioral risk score is the strongest reason.
+3. Narrator counter: VACnet risk - a learned behavioral risk score is the strongest reason.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -81,6 +81,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `behavioral_decoupler/red_example.cpp` — full red multi-step
-- `behavioral_decoupler/blue_example.cpp` — full blue multi-reason
-- `behavioral_decoupler/pair.cpp` — StrategyEntry wiring + narrator
+- `behavioral_decoupler/red_example.cpp` - full red multi-step
+- `behavioral_decoupler/blue_example.cpp` - full blue multi-reason
+- `behavioral_decoupler/pair.cpp` - StrategyEntry wiring + narrator

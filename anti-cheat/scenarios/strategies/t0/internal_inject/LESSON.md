@@ -1,6 +1,6 @@
-# 07_internal_inject — Internal inject
+# 07_internal_inject - Internal inject
 
-Family: Delivery. Tiers: T0-T1. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T0-T1. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,16 +16,16 @@ Entry: `examples::internal_inject::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Internal DLL inject — Load cheat module into game; hooks / direct structure access.
+1. Narrator move: Internal DLL inject - Load cheat module into game; hooks / direct structure access.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- inject_module() — Module inject (manual_map clears PEB link when true).
-- spawn() — Spawn actor process on World process list.
-- text_hash="foreign" — Module.text_hash set to foreign (integrity scar)
-- linked_in_peb — linked_in_peb=true scar
+- inject_module() - Module inject (manual_map clears PEB link when true).
+- spawn() - Spawn actor process on World process list.
+- text_hash="foreign" - Module.text_hash set to foreign (integrity scar)
+- linked_in_peb - linked_in_peb=true scar
 
 Achieved when: `present`
 
@@ -35,7 +35,7 @@ Entry: `examples::internal_inject::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Module list + image notify — Foreign module in PEB; image load callbacks.
+1. Narrator counter: Module list + image notify - Foreign module in PEB; image load callbacks.
 2. local `foreign` init=0
 3. local `name_hit` init=m.name.find("cheat") != std::string::npos ||
         m.name.find("hack") != std::string::npos
@@ -86,6 +86,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `internal_inject/red_example.cpp` — full red multi-step
-- `internal_inject/blue_example.cpp` — full blue multi-reason
-- `internal_inject/pair.cpp` — StrategyEntry wiring + narrator
+- `internal_inject/red_example.cpp` - full red multi-step
+- `internal_inject/blue_example.cpp` - full blue multi-reason
+- `internal_inject/pair.cpp` - StrategyEntry wiring + narrator

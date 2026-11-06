@@ -1,4 +1,4 @@
-# vas_walk_evade — VAS Walk Baseline Evasion
+# vas_walk_evade - VAS Walk Baseline Evasion
 
 Family: Evasion. Tiers: T1-T2.
 

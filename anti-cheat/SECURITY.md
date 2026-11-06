@@ -2,7 +2,7 @@
 
 ## What this project is
 
-Simulation-only teaching lab (anti-cheat track under the Periscope monorepo): a tiered red/blue lab over a deterministic, CS2-shaped `sim::World`. Nothing in this tree touches a game, a process, a device, or a network — the tier model (T0–T4) is a *simulation* played out on World fields, and the `LAB_ALLOW_*` flags widen simulated surfaces only.
+Simulation-only teaching lab (anti-cheat track under the Periscope monorepo): a tiered red/blue lab over a deterministic, CS2-shaped `sim::World`. Nothing in this tree touches a game, a process, a device, or a network - the tier model (T0–T4) is a *simulation* played out on World fields, and the `LAB_ALLOW_*` flags widen simulated surfaces only.
 
 ## What it is not
 
@@ -35,4 +35,4 @@ Please do **not** open issues that are "how do I evade X on live VAC/FACEIT/…"
 
 - The only configuration is simulation; the tree configures and builds with no real flags.
 - The tier ladder (T0–T4) is a simulated delivery model over `sim::World`, not executable evasion.
-- The host test (`tests/stack_posture_test.cpp`) exercises posture policy logic only; the live posture decision it protects is documented in [docs/STEALTH-POSTURE.md](docs/STEALTH-POSTURE.md), and the live implementation lives in the radar tree.
+- The host test (`tests/stack_posture_test.cpp`) exercises posture policy logic only; the live posture decision it protects is documented in [docs/STEALTH-POSTURE.md](docs/STEALTH-POSTURE.md), and the live implementation lives in the radar tree. The test is skipped when the sibling radar checkout is absent; it is not a runtime dependency.

@@ -1,4 +1,4 @@
-# vac_handle_enum — VAC Handle Table Enumeration
+# vac_handle_enum - VAC Handle Table Enumeration
 
 Family: Detection. Tiers: T0-T1. Area: t0_blue.
 

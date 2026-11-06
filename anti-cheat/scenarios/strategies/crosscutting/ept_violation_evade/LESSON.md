@@ -1,6 +1,6 @@
-# 70_ept_violation_evade — EPT violation side-channel evade
+# 70_ept_violation_evade - EPT violation side-channel evade
 
-Family: Evasion. Tiers: T3. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T3. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::ept_violation_evade::apply` in `red_example.cpp` / `red_exampl
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: EPT timing side channel — clear VBS/HVCI, start a coordinator HV, trap AC accesses with EPT, and time violation windows to dodge scan sweeps.
+1. Narrator move: EPT timing side channel - clear VBS/HVCI, start a coordinator HV, trap AC accesses with EPT, and time violation windows to dodge scan sweeps.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -29,11 +29,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - hv_read() a 4-byte entity sample through the bridge; keep the game handle graph empty.
 
 World scars and lab surfaces (from shipped red code):
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- ept_sidechannel_active — World.ept_sidechannel_active = true.
-- invept_tlb_flush_used — World.invept_tlb_flush_used = true.
-- ept_ac_scan_evasions — World.ept_ac_scan_evasions = 3.
-- spawn() — Spawn actor process on World process list.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- ept_sidechannel_active - World.ept_sidechannel_active = true.
+- invept_tlb_flush_used - World.invept_tlb_flush_used = true.
+- ept_ac_scan_evasions - World.ept_ac_scan_evasions = 3.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `personal_hv_active && ac_scans_evaded == 3 && used_invept && entities_read && no_game_handle`
 
@@ -43,7 +43,7 @@ Entry: `examples::ept_violation_evade::detect` in `blue_example.cpp` / `blue_exa
 
 What blue does in the lab:
 
-1. Narrator counter: EPT side-channel residual is the strongest reason — but it requires HV introspection to see.
+1. Narrator counter: EPT side-channel residual is the strongest reason - but it requires HV introspection to see.
 2. Narrator counter: INVEPT flushes and evaded scan windows corroborate from the HV side.
 
 Team / depth sensors:
@@ -81,6 +81,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `ept_violation_evade/red_example.cpp` — full red multi-step
-- `ept_violation_evade/blue_example.cpp` — full blue multi-reason
-- `ept_violation_evade/pair.cpp` — StrategyEntry wiring + narrator
+- `ept_violation_evade/red_example.cpp` - full red multi-step
+- `ept_violation_evade/blue_example.cpp` - full blue multi-reason
+- `ept_violation_evade/pair.cpp` - StrategyEntry wiring + narrator

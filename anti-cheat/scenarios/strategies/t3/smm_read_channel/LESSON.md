@@ -1,6 +1,6 @@
-# 62_smm_read_channel — SMM read channel
+# 62_smm_read_channel - SMM read channel
 
-Family: Delivery. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::smm_read_channel::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: SMM read channel — clear VBS/HVCI trust, start a coordinator HV, load an SMM bridge driver, and read via a ring -2 residual; no game handle.
+1. Narrator move: SMM read channel - clear VBS/HVCI trust, start a coordinator HV, load an SMM bridge driver, and read via a ring -2 residual; no game handle.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -31,13 +31,13 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Verify World.handles_to(game) stays empty.
 
 World scars and lab surfaces (from shipped red code):
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- create_device() — Create Device node linked to driver.
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- smm_read_channel_planted — World.smm_read_channel_planted = true.
-- smm_residual — World.smm_residual = true.
-- unexpected_efi_entry — Trust.unexpected_efi_entry = true.
-- spawn() — Spawn actor process on World process list.
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- create_device() - Create Device node linked to driver.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- smm_read_channel_planted - World.smm_read_channel_planted = true.
+- smm_residual - World.smm_residual = true.
+- unexpected_efi_entry - Trust.unexpected_efi_entry = true.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `smm_read_channel_planted && entities_read && smm_read_ops > 0 && no_game_handle`
 
@@ -47,8 +47,8 @@ Entry: `examples::smm_read_channel::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: No OS handle to catch — the read happens below the kernel in SMM.
-2. Narrator counter: Firmware-class residual + trust posture — the only signals are SMM/EFI residuals and disabled VBS/HVCI.
+1. Narrator counter: No OS handle to catch - the read happens below the kernel in SMM.
+2. Narrator counter: Firmware-class residual + trust posture - the only signals are SMM/EFI residuals and disabled VBS/HVCI.
 
 Team / depth sensors:
 - Direct World reads + local risk scoring in blue_example.cpp.
@@ -69,7 +69,7 @@ Win conditions for this pair:
 
 ## Takeaway
 
-SMM reads sit below both the OS and the hypervisor, so blue cannot rely on handle telemetry at all. In practice the defense is platform firmware support — SMM monitoring and boot-level attestation — and this pair explicitly models the lab's lack of a firmware monitor by making high-confidence policy denial the only post-compromise response.
+SMM reads sit below both the OS and the hypervisor, so blue cannot rely on handle telemetry at all. In practice the defense is platform firmware support - SMM monitoring and boot-level attestation - and this pair explicitly models the lab's lack of a firmware monitor by making high-confidence policy denial the only post-compromise response.
 
 ## Run
 
@@ -86,6 +86,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `smm_read_channel/red_example.cpp` — full red multi-step
-- `smm_read_channel/blue_example.cpp` — full blue multi-reason
-- `smm_read_channel/pair.cpp` — StrategyEntry wiring + narrator
+- `smm_read_channel/red_example.cpp` - full red multi-step
+- `smm_read_channel/blue_example.cpp` - full blue multi-reason
+- `smm_read_channel/pair.cpp` - StrategyEntry wiring + narrator

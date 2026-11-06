@@ -54,7 +54,7 @@ class KernelAc {
 
  private:
   sim::World& world_;
-  ac::ITelemetrySink& sink_;
+  [[maybe_unused]] ac::ITelemetrySink& sink_;  // reserved for telemetry wiring
   ac::RiskAggregator risk_;
   ByovdBlocklist blocklist_;
   DriverGuard drivers_;

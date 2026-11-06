@@ -178,8 +178,30 @@ def main(argv: list[str] | None = None) -> int:
             )
             print("--check: exit 2 (no baseline / differs).")
             return 2
+        # The JSON can be current while the generated headers were edited or
+        # only one of the two copies moved; both must match the same snapshot.
+        try:
+            # Emit from the previous snapshot so a refresh timestamp alone is
+            # not reported as drift; the offset values must still match.
+            expected_hpp = emit_hpp(prev_snap)
+        except RuntimeError as exc:
+            print(f"ERROR emitting comparison header: {exc}", file=sys.stderr)
+            return 1
+        for header in (
+            out_dir / "cs2_offsets_snapshot.hpp",
+            radar_dir / "adapters" / "real" / "cs2" / "offsets_snapshot.hpp",
+        ):
+            if not header.is_file():
+                changes.append(f"generated header missing: {header}")
+            elif header.read_text(encoding="utf-8") != expected_hpp:
+                changes.append(f"generated header drift: {header}")
+        for change in changes:
+            print(f"  {change}")
         if changes:
-            print("\n--check: offsets differ from installed snapshot (exit 2).")
+            print(
+                "\n--check: offsets or generated headers differ from the "
+                "installed snapshot (exit 2)."
+            )
             return 2
         print("\n--check: snapshot is up to date.")
         return 0

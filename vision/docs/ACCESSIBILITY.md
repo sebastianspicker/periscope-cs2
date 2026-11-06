@@ -1,6 +1,6 @@
 # Accessibility design
 
-Player models can vanish into busy CS2 scenes. Segmentation alone is not enough — the
+Player models can vanish into busy CS2 scenes. Segmentation alone is not enough - the
 outline has to stay visible, configurable, stable, and comfortable.
 
 Related: [LIVE_MODE.md](LIVE_MODE.md) (live + GUI) · [CONTOUR_PIPELINE.md](CONTOUR_PIPELINE.md) (second-device composite) · [USER_STUDY.md](USER_STUDY.md) ·

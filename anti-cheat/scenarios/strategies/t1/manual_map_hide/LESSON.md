@@ -1,6 +1,6 @@
-# 08_manual_map_hide — Manual map / PEB unlink
+# 08_manual_map_hide - Manual map / PEB unlink
 
-Family: Evasion. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,16 +16,16 @@ Entry: `examples::manual_map_hide::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Manual map + unlink — Map PE without LoadLibrary; erase headers; no PEB link.
+1. Narrator move: Manual map + unlink - Map PE without LoadLibrary; erase headers; no PEB link.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- inject_module() — Module inject (manual_map clears PEB link when true).
-- spawn() — Spawn actor process on World process list.
-- text_hash="foreign" — Module.text_hash set to foreign (integrity scar)
-- linked_in_peb — linked_in_peb=true scar
+- inject_module() - Module inject (manual_map clears PEB link when true).
+- spawn() - Spawn actor process on World process list.
+- text_hash="foreign" - Module.text_hash set to foreign (integrity scar)
+- linked_in_peb - linked_in_peb=true scar
 
 Achieved when: `present && !peb_linked && region_flag && foreign_thread`
 
@@ -35,8 +35,8 @@ Entry: `examples::manual_map_hide::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Weak PEB walk — Misses unlinked modules.
-2. Narrator counter: Memory region + thread heuristics — Private RX, erased headers, foreign threads.
+1. Narrator counter: Weak PEB walk - Misses unlinked modules.
+2. Narrator counter: Memory region + thread heuristics - Private RX, erased headers, foreign threads.
 3. Sensor A: weak PEB / module-list walk (only linked_in_peb entries).
 4. Sensor B: memory region + thread origin heuristics.
 5. Weak PEB sensor alone would miss; deep sensors constrain the technique.
@@ -90,6 +90,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `manual_map_hide/red_example.cpp` — full red multi-step
-- `manual_map_hide/blue_example.cpp` — full blue multi-reason
-- `manual_map_hide/pair.cpp` — StrategyEntry wiring + narrator
+- `manual_map_hide/red_example.cpp` - full red multi-step
+- `manual_map_hide/blue_example.cpp` - full blue multi-reason
+- `manual_map_hide/pair.cpp` - StrategyEntry wiring + narrator

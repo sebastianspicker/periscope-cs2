@@ -106,3 +106,13 @@ def test_frame_validation() -> None:
     # BGR input is accepted and converted.
     bgr = np.stack([_clean_frame()] * 3, axis=2)
     assert run_preflight(bgr, thresholds=PreflightThresholds(focus_min=0.1)).passed
+
+
+def test_report_dict_includes_advice() -> None:
+    report = run_preflight(
+        np.stack([_clean_frame()] * 3, axis=2),
+        thresholds=PreflightThresholds(focus_min=0.1),
+    )
+    payload = report.as_dict()
+    assert payload["advice"] == list(report.advice)
+    assert payload["passed"] is report.passed

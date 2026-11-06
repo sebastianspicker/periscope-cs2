@@ -2,7 +2,7 @@
 
 The game-facing radar product of [Periscope](../README.md): real adapters, live CS2 reading, a web radar service and an outbound relay. Not a cheat product and not a production anti-cheat.
 
-The tiered red/blue **teaching lab** that shares this tree's history moved to
+The tiered red/blue teaching lab that shares this tree's history moved to
 [`../anti-cheat/`](../anti-cheat/README.md). The dependency is strictly
 one-way: radar consumes the lab's simulation world, types and strategy
 libraries (`LR_ANTI_CHEAT_DIR`); the lab never imports radar code.
@@ -11,8 +11,8 @@ Two ways to run it:
 
 | Mode | What it does | Needs |
 |------|----------------|-------|
-| **Simulation demos** | `radar_tN` replay deterministic scenarios on the anti-cheat lab's `sim::World` | C++20 + CMake + a `../anti-cheat` checkout. Any OS. |
-| **Real (Windows)** | Attach to a live process (CS2 for T0/T1), read entities, draw a radar overlay | VS/MSVC or Clang-CL, optional WDK / VMX / DMA hardware for higher tiers |
+| Simulation demos | `radar_tN` replay deterministic scenarios on the anti-cheat lab's `sim::World` | C++20 + CMake + a `../anti-cheat` checkout. Any OS. |
+| Real (Windows) | Attach to a live process (CS2 for T0/T1), read entities, draw a radar overlay | VS/MSVC or Clang-CL, optional WDK / VMX / DMA hardware for higher tiers |
 
 Real Windows backends are optional via CMake; real backend features are
 unsupported on Apple and stay off there.
@@ -89,8 +89,9 @@ Runtime knobs: `LR_MODE=sim|real|hybrid`, `LR_VERBOSE=0|1`.
 
 The live demos read entity data through offset/signature snapshots under
 `data/cs2/` (`offsets.json`, `client_dll.json`, the generated
-`cs2_offsets_snapshot.hpp`). Refresh them with the tooling in `scripts/`
-(from `radar/`):
+`cs2_offsets_snapshot.hpp`). The generator also installs the compiled copy at
+`adapters/real/cs2/offsets_snapshot.hpp`; commit both sides together. Refresh
+them with the tooling in `scripts/` (from `radar/`):
 
 ```bash
 python scripts/update_cs2_signatures.py
@@ -156,9 +157,9 @@ inbound ports share a radar session with remote viewers; see
 
 ## Safety / ethics
 
-- Example vulnerable driver and DMA firmware are for **controlled lab use**. Do not load them on production machines.
+- Example vulnerable driver and DMA firmware are for controlled lab use. Do not load them on production machines.
 - Real backends exercise OS APIs that commercial anti-cheat watches. Expect detection if you point them at a live game.
-- This tree does **not** bypass HVCI/VBS, and it does **not** ship VMT hooks, injectors, or game-memory writers for gameplay advantage. The simulation demos plant scars on the lab's `sim::World`; real mode is read-oriented educational scaffolding.
+- This tree does not bypass HVCI/VBS, and it does not ship VMT hooks, injectors, or game-memory writers for gameplay advantage. The simulation demos plant scars on the lab's `sim::World`; real mode is read-oriented educational scaffolding.
 - See [SECURITY.md](SECURITY.md).
 
 ---
@@ -171,4 +172,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Educational use only; you own what you do with it.
+MIT - see [LICENSE](LICENSE). Educational use only; you own what you do with it.

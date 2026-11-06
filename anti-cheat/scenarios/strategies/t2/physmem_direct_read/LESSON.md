@@ -1,6 +1,6 @@
-# 60_physmem_direct_read — PhysicalMemory direct read
+# 60_physmem_direct_read - PhysicalMemory direct read
 
-Family: Delivery. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::physmem_direct_read::apply` in `red_example.cpp` / `red_exampl
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: PhysicalMemory direct read — open the physmem device and map the game PFN; no game VM_READ handle.
+1. Narrator move: PhysicalMemory direct read - open the physmem device and map the game PFN; no game VM_READ handle.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -31,10 +31,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Verify the handle graph stays empty of game VM_READ handles.
 
 World scars and lab surfaces (from shipped red code):
-- physmem_device_open — World.physmem_device_open = true.
-- physmem_direct_mapped — World.physmem_direct_mapped = true.
-- physmem_game_pfn — World.physmem_game_pfn = game_base >> 12.
-- spawn() — Spawn actor process on World process list.
+- physmem_device_open - World.physmem_device_open = true.
+- physmem_direct_mapped - World.physmem_direct_mapped = true.
+- physmem_game_pfn - World.physmem_game_pfn = game_base >> 12.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `physmem_direct_mapped && entities_read && no_game_vm_read_handle`
 
@@ -44,8 +44,8 @@ Entry: `examples::physmem_direct_read::detect` in `blue_example.cpp` / `blue_exa
 
 What blue does in the lab:
 
-1. Narrator counter: Physmem device open is the scar — direct physical mapping leaves no VM_READ handle.
-2. Narrator counter: DSE policy — when DSE is enforced, PhysicalMemory access is blocked and mitigation is policy-driven.
+1. Narrator counter: Physmem device open is the scar - direct physical mapping leaves no VM_READ handle.
+2. Narrator counter: DSE policy - when DSE is enforced, PhysicalMemory access is blocked and mitigation is policy-driven.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -83,6 +83,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `physmem_direct_read/red_example.cpp` — full red multi-step
-- `physmem_direct_read/blue_example.cpp` — full blue multi-reason
-- `physmem_direct_read/pair.cpp` — StrategyEntry wiring + narrator
+- `physmem_direct_read/red_example.cpp` - full red multi-step
+- `physmem_direct_read/blue_example.cpp` - full blue multi-reason
+- `physmem_direct_read/pair.cpp` - StrategyEntry wiring + narrator

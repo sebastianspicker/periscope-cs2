@@ -1,11 +1,11 @@
-# ret_addr_spoof — Return Address Chain Spoofing
+# ret_addr_spoof - Return Address Chain Spoofing
 
 Family: Evasion. Tiers: T1.
 
 ## Battlefield
 Red: Starts a thread with a legitimate address (kernel32, game DLL), but the
      RETURN ADDRESS chain still leads back to red's allocated memory.
-Blue: CS2's MonitorThreadContext doesn't just check the start address — it
+Blue: CS2's MonitorThreadContext doesn't just check the start address - it
      also captures the return address chain via RtlWalkFrameChain / stack walking.
      Even if the start address is clean, the return addresses on the stack
      reveal red's true code location.

@@ -1,6 +1,6 @@
-# 91_raw_vs_sendinput — Raw HID vs SendInput mix
+# 91_raw_vs_sendinput - Raw HID vs SendInput mix
 
-Family: Feature. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,14 +16,14 @@ Entry: `examples::raw_vs_sendinput::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Raw HID + SendInput mix — Set raw_sendinput_mixed; push raw_hid and injected inputs.
+1. Narrator move: Raw HID + SendInput mix - Set raw_sendinput_mixed; push raw_hid and injected inputs.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- raw_sendinput_mixed — World.raw_sendinput_mixed = true
-- push_input() — Push InputEvent (injected vs raw_hid provenance).
+- raw_sendinput_mixed - World.raw_sendinput_mixed = true
+- push_input() - Push InputEvent (injected vs raw_hid provenance).
 
 Achieved when: `out.flag_set && out.raw_count > 0 && out.injected_count > 0`
 
@@ -33,9 +33,9 @@ Entry: `examples::raw_vs_sendinput::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Input provenance mix — Detect raw_sendinput_mixed or mixed sources in inputs.
+1. Narrator counter: Input provenance mix - Detect raw_sendinput_mixed or mixed sources in inputs.
 2. Sensor A: explicit mixed-source scar flag.
-3. Sensor B: provenance inventory — raw HID + injected in same window.
+3. Sensor B: provenance inventory - raw HID + injected in same window.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -72,6 +72,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `raw_vs_sendinput/red_example.cpp` — full red multi-step
-- `raw_vs_sendinput/blue_example.cpp` — full blue multi-reason
-- `raw_vs_sendinput/pair.cpp` — StrategyEntry wiring + narrator
+- `raw_vs_sendinput/red_example.cpp` - full red multi-step
+- `raw_vs_sendinput/blue_example.cpp` - full blue multi-reason
+- `raw_vs_sendinput/pair.cpp` - StrategyEntry wiring + narrator

@@ -32,6 +32,7 @@ import json
 import secrets
 import sys
 import time
+import urllib.parse
 from typing import Any
 
 from relay_core import (
@@ -82,6 +83,10 @@ async def read_frame(reader: asyncio.StreamReader) -> tuple[int, bytes]:
         length = int.from_bytes(await reader.readexactly(2), "big")
     elif length == 127:
         length = int.from_bytes(await reader.readexactly(8), "big")
+    # Reject before allocating: a peer can otherwise claim an absurd length
+    # and make the server buffer it.
+    if length > MAX_FRAME_BYTES:
+        raise RelayError(f"frame of {length} bytes exceeds cap")
     mask = await reader.readexactly(4) if masked else None
     payload = await reader.readexactly(length) if length else b""
     if mask is not None:
@@ -225,7 +230,7 @@ class RelayServer:
         for part in query.split("&"):
             if "=" in part:
                 key, value = part.split("=", 1)
-                params[key] = value
+                params[urllib.parse.unquote(key)] = urllib.parse.unquote(value)
         return params
 
     async def _http_response(self, writer: asyncio.StreamWriter, code: int,
@@ -265,7 +270,7 @@ class RelayServer:
             while True:
                 try:
                     opcode, payload = await read_frame(reader)
-                except (asyncio.IncompleteReadError, ConnectionError):
+                except (asyncio.IncompleteReadError, ConnectionError, RelayError):
                     break
                 if opcode == 0x8:  # close
                     break
@@ -320,7 +325,7 @@ class RelayServer:
             while True:
                 try:
                     opcode, _payload = await read_frame(reader)
-                except (asyncio.IncompleteReadError, ConnectionError):
+                except (asyncio.IncompleteReadError, ConnectionError, RelayError):
                     break
                 if opcode == 0x8:
                     break
@@ -345,7 +350,7 @@ class RelayServer:
             try:
                 writer.write(build_frame(0x1, payload))
                 await writer.drain()
-            except ConnectionError:
+            except (ConnectionError, RuntimeError):
                 continue
 
     # ---------------------------------------------------------------- server
@@ -365,7 +370,7 @@ class RelayServer:
                     return
                 method, path = parts[0], parts[1]
                 headers: dict[str, str] = {}
-                while True:
+                for _ in range(100):  # bounded header count
                     line = await reader.readline()
                     if line in (b"\r\n", b"\n", b""):
                         break
@@ -384,7 +389,8 @@ class RelayServer:
                 await self._http_response(writer, 404, '{"error":"not found"}')
                 writer.close()
             except (asyncio.IncompleteReadError, ConnectionError,
-                    asyncio.TimeoutError):
+                    asyncio.TimeoutError, ValueError):
+                # ValueError also covers the StreamReader header-line limit.
                 writer.close()
 
         server = await asyncio.start_server(on_connection, host, port)

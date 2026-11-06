@@ -14,7 +14,7 @@ browser ------------------------------------------> Caddy :443 --> relay_server.
 - The relay never connects to the gaming machine; the producer dials out.
 - Producer and viewer credentials are separate secrets; a viewer token cannot
   publish (enforced pre-handshake).
-- Per room, **only the latest frame is retained** — no history, no
+- Per room, **only the latest frame is retained** - no history, no
   persistence.
 - HTTP/WS tokens are not transport security; deploy behind Caddy TLS and
   never expose the relay directly.
@@ -44,7 +44,7 @@ Endpoints:
 Limits: 512 KiB frame cap (violating producers are disconnected), per-room
 producer exclusivity, per-room viewer cap, token-bucket frame rate limiting
 with bounded-latest broadcasting (a rate-limited viewer skips a frame and
-catches up on the next — it never queues).
+catches up on the next - it never queues).
 
 ## Verification
 

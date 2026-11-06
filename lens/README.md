@@ -1,9 +1,10 @@
 # Periscope Lens
 
-Third Periscope track, beside [Radar](../radar/) (memory-side) and
-[Vision](../vision/) (pixel-side): a **smartphone pointed at the game
-monitor**, capturing the game with its camera, running vision enhancement
-on-device, connected to the PC **by cable** to feed aim assistance.
+Fourth Periscope track, beside [Anti-Cheat](../anti-cheat/) (simulation),
+[Radar](../radar/) (memory-side) and [Vision](../vision/) (pixel-side): a
+smartphone pointed at the game monitor, capturing the game with its
+camera, running vision enhancement on-device, connected to the PC by
+cable to feed aim assistance.
 
 Camera-only by construction: the game PC runs nothing and shares nothing.
 Actuation is lab-only opt-in; nothing here is a supported cheat product.
@@ -11,10 +12,11 @@ Actuation is lab-only opt-in; nothing here is a supported cheat product.
 ## Status
 
 Pre-alpha research scaffolding. The Python package (`periscope_lens`) ships
-the portable policy core — calibration, optical preflight, USB transport,
-latency compensation, output shaping, assist policy — fully unit-tested. The
-Android companion (`android/`) is a source drop with an honest gaps list and
-no CI lane. End-to-end live operation is **not** claimed.
+the portable policy core - calibration, optical preflight, USB transport,
+latency compensation, output shaping, assist policy - fully unit-tested. The
+Android companion (`android/`) is a source drop with a gaps list and
+a grep-level source-presence check in CI (no SDK build lane). End-to-end live
+operation is not claimed.
 
 ## Layout
 
@@ -36,9 +38,15 @@ uv run pytest tests/ -q
 uv run ruff check src/ tests/ && uv run mypy --strict src/periscope_lens/
 ```
 
+The real capture bindings (`phone.py`) additionally need OpenCV:
+
+```bash
+uv sync --extra capture
+```
+
 ## Where the boundary sits
 
-The lens modules are deliberately self-contained (numpy only, no imports
+The lens modules are self-contained (numpy only, no imports
 from the Vision package): the track inherits nothing at runtime, so it can
 be reviewed, licensed and versioned on its own. `tests/` is the evidence;
 `docs/TOPOLOGY.md` explains the latency budget that makes this a tracking
@@ -51,7 +59,7 @@ the one derived stub live in `NOTICE.md`.
 
 ## Posture summary
 
-- Capture: camera only — posture-clean, no game-PC access at all.
+- Capture: camera only - posture-clean, no game-PC access at all.
 - Output: HID gadget / PC agent / targets-only, all opt-in.
 - Hardware injector kits (kmbox-class): documented as compatible, never
   implemented here.

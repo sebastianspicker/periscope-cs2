@@ -6,7 +6,7 @@ HTTPS. A new registry entry that skips any of these silently reintroduces
 the A6 incident class (an unverified model running as if it were verified).
 
 The explicit ``sam_*_path`` / ``CS2_SAM_*`` override path is a deliberate
-custom export (see the A6 judgement call in THINGS_TO_DO_LEDGER.md): it must
+custom export (A6 judgement call): it must
 exist and is logged as unpinned — this gate covers the *registry*, which is
 the default trust path.
 """

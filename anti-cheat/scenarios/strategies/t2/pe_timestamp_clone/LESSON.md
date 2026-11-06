@@ -1,4 +1,4 @@
-# pe_timestamp_clone — PE Timestamp Clone Evasion
+# pe_timestamp_clone - PE Timestamp Clone Evasion
 
 Family: Evasion. Tiers: T2.
 

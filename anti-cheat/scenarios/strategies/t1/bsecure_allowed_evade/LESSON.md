@@ -1,4 +1,4 @@
-# bsecure_allowed_evade — BSecureAllowed Trust Chain Evasion
+# bsecure_allowed_evade - BSecureAllowed Trust Chain Evasion
 
 Family: Evasion. Tiers: T1-T2.
 

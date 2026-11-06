@@ -1,6 +1,6 @@
-# 19_input_synthesis — Synthetic / hardware input
+# 19_input_synthesis - Synthetic / hardware input
 
-Family: Feature. Tiers: all. Area: xc/features. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: all. Area: xc/features. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::input_synthesis::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Synthetic input multi-step — serial_arduino + kmbox multi-sample; no open_process; residual 
-2. Step 1: NO open_process / no foreign VM_READ — pure input path abuse.
+1. Narrator move: Synthetic input multi-step - serial_arduino + kmbox multi-sample; no open_process; residual
+2. Step 1: NO open_process / no foreign VM_READ - pure input path abuse.
 3. Step 2: multi-sample push_input from serial_arduino AND kmbox (≥4 events).
 4. Optional extra samples for multi_sample strength.
 5. Step 3: residual mixed raw/inject path OR WH_MOUSE residual.
@@ -27,10 +27,10 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- raw_sendinput_mixed — World.raw_sendinput_mixed = true
-- wh_mouse_hook — World.wh_mouse_hook = true
-- clipcursor_confined — World.clipcursor_confined = true
-- push_input() — Push InputEvent (injected vs raw_hid provenance).
+- raw_sendinput_mixed - World.raw_sendinput_mixed = true
+- wh_mouse_hook - World.wh_mouse_hook = true
+- clipcursor_confined - World.clipcursor_confined = true
+- push_input() - Push InputEvent (injected vs raw_hid provenance).
 
 Achieved when: `r.memory_clean && r.bad_sources_planted`
 
@@ -40,8 +40,8 @@ Entry: `examples::input_synthesis::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Input provenance multi-reason — Flag bad source only with multi-sample or mixed residual — not 
-2. detected = bad_source && (multi_sample || mixed_raw) — not single event echo
+1. Narrator counter: Input provenance multi-reason - Flag bad source only with multi-sample or mixed residual - not
+2. detected = bad_source && (multi_sample || mixed_raw) - not single event echo
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -57,7 +57,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `r.multi_reason`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -78,6 +78,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `input_synthesis/red_example.cpp` — full red multi-step
-- `input_synthesis/blue_example.cpp` — full blue multi-reason
-- `input_synthesis/pair.cpp` — StrategyEntry wiring + narrator
+- `input_synthesis/red_example.cpp` - full red multi-step
+- `input_synthesis/blue_example.cpp` - full blue multi-reason
+- `input_synthesis/pair.cpp` - StrategyEntry wiring + narrator

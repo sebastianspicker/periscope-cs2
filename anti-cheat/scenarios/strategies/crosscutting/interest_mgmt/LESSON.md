@@ -1,6 +1,6 @@
-# 24_interest_mgmt — Server interest management
+# 24_interest_mgmt - Server interest management
 
-Family: Structural. Tiers: all. Area: xc/structural. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Structural. Tiers: all. Area: xc/structural. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::interest_mgmt::apply` in `red_example.cpp` / `red_example.hpp`
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Any memory radar — Wants full enemy origin replication; attempts stream key exfil.
+1. Narrator move: Any memory radar - Wants full enemy origin replication; attempts stream key exfil.
 2. Step 1+2: want full replication + attempt stream key exfil if encrypted.
 
 Team / depth APIs used:
@@ -38,9 +38,9 @@ Entry: `examples::interest_mgmt::detect` in `blue_example.cpp` / `blue_example.h
 
 What blue does in the lab:
 
-1. Narrator counter: Interest management / fog-of-war — Strict fog + encrypt; show leakage_before vs leakage_after.
+1. Narrator counter: Interest management / fog-of-war - Strict fog + encrypt; show leakage_before vs leakage_after.
 2. Step 1: score red-friendly partial leak (pedagogy: show leakage risk).
-3. Step 2: multi-step mitigate — strict fog + encrypt + strip key.
+3. Step 2: multi-step mitigate - strict fog + encrypt + strip key.
 
 Team / depth sensors:
 - `depth::LeakageScorer`
@@ -64,7 +64,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `false`
 - mitigated := `after.structural_kill && !w.server_sends_full_enemy_origin && r.fog_applied`
-- Pass narrative: mitigation-only (fog/policy/structural) — detect may stay false; that is still a blue win.
+- Pass narrative: mitigation-only (fog/policy/structural) - detect may stay false; that is still a blue win.
 
 ## Takeaway
 
@@ -85,9 +85,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `interest_mgmt/red_example.cpp` — full red multi-step
-- `interest_mgmt/blue_example.cpp` — full blue multi-reason
-- `interest_mgmt/pair.cpp` — StrategyEntry wiring + narrator
+- `interest_mgmt/red_example.cpp` - full red multi-step
+- `interest_mgmt/blue_example.cpp` - full blue multi-reason
+- `interest_mgmt/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `depth/leakage_scorer.hpp`

@@ -49,9 +49,9 @@ private:
     bool m_initialized{false};
     std::uint64_t m_seed{1};
     DisguiseStyle m_style{DisguiseStyle::Afterburner};
-    std::uint64_t m_prevIdle{0};
-    std::uint64_t m_prevKernel{0};
-    std::uint64_t m_prevUser{0};
+    [[maybe_unused]] std::uint64_t m_prevIdle{0};    // transition history seam
+    [[maybe_unused]] std::uint64_t m_prevKernel{0};  // transition history seam
+    [[maybe_unused]] std::uint64_t m_prevUser{0};    // transition history seam
     bool m_hasPrevTimes{false};
 
     float jitter_metric(float base, float variance) noexcept;

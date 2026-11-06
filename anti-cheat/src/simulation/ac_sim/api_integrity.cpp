@@ -30,7 +30,7 @@ static void decode_pattern(const uint8_t* encoded, uint8_t* decoded,
 
 // Known hook patterns (first bytes of the function prologue)
 // Encoded as XOR difference from kXorKey to avoid literal byte constants.
-bool matches_hook_pattern(const uint8_t* data, size_t dataLen) noexcept {
+[[maybe_unused]] bool matches_hook_pattern(const uint8_t* data, size_t dataLen) noexcept {
     uint8_t pat[12] = {0};
 
     // MSVC does not support GCC compound literals; use static arrays.

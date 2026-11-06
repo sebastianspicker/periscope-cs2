@@ -5,17 +5,17 @@ four independently licensed and independently built research products that
 share a subject area but no runtime code
 ([decision 0001](decisions/0001-independent-products.md)):
 
-- **Anti-Cheat Lab** (`anti-cheat/`, C++20, MIT) is a simulation-only
+- Anti-Cheat Lab (`anti-cheat/`, C++20, MIT) is a simulation-only
   red/blue teaching lab. Each "strategy pair" plants an attack trace in a
   deterministic simulated world, then scores whether the matching detection
   catches it. It owns `sim::World` and the tier curriculum.
-- **Radar** (`radar/`, C++20, MIT) is the game-facing product: real adapters,
+- Radar (`radar/`, C++20, MIT) is the game-facing product: real adapters,
   live CS2 reading, the web radar and the relay. It consumes the anti-cheat
   lab's libraries one-way.
-- **Vision** (`vision/`, Python, AGPL-3.0-only) is a pixel-only accessibility
+- Vision (`vision/`, Python, AGPL-3.0-only) is a pixel-only accessibility
   package. It reads frames from a video, capture device or screen, segments
   visible players with an ONNX model and draws outlines.
-- **Lens** (`lens/`, Python + Kotlin companion, AGPL-3.0-only) is a
+- Lens (`lens/`, Python + Kotlin companion, AGPL-3.0-only) is a
   camera-only phone track: a smartphone pointed at the monitor supplies the
   pixels; portable modules cover calibration, optical preflight, USB target
   transport, latency compensation and lab-only output shaping.
@@ -75,13 +75,13 @@ flowchart LR
 The only arrow that crosses between the C++ subgraphs is the one-way radar →
 anti-cheat edge: radar consumes the lab's libraries (types, world, teams,
 strategies), and the lab never imports radar code. No Radar target includes or
-links Vision, and no Vision module imports Radar. The default Radar build never
+links Vision or Lens, and neither Python package imports Radar or the lab. The default Radar build never
 compiles `real`: every real-platform backend sits behind its own
 `LR_ENABLE_REAL_*` CMake option (all `OFF`). Vision never opens the game
 process. Its only input is pixels. The `strategy_lab` you get from a default
 lab build refuses `attach` and `mode real`.
 
-**Where in the code**
+Where in the code
 
 - [anti-cheat/CMakeLists.txt](../anti-cheat/CMakeLists.txt) and [radar/CMakeLists.txt](../radar/CMakeLists.txt): the two build entries; radar points at the lab via `LR_ANTI_CHEAT_DIR`
 - [radar/cmake/Options.cmake](../radar/cmake/Options.cmake): the opt-in real flags
@@ -125,14 +125,14 @@ Executables are the composition roots: `lr_exe` in `radar/CMakeLists.txt`
 adds `adapters/` to every executable's include path, and reusable library
 targets never receive it. The reverse
 direction is forbidden: radar's `src/domain/radar` never includes a real
-adapter, and the anti-cheat lab never imports radar code at all — the single
+adapter, and the anti-cheat lab never imports radar code at all - the single
 exception is the lab's `tests/stack_posture_test.cpp`, which reads radar's
 `real/cs2/posture.hpp` through a test-only include path (`LR_RADAR_DIR`).
 The real Windows, Linux, kernel, DMA, VMX, SMM, UEFI, GPU, network,
 driver and firmware lanes are teaching material, never part of the default
 simulation graph, and remain explicit build and runtime opt-ins.
 
-**Where in the code**
+Where in the code
 
 - [radar/cmake/AppTargets.cmake](../radar/cmake/AppTargets.cmake): which executable links which library
 - [anti-cheat/cmake/ScenarioTargets.cmake](../anti-cheat/cmake/ScenarioTargets.cmake), [anti-cheat/cmake/SimulationTargets.cmake](../anti-cheat/cmake/SimulationTargets.cmake), [radar/cmake/RealTargets.cmake](../radar/cmake/RealTargets.cmake): the library graph
@@ -170,7 +170,7 @@ path through `run_dual` in `registry_dual.cpp`. In a default build it runs only
 the simulation half. Each pair directory also holds a `LESSON.md` explaining
 the scenario.
 
-**Where in the code**
+Where in the code
 
 - [anti-cheat/scenarios/strategies/framework/main.cpp](../anti-cheat/scenarios/strategies/framework/main.cpp): argument parsing and dispatch
 - [anti-cheat/scenarios/strategies/framework/registry_run.cpp](../anti-cheat/scenarios/strategies/framework/registry_run.cpp): `run_one`, `run_all`, `run_filtered`
@@ -208,7 +208,7 @@ reconnect/backoff and the stale-frame bound live in the capture adapter, never
 in the live loop. Top-level packages such as `cli/` and `segmenters/` are
 small compatibility facades for older import paths, not new code locations.
 
-**Where in the code**
+Where in the code
 
 - [vision/src/cs2_vision_access/interfaces/cli/parser.py](../vision/src/cs2_vision_access/interfaces/cli/parser.py) and [handlers/](../vision/src/cs2_vision_access/interfaces/cli/handlers/): one module per command group
 - [vision/src/cs2_vision_access/application/ports/](../vision/src/cs2_vision_access/application/ports/): the ports adapters implement
@@ -253,7 +253,7 @@ an HDMI capture card, a desktop window, a transparent overlay
 (`--overlay`) and the shared-memory ring (`--output-stream shm:<name>`). Only
 the capture source and the sink change.
 
-**Where in the code**
+Where in the code
 
 - [vision/src/cs2_vision_access/interfaces/cli/handlers/live.py](../vision/src/cs2_vision_access/interfaces/cli/handlers/live.py): `_handle_live`, `_resolve_capture_source`, `_build_segmenter`
 - [vision/src/cs2_vision_access/adapters/capture/live_pipeline/runner.py](../vision/src/cs2_vision_access/adapters/capture/live_pipeline/runner.py) and [frame.py](../vision/src/cs2_vision_access/adapters/capture/live_pipeline/frame.py): `run_live_pipeline`, `run_frame`
@@ -275,6 +275,7 @@ flowchart LR
   pr[Pull request] -->|"anti-cheat/**"| aci[Anti-cheat CI]
   pr -->|"radar/**"| rci[Radar CI]
   pr -->|"vision/**"| vci[Vision CI]
+  pr -->|"lens/**"| lci[Lens CI]
   aci -->|ubuntu| acsim["verify.py anti-cheat-sim"]
   rci -->|ubuntu| rsim["verify.py radar-sim"]
   rci -.->|"windows, dispatch or Dependabot only"| rreal["real-capability build"]
@@ -282,27 +283,32 @@ flowchart LR
   vci -->|"3.12"| vtest[pytest]
   vci -->|"3.12"| vtype["mypy --strict"]
   vci -->|"3.12"| vpkg["uv build + --help smoke"]
+  lci -->|"3.11-3.13"| llint[ruff]
+  lci -->|"all Python"| ltest[pytest]
+  lci -->|"all Python"| ltype["mypy --strict"]
+  lci -->|"3.12"| lpkg[uv build]
   push[Push or PR to main] --> codeql[CodeQL]
 ```
 
 `scripts/verify.py` runs the same checks locally:
-`python3 scripts/verify.py architecture|anti-cheat-sim|radar-sim|vision-cpu|all`.
+`python3 scripts/verify.py architecture|anti-cheat-sim|radar-sim|vision-cpu|lens-cpu|all`.
 `anti-cheat-sim` configures and builds the lab, runs its ctest, then runs
 `strategy_lab all --quiet`.
 `radar-sim` configures, builds, runs `ctest`, then runs `strategy_lab list`
 and `strategy_lab all --quiet` from the radar lane. Every pair must pass.
-`vision-cpu` runs pytest.
+`vision-cpu` and `lens-cpu` run their own package checks and pytest lanes.
 CodeQL also runs weekly on a schedule.
 The portable jobs run on every pull request that touches their paths. The
 Windows job runs only on manual `workflow_dispatch` or Dependabot pull requests
 (dotted edge). It only proves that the documented real
-capability combination still compiles. It never runs it. Neither project
-publishes a release artifact.
+capability combination still compiles. It never runs it. Neither native
+project publishes a release artifact; the Python packages are built (not
+published) by their lanes.
 
-**Where in the code**
+Where in the code
 
 - [scripts/verify.py](../scripts/verify.py), [scripts/check_architecture.py](../scripts/check_architecture.py)
-- [.github/workflows/anti-cheat-ci.yml](../.github/workflows/anti-cheat-ci.yml), [.github/workflows/radar-ci.yml](../.github/workflows/radar-ci.yml), [.github/workflows/vision-ci.yml](../.github/workflows/vision-ci.yml), [.github/workflows/security.yml](../.github/workflows/security.yml)
+- [.github/workflows/anti-cheat-ci.yml](../.github/workflows/anti-cheat-ci.yml), [.github/workflows/radar-ci.yml](../.github/workflows/radar-ci.yml), [.github/workflows/vision-ci.yml](../.github/workflows/vision-ci.yml), [.github/workflows/lens-ci.yml](../.github/workflows/lens-ci.yml), [.github/workflows/security.yml](../.github/workflows/security.yml)
 
 ## Code map
 
@@ -327,6 +333,9 @@ Read in this order:
 | [vision/src/cs2_vision_access/adapters/](../vision/src/cs2_vision_access/adapters/) | Capture, model runtimes, rendering, presenter |
 | [vision/src/cs2_vision_access/workflows/](../vision/src/cs2_vision_access/workflows/) | Dataset, labeling, training, evaluation, study, bakeoff |
 | [vision/src/cs2_vision_access/interfaces/](../vision/src/cs2_vision_access/interfaces/) | CLI and Tk GUI |
+| [lens/README.md](../lens/README.md), [lens/docs/TOPOLOGY.md](../lens/docs/TOPOLOGY.md) | Lens install, topology and output support |
+| [lens/src/periscope_lens/](../lens/src/periscope_lens/) | Portable calibration, preflight, transport, latency, output and policy core |
+| [lens/android/](../lens/android/) | Kotlin companion source drop |
 | [scripts/](../scripts/) | Repository-wide verification |
 
 ## External contracts
@@ -340,6 +349,9 @@ Read in this order:
   driver, firmware, IPC, and network layouts.
 - Anti-cheat keeps simulation as the only mode, the `strategy_lab` commands,
   and the tier curriculum layout.
+- Lens preserves the `periscope_lens` package name, the versioned L6 wire
+  contract, and the camera-only boundary; the Android drop is not a release
+  artifact.
 - Source-tree module names, private helpers, CMake library decomposition, and
   directory locations are internal unless active documentation says otherwise.
 
@@ -354,4 +366,5 @@ Read in this order:
   implementation or a test substitute.
 
 `python3 scripts/check_architecture.py` enforces the dependency rules that are
-cheap and valuable to check mechanically.
+cheap and valuable to check mechanically, plus tracked-file presence and
+Markdown link resolution.

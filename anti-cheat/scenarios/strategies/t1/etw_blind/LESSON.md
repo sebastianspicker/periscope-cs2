@@ -1,6 +1,6 @@
-# 45_etw_blind — ETW pipeline blind
+# 45_etw_blind - ETW pipeline blind
 
-Family: Evasion. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::etw_blind::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: ETW blind — Disable etw_enabled; syscall OpenProcess; read entities.
+1. Narrator move: ETW blind - Disable etw_enabled; syscall OpenProcess; read entities.
 
 Team / depth APIs used:
 
 World scars and lab surfaces (from shipped red code):
-- etw_enabled — World.etw_enabled = false
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- read_mem() — ReadProcessMemory-style entity/bytes pull through handle.
-- spawn() — Spawn actor process on World process list.
+- etw_enabled - World.etw_enabled = false
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- read_mem() - ReadProcessMemory-style entity/bytes pull through handle.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `count > 0 && syscall_handle && !w.etw_enabled`
 
@@ -34,8 +34,8 @@ Entry: `examples::etw_blind::detect` in `blue_example.cpp` / `blue_example.hpp`.
 
 What blue does in the lab:
 
-1. Narrator counter: ETW-only sensors — With etw_enabled=false, telemetry consumers go silent.
-2. Narrator counter: Pipeline integrity + handle graph — !etw_enabled → pipeline broken; handle graph still detects.
+1. Narrator counter: ETW-only sensors - With etw_enabled=false, telemetry consumers go silent.
+2. Narrator counter: Pipeline integrity + handle graph - !etw_enabled → pipeline broken; handle graph still detects.
 3. Detect on pipeline integrity alone, or on handle graph alone.
 4. Mitigated in the lab sense: ETW consumers blind, strong sensors still fire.
 
@@ -76,6 +76,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `etw_blind/red_example.cpp` — full red multi-step
-- `etw_blind/blue_example.cpp` — full blue multi-reason
-- `etw_blind/pair.cpp` — StrategyEntry wiring + narrator
+- `etw_blind/red_example.cpp` - full red multi-step
+- `etw_blind/blue_example.cpp` - full blue multi-reason
+- `etw_blind/pair.cpp` - StrategyEntry wiring + narrator

@@ -1,6 +1,6 @@
-# 57_registry_notify_strip — Registry notify strip
+# 57_registry_notify_strip - Registry notify strip
 
-Family: Evasion. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,14 +16,14 @@ Entry: `examples::registry_notify_strip::run_red` in `red_example.cpp` / `red_ex
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Registry notify strip — Unregister CmRegisterCallback-style registry notifies so key-change 
+1. Narrator move: Registry notify strip - Unregister CmRegisterCallback-style registry notifies so key-change
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- registry_notify — World.registry_notify = 0
-- registry_notify_present — World.registry_notify_present = false
+- registry_notify - World.registry_notify = 0
+- registry_notify_present - World.registry_notify_present = false
 
 Achieved when: `red.stripped`
 
@@ -33,7 +33,7 @@ Entry: `examples::registry_notify_strip::run_blue` in `blue_example.cpp` / `blue
 
 What blue does in the lab:
 
-1. Narrator counter: Registry notify integrity — registry_notify count/presence vs baseline (expect ≥ 2).
+1. Narrator counter: Registry notify integrity - registry_notify count/presence vs baseline (expect ≥ 2).
 2. Multi-reason scan over World scars (see sensors list below).
 
 Team / depth sensors:
@@ -45,7 +45,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `registry_notify_degraded || registry_notify_missing`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -66,6 +66,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `registry_notify_strip/red_example.cpp` — full red multi-step
-- `registry_notify_strip/blue_example.cpp` — full blue multi-reason
-- `registry_notify_strip/pair.cpp` — StrategyEntry wiring + narrator
+- `registry_notify_strip/red_example.cpp` - full red multi-step
+- `registry_notify_strip/blue_example.cpp` - full blue multi-reason
+- `registry_notify_strip/pair.cpp` - StrategyEntry wiring + narrator

@@ -59,7 +59,7 @@ constexpr std::array<SimulatedEntity, 10> kSimulatedEntities{{
     {110, "Jules", -156.0F, -44.0F, 34.0F, 54, 2},
 }};
 
-const char* expected_backend(DemoTier tier) {
+[[maybe_unused]] const char* expected_backend(DemoTier tier) {
   switch (tier) {
     case DemoTier::T0: return "t0_usermode_rpm";
     case DemoTier::T1: return "t1_syscall_soft";
@@ -74,19 +74,19 @@ TierResult make_result(DemoTier tier) {
   switch (tier) {
     case DemoTier::T0:
       return {tier, "T0 RPM (OpenProcess)", false, false, 0, 0,
-              "VM_READ handle", "VM_READ handle", "Handle enumeration", "PPL / handle auditing"};
+              "VM_READ handle", "VM_READ handle", "Handle enumeration", "PPL / handle auditing", ""};
     case DemoTier::T1:
       return {tier, "T1 Direct Syscall", false, false, 0, 0,
-              "Handle + syscall", "Handle + syscall", "Handle + ETW TI", "ETW TI / kernel callbacks"};
+              "Handle + syscall", "Handle + syscall", "Handle + ETW TI", "ETW TI / kernel callbacks", ""};
     case DemoTier::T2:
       return {tier, "T2 BYOVD (gdrv)", false, false, 0, 0,
-              "Device handle", "Device IOCTL", "Driver hash scan", "DSE / HVCI / blocklist"};
+              "Device handle", "Device IOCTL", "Driver hash scan", "DSE / HVCI / blocklist", ""};
     case DemoTier::T3:
       return {tier, "T3 Hyper-V Hypercall", false, false, 0, 0,
-              "Hypervisor config", "Hyper-V configuration", "VBS / hypervisor inventory", "VBS policy / attestation"};
+              "Hypervisor config", "Hyper-V configuration", "VBS / hypervisor inventory", "VBS policy / attestation", ""};
     case DemoTier::T4:
       return {tier, "T4 PCIe DMA", false, false, 0, 0,
-              "PCIe TLP only", "PCIe read TLP", "IOMMU check", "VT-d / AMD-Vi"};
+              "PCIe TLP only", "PCIe read TLP", "IOMMU check", "VT-d / AMD-Vi", ""};
   }
   return {};
 }

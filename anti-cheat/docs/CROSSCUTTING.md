@@ -14,7 +14,7 @@ name/
 └── pair.cpp                  strategy_lab registration
 ```
 
-## Evasion family — 9 pairs
+## Evasion family - 9 pairs
 
 | Theme | Example IDs | Multi-step idea |
 |-------|-------------|-----------------|
@@ -28,7 +28,7 @@ name/
 
 Demo: ./anti-cheat/build/dev/evasion_lab
 
-## Features family — 5 pairs
+## Features family - 5 pairs
 
 | Theme | Example IDs | Multi-step idea |
 |-------|-------------|-----------------|
@@ -40,7 +40,7 @@ Demo: ./anti-cheat/build/dev/evasion_lab
 
 Demo: ./anti-cheat/build/dev/features_lab
 
-## Ops family — 8 pairs
+## Ops family - 8 pairs
 
 | Theme | Example IDs | Multi-step idea |
 |-------|-------------|-----------------|
@@ -57,7 +57,7 @@ Demo: ./anti-cheat/build/dev/ops_lab
 
 Shared helpers: depth::SellerFusionCorrelator, depth::MultiInvariantScorer
 
-## Structural family — 5 pairs
+## Structural family - 5 pairs
 
 | Theme | Example IDs | Multi-step idea |
 |-------|-------------|-----------------|

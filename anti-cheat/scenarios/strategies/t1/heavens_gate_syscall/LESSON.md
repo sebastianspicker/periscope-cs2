@@ -1,6 +1,6 @@
-# 58_heavens_gate_syscall — Heaven's Gate syscall
+# 58_heavens_gate_syscall - Heaven's Gate syscall
 
-Family: Delivery. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::heavens_gate_syscall::apply` in `red_example.cpp` / `red_examp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Heaven's Gate — a 32-bit WOW64 process jumps to 64-bit mode to bypass 32-bit ntdll wrappers and open a raw 64-bit VM_READ handle.
+1. Narrator move: Heaven's Gate - a 32-bit WOW64 process jumps to 64-bit mode to bypass 32-bit ntdll wrappers and open a raw 64-bit VM_READ handle.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -30,10 +30,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Verify the gate handle in the handle graph (raw, non-proxy, non-syscall-path).
 
 World scars and lab surfaces (from shipped red code):
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- heavens_gate_transition — World.heavens_gate_transition = true.
-- heavens_gate_stub_pid — World.heavens_gate_stub_pid = stub pid.
-- spawn() — Spawn actor process on World process list.
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- heavens_gate_transition - World.heavens_gate_transition = true.
+- heavens_gate_stub_pid - World.heavens_gate_stub_pid = stub pid.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `gate_handle && heavens_gate_transition && heavens_gate_stub_pid == stub`
 
@@ -43,7 +43,7 @@ Entry: `examples::heavens_gate_syscall::detect` in `blue_example.cpp` / `blue_ex
 
 What blue does in the lab:
 
-1. Narrator counter: Do not trust ntdll hook visibility — read the handle graph instead.
+1. Narrator counter: Do not trust ntdll hook visibility - read the handle graph instead.
 2. Direct World reads + local scoring in blue_example.cpp.
 
 Team / depth sensors:
@@ -83,6 +83,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `heavens_gate_syscall/red_example.cpp` — full red multi-step
-- `heavens_gate_syscall/blue_example.cpp` — full blue multi-reason
-- `heavens_gate_syscall/pair.cpp` — StrategyEntry wiring + narrator
+- `heavens_gate_syscall/red_example.cpp` - full red multi-step
+- `heavens_gate_syscall/blue_example.cpp` - full blue multi-reason
+- `heavens_gate_syscall/pair.cpp` - StrategyEntry wiring + narrator

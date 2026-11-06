@@ -35,6 +35,7 @@ RedResult apply(sim::World& w) {
       has_brief_handle = handle.brief_reopen;
     }
   }
+  (void)has_brief_handle;  // recorded for the narrative; the scar is the channel
   if (!has_handle) {
     return {false, steps, "VM_READ handle verification failed"};
   }

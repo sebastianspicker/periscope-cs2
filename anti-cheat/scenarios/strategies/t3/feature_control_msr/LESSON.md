@@ -1,6 +1,6 @@
-# 83_feature_control_msr — Feature-control MSR spoof
+# 83_feature_control_msr - Feature-control MSR spoof
 
-Family: Evasion. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::feature_control_msr::run_red` in `red_example.cpp` / `red_exam
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Feature-control MSR spoof + personal HV path — Spoof IA32_FEATURE_CONTROL; trust off; own VMX root; bridge + timing.
-2. Step 1: residual — feature-control MSR presented as locked/clean to guests.
+1. Narrator move: Feature-control MSR spoof + personal HV path - Spoof IA32_FEATURE_CONTROL; trust off; own VMX root; bridge + timing.
+2. Step 1: residual - feature-control MSR presented as locked/clean to guests.
 3. Step 2: free VMX for personal HV.
 4. Step 3: personal HV delivery surface.
 5. Step 4: thin bridge scar.
@@ -28,16 +28,16 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- feature_control_spoofed — World.feature_control_spoofed = true
-- trust.vbs — HostTrust.vbs = false
-- trust.hvci — HostTrust.hvci = false
-- trust.timing_spoofed — HostTrust.timing_spoofed = true
-- trust.cpuid_latency_ns — HostTrust.cpuid_latency_ns = w.trust.baseline_latency_ns * 0.4
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- Driver.byovd_known_bad — Driver.byovd_known_bad = false (not BYOVD denylist path)
-- create_device() — Create Device node linked to driver.
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- spawn() — Spawn actor process on World process list.
+- feature_control_spoofed - World.feature_control_spoofed = true
+- trust.vbs - HostTrust.vbs = false
+- trust.hvci - HostTrust.hvci = false
+- trust.timing_spoofed - HostTrust.timing_spoofed = true
+- trust.cpuid_latency_ns - HostTrust.cpuid_latency_ns = w.trust.baseline_latency_ns * 0.4
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- Driver.byovd_known_bad - Driver.byovd_known_bad = false (not BYOVD denylist path)
+- create_device() - Create Device node linked to driver.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.feature_control_spoofed`
 
@@ -47,7 +47,7 @@ Entry: `examples::feature_control_msr::run_blue` in `blue_example.cpp` / `blue_e
 
 What blue does in the lab:
 
-1. Narrator counter: Feature-control MSR + HV/bridge multi-sensor — MSR spoof alone is thin; correlate with personal HV / bridge / timing.
+1. Narrator counter: Feature-control MSR + HV/bridge multi-sensor - MSR spoof alone is thin; correlate with personal HV / bridge / timing.
 2. inspects drivers/devices
 
 Team / depth sensors:
@@ -87,6 +87,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `feature_control_msr/red_example.cpp` — full red multi-step
-- `feature_control_msr/blue_example.cpp` — full blue multi-reason
-- `feature_control_msr/pair.cpp` — StrategyEntry wiring + narrator
+- `feature_control_msr/red_example.cpp` - full red multi-step
+- `feature_control_msr/blue_example.cpp` - full blue multi-reason
+- `feature_control_msr/pair.cpp` - StrategyEntry wiring + narrator

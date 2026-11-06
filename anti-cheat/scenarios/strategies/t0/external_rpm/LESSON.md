@@ -1,4 +1,4 @@
-# 01_external_rpm — External usermode RPM
+# 01_external_rpm - External usermode RPM
 
 Family: Delivery. Tiers: T0. Area: t0.
 
@@ -34,8 +34,8 @@ Entry: `examples::external_rpm::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: External RPM — OpenProcess(VM_READ) from a separate process; no inject.
-2. Full shipped T0 client path — not a one-liner open_process.
+1. Narrator move: External RPM - OpenProcess(VM_READ) from a separate process; no inject.
+2. Full shipped T0 client path - not a one-liner open_process.
 
 Team / depth APIs used:
 - `t0_red::CheatClient`
@@ -44,7 +44,7 @@ Team / depth APIs used:
 
 Expanded team path (what the wrapper actually does on sim::World):
 - Spawn cheat process (world.spawn) with a chosen process name.
-- attach_to_game: plant lab entities if needed, then RpmBackend.attach_world — leaves a foreign VM_READ handle on the game pid.
+- attach_to_game: plant lab entities if needed, then RpmBackend.attach_world - leaves a foreign VM_READ handle on the game pid.
 - pull_entities: EntityPipeline.refresh reads the entity table through the RPM backend.
 - render_radar: project entities to blips; optional RadarUi.present_external_window registers an external overlay scar.
 - Optional weak evasion (does not erase the handle graph): disguise_name, hide_from_weak_process_enum, throttle_mark, close_and_reopen_brief (hidden_during_enum + brief_reopen).
@@ -63,17 +63,17 @@ Entry: `examples::external_rpm::detect` in `blue_example.cpp` / `blue_example.hp
 
 What blue does in the lab:
 
-1. Narrator counter: Handle graph — Any non-AC process with VM_READ to game is a scar.
+1. Narrator counter: Handle graph - Any non-AC process with VM_READ to game is a scar.
 2. Full shipped T0 agent (const world → use local copy for scan that only reads).
 
 Team / depth sensors:
 - `t0_blue::AcAgent`
   - full_scan merges independent sensors (not a single bool):
-  -   scan_handles — foreign VM_READ on game pid (primary scar).
-  -   scan_cooccurrence — suspicious reader names / unnamed co-runners.
-  -   scan_injection — foreign thread / manual map on game process.
-  -   scan_module_integrity — .text / IAT/EAT / Present hooks.
-  -   scan_overlays — external topmost overlay windows.
+  -   scan_handles - foreign VM_READ on game pid (primary scar).
+  -   scan_cooccurrence - suspicious reader names / unnamed co-runners.
+  -   scan_injection - foreign thread / manual map on game process.
+  -   scan_module_integrity - .text / IAT/EAT / Present hooks.
+  -   scan_overlays - external topmost overlay windows.
 - `ac::MemoryTelemetrySink`
 - call `agent.full_scan()`
 
@@ -84,11 +84,11 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `d.handle_hit || d.cooccurrence_hit`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
-External RPM is won on the handle graph. Renames and packing do not remove VM_READ. Red's next step is T1 syscall soft or T2 no-handle kernel paths — not better strings.
+External RPM is won on the handle graph. Renames and packing do not remove VM_READ. Red's next step is T1 syscall soft or T2 no-handle kernel paths - not better strings.
 
 ## Run
 
@@ -105,9 +105,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `external_rpm/red_example.cpp` — full red multi-step
-- `external_rpm/blue_example.cpp` — full blue multi-reason
-- `external_rpm/pair.cpp` — StrategyEntry wiring + narrator
+- `external_rpm/red_example.cpp` - full red multi-step
+- `external_rpm/blue_example.cpp` - full blue multi-reason
+- `external_rpm/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `t0/red/cheat_client.hpp`

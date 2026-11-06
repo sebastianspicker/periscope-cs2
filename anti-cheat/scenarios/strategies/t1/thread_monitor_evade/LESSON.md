@@ -1,4 +1,4 @@
-# thread_monitor_evade — Thread Start Address Monitoring
+# thread_monitor_evade - Thread Start Address Monitoring
 
 Family: Detection. Tiers: T1. Area: cs2 diagnostics.
 

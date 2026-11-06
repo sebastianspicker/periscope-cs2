@@ -1,6 +1,6 @@
-# 93_etw_ti_blind — ETW Threat Intelligence blind
+# 93_etw_ti_blind - ETW Threat Intelligence blind
 
-Family: Evasion. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::etw_ti_blind::run_red` in `red_example.cpp` / `red_example.hpp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: ETW-TI blind + kernel reader — Dark ETW-TI (and often ETW) so TI syscall/process feeds go silent, 
+1. Narrator move: ETW-TI blind + kernel reader - Dark ETW-TI (and often ETW) so TI syscall/process feeds go silent,
 2. Step 1: no-handle kernel channel (T2 delivery).
 3. Step 2: darken telemetry pipelines (classic ETW + TI residual).
 
@@ -31,8 +31,8 @@ Expanded team path (what the wrapper actually does on sim::World):
 - run_full_loop: entities_ok + brought_up + path-specific scars (byovd_known_bad, device.mem_rw_ioctl, no_game_handle).
 
 World scars and lab surfaces (from shipped red code):
-- etw_enabled — World.etw_enabled = false
-- etw_ti_blind — World.etw_ti_blind = true
+- etw_enabled - World.etw_enabled = false
+- etw_ti_blind - World.etw_ti_blind = true
 - Driver.byovd_known_bad and/or Device.mem_rw_ioctl.
 - Often no usermode VM_READ on game (no_game_handle path).
 - Callback / allowlist surfaces when path strips or races AC.
@@ -45,7 +45,7 @@ Entry: `examples::etw_ti_blind::run_blue` in `blue_example.cpp` / `blue_example.
 
 What blue does in the lab:
 
-1. Narrator counter: ETW/TI integrity + KernelAc — TI dark alone is weak; correlate with memrw device/driver surface.
+1. Narrator counter: ETW/TI integrity + KernelAc - TI dark alone is weak; correlate with memrw device/driver surface.
 2. [t2_blue::KernelAc] full_scan: BYOVD blocklist hash, suspicious mem-RW devices, callback integrity, driver allowlist.
 3. [t2_blue::KernelAc] mitigate() can flip ranked_access_denied / byovd_policy_block when policy wins without a classic detect.
 
@@ -65,7 +65,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `etw_ti_blind && (kernel_surface || kernel_ac_hit)`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -86,9 +86,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `etw_ti_blind/red_example.cpp` — full red multi-step
-- `etw_ti_blind/blue_example.cpp` — full blue multi-reason
-- `etw_ti_blind/pair.cpp` — StrategyEntry wiring + narrator
+- `etw_ti_blind/red_example.cpp` - full red multi-step
+- `etw_ti_blind/blue_example.cpp` - full blue multi-reason
+- `etw_ti_blind/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `t2/red/kernel_radar.hpp`

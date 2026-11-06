@@ -1,6 +1,6 @@
-# 57_windowless_swapchain — Windowless swapchain hijack
+# 57_windowless_swapchain - Windowless swapchain hijack
 
-Family: Delivery. Tiers: T0. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T0. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::windowless_swapchain::apply` in `red_example.cpp` / `red_examp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Windowless swapchain hijack — hook the game Present without a topmost/transparent overlay window.
+1. Narrator move: Windowless swapchain hijack - hook the game Present without a topmost/transparent overlay window.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -31,11 +31,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - add_overlay() a swapchain marker that hijacks the swapchain but is neither topmost nor transparent.
 
 World scars and lab surfaces (from shipped red code):
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- Module.present_hooked — game module Present hook flag.
-- windowless_swapchain_hijack — World.windowless_swapchain_hijack = true.
-- swapchain_hijacked_no_window — World.swapchain_hijacked_no_window = true.
-- add_overlay() — Overlay with hijacks_swapchain, topmost=false, transparent=false.
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- Module.present_hooked - game module Present hook flag.
+- windowless_swapchain_hijack - World.windowless_swapchain_hijack = true.
+- swapchain_hijacked_no_window - World.swapchain_hijacked_no_window = true.
+- add_overlay() - Overlay with hijacks_swapchain, topmost=false, transparent=false.
 
 Achieved when: `present_hooked && windowless_swapchain_hijack && swapchain_hijacked_no_window && windowless_marker && !visible_overlay`
 
@@ -85,6 +85,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `windowless_swapchain/red_example.cpp` — full red multi-step
-- `windowless_swapchain/blue_example.cpp` — full blue multi-reason
-- `windowless_swapchain/pair.cpp` — StrategyEntry wiring + narrator
+- `windowless_swapchain/red_example.cpp` - full red multi-step
+- `windowless_swapchain/blue_example.cpp` - full blue multi-reason
+- `windowless_swapchain/pair.cpp` - StrategyEntry wiring + narrator

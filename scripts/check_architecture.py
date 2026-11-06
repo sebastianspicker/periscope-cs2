@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Check the dependency boundaries shared by the anti-cheat, Radar and Vision projects."""
+"""Check the dependency boundaries shared by the anti-cheat, Radar, Vision and Lens projects."""
 
 from __future__ import annotations
 
 import ast
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -92,6 +93,10 @@ def vision_import_cycles() -> list[list[str]]:
 
 
 def check_vision(errors: list[str]) -> None:
+    vision_root = ROOT / "vision"
+    for needed in ("README.md", "LICENSE", "NOTICE.md", "SECURITY.md", "CONTRIBUTING.md"):
+        if not (vision_root / needed).exists():
+            errors.append(f"missing vision/{needed}")
     rules = {
         "domain": {"application", "workflows", "adapters", "interfaces"},
         "application": {"workflows", "adapters", "interfaces"},
@@ -173,6 +178,9 @@ def check_vision(errors: list[str]) -> None:
 
 
 def check_radar(errors: list[str]) -> None:
+    for needed in ("README.md", "LICENSE", "NOTICE.md", "SECURITY.md", "CONTRIBUTING.md"):
+        if not (RADAR_ROOT / needed).exists():
+            errors.append(f"missing radar/{needed}")
     old_root = RADAR_ROOT / "code"
     if old_root.exists():
         remaining = [path for path in old_root.rglob("*") if path.is_file()]
@@ -239,6 +247,21 @@ def check_radar(errors: list[str]) -> None:
     if not root_cmake.exists():
         errors.append("missing radar/CMakeLists.txt")
         return
+
+    # Host-test sources are listed once by target name. They must be tracked:
+    # an ignore-rule regression here makes a fresh clone fail at configure time.
+    host_tests = RADAR_ROOT / "tests" / "CMakeLists.txt"
+    if host_tests.exists():
+        names = set(
+            re.findall(
+                r"^\s+(radar_\w+_test)\s*$",
+                host_tests.read_text(encoding="utf-8"),
+                re.MULTILINE,
+            )
+        )
+        for name in sorted(names):
+            if not (RADAR_ROOT / "tests" / f"{name}.cpp").exists():
+                errors.append(f"radar host-test source is missing (untracked?): tests/{name}.cpp")
     combined = "\n".join(path.read_text(encoding="utf-8") for path in cmake_files if path.exists())
     for option in (
         "LR_ENABLE_REAL_RPM",
@@ -347,8 +370,12 @@ def check_anti_cheat(errors: list[str]) -> None:
     # includes "real/cs2/posture.hpp" from the radar tree (via the
     # test-only LR_RADAR_DIR include root) — it audits the real stack's
     # posture from the lab side — so the no-real scan below scopes to
-    # src + scenarios only and deliberately excludes anti-cheat/tests.
-    source_roots = (ANTI_CHEAT_ROOT / "src", ANTI_CHEAT_ROOT / "scenarios")
+    # src + scenarios + apps and deliberately excludes anti-cheat/tests.
+    source_roots = (
+        ANTI_CHEAT_ROOT / "src",
+        ANTI_CHEAT_ROOT / "scenarios",
+        ANTI_CHEAT_ROOT / "apps",
+    )
     for source_root in source_roots:
         if not source_root.exists():
             errors.append(
@@ -465,7 +492,7 @@ def check_lens(errors: list[str]) -> None:
     if not (lens_root / "pyproject.toml").exists():
         errors.append("missing lens/pyproject.toml (subtree must stay independently buildable)")
     forbidden_prefixes = ("cs2_vision_access", "radar", "ac_sim")
-    for path in list(package.glob("*.py")) + list((lens_root / "tests").glob("*.py")):
+    for path in [*package.rglob("*.py"), *(lens_root / "tests").rglob("*.py")]:
         if not path.exists():
             continue
         content = path.read_text(encoding="utf-8", errors="replace")
@@ -481,12 +508,39 @@ def check_lens(errors: list[str]) -> None:
             errors.append(f"missing lens/{needed}")
 
 
+def check_links(errors: list[str]) -> None:
+    """Tracked Markdown links must resolve; this catches stale split paths."""
+    tracked = subprocess.run(
+        ["git", "ls-files", "*.md"],
+        cwd=ROOT,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if tracked.returncode != 0:
+        return  # not a git checkout: nothing authoritative to compare against
+    for rel in tracked.stdout.splitlines():
+        path = ROOT / rel
+        if not path.exists():
+            errors.append(f"tracked file is missing from the tree: {rel}")
+            continue
+        text = path.read_text(encoding="utf-8", errors="replace")
+        for match in re.finditer(r"!?\[[^\]]*\]\(([^)]+)\)", text):
+            target = match.group(1).strip()
+            if target.startswith(("http://", "https://", "mailto:", "#")):
+                continue
+            target = target.split("#", 1)[0]
+            if target and not (path.parent / target).resolve().exists():
+                errors.append(f"{rel}: dangling link to {target}")
+
+
 def main() -> int:
     errors: list[str] = []
     check_anti_cheat(errors)
     check_radar(errors)
     check_vision(errors)
     check_lens(errors)
+    check_links(errors)
     if errors:
         print("Architecture check failed:", file=sys.stderr)
         for error in errors:

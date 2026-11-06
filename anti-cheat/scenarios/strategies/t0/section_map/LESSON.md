@@ -1,6 +1,6 @@
-# 43_section_map — Section / mapped entity stream
+# 43_section_map - Section / mapped entity stream
 
-Family: Evasion. Tiers: T0. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T0. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::section_map::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Section / mapped view — Plant SharedSection carrying entity bytes; no long-lived VM_READ handle.
+1. Narrator move: Section / mapped view - Plant SharedSection carrying entity bytes; no long-lived VM_READ handle.
 2. Optional brief open then close: red does not keep a durable VM_READ edge.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- spawn() — Spawn actor process on World process list.
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `!red_holds_handle`
 
@@ -34,7 +34,7 @@ Entry: `examples::section_map::detect` in `blue_example.cpp` / `blue_example.hpp
 
 What blue does in the lab:
 
-1. Narrator counter: Section object scan — Any entity-carrying section with non-AC creator is a scar.
+1. Narrator counter: Section object scan - Any entity-carrying section with non-AC creator is a scar.
 2. local `suspect` init=0
 
 Team / depth sensors:
@@ -48,7 +48,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `suspect > 0`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -69,6 +69,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `section_map/red_example.cpp` — full red multi-step
-- `section_map/blue_example.cpp` — full blue multi-reason
-- `section_map/pair.cpp` — StrategyEntry wiring + narrator
+- `section_map/red_example.cpp` - full red multi-step
+- `section_map/blue_example.cpp` - full blue multi-reason
+- `section_map/pair.cpp` - StrategyEntry wiring + narrator

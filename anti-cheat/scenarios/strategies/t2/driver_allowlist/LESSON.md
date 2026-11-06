@@ -1,6 +1,6 @@
-# 33_driver_allowlist — Ranked driver allowlist
+# 33_driver_allowlist - Ranked driver allowlist
 
-Family: Delivery. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,21 +16,21 @@ Entry: `examples::driver_allowlist::run_red` in `red_example.cpp` / `red_example
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Unknown memrw under ranked — Private driver hash not on allowlist; IOCTL R/W, no game handle.
+1. Narrator move: Unknown memrw under ranked - Private driver hash not on allowlist; IOCTL R/W, no game handle.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- match_active — World.match_active = true
-- ranked_strict_driver_allowlist — World.ranked_strict_driver_allowlist = true
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- Driver.provides_mem_rw — Driver.provides_mem_rw = true (mem R/W kernel path)
-- Driver.byovd_known_bad — Driver.byovd_known_bad = false (not BYOVD denylist path)
-- create_device() — Create Device node linked to driver.
-- Device.mem_rw_ioctl — Device.mem_rw_ioctl = true (IOCTL mem path)
-- device_ioctl_read() — IOCTL read via device — no game VM_READ handle required.
-- spawn() — Spawn actor process on World process list.
+- match_active - World.match_active = true
+- ranked_strict_driver_allowlist - World.ranked_strict_driver_allowlist = true
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- Driver.provides_mem_rw - Driver.provides_mem_rw = true (mem R/W kernel path)
+- Driver.byovd_known_bad - Driver.byovd_known_bad = false (not BYOVD denylist path)
+- create_device() - Create Device node linked to driver.
+- Device.mem_rw_ioctl - Device.mem_rw_ioctl = true (IOCTL mem path)
+- device_ioctl_read() - IOCTL read via device - no game VM_READ handle required.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.read_ok && !red.has_game_handle`
 
@@ -40,8 +40,8 @@ Entry: `examples::driver_allowlist::run_blue` in `blue_example.cpp` / `blue_exam
 
 What blue does in the lab:
 
-1. Narrator counter: Ranked driver allowlist — Strict mode: only known sha256 images may load during ranked.
-2. Narrator counter: Policy idle — ranked_strict_driver_allowlist=false — allowlist not enforced.
+1. Narrator counter: Ranked driver allowlist - Strict mode: only known sha256 images may load during ranked.
+2. Narrator counter: Policy idle - ranked_strict_driver_allowlist=false - allowlist not enforced.
 3. local `allowed` init=std::find(w.driver_allowlist_sha.begin(), w.driver_allowlist_sha.end(),
                   d.sha256) != w.driver_allowlist_sha.end()
 4. inspects drivers/devices
@@ -58,7 +58,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `policy_active && unknown_sha`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -79,6 +79,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `driver_allowlist/red_example.cpp` — full red multi-step
-- `driver_allowlist/blue_example.cpp` — full blue multi-reason
-- `driver_allowlist/pair.cpp` — StrategyEntry wiring + narrator
+- `driver_allowlist/red_example.cpp` - full red multi-step
+- `driver_allowlist/blue_example.cpp` - full blue multi-reason
+- `driver_allowlist/pair.cpp` - StrategyEntry wiring + narrator

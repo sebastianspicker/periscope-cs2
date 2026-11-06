@@ -1,6 +1,6 @@
-# 64_scattered_entity_read — Scattered entity read
+# 64_scattered_entity_read - Scattered entity read
 
-Family: Evasion. Tiers: T0. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T0. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::scattered_entity_read::apply` in `red_example.cpp` / `red_exam
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Scattered entity read — shuffle the entity read order with a seed derived from the actor and game pids, then add inter-read timing jitter so the access pattern does not look like a sweep.
+1. Narrator move: Scattered entity read - shuffle the entity read order with a seed derived from the actor and game pids, then add inter-read timing jitter so the access pattern does not look like a sweep.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -29,11 +29,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Set World.read_timing_jitter, World.scattered_read_pattern, World.scattered_read_count.
 
 World scars and lab surfaces (from shipped red code):
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- read_timing_jitter — World.read_timing_jitter = true.
-- scattered_read_pattern — World.scattered_read_pattern = true.
-- scattered_read_count — World.scattered_read_count = entity count.
-- spawn() — Spawn actor process on World process list.
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- read_timing_jitter - World.read_timing_jitter = true.
+- scattered_read_pattern - World.scattered_read_pattern = true.
+- scattered_read_count - World.scattered_read_count = entity count.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `has_handle && scar_verified`
 
@@ -43,7 +43,7 @@ Entry: `examples::scattered_entity_read::detect` in `blue_example.cpp` / `blue_e
 
 What blue does in the lab:
 
-1. Narrator counter: Scatter pattern — entity reads that are non-sequential are a behavioral scar.
+1. Narrator counter: Scatter pattern - entity reads that are non-sequential are a behavioral scar.
 2. Narrator counter: Timing jitter and the remaining VM_READ handle corroborate.
 
 Team / depth sensors:
@@ -82,6 +82,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `scattered_entity_read/red_example.cpp` — full red multi-step
-- `scattered_entity_read/blue_example.cpp` — full blue multi-reason
-- `scattered_entity_read/pair.cpp` — StrategyEntry wiring + narrator
+- `scattered_entity_read/red_example.cpp` - full red multi-step
+- `scattered_entity_read/blue_example.cpp` - full blue multi-reason
+- `scattered_entity_read/pair.cpp` - StrategyEntry wiring + narrator

@@ -1,6 +1,6 @@
-# 22_input_provenance — Input provenance (blue)
+# 22_input_provenance - Input provenance (blue)
 
-Family: Detection. Tiers: all. Area: xc/ops. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Detection. Tiers: all. Area: xc/ops. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::input_provenance::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Multi-sample inject+raw mix — ≥4 injected + ≥2 raw_hid + serial; raw_sendinput_mixed; no handle.
-2. Step 1: NO game handle required — pure ops / input-path sensor abuse.
+1. Narrator move: Multi-sample inject+raw mix - ≥4 injected + ≥2 raw_hid + serial; raw_sendinput_mixed; no handle.
+2. Step 1: NO game handle required - pure ops / input-path sensor abuse.
 3. Step 2: multi-sample ≥4 injected events.
 4. Step 3: ≥2 raw_hid mix (looks partially legit).
 5. Step 4: optional serial_arduino hardware-emulator events.
@@ -27,8 +27,8 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- raw_sendinput_mixed — World.raw_sendinput_mixed = true
-- push_input() — Push InputEvent (injected vs raw_hid provenance).
+- raw_sendinput_mixed - World.raw_sendinput_mixed = true
+- push_input() - Push InputEvent (injected vs raw_hid provenance).
 
 Achieved when: `r.injected_count > 0 && r.raw_count > 0`
 
@@ -38,11 +38,11 @@ Entry: `examples::input_provenance::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Input provenance correlation — Count classes; multi_sample; require inject+(raw|mixed|multi).
+1. Narrator counter: Input provenance correlation - Count classes; multi_sample; require inject+(raw|mixed|multi).
 2. Step 1: count provenance classes across the sample window.
 3. Step 2: mixed residual (raw path + inject API improperly blended).
-4. Step 3: multi_sample — ≥3 non-raw OR injected>=2 (not a single echo).
-5. Step 4: multi_reason correlation — not single injected echo alone.
+4. Step 3: multi_sample - ≥3 non-raw OR injected>=2 (not a single echo).
+5. Step 4: multi_reason correlation - not single injected echo alone.
 6. detected = injected>0 && (raw>0 || mixed || multi_sample)
 
 Team / depth sensors:
@@ -83,6 +83,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `input_provenance/red_example.cpp` — full red multi-step
-- `input_provenance/blue_example.cpp` — full blue multi-reason
-- `input_provenance/pair.cpp` — StrategyEntry wiring + narrator
+- `input_provenance/red_example.cpp` - full red multi-step
+- `input_provenance/blue_example.cpp` - full blue multi-reason
+- `input_provenance/pair.cpp` - StrategyEntry wiring + narrator

@@ -15,7 +15,7 @@ Three ranked paths, decided by feature detection — never assumed:
 The pure half here: the output-path decision ladder over detected feature
 flags, and the HID delta shaper (accumulation, clamping to the signed-byte
 report range, rate shaping). The configfs plumbing and the OS-event agent
-are runtime work behind these interfaces (see lens-output/SUPPORT.md).
+are runtime work behind these interfaces (see `docs/OUTPUT-SUPPORT.md`).
 """
 
 from __future__ import annotations

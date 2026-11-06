@@ -1,6 +1,6 @@
-# 54_module_stomp — Module stomping
+# 54_module_stomp - Module stomping
 
-Family: Evasion. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,16 +16,16 @@ Entry: `examples::module_stomp::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Module stomp — Overwrite client.dll .text in-place (text_hash=stomped).
+1. Narrator move: Module stomp - Overwrite client.dll .text in-place (text_hash=stomped).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- client.dll.text_hash — client.dll Module.text_hash = "stomped"
-- text_hash="stomped" — Module.text_hash set to stomped (integrity scar)
+- client.dll.text_hash - client.dll Module.text_hash = "stomped"
+- text_hash="stomped" - Module.text_hash set to stomped (integrity scar)
 
-Achieved when: `true after planting: stomped=true, Module.text_hash="stomped", client.dll.text_hash="stomped" — module_stomp red: client.dll text_hash=stomped`
+Achieved when: `true after planting: stomped=true, Module.text_hash="stomped", client.dll.text_hash="stomped" - module_stomp red: client.dll text_hash=stomped`
 
 ## BLUE
 
@@ -33,7 +33,7 @@ Entry: `examples::module_stomp::detect` in `blue_example.cpp` / `blue_example.hp
 
 What blue does in the lab:
 
-1. Narrator counter: Known-module text integrity — Hash client.dll/game.exe; flag text_hash != clean.
+1. Narrator counter: Known-module text integrity - Hash client.dll/game.exe; flag text_hash != clean.
 2. local `dirty` init=0
 3. checks Module.text_hash integrity
 
@@ -70,6 +70,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `module_stomp/red_example.cpp` — full red multi-step
-- `module_stomp/blue_example.cpp` — full blue multi-reason
-- `module_stomp/pair.cpp` — StrategyEntry wiring + narrator
+- `module_stomp/red_example.cpp` - full red multi-step
+- `module_stomp/blue_example.cpp` - full blue multi-reason
+- `module_stomp/pair.cpp` - StrategyEntry wiring + narrator

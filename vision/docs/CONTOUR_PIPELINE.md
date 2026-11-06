@@ -1,7 +1,7 @@
-# Contour composite pipeline — second-device setup
+# Contour composite pipeline - second-device setup
 
 The vision track never opens the game process, reads its memory, or injects
-input — so there is nothing for an anti-cheat to observe on the gaming machine.
+input - so there is nothing for an anti-cheat to observe on the gaming machine.
 This document describes the primary deployment: an HDMI-only topology with the
 inference and compositing on a second Windows machine.
 
@@ -24,7 +24,7 @@ game, injected modules, simulated input. This pipeline has none of those:
 | Concern | Radar track (`radar/`) | Vision track |
 |---------|------------------------|--------------|
 | Game process opened | Yes (RPM / donor) | Never |
-| Handles to cs2.exe | Yes — attach ladder manages them | None |
+| Handles to cs2.exe | Yes - attach ladder manages them | None |
 | Overlay on game machine | D3D11 layered window | None required |
 | Input simulation | Never | Never |
 | Anti-cheat-visible surface | Reduced by the stealth posture | Nothing runs there |
@@ -37,7 +37,7 @@ anything that runs code.
 
 | Item | Notes |
 |------|-------|
-| HDMI splitter | 1-in 2-out, powered, **EDID clone** mode. The splitter must present the original monitor's EDID to the gaming PC, or Windows may renegotiate a different resolution or drop to 30 Hz. |
+| HDMI splitter | 1-in 2-out, powered, EDID clone mode. The splitter must present the original monitor's EDID to the gaming PC, or Windows may renegotiate a different resolution or drop to 30 Hz. |
 | Capture card | USB3 UVC. 1080p60 requires MJPG (``--fourcc MJPG``); YUY2 at 1080p60 needs USB3 + low latency. Passthrough models (game on one HDMI out, USB to device 2) avoid the splitter entirely. |
 | Device 2 | Windows 10 2004+ for ``WDA_EXCLUDEFROMCAPTURE``; any box that drives 1080p+ can run inference. |
 
@@ -73,7 +73,7 @@ cs2-vision live \
   internally anyway).
 - ``--output-mode overlay`` composites outlines onto the captured frame. This
   is what the second device shows. (`alpha` / `green` remain available for
-  OBS/chroma-key workflows — see [LIVE_MODE.md](LIVE_MODE.md).)
+  OBS/chroma-key workflows - see [LIVE_MODE.md](LIVE_MODE.md).)
 - ``--output-stream shm:contours`` additionally publishes the composite into a
   shared-memory ring for a second process on device 2.
 
@@ -83,15 +83,15 @@ cs2-vision live \
 topmost layered window sized to the target monitor and blits the composited
 frames at native resolution. Rules the geometry contract enforces:
 
-1. **1:1 only.** The captured size must equal the presented size. A mismatch
-   raises rather than scales — scaling blurs the game and smears the outlines.
-2. **Offsets, not scaling.** ``PresentGeometry`` carries ``offset_x`` /
+1. 1:1 only. The captured size must equal the presented size. A mismatch
+   raises rather than scales - scaling blurs the game and smears the outlines.
+2. Offsets, not scaling. ``PresentGeometry`` carries ``offset_x`` /
    ``offset_y`` so a card whose active area does not start at the display's
    top-left can be corrected without touching resolution.
-3. **No chrome, no focus theft.** ``WS_POPUP`` with ``WS_EX_NOACTIVATE``: no
+3. No chrome, no focus theft. ``WS_POPUP`` with ``WS_EX_NOACTIVATE``: no
    title bar, no border, and the window does not pull focus from the game.
    Inference diagnostics, pause badges and hotkey hints stay on the preview path.
-4. **Streamproof.** ``streamproof=True`` applies ``WDA_EXCLUDEFROMCAPTURE`` so
+4. Streamproof. ``streamproof=True`` applies ``WDA_EXCLUDEFROMCAPTURE`` so
    any capture of device 2's output (game recording, screenshots) does not
    include the composite.
 
@@ -104,7 +104,7 @@ The presenter is a library backend, not a CLI subcommand yet. ``presenter.py``,
 ``presentation.py`` and the shared-memory sink are importable and covered by
 ``tests/test_contour_pipeline.py``, but:
 
-- Nothing constructs the presenter for you — call
+- Nothing constructs the presenter for you - call
   ``create_fullscreen_presenter(width, height, streamproof=...)`` from your own
   compositor that reads ``shm:<name>`` with ``read_shared_frame``.
 - ``--present-offset-x`` / ``--present-offset-y`` do not exist as flags. The
@@ -120,7 +120,7 @@ The presenter is a library backend, not a CLI subcommand yet. ``presenter.py``,
 The same pipeline works on the gaming machine with ``--overlay`` (Win32 layered
 window above the game). In that mode the composite is alpha-only over the game,
 and the overlay can exclude itself from capture. This is simpler but puts a
-window on the gaming machine — the radar track's stealth posture and the vision
+window on the gaming machine - the radar track's stealth posture and the vision
 track's process isolation are two different ways to manage that surface.
 
 ## Verification
@@ -140,5 +140,5 @@ Camera checks:
 ## Acknowledgements and compliance
 
 This pipeline is a video consumer. Whether using it complies with the rules of
-your lobby, tournament, or platform is between you and that platform — the
-repository does not police operators (see [SECURITY.md](SECURITY.md)).
+your lobby, tournament, or platform is between you and that platform - the
+repository does not police operators (see [SECURITY.md](../SECURITY.md)).

@@ -1,4 +1,4 @@
-# etw_dual_provider — ETW Dual Provider Counter-Blinding
+# etw_dual_provider - ETW Dual Provider Counter-Blinding
 
 Family: Evasion. Tiers: T1-T2.
 

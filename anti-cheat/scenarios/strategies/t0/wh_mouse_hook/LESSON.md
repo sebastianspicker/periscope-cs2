@@ -1,6 +1,6 @@
-# 77_wh_mouse_hook — WH_MOUSE / mouse hook scar
+# 77_wh_mouse_hook - WH_MOUSE / mouse hook scar
 
-Family: Feature. Tiers: T0. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: T0. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,16 +16,16 @@ Entry: `examples::wh_mouse_hook::apply` in `red_example.cpp` / `red_example.hpp`
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: WH_MOUSE hook — Install global mouse hook; optional injected aim deltas.
+1. Narrator move: WH_MOUSE hook - Install global mouse hook; optional injected aim deltas.
 2. Optional: synthesize aim deltas via injected path (common aim-assist surface).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- wh_mouse_hook — World.wh_mouse_hook = true
-- spawn() — Spawn actor process on World process list.
-- push_input() — Push InputEvent (injected vs raw_hid provenance).
+- wh_mouse_hook - World.wh_mouse_hook = true
+- spawn() - Spawn actor process on World process list.
+- push_input() - Push InputEvent (injected vs raw_hid provenance).
 
 Achieved when: `r.mouse_hook`
 
@@ -35,7 +35,7 @@ Entry: `examples::wh_mouse_hook::detect` in `blue_example.cpp` / `blue_example.h
 
 What blue does in the lab:
 
-1. Narrator counter: Hook chain / session scar — Flag wh_mouse_hook presence (inputs corroborate).
+1. Narrator counter: Hook chain / session scar - Flag wh_mouse_hook presence (inputs corroborate).
 2. Primary sensor is the hook scar; inputs are corroborating only.
 
 Team / depth sensors:
@@ -50,7 +50,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `r.mouse_hook`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -71,6 +71,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `wh_mouse_hook/red_example.cpp` — full red multi-step
-- `wh_mouse_hook/blue_example.cpp` — full blue multi-reason
-- `wh_mouse_hook/pair.cpp` — StrategyEntry wiring + narrator
+- `wh_mouse_hook/red_example.cpp` - full red multi-step
+- `wh_mouse_hook/blue_example.cpp` - full blue multi-reason
+- `wh_mouse_hook/pair.cpp` - StrategyEntry wiring + narrator

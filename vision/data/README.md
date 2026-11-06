@@ -1,7 +1,7 @@
 # Local datasets
 
 Stage annotated sessions under `data/staging/<session_id>/` (flat image+label pairs,
-or `images/` + `labels/` subtrees). Assemble by whole `session_id` only — not by
+or `images/` + `labels/` subtrees). Assemble by whole `session_id` only - not by
 random-splitting adjacent frames:
 
 ```bash

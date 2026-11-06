@@ -1,7 +1,7 @@
 """Phone-camera capture source (ledger L2, topology A).
 
 The smartphone is pointed at the game monitor and acts as the capture
-device. Three transports, in preference order (see docs/TOPOLOGY.md):
+device. Three transports, in preference order (see `lens/docs/TOPOLOGY.md`):
 
 - ``scrcpy`` — the PC pulls the Android device's camera over ADB/USB
   (scrcpy ``--video-source=camera``); no extra phone app, no UVC driver.
@@ -153,10 +153,22 @@ class PhoneCameraSource:
             closer()
 
 
+def _import_cv2() -> Any:
+    """OpenCV is an optional `capture` extra, not a default dependency."""
+    try:
+        import cv2
+    except ImportError as error:  # pragma: no cover - exercised without the extra
+        raise PhoneSourceError(
+            "OpenCV is required for the real phone bindings; install it with "
+            "`uv sync --extra capture`"
+        ) from error
+    return cv2
+
+
 def make_uvc_reader(device_index: int) -> FrameReader:
     """Binds a UVC/webcam device through OpenCV (runtime-unverified real
     binding, same posture as the other real capture backends)."""
-    import cv2
+    cv2 = _import_cv2()
 
     capture = cv2.VideoCapture(device_index)
     if not capture.isOpened():
@@ -179,7 +191,7 @@ def open_stream_reader(stream_url: str) -> FrameReader:
     scrcpy process itself (started with :func:`build_scrcpy_command` and
     pointed at its sink) is launched by the lab runner, not here.
     """
-    import cv2
+    cv2 = _import_cv2()
 
     capture = cv2.VideoCapture(stream_url)
     if not capture.isOpened():

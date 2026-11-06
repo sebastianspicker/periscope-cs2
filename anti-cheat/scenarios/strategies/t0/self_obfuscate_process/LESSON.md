@@ -1,10 +1,10 @@
-# self_obfuscate_process — Process Self-Obfuscation
+# self_obfuscate_process - Process Self-Obfuscation
 
 Family: Evasion. Tiers: T0-T1.
 
 ## Battlefield
 Red: Disguises the radar process to blend in with legitimate tools.
-     Mimics: process name, window class, PEB data, working set, 
+     Mimics: process name, window class, PEB data, working set,
      module list, command line, and timing patterns.
 Blue: Enumerates processes looking for anomalies: unexpected names,
      window properties, working set patterns, parent lineage.

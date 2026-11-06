@@ -1,6 +1,6 @@
-# 21_module_integrity — Game module integrity
+# 21_module_integrity - Game module integrity
 
-Family: Detection. Tiers: T0-T1 internal. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Detection. Tiers: T0-T1 internal. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,17 +16,17 @@ Entry: `examples::module_integrity::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Patch game .text (internal rage) — Classic hooks — high power, high integrity signal.
-2. Narrator move: Contrast: external radar — Leaves .text clean — integrity alone is insufficient.
+1. Narrator move: Patch game .text (internal rage) - Classic hooks - high power, high integrity signal.
+2. Narrator move: Contrast: external radar - Leaves .text clean - integrity alone is insufficient.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- client.dll.text_hash — client.dll Module.text_hash = "patched"
-- text_hash="patched" — Module.text_hash set to patched (integrity scar)
+- client.dll.text_hash - client.dll Module.text_hash = "patched"
+- text_hash="patched" - Module.text_hash set to patched (integrity scar)
 
-Achieved when: `true after planting: patched=true, Module.text_hash="patched", client.dll.text_hash="patched" — module_integrity red: client.dll text_hash=patched`
+Achieved when: `true after planting: patched=true, Module.text_hash="patched", client.dll.text_hash="patched" - module_integrity red: client.dll text_hash=patched`
 
 ## BLUE
 
@@ -34,8 +34,8 @@ Entry: `examples::module_integrity::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Continuous module integrity — Hash .text periodically, not only at boot.
-2. Contrast: pure external RPM leaves hashes clean — integrity alone misses it.
+1. Narrator counter: Continuous module integrity - Hash .text periodically, not only at boot.
+2. Contrast: pure external RPM leaves hashes clean - integrity alone misses it.
 3. local `dirty` init=0
 4. local `foreign_handles` init=0
 5. reads handle graph via handles_to()
@@ -78,6 +78,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `module_integrity/red_example.cpp` — full red multi-step
-- `module_integrity/blue_example.cpp` — full blue multi-reason
-- `module_integrity/pair.cpp` — StrategyEntry wiring + narrator
+- `module_integrity/red_example.cpp` - full red multi-step
+- `module_integrity/blue_example.cpp` - full blue multi-reason
+- `module_integrity/pair.cpp` - StrategyEntry wiring + narrator

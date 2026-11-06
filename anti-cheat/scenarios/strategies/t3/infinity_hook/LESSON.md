@@ -1,6 +1,6 @@
-# 94_infinity_hook — InfinityHook residual
+# 94_infinity_hook - InfinityHook residual
 
-Family: Evasion. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::infinity_hook::run_red` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: InfinityHook residual + personal HV path — Syscall/HAL residual + trust off + own VMX root + bridge scar.
-2. Step 1: residual scar — InfinityHook-class residual present.
+1. Narrator move: InfinityHook residual + personal HV path - Syscall/HAL residual + trust off + own VMX root + bridge scar.
+2. Step 1: residual scar - InfinityHook-class residual present.
 3. Step 2: free VMX for personal HV (trust off).
 4. Step 3: personal HV delivery surface.
 5. Step 4: thin bridge scar (guest-visible is_bridge).
@@ -27,14 +27,14 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- infinity_hook_residual — World.infinity_hook_residual = true
-- trust.vbs — HostTrust.vbs = false
-- trust.hvci — HostTrust.hvci = false
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- Driver.byovd_known_bad — Driver.byovd_known_bad = false (not BYOVD denylist path)
-- create_device() — Create Device node linked to driver.
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- spawn() — Spawn actor process on World process list.
+- infinity_hook_residual - World.infinity_hook_residual = true
+- trust.vbs - HostTrust.vbs = false
+- trust.hvci - HostTrust.hvci = false
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- Driver.byovd_known_bad - Driver.byovd_known_bad = false (not BYOVD denylist path)
+- create_device() - Create Device node linked to driver.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.infinity_hook_residual`
 
@@ -44,7 +44,7 @@ Entry: `examples::infinity_hook::run_blue` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: InfinityHook residual + HV/bridge multi-sensor — Residual alone is weak; correlate with personal HV / bridge / trust.
+1. Narrator counter: InfinityHook residual + HV/bridge multi-sensor - Residual alone is weak; correlate with personal HV / bridge / trust.
 2. reads HostTrust platform fields
 3. inspects drivers/devices
 
@@ -84,6 +84,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `infinity_hook/red_example.cpp` — full red multi-step
-- `infinity_hook/blue_example.cpp` — full blue multi-reason
-- `infinity_hook/pair.cpp` — StrategyEntry wiring + narrator
+- `infinity_hook/red_example.cpp` - full red multi-step
+- `infinity_hook/blue_example.cpp` - full blue multi-reason
+- `infinity_hook/pair.cpp` - StrategyEntry wiring + narrator

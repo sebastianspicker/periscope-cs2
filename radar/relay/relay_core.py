@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """relay_core.py — R6 public-radar relay: pure policy core.
 
-Adapted from the research ledger (R6, docs/ADAPTATION_LEDGER.md):
+Adapted from the research notes (R6):
 tiansongyu/cs2_cheat `radar-relay` (MIT) supplies the room/token/limiter
 design; avitran0/deadlocked `server/` supplies the shareable session UUID.
 Pure logic only — sockets live in relay_server.py.

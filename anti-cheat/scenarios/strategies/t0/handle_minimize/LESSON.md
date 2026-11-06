@@ -1,6 +1,6 @@
-# 17_handle_minimize — Handle access minimization
+# 17_handle_minimize - Handle access minimization
 
-Family: Evasion. Tiers: T0-T1. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T0-T1. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::handle_minimize::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Handle minimization — Request only VM_READ; reopen briefly each tick; avoid ALL_ACCESS.
+1. Narrator move: Handle minimization - Request only VM_READ; reopen briefly each tick; avoid ALL_ACCESS.
 
 Team / depth APIs used:
 
 World scars and lab surfaces (from shipped red code):
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- read_mem() — ReadProcessMemory-style entity/bytes pull through handle.
-- spawn() — Spawn actor process on World process list.
-- brief_reopen — brief_reopen=true scar
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- read_mem() - ReadProcessMemory-style entity/bytes pull through handle.
+- spawn() - Spawn actor process on World process list.
+- brief_reopen - brief_reopen=true scar
 
 Achieved when: `count > 0`
 
@@ -34,7 +34,7 @@ Entry: `examples::handle_minimize::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Still a handle — Least privilege does not remove the edge from the graph.
+1. Narrator counter: Still a handle - Least privilege does not remove the edge from the graph.
 2. local `foreign` init=0
 3. local `brief` init=0
 4. reads handle graph via handles_to()
@@ -54,11 +54,11 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `foreign > 0`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
-Hide-on-enum races beat a single handle sample. Blue needs multi-sample composition (visible vs continuous/hidden) plus lineage — not one EnumHandles call.
+Hide-on-enum races beat a single handle sample. Blue needs multi-sample composition (visible vs continuous/hidden) plus lineage - not one EnumHandles call.
 
 ## Run
 
@@ -75,6 +75,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `handle_minimize/red_example.cpp` — full red multi-step
-- `handle_minimize/blue_example.cpp` — full blue multi-reason
-- `handle_minimize/pair.cpp` — StrategyEntry wiring + narrator
+- `handle_minimize/red_example.cpp` - full red multi-step
+- `handle_minimize/blue_example.cpp` - full blue multi-reason
+- `handle_minimize/pair.cpp` - StrategyEntry wiring + narrator

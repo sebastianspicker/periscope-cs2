@@ -1,4 +1,4 @@
-# 109_build_watermark — Build Watermark
+# 109_build_watermark - Build Watermark
 
 Family: Delivery. Scope: `sim::World` only.
 
@@ -21,7 +21,7 @@ Red plants all three representations on the lab World:
 Blue correlates the three representations. Repeated section names count at
 most once, so re-using a name cannot inflate the count into an extra
 representation: two representations detect, all three mitigate, and a single
-representation — repeated or not — stays undetected.
+representation - repeated or not - stays undetected.
 
 ## Takeaway
 

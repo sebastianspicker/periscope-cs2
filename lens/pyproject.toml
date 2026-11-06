@@ -21,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Games/Entertainment :: First Person Shooters",
   "Topic :: Scientific/Engineering :: Image Recognition",
 ]
@@ -33,6 +34,11 @@ dev = [
   "mypy>=1.17,<3",
   "pytest>=8,<10",
   "ruff>=0.16",
+]
+# Only the real UVC/scrcpy/DroidCam bindings import cv2; the portable core and
+# the unit suite do not, so it stays out of the default install.
+capture = [
+  "opencv-python>=4.10,<5",
 ]
 
 [tool.pytest.ini_options]

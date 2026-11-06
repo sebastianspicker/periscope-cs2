@@ -1,4 +1,4 @@
-# norm_hash_evade — Normalized Module Hash Evasion
+# norm_hash_evade - Normalized Module Hash Evasion
 
 Family: Evasion. Tiers: T1.
 

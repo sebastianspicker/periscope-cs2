@@ -1,6 +1,6 @@
-# 150_uefi_secureboot_bypass — UEFI Secure Boot bypass
+# 150_uefi_secureboot_bypass - UEFI Secure Boot bypass
 
-Family: Evasion. Tiers: T2. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T2. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::uefi_secureboot_bypass::Red::apply` in `red_example.cpp` / `re
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Secure Boot bypass via SetVariable — disable Secure Boot and drop the DSE policy so unsigned drivers can load.
+1. Narrator move: Secure Boot bypass via SetVariable - disable Secure Boot and drop the DSE policy so unsigned drivers can load.
 2. Direct World trust/note mutations (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -27,9 +27,9 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Set Trust.dse_enforced = false and mark a custom `db` entry installed.
 
 World scars and lab surfaces (from shipped red code):
-- Trust.secure_boot — flipped to false (SecureBoot var).
-- Trust.dse_enforced — cleared, allowing unsigned drivers.
-- w.note() — "secure_boot_variable_modified=true" / "uefi_variable_name=db" residuals.
+- Trust.secure_boot - flipped to false (SecureBoot var).
+- Trust.dse_enforced - cleared, allowing unsigned drivers.
+- w.note() - "secure_boot_variable_modified=true" / "uefi_variable_name=db" residuals.
 
 Achieved when: `red.secure_boot_disabled || red.unsigned_driver_allowed`
 
@@ -40,8 +40,8 @@ Entry: `examples::uefi_secureboot_bypass::Blue::detect` in `blue_example.cpp` / 
 What blue does in the lab:
 
 1. Narrator counter: Secure Boot state change is the primary scar.
-2. Narrator counter: UEFI variable watchlist — known variables are SecureBoot, SetupMode, db, dbx, KEK, PK.
-3. Narrator counter: Driver signature verification — an unsigned driver under DSE is a hard signal.
+2. Narrator counter: UEFI variable watchlist - known variables are SecureBoot, SetupMode, db, dbx, KEK, PK.
+3. Narrator counter: Driver signature verification - an unsigned driver under DSE is a hard signal.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -62,7 +62,7 @@ Win conditions for this pair:
 
 ## Takeaway
 
-UEFI variable state and Secure Boot posture are boot-level invariants that an OS anti-cheat cannot hide from — Secure Boot bypasses are a firmware-class attack with a firmware-class fix. The pair models the correct response: re-enable the policy through a firmware callback and invalidate attestation, not a usermode patch.
+UEFI variable state and Secure Boot posture are boot-level invariants that an OS anti-cheat cannot hide from - Secure Boot bypasses are a firmware-class attack with a firmware-class fix. The pair models the correct response: re-enable the policy through a firmware callback and invalidate attestation, not a usermode patch.
 
 ## Run
 
@@ -79,6 +79,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `uefi_secureboot_bypass/red_example.cpp` — full red multi-step
-- `uefi_secureboot_bypass/blue_example.cpp` — full blue multi-reason
-- `uefi_secureboot_bypass/pair.cpp` — StrategyEntry wiring + narrator
+- `uefi_secureboot_bypass/red_example.cpp` - full red multi-step
+- `uefi_secureboot_bypass/blue_example.cpp` - full blue multi-reason
+- `uefi_secureboot_bypass/pair.cpp` - StrategyEntry wiring + narrator

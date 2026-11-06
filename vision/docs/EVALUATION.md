@@ -4,7 +4,7 @@ Offline mask metrics: ground-truth YOLO polygons vs predicted pixel-space polygo
 The pure metric path does not load ONNX or need a GPU. Build a predictions cache with
 `export-predictions`.
 
-No universal cutoffs — pick thresholds after measuring a source-separated pilot on your
+No universal cutoffs - pick thresholds after measuring a source-separated pilot on your
 own footage. CLI index: [CLI.md](CLI.md).
 
 ## What is covered

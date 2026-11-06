@@ -1,6 +1,6 @@
-# 72_desktop_duplication — Desktop duplication residual
+# 72_desktop_duplication - Desktop duplication residual
 
-Family: Delivery. Tiers: T4. Area: t4. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T4. Area: t4. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::desktop_duplication::apply` in `red_example.cpp` / `red_exampl
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Desktop duplication capture — DXGI Desktop Duplication grabs the frame; process list stays clean.
-2. Step 1: DXGI Desktop Duplication — capture compositor output.
+1. Narrator move: Desktop duplication capture - DXGI Desktop Duplication grabs the frame; process list stays clean.
+2. Step 1: DXGI Desktop Duplication - capture compositor output.
 3. Step 2: no OpenProcess / no local memory scar (process list stays clean).
 4. Optional correlate: raw_hid only from user is fine; vision path needs no HID.
 
@@ -25,7 +25,7 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- desktop_duplication — World.desktop_duplication = true
+- desktop_duplication - World.desktop_duplication = true
 
 Achieved when: `r.desktop_dup && r.no_game_handle && r.process_list_clean`
 
@@ -35,8 +35,8 @@ Entry: `examples::desktop_duplication::detect` in `blue_example.cpp` / `blue_exa
 
 What blue does in the lab:
 
-1. Narrator counter: Capture API + clean-process correlate — Flag desktop_duplication with process-clean multi-reason.
-2. Narrator counter: Interest management residual — Fog still starves free enemy origin without a memory scar.
+1. Narrator counter: Capture API + clean-process correlate - Flag desktop_duplication with process-clean multi-reason.
+2. Narrator counter: Interest management residual - Fog still starves free enemy origin without a memory scar.
 3. Multi-reason: capture API scar + process-clean (no memory reader).
 4. local `sibling_capture` init=w.external_display_clone || w.trust.capture_card_present ||
       w.gdi_bitblt_capture || w.printwindow_capture
@@ -87,6 +87,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `desktop_duplication/red_example.cpp` — full red multi-step
-- `desktop_duplication/blue_example.cpp` — full blue multi-reason
-- `desktop_duplication/pair.cpp` — StrategyEntry wiring + narrator
+- `desktop_duplication/red_example.cpp` - full red multi-step
+- `desktop_duplication/blue_example.cpp` - full blue multi-reason
+- `desktop_duplication/pair.cpp` - StrategyEntry wiring + narrator

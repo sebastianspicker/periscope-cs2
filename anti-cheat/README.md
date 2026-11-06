@@ -1,14 +1,14 @@
 # Anti-Cheat Lab
 
-Tiered red/blue teaching lab for **external "legit" radar** — tools that read game memory and draw a map without aiming for you — and the detection techniques that push back. Every lesson runs over a simulated, CS2-shaped world (`sim::World`); the lab has no real backends.
+Tiered red/blue teaching lab for external "legit" radar - tools that read game memory and draw a map without aiming for you - and the detection techniques that push back. Every lesson runs over a simulated, CS2-shaped world (`sim::World`); the lab has no real backends.
 
-This is the **anti-cheat** track of [Periscope](../README.md). Sister tracks: [`../radar/`](../radar/) (the game-facing radar product, which consumes this tree's libraries), [`../vision/`](../vision/) and [`../lens/`](../lens/). Not a cheat product and not a production anti-cheat.
+This is the anti-cheat track of [Periscope](../README.md). Sister tracks: [`../radar/`](../radar/) (the game-facing radar product, which consumes this tree's libraries), [`../vision/`](../vision/) and [`../lens/`](../lens/). Not a cheat product and not a production anti-cheat.
 
 One way to run it:
 
 | Mode | What it does | Needs |
 |------|----------------|-------|
-| **Simulation** | Red plants scars on a deterministic `sim::World`; blue reasons over them | C++20 + CMake. Any OS. |
+| Simulation | Red plants scars on a deterministic `sim::World`; blue reasons over them | C++20 + CMake. Any OS. |
 
 The default (and only) configuration is simulation. Real Windows backends are
 not part of this tree; they live in [`../radar/`](../radar/) behind that tree's
@@ -64,7 +64,7 @@ cmake -S anti-cheat -B anti-cheat/build/dev
 cmake --build anti-cheat/build/dev -j
 ```
 
-The tree configures and builds with no real flags set — there are none to set.
+The tree configures and builds with no real flags set - there are none to set.
 
 Useful CMake flags:
 
@@ -115,7 +115,8 @@ loads this tree's library targets through `LR_ANTI_CHEAT_DIR`. The lab never
 imports radar code. The single exception is the test-only seam in
 `tests/stack_posture_test.cpp`, which quote-includes the header-only
 `real/cs2/posture.hpp` from the radar tree through the `LR_RADAR_DIR` CMake
-path.
+path. The lab still configures and builds when that sibling tree is absent;
+the posture test is then skipped with a configure message.
 
 ---
 
@@ -137,7 +138,7 @@ Live catalog truth is always `anti-cheat/build/dev/strategy_lab list` (hundreds 
 ## Safety / ethics
 
 - This tree is simulation-only: red plants scars on `sim::World`; nothing here opens a process, reads game memory, or touches hardware.
-- The example vulnerable driver and DMA firmware are **not** in this tree; they are lab-only material of the radar tree — see [`../radar/README.md`](../radar/README.md) and [`../radar/SECURITY.md`](../radar/SECURITY.md).
+- The example vulnerable driver and DMA firmware are not in this tree; they are lab-only material of the radar tree - see [`../radar/README.md`](../radar/README.md) and [`../radar/SECURITY.md`](../radar/SECURITY.md).
 - See [SECURITY.md](SECURITY.md).
 
 ---
@@ -150,4 +151,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Short version: new lessons go under `sce
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Educational use only; you own what you do with it.
+MIT - see [LICENSE](LICENSE). Educational use only; you own what you do with it.

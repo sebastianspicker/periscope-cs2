@@ -1,4 +1,4 @@
-# 124_handle_hijack_proxy_donor — Donor hijack via NtQSI + DuplicateHandle
+# 124_handle_hijack_proxy_donor - Donor hijack via NtQSI + DuplicateHandle
 
 Family: Evasion. Tiers: T0.
 

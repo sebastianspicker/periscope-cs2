@@ -1,4 +1,4 @@
-# 125_wda_exclude_capture — WDA EXCLUDEFROMCAPTURE overlay
+# 125_wda_exclude_capture - WDA EXCLUDEFROMCAPTURE overlay
 
 Family: Evasion. Tiers: T0.
 

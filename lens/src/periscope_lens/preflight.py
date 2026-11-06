@@ -1,7 +1,7 @@
 """Optical preflight for camera-vs-monitor capture (ledger L4).
 
 The three named failure modes of pointing a camera at a gaming monitor
-(MIRAGE, arXiv:2602.01559 — see docs/TOPOLOGY.md): PWM flicker-banding
+(MIRAGE, arXiv:2602.01559 — see `lens/docs/TOPOLOGY.md`): PWM flicker-banding
 under rolling shutter, moiré between pixel and sensor grids, and soft focus
 (autofocus hunting). This module measures all three on a captured frame and
 gates the pipeline on the measurements.
@@ -54,7 +54,7 @@ class PreflightReport:
 
     @property
     def passed(self) -> bool:
-        return self.banding_ok and self.moire_ok and self.focus_ok and (self.coverage_ok)
+        return self.banding_ok and self.moire_ok and self.focus_ok and self.coverage_ok
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -66,6 +66,7 @@ class PreflightReport:
             "focus_ok": self.focus_ok,
             "coverage_ok": self.coverage_ok,
             "passed": self.passed,
+            "advice": list(self.advice),
         }
 
 

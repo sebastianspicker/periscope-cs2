@@ -253,9 +253,6 @@ bool HvRadar::pull_entities() {
       return false;
     }
     std::uint32_t count = 0;
-    std::memcpy(count_b.data() ? count_b.data() : count_b.data(), count_b.data(),
-                4);
-    // safer memcpy
     std::memcpy(&count, count_b.data(), 4);
     struct Ent {
       float x, y, z;
@@ -264,7 +261,8 @@ bool HvRadar::pull_entities() {
     for (std::uint32_t i = 0; i < count && i < 32; ++i) {
       std::vector<std::uint8_t> eb;
       const auto addr = g->base + 0x10 + i * sizeof(Ent);
-      if (!world_.hv_read(ui_pid_, game_pid_, addr, sizeof(Ent), eb)) {
+      if (!world_.hv_read(ui_pid_, game_pid_, addr, sizeof(Ent), eb) ||
+          eb.size() < sizeof(Ent)) {
         return false;
       }
       Ent e{};

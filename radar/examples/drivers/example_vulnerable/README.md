@@ -1,6 +1,6 @@
-# gdrv.sys BYOVD — T2 Kernel Mode Memory Access Driver
+# gdrv.sys BYOVD - T2 Kernel Mode Memory Access Driver
 
-**Educational prototype** demonstrating **T2 BYOVD (Bring Your Own Vulnerable Driver)** attack techniques against CS2 anti-cheat detection. This driver provides kernel-mode memory access to any process — **including CS2 — without creating a single handle in the radar process's handle table.**
+**Educational prototype** demonstrating **T2 BYOVD (Bring Your Own Vulnerable Driver)** attack techniques against CS2 anti-cheat detection. This driver provides kernel-mode memory access to any process - **including CS2 - without creating a single handle in the radar process's handle table.**
 
 ## Device path (single surface)
 
@@ -20,7 +20,7 @@ Radar Process (user_test.exe)
   Handle table: \\.\gdrv only  →  DeviceIoControl(IOCTL_*)
         │
         ▼
-Kernel Driver (vuln_driver.sys — gdrv.sys pattern)
+Kernel Driver (vuln_driver.sys - gdrv.sys pattern)
   PHYS_READ/WRITE   MmMapIoSpace
   VIRT_READ/WRITE   KeStackAttachProcess
   ENTITY_WALK       attach-once entity list walk

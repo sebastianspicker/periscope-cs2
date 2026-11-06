@@ -1,6 +1,6 @@
-# 04_byovd — Bring Your Own Vulnerable Driver
+# 04_byovd - Bring Your Own Vulnerable Driver
 
-Family: Delivery. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::byovd::run_red` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: BYOVD multi-step (lab) — Load known-bad signed driver, IOCTL read without game handle.
+1. Narrator move: BYOVD multi-step (lab) - Load known-bad signed driver, IOCTL read without game handle.
 
 Team / depth APIs used:
 - `t2_red::KernelRadar`
@@ -40,7 +40,7 @@ Entry: `examples::byovd::run_blue` in `blue_example.cpp` / `blue_example.hpp`.
 
 What blue does in the lab:
 
-1. Narrator counter: BYOVD multi-step KernelAc — Blocklist + device + callbacks; optional mitigate.
+1. Narrator counter: BYOVD multi-step KernelAc - Blocklist + device + callbacks; optional mitigate.
 2. [t2_blue::KernelAc] full_scan: BYOVD blocklist hash, suspicious mem-RW devices, callback integrity, driver allowlist.
 3. [t2_blue::KernelAc] mitigate() can flip ranked_access_denied / byovd_policy_block when policy wins without a classic detect.
 
@@ -59,7 +59,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `blocklist_hit || known_bad_flag`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -80,9 +80,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `byovd/red_example.cpp` — full red multi-step
-- `byovd/blue_example.cpp` — full blue multi-reason
-- `byovd/pair.cpp` — StrategyEntry wiring + narrator
+- `byovd/red_example.cpp` - full red multi-step
+- `byovd/blue_example.cpp` - full blue multi-reason
+- `byovd/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `t2/red/kernel_radar.hpp`

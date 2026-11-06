@@ -1,4 +1,4 @@
-# vmt_integrity — CS2 VMT Integrity
+# vmt_integrity - CS2 VMT Integrity
 
 Family: Detection. Tiers: T2. Area: Message 160 inventory.
 

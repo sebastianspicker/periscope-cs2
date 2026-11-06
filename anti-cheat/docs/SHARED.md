@@ -7,7 +7,7 @@ Reusable lab infrastructure under `src/`.
 | Package | Path | Role |
 |---------|------|------|
 | ac | `src/domain/ac/` | Core types: Status, Tier, EntitySnapshot, telemetry, risk |
-| sim | `src/simulation/sim/` | `sim::World` arena — processes, handles, drivers, trust flags, inputs |
+| sim | `src/simulation/sim/` | `sim::World` arena - processes, handles, drivers, trust flags, inputs |
 | ac_sim | `src/simulation/ac_sim/` | Temporal engine, behavioral filter, forensic / health helpers |
 | server | `src/domain/server/` | Interest management, info-advantage, ban correlator |
 | depth | `src/application/analysis/depth/` | Multi-sample handles, leakage, multi-invariant, trust, seller fusion |

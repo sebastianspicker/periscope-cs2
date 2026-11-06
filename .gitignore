@@ -81,7 +81,6 @@ implementation-report.*
 completion-report.*
 *-ledger.md
 *_ledger.md
-!docs/*_LEDGER.md
 /plan.md
 /progress.md
 
@@ -128,7 +127,7 @@ build/
 build-*/
 build_*/
 # This simulation lesson is source, not a generated build directory.
-!/radar/scenarios/strategies/crosscutting/build_watermark/
+!/anti-cheat/scenarios/strategies/crosscutting/build_watermark/
 **/CMakeFiles/
 **/CMakeCache.txt
 **/cmake_install.cmake
@@ -230,10 +229,10 @@ cs2-vision-config.json
 /loc_after.txt
 /kilo.json
 
-# Removed internal test directories
+# Test directories: track test sources, ignore stray fixtures
 /radar/tests/*
 !/radar/tests/CMakeLists.txt
-!/radar/tests/stack_posture_test.cpp
+!/radar/tests/radar_*_test.cpp
 /radar/adapters/real/linux/tests/
 /radar/examples/firmware/example_pcie_dma/tests/
 /vision/tests/*
@@ -243,3 +242,7 @@ cs2-vision-config.json
 
 # Local maintenance inventory
 /THINGS_TO_DO_LEDGER.md
+
+# Internal working notes (not part of the public tree)
+/docs/*LEDGER.md
+/docs/IMPLEMENTATION_PROGRESS.md

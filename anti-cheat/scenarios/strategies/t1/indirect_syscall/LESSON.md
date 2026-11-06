@@ -1,6 +1,6 @@
-# 02_indirect_syscall — Indirect syscalls
+# 02_indirect_syscall - Indirect syscalls
 
-Family: Delivery. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::indirect_syscall::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Indirect / direct syscalls — Skip hooked ntdll stubs; still NtOpenProcess/NtReadVirtualMemory.
+1. Narrator move: Indirect / direct syscalls - Skip hooked ntdll stubs; still NtOpenProcess/NtReadVirtualMemory.
 2. Full shipped T1 client: stage + syscall-path attach + entity pull.
 
 Team / depth APIs used:
@@ -40,8 +40,8 @@ Entry: `examples::indirect_syscall::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Naive usermode hooks — Only see non-syscall path → silent.
-2. Narrator counter: Handle truth — Object callbacks / handle table ignore path.
+1. Narrator counter: Naive usermode hooks - Only see non-syscall path → silent.
+2. Narrator counter: Handle truth - Object callbacks / handle table ignore path.
 3. [t1_blue::T1Agent] full_scan (or path-specific scans): syscall-path handles, staging/loader, parent lineage, module stomp/hollow, ETW-style blinds.
 4. [t1_blue::T1Agent] Multi-reason: handle + staging + integrity, not one flag echo.
 
@@ -80,9 +80,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `indirect_syscall/red_example.cpp` — full red multi-step
-- `indirect_syscall/blue_example.cpp` — full blue multi-reason
-- `indirect_syscall/pair.cpp` — StrategyEntry wiring + narrator
+- `indirect_syscall/red_example.cpp` - full red multi-step
+- `indirect_syscall/blue_example.cpp` - full blue multi-reason
+- `indirect_syscall/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `t1/red/syscall_cheat.hpp`

@@ -1,6 +1,6 @@
-# 49_efi_boot_entry — Unexpected EFI boot entry
+# 49_efi_boot_entry - Unexpected EFI boot entry
 
-Family: Structural. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Structural. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::efi_boot_entry::run_red` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Unexpected EFI boot entry + personal HV — Persist early loader via EFI; SB off; then own VMX root after boot.
-2. Step 1: boot scar — non-allowlisted EFI application in the boot order.
+1. Narrator move: Unexpected EFI boot entry + personal HV - Persist early loader via EFI; SB off; then own VMX root after boot.
+2. Step 1: boot scar - non-allowlisted EFI application in the boot order.
 3. Step 2: Secure Boot off so unsigned loader can run.
 4. Step 3: free VMX after early loader path (personal HV post-EFI).
 5. Step 4: thin bridge scar.
@@ -26,16 +26,16 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- trust.unexpected_efi_entry — HostTrust.unexpected_efi_entry = true
-- trust.efi_entry_name — HostTrust.efi_entry_name = r.efi_entry_name
-- trust.secure_boot — HostTrust.secure_boot = false
-- trust.vbs — HostTrust.vbs = false
-- trust.hvci — HostTrust.hvci = false
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- Driver.byovd_known_bad — Driver.byovd_known_bad = false (not BYOVD denylist path)
-- create_device() — Create Device node linked to driver.
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- spawn() — Spawn actor process on World process list.
+- trust.unexpected_efi_entry - HostTrust.unexpected_efi_entry = true
+- trust.efi_entry_name - HostTrust.efi_entry_name = r.efi_entry_name
+- trust.secure_boot - HostTrust.secure_boot = false
+- trust.vbs - HostTrust.vbs = false
+- trust.hvci - HostTrust.hvci = false
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- Driver.byovd_known_bad - Driver.byovd_known_bad = false (not BYOVD denylist path)
+- create_device() - Create Device node linked to driver.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.unexpected_entry`
 
@@ -45,7 +45,7 @@ Entry: `examples::efi_boot_entry::run_blue` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: EFI boot-entry + HV multi-sensor — Unexpected EFI is boot persistence; correlate with personal HV / bridge.
+1. Narrator counter: EFI boot-entry + HV multi-sensor - Unexpected EFI is boot persistence; correlate with personal HV / bridge.
 2. inspects drivers/devices
 
 Team / depth sensors:
@@ -84,6 +84,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `efi_boot_entry/red_example.cpp` — full red multi-step
-- `efi_boot_entry/blue_example.cpp` — full blue multi-reason
-- `efi_boot_entry/pair.cpp` — StrategyEntry wiring + narrator
+- `efi_boot_entry/red_example.cpp` - full red multi-step
+- `efi_boot_entry/blue_example.cpp` - full blue multi-reason
+- `efi_boot_entry/pair.cpp` - StrategyEntry wiring + narrator

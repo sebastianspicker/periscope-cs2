@@ -42,7 +42,6 @@ void DmaRadar::enable_hardware_path() {
 // DmaRadar::probe_iommu_blocks: True if IOMMU policy would block DMA probe.
 bool DmaRadar::probe_iommu_blocks() {
   // With IOMMU on, dma_read must fail in the lab; then restore off for residual.
-  const bool prev = world_.trust.iommu_on;
   world_.trust.iommu_on = true;
   const auto game = world_.game_pid();
   std::vector<std::uint8_t> buf;

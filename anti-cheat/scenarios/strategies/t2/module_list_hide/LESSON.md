@@ -1,4 +1,4 @@
-# module_list_hide — Module List Snapshot Evasion
+# module_list_hide - Module List Snapshot Evasion
 
 Family: Evasion. Tiers: T2.
 
@@ -17,7 +17,7 @@ CS2's CModuleListSnapshot:
 Red must either:
 - Remove the module FROM the enumeration (DKOM-style unlinking)
 - Hook the enumeration API to exclude the module
-- Manual map (no module entry at all — but then other detections apply)
+- Manual map (no module entry at all - but then other detections apply)
 
 ## Lesson
 Simple module enumeration catches injected DLLs. Red must unhook from

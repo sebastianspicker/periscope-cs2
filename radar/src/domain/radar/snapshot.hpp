@@ -1,6 +1,6 @@
 // snapshot.hpp — R1: immutable absolute-state GameSnapshot + protocol v1.
 //
-// Adapted from the 2026-11-05 research ledger (docs/ADAPTATION_LEDGER.md):
+// Adapted from the 2026-11-05 research notes:
 //   - tiansongyu/cs2_cheat (MIT): `GameSnapshot` / `web_radar_json.hpp` —
 //     every frame is complete absolute state, no deltas; u64 identifiers are
 //     serialized as JSON strings so JavaScript cannot lose precision.

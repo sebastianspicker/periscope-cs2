@@ -95,8 +95,8 @@ uv run cs2-vision live \
 
 `--overlay` enables the transparent always-on-top overlay window (Win32 layered window on Windows). Overlay placement:
 
-- `--overlay-x` / `--overlay-y` — overlay window top-left position in pixels
-- `--overlay-monitor` — monitor index for the overlay (0 = auto)
+- `--overlay-x` / `--overlay-y` - overlay window top-left position in pixels
+- `--overlay-monitor` - monitor index for the overlay (0 = auto)
 
 When none are given, the overlay auto-aligns to the captured screen region or selected monitor.
 

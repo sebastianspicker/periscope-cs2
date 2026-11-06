@@ -1,6 +1,6 @@
-# 28_network_c2_intel — Network / C2 intel
+# 28_network_c2_intel - Network / C2 intel
 
-Family: Detection. Tiers: all. Area: xc/ops. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Detection. Tiers: all. Area: xc/ops. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,18 +16,18 @@ Entry: `examples::network_c2_intel::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Seller C2 + technical scar — Loader, VmRead handle, auth/offset-C2/radar SaaS nets.
+1. Narrator move: Seller C2 + technical scar - Loader, VmRead handle, auth/offset-C2/radar SaaS nets.
 2. Step 1: loader / helper process (external reader surface).
-3. Step 2: technical scar — open VM_READ handle to the game.
-4. Step 3: multi net — auth + offset C2 + radar SaaS (intel surface).
+3. Step 2: technical scar - open VM_READ handle to the game.
+4. Step 3: multi net - auth + offset C2 + radar SaaS (intel surface).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- spawn() — Spawn actor process on World process list.
-- add_net() — Plant NetFlow residual (radar SaaS / C2).
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- spawn() - Spawn actor process on World process list.
+- add_net() - Plant NetFlow residual (radar SaaS / C2).
 
 Achieved when: `r.handle_open && (r.offset_c2 || r.radar_saas)`
 
@@ -37,7 +37,7 @@ Entry: `examples::network_c2_intel::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: C2 intel + handle (multi-reason) — intel_hits && handle_hit — never domain intel alone.
+1. Narrator counter: C2 intel + handle (multi-reason) - intel_hits && handle_hit - never domain intel alone.
 2. reads handle graph via handles_to()
 3. filters AccessMask::VmRead handles
 
@@ -54,7 +54,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `r.multi_reason`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -75,6 +75,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `network_c2_intel/red_example.cpp` — full red multi-step
-- `network_c2_intel/blue_example.cpp` — full blue multi-reason
-- `network_c2_intel/pair.cpp` — StrategyEntry wiring + narrator
+- `network_c2_intel/red_example.cpp` - full red multi-step
+- `network_c2_intel/blue_example.cpp` - full blue multi-reason
+- `network_c2_intel/pair.cpp` - StrategyEntry wiring + narrator

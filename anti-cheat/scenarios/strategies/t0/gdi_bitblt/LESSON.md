@@ -1,6 +1,6 @@
-# 76_gdi_bitblt — GDI BitBlt screen capture
+# 76_gdi_bitblt - GDI BitBlt screen capture
 
-Family: Feature. Tiers: T0. Area: t0. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: T0. Area: t0. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,14 +16,14 @@ Entry: `examples::gdi_bitblt::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: GDI BitBlt capture — BitBlt/PrintWindow grabs the frame; no game OpenProcess.
+1. Narrator move: GDI BitBlt capture - BitBlt/PrintWindow grabs the frame; no game OpenProcess.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- gdi_bitblt_capture — World.gdi_bitblt_capture = true
-- spawn() — Spawn actor process on World process list.
+- gdi_bitblt_capture - World.gdi_bitblt_capture = true
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `r.gdi_capture && r.no_game_handle`
 
@@ -33,8 +33,8 @@ Entry: `examples::gdi_bitblt::detect` in `blue_example.cpp` / `blue_example.hpp`
 
 What blue does in the lab:
 
-1. Narrator counter: Capture API / session scar — Flag gdi_bitblt_capture presence in the session.
-2. Narrator counter: Interest management residual — Fog still starves free enemy origin without a memory scar.
+1. Narrator counter: Capture API / session scar - Flag gdi_bitblt_capture presence in the session.
+2. Narrator counter: Interest management residual - Fog still starves free enemy origin without a memory scar.
 3. Optional structural residual: fog starves free enemy origin.
 
 Team / depth sensors:
@@ -70,6 +70,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `gdi_bitblt/red_example.cpp` — full red multi-step
-- `gdi_bitblt/blue_example.cpp` — full blue multi-reason
-- `gdi_bitblt/pair.cpp` — StrategyEntry wiring + narrator
+- `gdi_bitblt/red_example.cpp` - full red multi-step
+- `gdi_bitblt/blue_example.cpp` - full blue multi-reason
+- `gdi_bitblt/pair.cpp` - StrategyEntry wiring + narrator

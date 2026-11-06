@@ -1,4 +1,4 @@
-# convars_temp_restore — ConVar Temporary Modification + Restoration
+# convars_temp_restore - ConVar Temporary Modification + Restoration
 
 Family: Evasion. Tiers: T2.
 

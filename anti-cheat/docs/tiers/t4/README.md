@@ -1,14 +1,14 @@
-# T4 — DMA / hardware residual
+# T4 - DMA / hardware residual
 
-Scar: often no local cheat process.  
+Scar: often no local cheat process.
 Blue: IOMMU/device policy (limited) + interest management + info-advantage.
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `red/` | `t4_red::DmaRadar` — off-box DMA path (sim) |
-| `blue/` | `t4_blue::DmaDefense` — platform signal + fog |
+| `red/` | `t4_red::DmaRadar` - off-box DMA path (sim) |
+| `blue/` | `t4_blue::DmaDefense` - platform signal + fog |
 | `scenarios/strategies/dma_hardware/` | Catalog pair `06_dma_hardware` + thin wrappers |
 | `apps/demos/duel/` | Narrated T4 walkthrough |
 
@@ -25,4 +25,4 @@ Blue: IOMMU/device policy (limited) + interest management + info-advantage.
 |-----|--------|
 | `dma_hardware` | PCIe DMA / 2nd PC model |
 
-See [LESSON.md](LESSON.md). Sim only — no real DMA.
+See [LESSON.md](LESSON.md). Sim only - no real DMA.

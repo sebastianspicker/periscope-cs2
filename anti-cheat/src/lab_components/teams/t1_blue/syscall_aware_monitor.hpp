@@ -62,7 +62,7 @@ class T1Agent {
 
  private:
   sim::World& world_;
-  ac::ITelemetrySink& sink_;
+  [[maybe_unused]] ac::ITelemetrySink& sink_;  // reserved for telemetry wiring
   ac::RiskAggregator risk_;
   t0_blue::HandleGraphMonitor handles_;
   SyscallAwareHandleMonitor mon_;

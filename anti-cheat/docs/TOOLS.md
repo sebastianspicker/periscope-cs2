@@ -22,7 +22,7 @@ New pair workflow:
 
 1. Add `scenarios/strategies/<tier>/<name>/{red_example,blue_example,pair}.cpp` (+ optional `LESSON.md`).
 2. Export `entry_NN_*()` from `pair.cpp` and register it in `framework/registry.cpp`.
-3. Rebuild — CMake GLOBs `scenarios/strategies/**/*.cpp` into `ac_strategies`.
+3. Rebuild - CMake GLOBs `scenarios/strategies/**/*.cpp` into `ac_strategies`.
 
 ## fps_demo
 

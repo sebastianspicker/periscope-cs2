@@ -13,7 +13,7 @@ import java.io.IOException
  *
  * Runtime-unverified by house style (no Android test lane in this repo);
  * the pure report-shaping rules live on the PC side in
- * `src/periscope_lens/output.py` and are mirrored by [encodeReport] here.
+ * `src/periscope_lens/output.py` and are mirrored by `encodeReport` here.
  */
 object HidGadgetHelper {
 

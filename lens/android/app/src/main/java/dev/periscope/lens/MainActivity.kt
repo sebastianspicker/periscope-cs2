@@ -1,7 +1,9 @@
 package dev.periscope.lens
 
+import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
 import android.os.Bundle
@@ -17,7 +19,7 @@ import java.net.ServerSocket
  * transport listener lifecycle. The Camera2 capture loop, the ORT session
  * and the per-frame IPC into the transport are seams: the pipeline shape is
  * fixed by the surrounding modules, but this activity does not yet drive
- * frames (see lens-android/README.md's gaps list).
+ * frames (see `lens/android/README.md`'s gaps list).
  */
 class MainActivity : Activity() {
 
@@ -30,6 +32,9 @@ class MainActivity : Activity() {
         status = TextView(this)
         setContentView(status)
         status.text = describeCapabilities()
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), CAMERA_REQUEST)
+        }
     }
 
     override fun onResume() {
@@ -42,6 +47,9 @@ class MainActivity : Activity() {
     override fun onPause() {
         // accept() is not interruptible; closing the server socket ends it.
         runCatching { transportServer?.close() }
+        TransportHub.detachAll()
+        // Give accept() a bounded moment to unwind before onResume can rebind.
+        runCatching { transportThread?.join(500) }
         transportThread = null
         super.onPause()
     }
@@ -91,5 +99,9 @@ class MainActivity : Activity() {
                 Log.w("PeriscopeLens", "transport stopped: ${error.message}")
             }
         }
+    }
+
+    private companion object {
+        const val CAMERA_REQUEST = 1
     }
 }

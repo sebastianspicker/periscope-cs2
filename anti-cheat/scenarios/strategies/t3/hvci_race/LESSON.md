@@ -1,6 +1,6 @@
-# 71_hvci_race — HVCI race / continuous policy
+# 71_hvci_race - HVCI race / continuous policy
 
-Family: Evasion. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::hvci_race::run_red` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: HVCI race + personal HV delivery — Clear hvci_enabled; free VBS; start personal HV + bridge scar.
-2. Step 1: continuous policy scar — HVCI no longer enforced (race/disable).
+1. Narrator move: HVCI race + personal HV delivery - Clear hvci_enabled; free VBS; start personal HV + bridge scar.
+2. Step 1: continuous policy scar - HVCI no longer enforced (race/disable).
 3. Step 2: clear platform integrity for personal HV path.
 4. Step 3: personal HV delivery surface.
 5. Step 4: thin bridge scar.
@@ -27,14 +27,14 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- trust.hvci_enabled — HostTrust.hvci_enabled = false
-- trust.vbs — HostTrust.vbs = false
-- trust.hvci — HostTrust.hvci = false
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- Driver.byovd_known_bad — Driver.byovd_known_bad = false (not BYOVD denylist path)
-- create_device() — Create Device node linked to driver.
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- spawn() — Spawn actor process on World process list.
+- trust.hvci_enabled - HostTrust.hvci_enabled = false
+- trust.vbs - HostTrust.vbs = false
+- trust.hvci - HostTrust.hvci = false
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- Driver.byovd_known_bad - Driver.byovd_known_bad = false (not BYOVD denylist path)
+- create_device() - Create Device node linked to driver.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.hvci_off`
 
@@ -44,7 +44,7 @@ Entry: `examples::hvci_race::run_blue` in `blue_example.cpp` / `blue_example.hpp
 
 What blue does in the lab:
 
-1. Narrator counter: Continuous HVCI + HV/bridge multi-sensor — !hvci_enabled residual; re-check and correlate with personal HV / bridge.
+1. Narrator counter: Continuous HVCI + HV/bridge multi-sensor - !hvci_enabled residual; re-check and correlate with personal HV / bridge.
 2. inspects drivers/devices
 
 Team / depth sensors:
@@ -82,6 +82,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `hvci_race/red_example.cpp` — full red multi-step
-- `hvci_race/blue_example.cpp` — full blue multi-reason
-- `hvci_race/pair.cpp` — StrategyEntry wiring + narrator
+- `hvci_race/red_example.cpp` - full red multi-step
+- `hvci_race/blue_example.cpp` - full blue multi-reason
+- `hvci_race/pair.cpp` - StrategyEntry wiring + narrator

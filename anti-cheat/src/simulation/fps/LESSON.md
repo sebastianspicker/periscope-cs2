@@ -1,4 +1,4 @@
-# fps — Lab FPS demo surface
+# fps - Lab FPS demo surface
 
 Sim-only mini FPS world used by demos/fps_demo.cpp and residual demos. Not a strategy
 pair. It exercises shared sim + residual AC wiring with a Counter-Strike-inspired
@@ -9,10 +9,10 @@ and bomb phase are enough for fog and entity-read pedagogy.
 
 ## What lives here
 
-- `fps::Map` — dusty_yard areas and sites A/B with plant radii.
-- `fps::Scenario` — freeze/buy, live, plant/defuse channels, ground bomb, economy,
+- `fps::Map` - dusty_yard areas and sites A/B with plant radii.
+- `fps::Scenario` - freeze/buy, live, plant/defuse channels, ground bomb, economy,
   elimination and timer outcomes.
-- `fps::lab_bridge` — living (or all) players to `ac::EntitySnapshot`, and sync
+- `fps::lab_bridge` - living (or all) players to `ac::EntitySnapshot`, and sync
   into `sim::World` game memory for RPM/IOCTL/DMA-shaped readers.
 
 ## CS-like rules (what the lab models)
@@ -40,11 +40,11 @@ carrier rules so stubs cannot skip the story.
 
 ### Win paths (read carefully)
 
-1. Explode — fuse hits zero; attackers win.
-2. Defuse — defenders finish the defuse channel; defenders win.
-3. Eliminate attackers — all Ts dead and bomb not planted; defenders win.
-4. Eliminate defenders — all CTs dead under elim rules; attackers win.
-5. Time — live clock out with no plant; defenders win.
+1. Explode - fuse hits zero; attackers win.
+2. Defuse - defenders finish the defuse channel; defenders win.
+3. Eliminate attackers - all Ts dead and bomb not planted; defenders win.
+4. Eliminate defenders - all CTs dead under elim rules; attackers win.
+5. Time - live clock out with no plant; defenders win.
 
 If the bomb is planted and all attackers die, the fuse continues. Defenders must
 defuse or lose to explode. That planted-fuse exception is the main CS rule that
@@ -82,8 +82,8 @@ noise) without inventing a second game engine.
 
 ## Related
 
-- `src/simulation/sim/` — world scars
-- `src/domain/server/` — InterestManager, InfoAdvantageScorer, BanCorrelator
-- `apps/demos/fps_demo.cpp` — interactive residual demo
+- `src/simulation/sim/` - world scars
+- `src/domain/server/` - InterestManager, InfoAdvantageScorer, BanCorrelator
+- `apps/demos/fps_demo.cpp` - interactive residual demo
 - `scenarios/strategies/` + `./anti-cheat/build/dev/strategy_lab`
-- [README.md](README.md) — package surface and rule tables
+- [README.md](README.md) - package surface and rule tables

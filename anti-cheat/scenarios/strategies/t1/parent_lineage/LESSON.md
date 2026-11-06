@@ -1,6 +1,6 @@
-# 31_parent_lineage — Parent lineage spoof
+# 31_parent_lineage - Parent lineage spoof
 
-Family: Evasion. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::parent_lineage::apply` in `red_example.cpp` / `red_example.hpp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Parent lineage spoof — Spawn radar under explorer.exe/Discord.exe; syscall OpenProcess.
+1. Narrator move: Parent lineage spoof - Spawn radar under explorer.exe/Discord.exe; syscall OpenProcess.
 
 Team / depth APIs used:
 
 World scars and lab surfaces (from shipped red code):
-- Process.looks_reputable — Process.looks_reputable = true
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- read_mem() — ReadProcessMemory-style entity/bytes pull through handle.
-- spawn() — Spawn actor process on World process list.
+- Process.looks_reputable - Process.looks_reputable = true
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- read_mem() - ReadProcessMemory-style entity/bytes pull through handle.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `count > 0 && syscall_handle && parent_ok`
 
@@ -34,8 +34,8 @@ Entry: `examples::parent_lineage::detect` in `blue_example.cpp` / `blue_example.
 
 What blue does in the lab:
 
-1. Narrator counter: Parent reputation alone — Trusted shell parent is not a free pass.
-2. Narrator counter: Lineage anomaly — Suspicious name or VM_READ under unrelated trusted shell.
+1. Narrator counter: Parent reputation alone - Trusted shell parent is not a free pass.
+2. Narrator counter: Lineage anomaly - Suspicious name or VM_READ under unrelated trusted shell.
 3. Path A: foreign VM_READ whose parent is an unrelated trusted shell.
 4. Path B: suspicious-named child of a trusted shell (even before handle sample).
 5. Mitigated: parent reputation alone is insufficient; lineage+handle joins.
@@ -43,7 +43,7 @@ What blue does in the lab:
 Team / depth sensors:
 - `depth::MultiSampleHandleDetector`
   - push multiple sample(w, i) then evaluate: composed_hit, race_detected, continuous_hit.
-  - Not a single World bool — composition across samples + lineage + continuous truth.
+  - Not a single World bool - composition across samples + lineage + continuous truth.
 - call `det.push()`
 - call `det.sample()`
 - call `det.evaluate()`
@@ -82,9 +82,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `parent_lineage/red_example.cpp` — full red multi-step
-- `parent_lineage/blue_example.cpp` — full blue multi-reason
-- `parent_lineage/pair.cpp` — StrategyEntry wiring + narrator
+- `parent_lineage/red_example.cpp` - full red multi-step
+- `parent_lineage/blue_example.cpp` - full blue multi-reason
+- `parent_lineage/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `depth/handle_multisample.hpp`

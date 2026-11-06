@@ -8,10 +8,12 @@
 # the architecture checker scopes its no-`real/` scan to anti-cheat/src +
 # anti-cheat/scenarios accordingly.
 
-add_executable(stack_posture_test "${AC_SOURCE_DIR}/tests/stack_posture_test.cpp")
-target_link_libraries(stack_posture_test PRIVATE lr_build_options)
-# posture.hpp is self-contained (standard headers only), so the only include
-# root needed beyond lr_build_options is radar's adapters tree, which owns the
-# `real/` prefix of the quoted include path.
-target_include_directories(stack_posture_test PRIVATE "${LR_RADAR_DIR}/adapters")
-add_test(NAME stack_posture_test COMMAND stack_posture_test)
+if(AC_HAVE_RADAR)
+  add_executable(stack_posture_test "${AC_SOURCE_DIR}/tests/stack_posture_test.cpp")
+  target_link_libraries(stack_posture_test PRIVATE lr_build_options)
+  # posture.hpp is self-contained (standard headers only), so the only include
+  # root needed beyond lr_build_options is radar's adapters tree, which owns
+  # the `real/` prefix of the quoted include path.
+  target_include_directories(stack_posture_test PRIVATE "${LR_RADAR_DIR}/adapters")
+  add_test(NAME stack_posture_test COMMAND stack_posture_test)
+endif()

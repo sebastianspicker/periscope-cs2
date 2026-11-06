@@ -1,6 +1,6 @@
-# 48_ept_hide_ac — EPT-hide AC pages
+# 48_ept_hide_ac - EPT-hide AC pages
 
-Family: Evasion. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,18 +16,18 @@ Entry: `examples::ept_hide_ac::run_red` in `red_example.cpp` / `red_example.hpp`
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: EPT-hide AC pages under personal HV — Own VMX root; present clean AC pages to guest self-hash.
+1. Narrator move: EPT-hide AC pages under personal HV - Own VMX root; present clean AC pages to guest self-hash.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- trust.vbs — HostTrust.vbs = false
-- trust.hvci — HostTrust.hvci = false
-- trust.ept_hide_ac_pages — HostTrust.ept_hide_ac_pages = true
-- Module.text_hash — game module field text_hash="clean"
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- text_hash="clean" — Module.text_hash set to clean (integrity scar)
+- trust.vbs - HostTrust.vbs = false
+- trust.hvci - HostTrust.hvci = false
+- trust.ept_hide_ac_pages - HostTrust.ept_hide_ac_pages = true
+- Module.text_hash - game module field text_hash="clean"
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- text_hash="clean" - Module.text_hash set to clean (integrity scar)
 
 Achieved when: `red.hv_started && red.ept_hide`
 
@@ -37,7 +37,7 @@ Entry: `examples::ept_hide_ac::run_blue` in `blue_example.cpp` / `blue_example.h
 
 What blue does in the lab:
 
-1. Narrator counter: EPT-hide / higher-trust AC integrity — Guest self-hash can lie under EPT; rank on hide flag + personal HV.
+1. Narrator counter: EPT-hide / higher-trust AC integrity - Guest self-hash can lie under EPT; rank on hide flag + personal HV.
 2. local `any_ac` init=false
 3. local `any_dirty` init=false
 4. inspects Process.modules (IAT/EAT/text_hash/present_hooked)
@@ -80,9 +80,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `ept_hide_ac/red_example.cpp` — full red multi-step
-- `ept_hide_ac/blue_example.cpp` — full blue multi-reason
-- `ept_hide_ac/pair.cpp` — StrategyEntry wiring + narrator
+- `ept_hide_ac/red_example.cpp` - full red multi-step
+- `ept_hide_ac/blue_example.cpp` - full blue multi-reason
+- `ept_hide_ac/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `depth/trust_aggregator.hpp`

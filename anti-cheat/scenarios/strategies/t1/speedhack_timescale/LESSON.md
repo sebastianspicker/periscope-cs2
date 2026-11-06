@@ -1,6 +1,6 @@
-# 79_speedhack_timescale — Speedhack time scale
+# 79_speedhack_timescale - Speedhack time scale
 
-Family: Feature. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,13 +16,13 @@ Entry: `examples::speedhack_timescale::apply` in `red_example.cpp` / `red_exampl
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Speedhack time scale — Set time_scale to 1.5 or 2.0 (QPC / tick speedhack).
+1. Narrator move: Speedhack time scale - Set time_scale to 1.5 or 2.0 (QPC / tick speedhack).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- time_scale — World.time_scale = kSpeedhackScale
+- time_scale - World.time_scale = kSpeedhackScale
 
 Achieved when: `std::abs(w.time_scale - 1.0) > kEpsilon`
 
@@ -32,7 +32,7 @@ Entry: `examples::speedhack_timescale::detect` in `blue_example.cpp` / `blue_exa
 
 What blue does in the lab:
 
-1. Narrator counter: Time scale integrity — Detect |time_scale - 1.0| > epsilon.
+1. Narrator counter: Time scale integrity - Detect |time_scale - 1.0| > epsilon.
 2. Sensor: multi-clock consistency (QPC vs wall / tick rate). Sim models the
 3. local `kEpsilon` init=1e-3
 
@@ -70,6 +70,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `speedhack_timescale/red_example.cpp` — full red multi-step
-- `speedhack_timescale/blue_example.cpp` — full blue multi-reason
-- `speedhack_timescale/pair.cpp` — StrategyEntry wiring + narrator
+- `speedhack_timescale/red_example.cpp` - full red multi-step
+- `speedhack_timescale/blue_example.cpp` - full blue multi-reason
+- `speedhack_timescale/pair.cpp` - StrategyEntry wiring + narrator

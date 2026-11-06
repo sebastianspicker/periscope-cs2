@@ -12,6 +12,13 @@
 # both trees can include this file without conflicting.
 if(NOT TARGET lr_build_options)
   add_library(lr_build_options INTERFACE)
+  # Portable warning baseline for every lr_* target. Not -Werror: warning
+  # policy should not make a lab build fail on a new compiler release.
+  if(MSVC)
+    target_compile_options(lr_build_options INTERFACE /W4)
+  else()
+    target_compile_options(lr_build_options INTERFACE -Wall -Wextra)
+  endif()
 endif()
 
 function(lr_library target)

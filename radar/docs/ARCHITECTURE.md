@@ -3,8 +3,8 @@
 Radar is the game-facing product of the Periscope monorepo: optional
 platform backends that read the live game, the applications built on them
 (web radar service, tri_loader) and an outbound relay. The tiered red/blue
-teaching lab that shares this tree's history — the `sim::World`, the evasion
-components and the strategy catalog — lives in the sibling
+teaching lab that shares this tree's history - the `sim::World`, the evasion
+components and the strategy catalog - lives in the sibling
 [`anti-cheat/`](../../anti-cheat/README.md) tree; its docs are indexed at
 [`anti-cheat/docs/INDEX.md`](../../anti-cheat/docs/INDEX.md).
 
@@ -52,7 +52,7 @@ The lab subtree is configured through a single seam, `LR_ANTI_CHEAT_DIR`
 fails with a clear error when it does not point at an anti-cheat checkout).
 Through that seam radar includes the lab's library CMake and its `src/` include
 root, so the existing `"ac/…"`, `"sim/…"`, `"ac_sim/…"` quote-includes keep
-working verbatim — the real pipeline (`adapters/real/application/`) composes
+working verbatim - the real pipeline (`adapters/real/application/`) composes
 the lab's evasion components, and the sim fallback of the `cs2_radar` family
 links the lab's pipeline library.
 

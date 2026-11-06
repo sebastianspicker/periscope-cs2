@@ -1,14 +1,14 @@
-# T0 — Usermode RPM external
+# T0 - Usermode RPM external
 
-**Scar:** process handle with `VM_READ` on the game.  
+**Scar:** process handle with `VM_READ` on the game.
 **Blue:** handle graph (+ co-occurrence).
 
 ## Layout
 
-- `red/` — cheat client, weak evasions, RPM backends  
-- `blue/` — AC agent, handle monitor, FP policy  
-- `scenarios/strategies/` — external_rpm, internal_inject, handle_minimize, read_throttle, module_integrity
-- `apps/demos/duel` — narrated fight
+- `red/` - cheat client, weak evasions, RPM backends
+- `blue/` - AC agent, handle monitor, FP policy
+- `scenarios/strategies/` - external_rpm, internal_inject, handle_minimize, read_throttle, module_integrity
+- `apps/demos/duel` - narrated fight
 
 ## Run
 

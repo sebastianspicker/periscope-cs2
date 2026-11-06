@@ -2,6 +2,8 @@
 
 #include "radar/mini_radar.hpp"
 
+#include <algorithm>
+
 namespace radar_domain {
 
 void rotate_point(float& x, float& y, float center_x, float center_y,
@@ -19,12 +21,21 @@ void project_mini_radar(const WorldPosition& local,
                         const WorldPosition& enemy, float local_yaw_deg,
                         const MiniRadarConfig& config, float& out_x,
                         float& out_y, bool& clamped) {
-  const float center_x = config.width / 2.0f;
-  const float center_y = config.height / 2.0f;
+  const float width = std::isfinite(config.width) && config.width > 0.0f
+                          ? config.width
+                          : 150.0f;
+  const float height = std::isfinite(config.height) && config.height > 0.0f
+                           ? config.height
+                           : 150.0f;
+  const float scale = std::isfinite(config.scale) && config.scale > 0.0f
+                          ? config.scale
+                          : 1.0f;
+  const float center_x = width / 2.0f;
+  const float center_y = height / 2.0f;
 
   // Enemy offset relative to the local player, scaled to widget pixels.
-  float x = (local.x - enemy.x) / config.scale;
-  float y = (local.y - enemy.y) / config.scale;
+  float x = (local.x - enemy.x) / scale;
+  float y = (local.y - enemy.y) / scale;
 
   // Prevent inverted X axis position (miata).
   x *= -1.0f;
@@ -37,10 +48,16 @@ void project_mini_radar(const WorldPosition& local,
   rotate_point(x, y, center_x, center_y, local_yaw_deg - 90.0f);
 
   // Prevent the marker from going out of bounds.
-  const float min_x = config.margin_x;
-  const float max_x = config.width - config.clamp_shrink_x;
-  const float min_y = config.margin_y;
-  const float max_y = config.height - config.clamp_shrink_y;
+  float min_x = config.margin_x;
+  float max_x = width - config.clamp_shrink_x;
+  float min_y = config.margin_y;
+  float max_y = height - config.clamp_shrink_y;
+  if (max_x < min_x) {
+    std::swap(min_x, max_x);
+  }
+  if (max_y < min_y) {
+    std::swap(min_y, max_y);
+  }
   const float raw_x = x;
   const float raw_y = y;
   if (x < min_x) {

@@ -1,6 +1,6 @@
 // projection.hpp — R4: fixed north-up map projection (Source overview coords).
 //
-// Adapted from the research ledger (docs/ADAPTATION_LEDGER.md R4):
+// Adapted from the research notes (R4):
 //   - tiansongyu/cs2_cheat web-radar design (MIT): canonical projection,
 //     multi-floor selection by player Z with nearest-floor snapping.
 //   - cs2-dma Radar/Calibration (Apache-2.0): per-map calibration overrides.

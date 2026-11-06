@@ -1,6 +1,6 @@
-# 68_acpi_pm_mem_read — ACPI PM memory read
+# 68_acpi_pm_mem_read - ACPI PM memory read
 
-Family: Delivery. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::acpi_pm_mem_read::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: ACPI PM memory read — writes to PM1_CNT cause a pre-existing SMM handler to copy the entity table into an ACPI scratch buffer; no driver, no game handle.
+1. Narrator move: ACPI PM memory read - writes to PM1_CNT cause a pre-existing SMM handler to copy the entity table into an ACPI scratch buffer; no driver, no game handle.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -29,10 +29,10 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Copy the synthetic entity count out of the game memory scratch region.
 
 World scars and lab surfaces (from shipped red code):
-- acpi_pm_read_active — World.acpi_pm_read_active = true.
-- acpi_smi_trigger_count — World.acpi_smi_trigger_count = 5.
-- smm_residual — World.smm_residual = true.
-- spawn() — Spawn actor process on World process list.
+- acpi_pm_read_active - World.acpi_pm_read_active = true.
+- acpi_smi_trigger_count - World.acpi_smi_trigger_count = 5.
+- smm_residual - World.smm_residual = true.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `acpi_pm_read_active && smi_count == 5 && entities_obtained && no_game_vm_read_handle`
 
@@ -42,8 +42,8 @@ Entry: `examples::acpi_pm_mem_read::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Handle telemetry is blind — no VM_READ handle exists on the SMM path.
-2. Narrator counter: Firmware residual + trust policy — the only remaining signals live in SMM and DSE state.
+1. Narrator counter: Handle telemetry is blind - no VM_READ handle exists on the SMM path.
+2. Narrator counter: Firmware residual + trust policy - the only remaining signals live in SMM and DSE state.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -81,6 +81,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `acpi_pm_mem_read/red_example.cpp` — full red multi-step
-- `acpi_pm_mem_read/blue_example.cpp` — full blue multi-reason
-- `acpi_pm_mem_read/pair.cpp` — StrategyEntry wiring + narrator
+- `acpi_pm_mem_read/red_example.cpp` - full red multi-step
+- `acpi_pm_mem_read/blue_example.cpp` - full blue multi-reason
+- `acpi_pm_mem_read/pair.cpp` - StrategyEntry wiring + narrator

@@ -1,6 +1,6 @@
-# 35_callback_shadow — Callback shadow façade
+# 35_callback_shadow - Callback shadow façade
 
-Family: Evasion. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::callback_shadow::run_red` in `red_example.cpp` / `red_example.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Callback shadow — Strip true notify counts, then present a clean façade on probe.
+1. Narrator move: Callback shadow - Strip true notify counts, then present a clean façade on probe.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- process_notify — World.process_notify = 1
-- image_notify — World.image_notify = 1
-- ac_callback_present — World.ac_callback_present = false
+- process_notify - World.process_notify = 1
+- image_notify - World.image_notify = 1
+- ac_callback_present - World.ac_callback_present = false
 
 Achieved when: `red.shadowed && blue.sample_looks_clean`
 
@@ -34,7 +34,7 @@ Entry: `examples::callback_shadow::run_blue` in `blue_example.cpp` / `blue_examp
 
 What blue does in the lab:
 
-1. Narrator counter: Callback sample + shadow check — One sample can lie; compare true counts / shadow flag.
+1. Narrator counter: Callback sample + shadow check - One sample can lie; compare true counts / shadow flag.
 2. Multi-reason scan over World scars (see sensors list below).
 
 Team / depth sensors:
@@ -50,7 +50,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `shadow_flag || true_degraded`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -71,6 +71,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `callback_shadow/red_example.cpp` — full red multi-step
-- `callback_shadow/blue_example.cpp` — full blue multi-reason
-- `callback_shadow/pair.cpp` — StrategyEntry wiring + narrator
+- `callback_shadow/red_example.cpp` - full red multi-step
+- `callback_shadow/blue_example.cpp` - full blue multi-reason
+- `callback_shadow/pair.cpp` - StrategyEntry wiring + narrator

@@ -1,6 +1,6 @@
-# 56_minifilter_strip — Minifilter strip
+# 56_minifilter_strip - Minifilter strip
 
-Family: Evasion. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,14 +16,14 @@ Entry: `examples::minifilter_strip::run_red` in `red_example.cpp` / `red_example
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Minifilter strip — Unregister FsRtl/FltMgr-style file minifilter callbacks so path 
+1. Narrator move: Minifilter strip - Unregister FsRtl/FltMgr-style file minifilter callbacks so path
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- minifilter_callbacks — World.minifilter_callbacks = 0
-- minifilter_present — World.minifilter_present = false
+- minifilter_callbacks - World.minifilter_callbacks = 0
+- minifilter_present - World.minifilter_present = false
 
 Achieved when: `red.stripped`
 
@@ -33,7 +33,7 @@ Entry: `examples::minifilter_strip::run_blue` in `blue_example.cpp` / `blue_exam
 
 What blue does in the lab:
 
-1. Narrator counter: Minifilter integrity — minifilter_callbacks count/presence vs baseline (expect ≥ 2).
+1. Narrator counter: Minifilter integrity - minifilter_callbacks count/presence vs baseline (expect ≥ 2).
 2. Multi-reason scan over World scars (see sensors list below).
 
 Team / depth sensors:
@@ -45,7 +45,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `minifilter_callbacks_degraded || minifilter_missing`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -66,6 +66,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `minifilter_strip/red_example.cpp` — full red multi-step
-- `minifilter_strip/blue_example.cpp` — full blue multi-reason
-- `minifilter_strip/pair.cpp` — StrategyEntry wiring + narrator
+- `minifilter_strip/red_example.cpp` - full red multi-step
+- `minifilter_strip/blue_example.cpp` - full blue multi-reason
+- `minifilter_strip/pair.cpp` - StrategyEntry wiring + narrator

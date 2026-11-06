@@ -1,6 +1,6 @@
-# 78_thread_hide_dbg — ThreadHideFromDebugger / PEB spoof
+# 78_thread_hide_dbg - ThreadHideFromDebugger / PEB spoof
 
-Family: Evasion. Tiers: T1. Area: t1. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: t1. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,17 +16,17 @@ Entry: `examples::thread_hide_dbg::apply` in `red_example.cpp` / `red_example.hp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: ThreadHide + PEB anti-debug — Set thread_hide_from_debugger + peb_being_debugged_spoofed; may open handle.
+1. Narrator move: ThreadHide + PEB anti-debug - Set thread_hide_from_debugger + peb_being_debugged_spoofed; may open handle.
 2. Optional co-scar: soft attach still often opens a game handle (T1 path).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- thread_hide_from_debugger — World.thread_hide_from_debugger = true
-- peb_being_debugged_spoofed — World.peb_being_debugged_spoofed = true
-- open_process() AccessMask::VmRead — OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
-- spawn() — Spawn actor process on World process list.
+- thread_hide_from_debugger - World.thread_hide_from_debugger = true
+- peb_being_debugged_spoofed - World.peb_being_debugged_spoofed = true
+- open_process() AccessMask::VmRead - OpenProcess-style handle scar (owner→target, access mask). AccessMask::VmRead
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `out.thread_hidden && out.peb_spoofed`
 
@@ -36,7 +36,7 @@ Entry: `examples::thread_hide_dbg::detect` in `blue_example.cpp` / `blue_example
 
 What blue does in the lab:
 
-1. Narrator counter: Anti-debug flags — Detect thread_hide_from_debugger OR peb_being_debugged_spoofed.
+1. Narrator counter: Anti-debug flags - Detect thread_hide_from_debugger OR peb_being_debugged_spoofed.
 2. Sensor A: ThreadHideFromDebugger class scar (kernel/debug port visibility).
 3. Sensor B: PEB BeingDebugged / related usermode anti-debug spoof.
 
@@ -73,6 +73,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `thread_hide_dbg/red_example.cpp` — full red multi-step
-- `thread_hide_dbg/blue_example.cpp` — full blue multi-reason
-- `thread_hide_dbg/pair.cpp` — StrategyEntry wiring + narrator
+- `thread_hide_dbg/red_example.cpp` - full red multi-step
+- `thread_hide_dbg/blue_example.cpp` - full blue multi-reason
+- `thread_hide_dbg/pair.cpp` - StrategyEntry wiring + narrator

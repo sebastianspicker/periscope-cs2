@@ -1,6 +1,6 @@
-# 151_uefi_dma_bypass — UEFI DMA remapping bypass
+# 151_uefi_dma_bypass - UEFI DMA remapping bypass
 
-Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: crosscutting. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::uefi_dma_bypass::Red::apply` in `red_example.cpp` / `red_examp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: UEFI DMA remapping bypass — analyze the DMAR table, clear ACS source validation, then disable IOMMU remapping so PCIe DMA is possible.
+1. Narrator move: UEFI DMA remapping bypass - analyze the DMAR table, clear ACS source validation, then disable IOMMU remapping so PCIe DMA is possible.
 2. Direct World trust/note mutations (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -28,11 +28,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - Set Trust.dma_device_present and World.pcie_peer_dma_active.
 
 World scars and lab surfaces (from shipped red code):
-- pcie_peer_bypassed_iommu — ACS source-validation cleared.
-- iommu_bypass_active — World.iommu_bypass_active = true.
-- Trust.iommu_on — disabled.
-- pcie_peer_dma_active — PCIe DMA now possible.
-- w.note() — DMAR table read / remapping-unit scan residuals.
+- pcie_peer_bypassed_iommu - ACS source-validation cleared.
+- iommu_bypass_active - World.iommu_bypass_active = true.
+- Trust.iommu_on - disabled.
+- pcie_peer_dma_active - PCIe DMA now possible.
+- w.note() - DMAR table read / remapping-unit scan residuals.
 
 Achieved when: `w.iommu_bypass_active && !w.trust.iommu_on`
 
@@ -42,8 +42,8 @@ Entry: `examples::uefi_dma_bypass::Blue::detect` in `blue_example.cpp` / `blue_e
 
 What blue does in the lab:
 
-1. Narrator counter: IOMMU state vs expected baseline — disabled while a bypass is active.
-2. Narrator counter: ACS clearing on root ports — the bypass precursor.
+1. Narrator counter: IOMMU state vs expected baseline - disabled while a bypass is active.
+2. Narrator counter: ACS clearing on root ports - the bypass precursor.
 3. Narrator counter: Unexpected PCIe DMA transfers with IOMMU disabled.
 
 Team / depth sensors:
@@ -81,6 +81,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `uefi_dma_bypass/red_example.cpp` — full red multi-step
-- `uefi_dma_bypass/blue_example.cpp` — full blue multi-reason
-- `uefi_dma_bypass/pair.cpp` — StrategyEntry wiring + narrator
+- `uefi_dma_bypass/red_example.cpp` - full red multi-step
+- `uefi_dma_bypass/blue_example.cpp` - full blue multi-reason
+- `uefi_dma_bypass/pair.cpp` - StrategyEntry wiring + narrator

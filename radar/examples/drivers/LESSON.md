@@ -1,4 +1,4 @@
-# Vulnerable Driver + DMA — Final Prototype
+# Vulnerable Driver + DMA - Final Prototype
 
 ## gdrv.sys Exact Match
 

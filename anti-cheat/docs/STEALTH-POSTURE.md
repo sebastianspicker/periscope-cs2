@@ -3,10 +3,10 @@
 How `live_radar` decides what to read and what to show. The posture is the
 product decision that separates a "radar" from a "radar that gets noticed".
 
-Design rule: **the radar should converge on the official in-game radar** rather
+Design rule: the radar should converge on the official in-game radar rather
 than sit permanently above it. A radar that shows no more than the HUD
 manufactures no information advantage, so there is no behavioral tell to
-correlate — no pre-aiming at unspotted enemies, no reacting to a player nobody
+correlate - no pre-aiming at unspotted enemies, no reacting to a player nobody
 could see. The default policy reaches that state on its own: it starts at full
 information and walks down to hud-echo as blue pressure rises.
 
@@ -26,7 +26,7 @@ game's own radar consumes. That is why the residual is zero rather than merely
 small.
 
 ### Policy vs. mode
-The mode is not chosen directly. You choose a **policy**:
+The mode is not chosen directly. You choose a policy:
 
 | Policy | Behavior |
 |---|---|
@@ -34,7 +34,7 @@ The mode is not chosen directly. You choose a **policy**:
 | `pinned-hud-echo` | always `hud-echo`; the ladder may still slow reads |
 | `pinned-full` | always `full`; the ladder may still slow reads |
 
-A pinned policy is never silently overridden — that is the difference between
+A pinned policy is never silently overridden - that is the difference between
 "stealth by default" and "stealth whether or not you asked for it". Pinning the
 mode does not pin the read rate: a pinned `full` posture still honours every
 ladder cap, so `far_hz` can go to zero under risk.
@@ -48,9 +48,9 @@ Controls: `--full` starts pinned to `full`, `--strict-intel` starts pinned to
 `m_bSpotted` is one byte in a moving schema. When the read fails the radar could
 either:
 
-- **fail open** (assume spotted) — the radar keeps working, but an unspotted
+- fail open (assume spotted) - the radar keeps working, but an unspotted
   enemy can leak through `hud-echo`; or
-- **fail closed** (assume not spotted) — the radar hides a player it could see.
+- fail closed (assume not spotted) - the radar hides a player it could see.
 
 `--strict-intel` fails closed. The reader records `spotted_known` (set to false
 by both the real reader and the live stack entity path when the byte cannot be
@@ -69,8 +69,8 @@ Reads cluster around gameplay events instead of running on a wall clock:
 | Local player displaced > 256 u | 4 s burst |
 
 Bursts are bounded at 1.5× the floor and never above the historical defaults
-(30/45/8 Hz). Between events the stack sits at the quiet floor of **8 / 15 / 4
-Hz** (full / local / far). All three cadences are jittered — a fixed local
+(30/45/8 Hz). Between events the stack sits at the quiet floor of 8 / 15 / 4
+Hz (full / local / far). All three cadences are jittered - a fixed local
 refresh is as recognizable as a fixed full scan once timestamps are correlated.
 
 A `far_hz` of `0` genuinely means off: the deadline is parked, so no far read is
@@ -104,8 +104,8 @@ relaxation cadence.
 Offsets come from a dump, not from pattern scanning at runtime, and the dump is
 pinned by date:
 
-- `radar/data/cs2/*.json`, `radar/adapters/real/cs2/offsets_snapshot.hpp` — generated `2026-11-05`
-- `src/simulation/cs2/offsets.hpp` and `schema.cpp` — mirrored to the same dump
+- `radar/data/cs2/*.json`, `radar/adapters/real/cs2/offsets_snapshot.hpp` - generated `2026-11-05`
+- `src/simulation/cs2/offsets.hpp` and `schema.cpp` - mirrored to the same dump
 
 Current pin: dump `2026-11-05T19:12:21Z` (November 2026 snapshot).
 
@@ -113,17 +113,17 @@ Refresh with `python3 radar/scripts/update_cs2_signatures.py`, then rebuild. The
 generated header records the dump timestamp; `--check` reports drift without
 writing.
 
-## What the posture does **not** hide
+## What the posture does not hide
 
 - A `PROCESS_VM_READ` handle still exists somewhere (UI, donor, or worker). The
   attach ladder exists to move that scar off the UI process, not to erase it.
 - The overlay window is a real top-level window on the gaming machine. If that
-  matters, run the vision track instead — it never opens the game process.
+  matters, run the vision track instead - it never opens the game process.
 - Read volume is reduced, not eliminated.
 
 ## See also
 
-- [../README.md](../README.md) — build and flags
-- [TOOLS.md](TOOLS.md) — key bindings
-- [RESIDUAL-RESEARCH.md](RESIDUAL-RESEARCH.md) — VMX / BYOVD / DMA / SMM notes
-- [STRATEGY-CATALOG.md](STRATEGY-CATALOG.md) — the pairs this posture composes
+- [../README.md](../README.md) - build and flags
+- [TOOLS.md](TOOLS.md) - key bindings
+- [RESIDUAL-RESEARCH.md](RESIDUAL-RESEARCH.md) - VMX / BYOVD / DMA / SMM notes
+- [STRATEGY-CATALOG.md](STRATEGY-CATALOG.md) - the pairs this posture composes

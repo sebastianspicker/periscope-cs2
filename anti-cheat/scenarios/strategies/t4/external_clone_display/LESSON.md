@@ -1,6 +1,6 @@
-# 85_external_clone_display — External clone display residual
+# 85_external_clone_display - External clone display residual
 
-Family: Delivery. Tiers: T4. Area: t4. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T4. Area: t4. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,15 +16,15 @@ Entry: `examples::external_clone_display::apply` in `red_example.cpp` / `red_exa
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: External clone display — Clone / capture path; process list stays clean; no game OpenProcess.
+1. Narrator move: External clone display - Clone / capture path; process list stays clean; no game OpenProcess.
 2. Step 1: external display clone / HDMI splitter residual.
-3. Step 2: no OpenProcess — process list stays clean (off-box vision path).
+3. Step 2: no OpenProcess - process list stays clean (off-box vision path).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- external_display_clone — World.external_display_clone = true
+- external_display_clone - World.external_display_clone = true
 
 Achieved when: `r.external_clone && r.no_game_handle && r.process_list_clean`
 
@@ -34,8 +34,8 @@ Entry: `examples::external_clone_display::detect` in `blue_example.cpp` / `blue_
 
 What blue does in the lab:
 
-1. Narrator counter: Display topology + clean-process correlate — Flag external_display_clone with process-clean multi-reason.
-2. Narrator counter: Interest management residual — Fog still starves free enemy origin without a memory scar.
+1. Narrator counter: Display topology + clean-process correlate - Flag external_display_clone with process-clean multi-reason.
+2. Narrator counter: Interest management residual - Fog still starves free enemy origin without a memory scar.
 3. local `sibling_capture` init=w.desktop_duplication || w.trust.capture_card_present ||
       w.gdi_bitblt_capture || w.printwindow_capture
 4. local `reasons` init=0
@@ -85,6 +85,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `external_clone_display/red_example.cpp` — full red multi-step
-- `external_clone_display/blue_example.cpp` — full blue multi-reason
-- `external_clone_display/pair.cpp` — StrategyEntry wiring + narrator
+- `external_clone_display/red_example.cpp` - full red multi-step
+- `external_clone_display/blue_example.cpp` - full blue multi-reason
+- `external_clone_display/pair.cpp` - StrategyEntry wiring + narrator

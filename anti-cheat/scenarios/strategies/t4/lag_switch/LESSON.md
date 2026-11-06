@@ -1,6 +1,6 @@
-# 84_lag_switch — Lag switch residual
+# 84_lag_switch - Lag switch residual
 
-Family: Delivery. Tiers: T4. Area: t4. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T4. Area: t4. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,18 +16,18 @@ Entry: `examples::lag_switch::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Lag switch + net residual — Hold/drop packets for positional advantage; optional C2 net flow.
-2. Step 1: artificial latency / packet hold — primary residual.
+1. Narrator move: Lag switch + net residual - Hold/drop packets for positional advantage; optional C2 net flow.
+2. Step 1: artificial latency / packet hold - primary residual.
 3. Step 2: optional net residual (relay / desync tool phone-home).
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- lag_switch_active — World.lag_switch_active = true
-- packet_loss_faked — World.packet_loss_faked = false
-- spawn() — Spawn actor process on World process list.
-- add_net() — Plant NetFlow residual (radar SaaS / C2).
+- lag_switch_active - World.lag_switch_active = true
+- packet_loss_faked - World.packet_loss_faked = false
+- spawn() - Spawn actor process on World process list.
+- add_net() - Plant NetFlow residual (radar SaaS / C2).
 
 Achieved when: `r.lag_switch && !r.packet_loss`
 
@@ -37,8 +37,8 @@ Entry: `examples::lag_switch::detect` in `blue_example.cpp` / `blue_example.hpp`
 
 What blue does in the lab:
 
-1. Narrator counter: Latency / desync sensor — Flag lag_switch_active; disambiguate from packet_loss_faked.
-2. Narrator counter: Interest management residual — Fog starves free enemy origin under desync.
+1. Narrator counter: Latency / desync sensor - Flag lag_switch_active; disambiguate from packet_loss_faked.
+2. Narrator counter: Interest management residual - Fog starves free enemy origin under desync.
 3. Multi-reason: lag residual, optionally reinforced by net C2 scar.
 4. structural fog / stream surfaces
 
@@ -78,6 +78,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `lag_switch/red_example.cpp` — full red multi-step
-- `lag_switch/blue_example.cpp` — full blue multi-reason
-- `lag_switch/pair.cpp` — StrategyEntry wiring + narrator
+- `lag_switch/red_example.cpp` - full red multi-step
+- `lag_switch/blue_example.cpp` - full blue multi-reason
+- `lag_switch/pair.cpp` - StrategyEntry wiring + narrator

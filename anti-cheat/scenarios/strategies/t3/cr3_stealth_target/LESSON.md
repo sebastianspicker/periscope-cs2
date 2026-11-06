@@ -1,6 +1,6 @@
-# 59_cr3_stealth_target — CR3 stealth target
+# 59_cr3_stealth_target - CR3 stealth target
 
-Family: Evasion. Tiers: T3. Area: t3. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T3. Area: t3. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,19 +16,19 @@ Entry: `examples::cr3_stealth_target::run_red` in `red_example.cpp` / `red_examp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: CR3 stealth target under personal HV — Disable VBS; target game by CR3 (no name open); bridge + hv_read.
+1. Narrator move: CR3 stealth target under personal HV - Disable VBS; target game by CR3 (no name open); bridge + hv_read.
 
 Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- trust.vbs — HostTrust.vbs = false
-- trust.hvci — HostTrust.hvci = false
-- load_driver() — Load Driver into World.drivers (kernel image scar).
-- Driver.byovd_known_bad — Driver.byovd_known_bad = false (not BYOVD denylist path)
-- create_device() — Create Device node linked to driver.
-- try_start_personal_hv() — Personal HV attempt (may fail under VBS/HVCI).
-- spawn() — Spawn actor process on World process list.
+- trust.vbs - HostTrust.vbs = false
+- trust.hvci - HostTrust.hvci = false
+- load_driver() - Load Driver into World.drivers (kernel image scar).
+- Driver.byovd_known_bad - Driver.byovd_known_bad = false (not BYOVD denylist path)
+- create_device() - Create Device node linked to driver.
+- try_start_personal_hv() - Personal HV attempt (may fail under VBS/HVCI).
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `red.hv_started && red.cr3_noted && red.no_name_open && red.hv_read_ok`
 
@@ -38,7 +38,7 @@ Entry: `examples::cr3_stealth_target::run_blue` in `blue_example.cpp` / `blue_ex
 
 What blue does in the lab:
 
-1. Narrator counter: CR3 stealth / personal-HV read without handle — personal_hv + no foreign VM_READ, or bridge+CR3 path → policy fail.
+1. Narrator counter: CR3 stealth / personal-HV read without handle - personal_hv + no foreign VM_READ, or bridge+CR3 path → policy fail.
 2. local `foreign_vm_read` init=false
 3. inspects drivers/devices
 4. filters AccessMask::VmRead handles
@@ -81,6 +81,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `cr3_stealth_target/red_example.cpp` — full red multi-step
-- `cr3_stealth_target/blue_example.cpp` — full blue multi-reason
-- `cr3_stealth_target/pair.cpp` — StrategyEntry wiring + narrator
+- `cr3_stealth_target/red_example.cpp` - full red multi-step
+- `cr3_stealth_target/blue_example.cpp` - full blue multi-reason
+- `cr3_stealth_target/pair.cpp` - StrategyEntry wiring + narrator

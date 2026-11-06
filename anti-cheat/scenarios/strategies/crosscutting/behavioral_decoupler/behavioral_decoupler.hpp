@@ -53,7 +53,7 @@ class BehavioralDecoupler {
   void reset();
 
  private:
-  sim::World& world_;
+  [[maybe_unused]] sim::World& world_;  // kept for the strategy's future hooks
   DecouplerConfig config_{};
   BehavioralReport report_{};
   std::mt19937_64 rng_{};

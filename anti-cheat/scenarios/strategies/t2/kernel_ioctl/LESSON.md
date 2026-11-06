@@ -1,6 +1,6 @@
-# 03_kernel_ioctl — Kernel IOCTL read
+# 03_kernel_ioctl - Kernel IOCTL read
 
-Family: Delivery. Tiers: T2. Area: t2. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Delivery. Tiers: T2. Area: t2. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::kernel_ioctl::run_red` in `red_example.cpp` / `red_example.hpp
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Custom memrw driver + IOCTL — Private .sys + device; no OpenProcess on game.
+1. Narrator move: Custom memrw driver + IOCTL - Private .sys + device; no OpenProcess on game.
 
 Team / depth APIs used:
 - `t2_red::KernelRadar`
@@ -44,8 +44,8 @@ Entry: `examples::kernel_ioctl::run_blue` in `blue_example.cpp` / `blue_example.
 
 What blue does in the lab:
 
-1. Narrator counter: Handle scan — Expect clean for pure T2 — empty handle graph is not a miss.
-2. Narrator counter: KernelAc full_scan — Unknown memrw driver and device are the scar.
+1. Narrator counter: Handle scan - Expect clean for pure T2 - empty handle graph is not a miss.
+2. Narrator counter: KernelAc full_scan - Unknown memrw driver and device are the scar.
 3. [t2_blue::KernelAc] full_scan: BYOVD blocklist hash, suspicious mem-RW devices, callback integrity, driver allowlist.
 4. [t2_blue::KernelAc] mitigate() can flip ranked_access_denied / byovd_policy_block when policy wins without a classic detect.
 5. reads handle graph via handles_to()
@@ -67,7 +67,7 @@ Multi-reason / result fields and sensors:
 
 Win conditions for this pair:
 - detected := `memrw_driver || memrw_device`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -88,9 +88,9 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `kernel_ioctl/red_example.cpp` — full red multi-step
-- `kernel_ioctl/blue_example.cpp` — full blue multi-reason
-- `kernel_ioctl/pair.cpp` — StrategyEntry wiring + narrator
+- `kernel_ioctl/red_example.cpp` - full red multi-step
+- `kernel_ioctl/blue_example.cpp` - full blue multi-reason
+- `kernel_ioctl/pair.cpp` - StrategyEntry wiring + narrator
 
 Related team / shared headers pulled by this pair:
 - `t2/red/kernel_radar.hpp`

@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from unittest import mock
 
 from cs2_sig_common import FIELD_MAP, GLOBAL_KEYS
 from cs2_sig_emit import emit_hpp
 from cs2_sig_fetch import (
     build_snapshot,
     diff_snapshots,
+    fetch,
     field_lookup,
     load_json_bytes,
     load_json_path,
@@ -233,6 +235,48 @@ def run_self_test(script_dir: Path, code_dir: Path) -> int:
         _assert(raised, "bad JSON must raise ValueError")
 
     check("load_json_bytes rejects garbage", t_bad_json)
+
+    # 9) fetch enforces the response size cap before JSON parsing.
+    def t_fetch_size_cap() -> None:
+        url = "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/offsets.json"
+
+        class _Response:
+            def __init__(self, limit: int) -> None:
+                self.limit = limit
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *exc):
+                return False
+
+            def read(self, n: int) -> bytes:
+                return b"x" * min(n, self.limit)
+
+        class _Opener:
+            def __init__(self, limit: int) -> None:
+                self.limit = limit
+
+            def open(self, request, timeout):
+                del request, timeout
+                return _Response(self.limit)
+
+        for limit, should_fail in ((10, True), (2, False)):
+            with mock.patch(
+                "cs2_sig_fetch.urllib.request.build_opener",
+                return_value=_Opener(limit),
+            ):
+                raised = False
+                try:
+                    data = fetch(url, max_bytes=4)
+                except RuntimeError as exc:
+                    raised = "exceeds 4 bytes" in str(exc)
+                if should_fail:
+                    _assert(raised, "oversized response rejected")
+                else:
+                    _assert(not raised and data == b"xx", "small response accepted")
+
+    check("fetch enforces response size cap", t_fetch_size_cap)
 
     print()
     if failures:

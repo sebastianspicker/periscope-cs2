@@ -1,4 +1,4 @@
-# proxy_hijack_reader — Handle Graph Proxy/Hijack Reader
+# proxy_hijack_reader - Handle Graph Proxy/Hijack Reader
 
 Family: Evasion. Tiers: T0.
 

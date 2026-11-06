@@ -222,8 +222,15 @@ def snapshot_values_equal(a: dict | None, b: dict | None) -> bool:
         if c != "(no previous snapshot)"
     ]
 
-def fetch(url: str, timeout: float = 60.0) -> bytes:
-    """Fetch a pinned cs2-dumper JSON URL, rejecting unsafe redirect targets."""
+MAX_FETCH_BYTES = 2 * 1024 * 1024
+
+
+def fetch(url: str, timeout: float = 60.0, max_bytes: int = MAX_FETCH_BYTES) -> bytes:
+    """Fetch a pinned cs2-dumper JSON URL, rejecting unsafe redirect targets.
+
+    The response is read with a hard size cap so a hostile or surprise large
+    payload cannot exhaust memory before JSON validation runs.
+    """
     validate_source_url(url)
     if timeout <= 0:
         raise ValueError("fetch timeout must be positive")
@@ -233,7 +240,7 @@ def fetch(url: str, timeout: float = 60.0) -> bytes:
     try:
         opener = urllib.request.build_opener(_PinnedSourceRedirectHandler())
         with opener.open(req, timeout=timeout) as resp:
-            data = resp.read()
+            data = resp.read(max_bytes + 1)
     except urllib.error.HTTPError as exc:
         raise RuntimeError(
             f"HTTP {exc.code} fetching {url}: {exc.reason}"
@@ -246,4 +253,6 @@ def fetch(url: str, timeout: float = 60.0) -> bytes:
         raise RuntimeError(f"Rejected unsafe CS2 dump URL {url}: {exc}") from exc
     if not data:
         raise RuntimeError(f"Empty response from {url}")
+    if len(data) > max_bytes:
+        raise RuntimeError(f"response from {url} exceeds {max_bytes} bytes")
     return data

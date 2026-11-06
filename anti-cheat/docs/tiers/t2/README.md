@@ -1,6 +1,6 @@
-# T2 — Kernel / BYOVD
+# T2 - Kernel / BYOVD
 
-Scar: no game handle; driver + device (+ optional callback strip).  
+Scar: no game handle; driver + device (+ optional callback strip).
 Blue: image load, BYOVD blocklist, device watch, callback integrity.
 
 ## Run

@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Report a concrete failure. Do **not** attach private gameplay frames, account data, API tokens, or credentials.
-        Vulnerabilities: see the relevant `SECURITY.md` under `radar/` or `vision/`.
+        Vulnerabilities: see the relevant `SECURITY.md` under `anti-cheat/`, `radar/`, `vision/` or `lens/`.
 
   - type: dropdown
     id: project
@@ -15,8 +15,10 @@ body:
       label: Project
       description: Which part of the monorepo?
       options:
+        - anti-cheat
         - radar
         - vision
+        - lens
         - monorepo meta
     validations:
       required: true

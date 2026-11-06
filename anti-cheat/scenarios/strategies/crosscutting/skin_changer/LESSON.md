@@ -1,6 +1,6 @@
-# 100_skin_changer — Skin changer
+# 100_skin_changer - Skin changer
 
-Family: Feature. Tiers: all. Area: xc/features. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: all. Area: xc/features. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::skin_changer::apply` in `red_example.cpp` / `red_example.hpp`.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Skin changer — modify diagnostic convar and PE-timestamp fields so inventory paint-kit attributes no longer match the shipped client.
+1. Narrator move: Skin changer - modify diagnostic convar and PE-timestamp fields so inventory paint-kit attributes no longer match the shipped client.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -27,9 +27,9 @@ Expanded team path (what the wrapper actually does on sim::World):
 - XOR the expected client DLL PE timestamp into a mismatched value.
 
 World scars and lab surfaces (from shipped red code):
-- DiagnosticState.convar_crc_mode1 — modified from expected_convar_crc_mode1.
-- DiagnosticState.pe_timestamp_client_dll — modified from expected_pe_timestamp_client_dll.
-- w.note() — "skin_changer: paint kit / inventory attrs modified" residual.
+- DiagnosticState.convar_crc_mode1 - modified from expected_convar_crc_mode1.
+- DiagnosticState.pe_timestamp_client_dll - modified from expected_pe_timestamp_client_dll.
+- w.note() - "skin_changer: paint kit / inventory attrs modified" residual.
 
 Achieved when: `w.diagnostic_state` attributes are modified (pair marks red_achieved = true after apply).
 
@@ -39,8 +39,8 @@ Entry: `examples::skin_changer::detect` in `blue_example.cpp` / `blue_example.hp
 
 What blue does in the lab:
 
-1. Narrator counter: Convar CRC mismatch — the paint-kit attribute no longer matches the expected diagnostic state.
-2. Narrator counter: PE timestamp mismatch — the client stamp attribute is wrong.
+1. Narrator counter: Convar CRC mismatch - the paint-kit attribute no longer matches the expected diagnostic state.
+2. Narrator counter: PE timestamp mismatch - the client stamp attribute is wrong.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -55,7 +55,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `r.violations > 0`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -76,6 +76,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `skin_changer/red_example.cpp` — full red multi-step
-- `skin_changer/blue_example.cpp` — full blue multi-reason
-- `skin_changer/pair.cpp` — StrategyEntry wiring + narrator
+- `skin_changer/red_example.cpp` - full red multi-step
+- `skin_changer/blue_example.cpp` - full blue multi-reason
+- `skin_changer/pair.cpp` - StrategyEntry wiring + narrator

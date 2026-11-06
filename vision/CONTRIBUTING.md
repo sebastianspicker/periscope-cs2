@@ -1,6 +1,6 @@
 # Contributing
 
-This is the **vision** track of the Periscope monorepo (`vision/`). Touch files under `vision/` for package work; monorepo-wide process and templates live at the Periscope root (root `CONTRIBUTING` / `.github/` when present). Sister track: `radar/` (memory-path lab — different license and stack).
+This is the **vision** track of the Periscope monorepo (`vision/`). Touch files under `vision/` for package work; monorepo-wide process and templates live at the Periscope root (root `CONTRIBUTING` / `.github/` when present). Sister track: `radar/` (memory-path lab - different license and stack).
 
 Pre-alpha research tooling for CS2 visible-player outlining (offline files, live capture, dataset helpers, training). Match the code under `src/cs2_vision_access/` and keep the CLI surface in sync with `docs/CLI.md` and `README.md`.
 
@@ -23,7 +23,7 @@ uv sync --frozen --extra gpu
 
 ## Checks (aligned with CI)
 
-Repo-root CI: monorepo `.github/workflows/vision-ci.yml` (path filters on `vision/**`, runs with `working-directory: vision`). Local checks stay the same — run from `vision/`:
+Repo-root CI: monorepo `.github/workflows/vision-ci.yml` (path filters on `vision/**`, runs with `working-directory: vision`). Local checks stay the same - run from `vision/`:
 
 ```bash
 uv sync --frozen --extra dev

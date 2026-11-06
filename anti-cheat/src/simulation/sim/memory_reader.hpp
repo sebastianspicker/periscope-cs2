@@ -152,7 +152,7 @@ class DmaPhysicalReader final : public MemoryReader {
 
  private:
   World& world_;
-  std::uint32_t cheat_pid_;
+  [[maybe_unused]] std::uint32_t cheat_pid_;  // kept for the shared reader shape
 };
 
 /// Cross-cutting: hijack proxy reader. No handle from radar PID.

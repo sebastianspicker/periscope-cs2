@@ -44,7 +44,7 @@ docs/tiers/tN/                        LESSON.md + README.md
 
 ## Design conclusions
 
-1. Radar sells info advantage without aimbot kinematics — that is why it persists.
+1. Radar sells info advantage without aimbot kinematics - that is why it persists.
 2. "Undetected" claims stick when blue only looks for injects and YARA while T1/T2 empty those signals.
 3. Offset encryption and packers protect the binary; they do not erase handle, driver, or HV scars.
 4. Static YARA loses to per-buyer polymorphic builds. Blue has to hunt runtime scars.

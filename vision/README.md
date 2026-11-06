@@ -2,7 +2,7 @@
 
 Vision track of [Periscope](../README.md) (`periscope/vision`). Sister track: [`../radar/`](../radar/) (memory-path radar lab, MIT). This track is pixels-only: offline video and live screen/device capture. It does not open the game process, read game memory, or inject input.
 
-Pre-alpha research tooling for Counter-Strike 2: segment visible player pixels and draw dual-stroke outlines. Offline file pipelines and a live screen/device path share the same segmenter and renderer stack. The primary live deployment is a second Windows device fed by an HDMI capture card, so the gaming machine runs nothing that touches the process — see [docs/CONTOUR_PIPELINE.md](docs/CONTOUR_PIPELINE.md).
+Pre-alpha research tooling for Counter-Strike 2: segment visible player pixels and draw dual-stroke outlines. Offline file pipelines and a live screen/device path share the same segmenter and renderer stack. The primary live deployment is a second Windows device fed by an HDMI capture card, so the gaming machine runs nothing that touches the process - see [docs/CONTOUR_PIPELINE.md](docs/CONTOUR_PIPELINE.md).
 
 Package: `cs2-vision-access` 0.1.0. CLI: `cs2-vision`. License: AGPL-3.0-only. Python: 3.11–3.13.
 
@@ -10,7 +10,7 @@ Package: `cs2-vision-access` 0.1.0. CLI: `cs2-vision`. License: AGPL-3.0-only. P
 
 Help low-vision accessibility research by outlining visible player models on CS2 footage.
 
-**In scope (implemented):**
+### In scope (implemented)
 
 - Offline outline and timing (`outline`, `benchmark`, `outline-presets`)
 - Live capture and OS overlay (`live`), plus a tkinter desktop dashboard (`gui`)
@@ -22,7 +22,7 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - Role-catalog multi-signifier treatments and opt-in temporal suppress-only anti-flash
 - Segmenter backends: Ultralytics ONNX seg, `ultralytics-detect` (boxes), optional RF-DETR, Vombit+EdgeSAM (`cs2-sam`) for labeling
 
-**Out of scope:**
+### Out of scope
 
 - Aim assistance, recoil control, or any simulated game input
 - Reading or writing CS2 process memory

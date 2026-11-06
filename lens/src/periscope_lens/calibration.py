@@ -25,6 +25,7 @@ import numpy as np
 MIN_CORRESPONDENCES = 4
 
 SequenceLikePoints = Sequence[tuple[float, float]]
+PointArray = np.ndarray
 
 
 class CalibrationError(ValueError):
@@ -90,25 +91,23 @@ class CalibrationMonitor:
         return sum(self._residuals) / len(self._residuals) if self._residuals else 0.0
 
 
-def screen_marker_positions(width: int, height: int) -> tuple[PointArray, ...]:
+def screen_marker_positions(width: int, height: int) -> PointArray:
     """Screen-space marker positions for the on-demand calibration pattern:
     the four corners and the four edge midpoints of the monitor rectangle."""
     half_w = width / 2.0
     half_h = height / 2.0
-    return (
-        np.asarray(
-            [
-                [0.0, 0.0],
-                [half_w, 0.0],
-                [float(width), 0.0],
-                [0.0, half_h],
-                [float(width), half_h],
-                [0.0, float(height)],
-                [half_w, float(height)],
-                [float(width), float(height)],
-            ],
-            dtype=np.float64,
-        ),
+    return np.asarray(
+        [
+            [0.0, 0.0],
+            [half_w, 0.0],
+            [float(width), 0.0],
+            [0.0, half_h],
+            [float(width), half_h],
+            [0.0, float(height)],
+            [half_w, float(height)],
+            [float(width), float(height)],
+        ],
+        dtype=np.float64,
     )
 
 
@@ -188,8 +187,10 @@ def residual_for(
     the number the drift monitor consumes."""
     src = np.asarray(camera_points, dtype=np.float64)
     dst = np.asarray(screen_points, dtype=np.float64)
-    if src.shape != dst.shape or src.size == 0:
-        raise CalibrationError("paired, non-empty point sets required")
+    if src.shape != dst.shape or src.ndim != 2 or src.shape[1] != 2 or src.size == 0:
+        raise CalibrationError("paired, non-empty (N, 2) point sets required")
+    if not np.all(np.isfinite(src)) or not np.all(np.isfinite(dst)):
+        raise CalibrationError("points must be finite")
     return _reprojection_residual(np.asarray(calibration.matrix, dtype=np.float64), src, dst)
 
 
@@ -202,6 +203,3 @@ def _reprojection_residual(matrix: np.ndarray, src: np.ndarray, dst: np.ndarray)
     projected = projected[:, :2] / denominator[:, None]
     errors = np.linalg.norm(projected - dst, axis=1)
     return float(np.sqrt(np.mean(errors**2)))
-
-
-PointArray = np.ndarray

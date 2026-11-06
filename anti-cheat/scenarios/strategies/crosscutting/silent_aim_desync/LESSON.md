@@ -1,6 +1,6 @@
-# 62_silent_aim_desync — Silent aim desync
+# 62_silent_aim_desync - Silent aim desync
 
-Family: Feature. Tiers: all. Area: xc/features. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Feature. Tiers: all. Area: xc/features. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,8 +16,8 @@ Entry: `examples::silent_aim_desync::apply` in `red_example.cpp` / `red_example.
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: Silent aim desync — Hitreg aim snaps server-side while camera stays off-target.
-2. Step 1: silent aim active — camera stays "legit", hitreg snaps.
+1. Narrator move: Silent aim desync - Hitreg aim snaps server-side while camera stays off-target.
+2. Step 1: silent aim active - camera stays "legit", hitreg snaps.
 3. Step 2: multi-sample AimSample with camera ≠ server angles (≥4).
 4. Step 3 (optional): small injected inputs that do NOT look like rage.
 
@@ -25,9 +25,9 @@ Team / depth APIs used:
 - Direct World field writes and helpers (no team wrapper class in this pair).
 
 World scars and lab surfaces (from shipped red code):
-- silent_aim_active — World.silent_aim_active = true
-- push_input() — Push InputEvent (injected vs raw_hid provenance).
-- aim_samples — Multi-sample AimSample list (camera vs server angles, challenge_passed).
+- silent_aim_active - World.silent_aim_active = true
+- push_input() - Push InputEvent (injected vs raw_hid provenance).
+- aim_samples - Multi-sample AimSample list (camera vs server angles, challenge_passed).
 
 Achieved when: `r.silent_aim && r.desync && r.sample_count >= 2`
 
@@ -37,9 +37,9 @@ Entry: `examples::silent_aim_desync::detect` in `blue_example.cpp` / `blue_examp
 
 What blue does in the lab:
 
-1. Narrator counter: Camera vs server aim — Flag silent_aim_active or angle desync above threshold.
-2. Narrator counter: Challenge multi-sample — Require multi-reason: desync count / challenge fails, not flag alone.
-3. Detected: multi_reason OR (silent && angle) — not silent_flag alone.
+1. Narrator counter: Camera vs server aim - Flag silent_aim_active or angle desync above threshold.
+2. Narrator counter: Challenge multi-sample - Require multi-reason: desync count / challenge fails, not flag alone.
+3. Detected: multi_reason OR (silent && angle) - not silent_flag alone.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -59,7 +59,7 @@ Multi-reason / result fields and sensors:
 Win conditions for this pair:
 - detected := `r.multi_reason || (r.silent_flag && r.angle_desync)`
 - mitigated := `false`
-- Pass narrative: detection-oriented — mitigated stays false; multi-reason detect is the win.
+- Pass narrative: detection-oriented - mitigated stays false; multi-reason detect is the win.
 
 ## Takeaway
 
@@ -80,6 +80,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `silent_aim_desync/red_example.cpp` — full red multi-step
-- `silent_aim_desync/blue_example.cpp` — full blue multi-reason
-- `silent_aim_desync/pair.cpp` — StrategyEntry wiring + narrator
+- `silent_aim_desync/red_example.cpp` - full red multi-step
+- `silent_aim_desync/blue_example.cpp` - full blue multi-reason
+- `silent_aim_desync/pair.cpp` - StrategyEntry wiring + narrator

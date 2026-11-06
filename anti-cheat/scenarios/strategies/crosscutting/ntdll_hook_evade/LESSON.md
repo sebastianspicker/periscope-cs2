@@ -1,6 +1,6 @@
-# 67_ntdll_hook_evade — ntdll hook evade
+# 67_ntdll_hook_evade - ntdll hook evade
 
-Family: Evasion. Tiers: T1. Area: xc/evasion. Sim only — no real malware, VMX, BYOVD, DMA, or SMM.
+Family: Evasion. Tiers: T1. Area: xc/evasion. Sim only - no real malware, VMX, BYOVD, DMA, or SMM.
 
 ## Battlefield
 
@@ -16,7 +16,7 @@ Entry: `examples::ntdll_hook_evade::apply` in `red_example.cpp` / `red_example.h
 
 What red does in the lab (read this side of the pair first):
 
-1. Narrator move: ntdll hook evade — compare in-memory ntdll.text against the clean disk image, then map a clean copy and read via direct syscall.
+1. Narrator move: ntdll hook evade - compare in-memory ntdll.text against the clean disk image, then map a clean copy and read via direct syscall.
 2. Direct World field writes and helpers (no team wrapper class in this pair).
 
 Team / depth APIs used:
@@ -29,11 +29,11 @@ Expanded team path (what the wrapper actually does on sim::World):
 - open_process() from the unhooker to the game with VmRead over the syscall path; read_mem() a 4-byte entity sample.
 
 World scars and lab surfaces (from shipped red code):
-- open_process() — OpenProcess-style handle scar (owner→target, access mask).
-- ntdll_hooks_detected — World.ntdll_hooks_detected = true.
-- hooks_evaded_count — World.hooks_evaded_count = 3.
-- used_clean_ntdll_copy — World.used_clean_ntdll_copy = true.
-- spawn() — Spawn actor process on World process list.
+- open_process() - OpenProcess-style handle scar (owner→target, access mask).
+- ntdll_hooks_detected - World.ntdll_hooks_detected = true.
+- hooks_evaded_count - World.hooks_evaded_count = 3.
+- used_clean_ntdll_copy - World.used_clean_ntdll_copy = true.
+- spawn() - Spawn actor process on World process list.
 
 Achieved when: `ntdll_hooks_detected && syscall_handle`
 
@@ -43,8 +43,8 @@ Entry: `examples::ntdll_hook_evade::detect` in `blue_example.cpp` / `blue_exampl
 
 What blue does in the lab:
 
-1. Narrator counter: Hook telemetry is lost — a clean copy or direct syscall bypasses the API hooks.
-2. Narrator counter: The foreign VM_READ handle survives — handle truth outlives the hook bypass.
+1. Narrator counter: Hook telemetry is lost - a clean copy or direct syscall bypasses the API hooks.
+2. Narrator counter: The foreign VM_READ handle survives - handle truth outlives the hook bypass.
 
 Team / depth sensors:
 - Direct World reads + local scoring in blue_example.cpp.
@@ -82,6 +82,6 @@ Optional filters:
 
 Open the pair sources beside this lesson:
 
-- `ntdll_hook_evade/red_example.cpp` — full red multi-step
-- `ntdll_hook_evade/blue_example.cpp` — full blue multi-reason
-- `ntdll_hook_evade/pair.cpp` — StrategyEntry wiring + narrator
+- `ntdll_hook_evade/red_example.cpp` - full red multi-step
+- `ntdll_hook_evade/blue_example.cpp` - full blue multi-reason
+- `ntdll_hook_evade/pair.cpp` - StrategyEntry wiring + narrator

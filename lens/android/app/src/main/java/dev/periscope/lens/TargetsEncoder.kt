@@ -1,14 +1,19 @@
 package dev.periscope.lens
 
 /**
- * L6 wire-protocol encoder (ledger L6) — the Kotlin mirror of
+ * L6 wire-protocol encoder (ledger L6) — the phone-side encoder mirror of
  * `lens/src/periscope_lens/transport.py`.
  *
  * Frame layout (little-endian, packed — `<` structs have no alignment
  * padding): `u8 version, u8 type, u32 payloadLength, payload`.
  *
- * Per-box payload: `u8 classId, f32 conf, f32 cx, f32 cy, f32 w, f32 h`
- * (21 bytes); targets head: `u64 frameId, u64 tCaptureNs, u8 count` (17).
+ * Hello payload: `u16 appBuild, u32 flags` (6 bytes). Targets head:
+ * `u64 frameId, u64 tCaptureNs, u8 count` (17 bytes); per-box payload:
+ * `u8 classId, f32 conf, f32 cx, f32 cy, f32 w, f32 h` (21 bytes). State:
+ * six `u16` fields + `u8 flags` (13 bytes).
+ *
+ * `Calib` is PC→phone, so the phone side needs a decoder for it rather than
+ * an encoder; the constants are kept here for completeness.
  *
  * Deliberately pure: no Android imports, so a JVM unit test can mirror the
  * Python decoder's fixtures byte-for-byte when CI lands.
@@ -19,6 +24,7 @@ object TargetsEncoder {
     const val TYPE_TARGETS: Int = 2
     const val TYPE_PING: Int = 3
     const val TYPE_PONG: Int = 4
+    const val TYPE_CALIB: Int = 5
     const val TYPE_STATE: Int = 6
     const val MAX_FRAME_BYTES: Int = 512 * 1024
 
@@ -51,6 +57,11 @@ object TargetsEncoder {
         }
         payload.copyInto(out, 6)
         return out
+    }
+
+    private fun putU16(value: Long, out: ByteArray, offset: Int) {
+        out[offset] = (value and 0xFF).toByte()
+        out[offset + 1] = ((value shr 8) and 0xFF).toByte()
     }
 
     private fun putU32(value: Long, out: ByteArray, offset: Int) {
@@ -93,15 +104,40 @@ object TargetsEncoder {
     }
 
     fun encodeHello(appBuild: Int, flags: Int): ByteArray {
-        val payload = ByteArray(8)
-        putU32(appBuild.toLong(), payload, 0)
-        putU32(flags.toLong(), payload, 4)
+        require(appBuild in 0..0xFFFF) { "appBuild must fit a u16" }
+        val payload = ByteArray(6)
+        putU16(appBuild.toLong(), payload, 0)
+        putU32(flags.toLong(), payload, 2)
         return frame(TYPE_HELLO, payload)
     }
 
     fun encodePing(t0Ns: Long, isReply: Boolean): ByteArray {
         val payload = ByteArray(8)
         putU64(t0Ns, payload, 0)
-        return frame(if (isReply) 4 else TYPE_PING, payload)
+        return frame(if (isReply) TYPE_PONG else TYPE_PING, payload)
+    }
+
+    /** Encodes a phone→PC `State` telemetry frame (cadence + ROI + flags). */
+    fun encodeState(
+        fpsMeasured: Int,
+        fpsTarget: Int,
+        roiX: Int,
+        roiY: Int,
+        roiW: Int,
+        roiH: Int,
+        flags: Int,
+    ): ByteArray {
+        for (value in listOf(fpsMeasured, fpsTarget, roiX, roiY, roiW, roiH)) {
+            require(value in 0..0xFFFF) { "state fields must fit a u16" }
+        }
+        require(flags in 0..0xFF) { "flags must fit a byte" }
+        val payload = ByteArray(13)
+        var offset = 0
+        for (value in listOf(fpsMeasured, fpsTarget, roiX, roiY, roiW, roiH)) {
+            putU16(value.toLong(), payload, offset)
+            offset += 2
+        }
+        payload[offset] = flags.toByte()
+        return frame(TYPE_STATE, payload)
     }
 }

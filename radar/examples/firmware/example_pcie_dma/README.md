@@ -1,6 +1,6 @@
-# T4 PCIe DMA — FPGA-Based CS2 Memory Reader
+# T4 PCIe DMA - FPGA-Based CS2 Memory Reader
 
-**Educational prototype** demonstrating **T4 hardware-level memory access** via PCIe DMA using an FPGA (hardened PCILeech-class pattern). Reads CS2 entity data with **zero OS involvement** — no process handle, no kernel driver, no system calls.
+Educational prototype demonstrating T4 hardware-level memory access via PCIe DMA using an FPGA (hardened PCILeech-class pattern). Reads CS2 entity data with zero OS involvement - no process handle, no kernel driver, no system calls.
 
 ## Architecture
 
@@ -50,7 +50,7 @@
 | T1 | Direct syscall | VM_READ handle in radar's table | Handle graph scan |
 | T2 | BYOVD IOCTL | Device handle to gdrv.sys | Device watch, IOCTL monitor |
 | T3 | Hypervisor EPT | VMX root mode in MSRs | CPUID timing, VBS checks |
-| **T4** | **PCIe DMA FPGA** | **NOTHING** | **IOMMU only** |
+| T4 | PCIe DMA FPGA | NOTHING | IOMMU only |
 
 ## FPGA Register Map (BAR0, 128KB, REG_BASE_SHIFT=0x80)
 
@@ -64,7 +64,7 @@
 | 0x0094 | DESC_ADDR_HI | RW | Descriptor ring PA (high 32) |
 | 0x0098 | DESC_COUNT | RW | Number of descriptors |
 | 0x009C | DESC_COMPLETED | RO | Completed descriptors |
-| 0x00A0 | DMA_CTRL | WO | Doorbell — start DMA |
+| 0x00A0 | DMA_CTRL | WO | Doorbell - start DMA |
 | 0x00A4 | DMA_ABORT | WO | Abort DMA |
 | 0x00A8 | DMA_STATUS | RO | DMA engine status |
 | 0x00AC | DMA_ERROR | RO | Error code |
@@ -177,12 +177,12 @@ host_sim [--iommu] [--iterations N] [--quiet] [--check] [--help]
 
 | Vector | What Blue Sees |
 |--------|---------------|
-| **IOMMU/VT-d** | DMA remapping blocks reads to unmapped pages |
-| **ACS** | Access Control Services in PCIe switch |
-| **PCIe Vendor ID** | Spoofed/unknown device on bus (0x1B73+0xA0B0) |
-| **Bandwidth Anomaly** | Unexpected PCIe traffic pattern |
-| **Physical Access** | FPGA requires PCIe slot access |
-| **DMA Firmware** | Custom bitstream detectable via JTAG/SPI flash |
+| IOMMU/VT-d | DMA remapping blocks reads to unmapped pages |
+| ACS | Access Control Services in PCIe switch |
+| PCIe Vendor ID | Spoofed/unknown device on bus (0x1B73+0xA0B0) |
+| Bandwidth Anomaly | Unexpected PCIe traffic pattern |
+| Physical Access | FPGA requires PCIe slot access |
+| DMA Firmware | Custom bitstream detectable via JTAG/SPI flash |
 
 ## Files
 
@@ -202,4 +202,4 @@ host_sim [--iommu] [--iterations N] [--quiet] [--check] [--help]
 - PCILeech FPGA: https://github.com/ufrisk/pcileech-fpga
 - PCILeech: https://github.com/ufrisk/pcileech
 - Intel SDM Vol 3A Chapter 4: Paging Structures
-- Periscope T4 red-team components: `radar/src/lab_components/teams/t4_red/`
+- Periscope T4 red-team components: `anti-cheat/src/lab_components/teams/t4_red/`
