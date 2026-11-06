@@ -12,4 +12,10 @@ void fuzzed_sleep(int32_t base_ms, int32_t jitter_pct = 20) noexcept;
 // Yield remainder of time slice (equivalent to Sleep(0))
 void yield() noexcept;
 
+// E62: raise the system timer resolution to 1 ms for the life of the loop and
+// restore it on exit. Idempotent; restore is a no-op when raise never
+// succeeded or already restored.
+bool raise_timer_resolution() noexcept;
+void restore_timer_resolution() noexcept;
+
 } // namespace real::win

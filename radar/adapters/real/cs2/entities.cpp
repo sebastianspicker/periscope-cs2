@@ -1,4 +1,5 @@
 #include "real/cs2/entities.hpp"
+#include "real/cs2/handle_sanity.hpp"
 #include "real/cs2/offsets_snapshot.hpp"
 #include "real/win/xorstr.hpp"
 
@@ -45,13 +46,15 @@ Result<std::uint64_t> resolve_handle(Cs2MemoryReader& reader,
                                      std::uint32_t handle,
                                      const Cs2Offsets& offsets) {
   const std::uint32_t index = handle & handle_index_mask();
-  if (index == 0) return {{}, OBF("Entity handle is null")};
+  if (!handle::handle_usable(handle) || index == 0) {
+    return {{}, OBF("Entity handle is null")};
+  }
 
   const std::uint64_t chunk_address =
       entity_list + chunk_table_offset() +
       static_cast<std::uint64_t>(index >> chunk_shift()) * sizeof(std::uint64_t);
   const auto chunk = read_value<std::uint64_t>(reader, chunk_address, OBF("entity-list chunk"));
-  if (!chunk || *chunk == 0) {
+  if (!chunk || !handle::pointer_usable(*chunk)) {
     return {{}, chunk.error_msg.empty() ? OBF("Entity-list chunk is unavailable")
                                         : chunk.error_msg.c_str()};
   }
@@ -60,7 +63,11 @@ Result<std::uint64_t> resolve_handle(Cs2MemoryReader& reader,
   const std::uint64_t slot =
       *chunk + static_cast<std::uint64_t>(index & ((1u << chunk_shift()) - 1u)) * stride;
   // First pointer in identity slot is the entity object.
-  return read_value<std::uint64_t>(reader, slot, OBF("entity handle entry"));
+  auto entity = read_value<std::uint64_t>(reader, slot, OBF("entity handle entry"));
+  if (entity && !handle::pointer_usable(*entity)) {
+    return {{}, OBF("Entity handle entry is a sentinel")};
+  }
+  return entity;
 }
 
 Result<Cs2PlayerEntity> read_player_at(Cs2MemoryReader& reader,

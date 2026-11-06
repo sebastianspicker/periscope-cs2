@@ -72,6 +72,9 @@ class TrackSmoothingConfig:
     fade_out_frames: int = 3
     max_gap_frames: int = 4
     max_tracks: int = 256
+    # E71: a new track must match this many frames before it is emitted, so a
+    # one-frame false positive never draws. 1 restores the old behaviour.
+    min_confirmations: int = 2
 
     def __post_init__(self) -> None:
         if (
@@ -89,6 +92,12 @@ class TrackSmoothingConfig:
             raise ValueError("max_tracks must be an integer")
         if self.max_tracks < 1:
             raise ValueError("max_tracks must be >= 1")
+        if (
+            isinstance(self.min_confirmations, bool)
+            or not isinstance(self.min_confirmations, int)
+            or self.min_confirmations < 1
+        ):
+            raise ValueError("min_confirmations must be an integer >= 1")
 
 
 @dataclass(frozen=True)
@@ -98,6 +107,7 @@ class TrackDiagnostics:
     smoothed_count: int
     fading_count: int
     active_tracks: int
+    tentative_count: int = 0
 
 
 class _Track:
@@ -260,6 +270,7 @@ class TrackAnimator:
 
         for index, mask in enumerate(current_masks):
             class_id, _centroid, raw_bbox = geometry[index]
+            should_emit = True
             if index in mapping:
                 track = self._tracks[mapping[index]]
                 matched_track_indices.add(mapping[index])
@@ -288,6 +299,9 @@ class TrackAnimator:
                 new_track_indices.add(len(self._tracks))
                 self._next_track_id += 1
                 self._tracks.append(track)
+                # E71: hold the first frame(s) until the track is confirmed.
+                if track.appearances < config.min_confirmations:
+                    should_emit = False
                 # Fade-in: grow from the centroid over the configured window.
                 if config.fade_in_frames > 1:
                     factor = _ease(track.appearances / config.fade_in_frames)
@@ -296,15 +310,16 @@ class TrackAnimator:
                 else:
                     polygon = mask.polygon
 
-            emitted.append(
-                InstanceMask(
-                    frame_index=frame_index,
-                    polygon=polygon,
-                    confidence=mask.confidence,
-                    class_id=mask.class_id,
-                    class_name=mask.class_name,
+            if should_emit:
+                emitted.append(
+                    InstanceMask(
+                        frame_index=frame_index,
+                        polygon=polygon,
+                        confidence=mask.confidence,
+                        class_id=mask.class_id,
+                        class_name=mask.class_name,
+                    )
                 )
-            )
 
         # Unmatched tracks: keep fading copies alive for the bounded window.
         fading_count = 0
@@ -314,6 +329,9 @@ class TrackAnimator:
                 survivors.append(track)
                 continue
             track.frames_since_seen += 1
+            # A tentative track that vanishes was never drawn: drop it.
+            if track.appearances < config.min_confirmations:
+                continue
             if track.frames_since_seen > config.max_gap_frames:
                 continue  # drop: identity memory exhausted
             if track.frames_since_seen <= config.fade_out_frames:
@@ -345,6 +363,9 @@ class TrackAnimator:
             smoothed_count=smoothed_count,
             fading_count=fading_count,
             active_tracks=len(survivors),
+            tentative_count=sum(
+                1 for track in survivors if track.appearances < config.min_confirmations
+            ),
         )
 
 

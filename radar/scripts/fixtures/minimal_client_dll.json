@@ -6,13 +6,16 @@
           "m_iHealth": 844,
           "m_iTeamNum": 999,
           "m_lifeState": 852,
-          "m_pGameSceneNode": 816
+          "m_pGameSceneNode": 816,
+          "m_vecVelocity": 1080,
+          "m_hOwnerEntity": 1320
         }
       },
       "C_BasePlayerPawn": {
         "fields": {
           "m_vOldOrigin": 5048,
-          "m_pObserverServices": 4640
+          "m_pObserverServices": 4640,
+          "m_pWeaponServices": 5080
         }
       },
       "C_CSPlayerPawn": {
@@ -24,7 +27,8 @@
       },
       "CCSPlayerController": {
         "fields": {
-          "m_hPlayerPawn": 2324
+          "m_hPlayerPawn": 2324,
+          "m_sSanitizedPlayerName": 2144
         }
       },
       "CGameSceneNode": {
@@ -40,7 +44,8 @@
       },
       "CPlayer_ObserverServices": {
         "fields": {
-          "m_iObserverMode": 72
+          "m_iObserverMode": 72,
+          "m_hObserverTarget": 76
         }
       },
       "C_PlantedC4": {
@@ -49,6 +54,31 @@
           "m_nBombSite": 4516,
           "m_flC4Blow": 4560,
           "m_bBeingDefused": 4572
+        }
+      },
+      "C_BaseModelEntity": {
+        "fields": {
+          "m_vecViewOffset": 3416
+        }
+      },
+      "CPlayer_WeaponServices": {
+        "fields": {
+          "m_hActiveWeapon": 96
+        }
+      },
+      "C_EconEntity": {
+        "fields": {
+          "m_AttributeManager": 4984
+        }
+      },
+      "C_AttributeContainer": {
+        "fields": {
+          "m_Item": 80
+        }
+      },
+      "C_EconItemView": {
+        "fields": {
+          "m_iItemDefinitionIndex": 442
         }
       }
     }

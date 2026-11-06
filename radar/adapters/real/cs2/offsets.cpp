@@ -1,4 +1,5 @@
 #include "real/cs2/offsets.hpp"
+#include "real/cs2/json_shape.hpp"
 #include "real/cs2/offsets_snapshot.hpp"
 #include "real/cs2/process.hpp"
 
@@ -17,6 +18,8 @@
 #include <iomanip>
 #include <limits>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace real::cs2 {
 namespace {
@@ -82,16 +85,19 @@ void apply_schema_fields(Cs2Offsets& o) {
   o.entity_viewangles = snapshot::fields::m_angEyeAngles;
   o.entity_controller_pawn = snapshot::fields::m_hPlayerPawn;
   o.entity_list_entry = snapshot::constants::entity_identity_stride;
+  o.entity_velocity = snapshot::fields::m_vecVelocity;
+  o.entity_owner = snapshot::fields::m_hOwnerEntity;
+  o.entity_view_offset = snapshot::fields::m_vecViewOffset;
+  o.controller_name = snapshot::fields::m_sSanitizedPlayerName;
+  o.pawn_weapon_services = snapshot::fields::m_pWeaponServices;
+  o.active_weapon = snapshot::fields::m_hActiveWeapon;
+  o.econ_attribute_manager = snapshot::fields::m_AttributeManager;
+  o.econ_item = snapshot::fields::m_Item;
+  o.item_def_index = snapshot::fields::m_iItemDefinitionIndex;
+  o.observer_target = snapshot::fields::m_hObserverTarget;
 }
 
 enum class JsonNumberState { Missing, Valid, Invalid };
-
-bool is_json_property(const std::string& text, std::size_t quote) {
-  std::size_t before = quote;
-  while (before > 0 && std::isspace(static_cast<unsigned char>(text[before - 1]))) --before;
-  if (before == 0 || (text[before - 1] != '{' && text[before - 1] != ',')) return false;
-  return true;
-}
 
 bool is_json_number_delimiter(char c) {
   return c == ',' || c == '}' || std::isspace(static_cast<unsigned char>(c));
@@ -99,14 +105,14 @@ bool is_json_number_delimiter(char c) {
 
 JsonNumberState json_get_unique_u64(const std::string& text, const char* key,
                                     std::uint64_t& out) {
-  std::string needle = std::string("\"") + key + "\"";
+  const std::string needle(key);
   bool found = false;
-  for (std::size_t key_pos = text.find(needle); key_pos != std::string::npos;
-       key_pos = text.find(needle, key_pos + needle.size())) {
-    if (!is_json_property(text, key_pos)) continue;
-    std::size_t pos = key_pos + needle.size();
+  for (const json::KeyLocation& location : json::key_locations(text, needle)) {
+    if (!json::key_shape_ok(location)) continue;
+    std::size_t pos = location.pos + needle.size();
     while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos]))) ++pos;
-    if (pos >= text.size() || text[pos++] != ':') return JsonNumberState::Invalid;
+    if (pos >= text.size() || text[pos] != ':') return JsonNumberState::Invalid;
+    ++pos;
     while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos]))) ++pos;
     if (pos >= text.size() || text[pos] == '-' || text[pos] == '+' || text[pos] == '"') {
       return JsonNumberState::Invalid;
@@ -138,6 +144,7 @@ bool distinct_nonzero(std::initializer_list<std::uint64_t> values) {
 }
 
 bool load_snapshot_json_text(const std::string& text, Cs2Offsets& fields_only) {
+  if (!json::is_object(text)) return false;
   Cs2Offsets parsed{};
   const std::array<std::pair<const char*, std::uint64_t*>, 7> required{{
       {"m_iHealth", &parsed.entity_health},
@@ -150,6 +157,25 @@ bool load_snapshot_json_text(const std::string& text, Cs2Offsets& fields_only) {
   }};
   for (const auto& [key, destination] : required) {
     if (json_get_unique_u64(text, key, *destination) != JsonNumberState::Valid) return false;
+  }
+  // Optional identity/visibility fields: Missing is fine (older dumps), an
+  // Invalid occurrence is not.
+  const std::array<std::pair<const char*, std::uint64_t*>, 10> optional{{
+      {"m_vecVelocity", &parsed.entity_velocity},
+      {"m_hOwnerEntity", &parsed.entity_owner},
+      {"m_vecViewOffset", &parsed.entity_view_offset},
+      {"m_sSanitizedPlayerName", &parsed.controller_name},
+      {"m_pWeaponServices", &parsed.pawn_weapon_services},
+      {"m_hActiveWeapon", &parsed.active_weapon},
+      {"m_AttributeManager", &parsed.econ_attribute_manager},
+      {"m_Item", &parsed.econ_item},
+      {"m_iItemDefinitionIndex", &parsed.item_def_index},
+      {"m_hObserverTarget", &parsed.observer_target},
+  }};
+  for (const auto& [key, destination] : optional) {
+    if (json_get_unique_u64(text, key, *destination) == JsonNumberState::Invalid) {
+      return false;
+    }
   }
   if (!distinct_nonzero({parsed.entity_health, parsed.entity_team, parsed.entity_lifestate,
                          parsed.entity_origin, parsed.entity_viewangles,
@@ -171,25 +197,29 @@ struct RuntimeGlobals {
   std::uint64_t dwViewMatrix = 0;
   std::uint64_t dwViewAngles = 0;
   std::uint64_t dwSensitivity = 0;
+  std::uint64_t dwGlobalVars = 0;
   bool valid = false;
 };
 
 RuntimeGlobals g_runtime_globals{};
 
 bool load_runtime_globals(const std::string& text, RuntimeGlobals& out) {
+  if (!json::is_object(text)) return false;
   RuntimeGlobals g{};
   const auto entity = json_get_unique_u64(text, "dwEntityList", g.dwEntityList);
   const auto pawn = json_get_unique_u64(text, "dwLocalPlayerPawn", g.dwLocalPlayerPawn);
   const auto view_matrix = json_get_unique_u64(text, "dwViewMatrix", g.dwViewMatrix);
   const auto view_angles = json_get_unique_u64(text, "dwViewAngles", g.dwViewAngles);
   const auto sensitivity = json_get_unique_u64(text, "dwSensitivity", g.dwSensitivity);
+  const auto global_vars = json_get_unique_u64(text, "dwGlobalVars", g.dwGlobalVars);
   if (entity != JsonNumberState::Valid || pawn != JsonNumberState::Valid ||
       view_matrix == JsonNumberState::Invalid || view_angles == JsonNumberState::Invalid ||
       sensitivity == JsonNumberState::Invalid ||
+      global_vars == JsonNumberState::Invalid ||
       !distinct_nonzero({g.dwEntityList, g.dwLocalPlayerPawn}) ||
       g.dwEntityList > kMaxClientRva || g.dwLocalPlayerPawn > kMaxClientRva ||
       g.dwViewMatrix > kMaxClientRva || g.dwViewAngles > kMaxClientRva ||
-      g.dwSensitivity > kMaxClientRva) {
+      g.dwSensitivity > kMaxClientRva || g.dwGlobalVars > kMaxClientRva) {
     return false;
   }
   g.valid = true;
@@ -360,10 +390,10 @@ Cs2Offsets offsets_from_snapshot(std::uint64_t client_base) {
   // zero RVA would resolve to client_base + 0 — the DOS header.
   const std::uint64_t ent_rva = g_runtime_globals.valid
                                     ? g_runtime_globals.dwEntityList
-                                    : snapshot::globals::dwEntityList;
+                                    : encoded::decode(snapshot::globals::dwEntityList);
   const std::uint64_t pawn_rva = g_runtime_globals.valid
                                      ? g_runtime_globals.dwLocalPlayerPawn
-                                     : snapshot::globals::dwLocalPlayerPawn;
+                                     : encoded::decode(snapshot::globals::dwLocalPlayerPawn);
   // view/angles/sensitivity are optional in the runtime JSON; a missing or
   // zero entry keeps the embedded snapshot RVA instead of falling to 0.
   const auto pick = [](std::uint64_t runtime, std::uint64_t embedded) {
@@ -371,13 +401,16 @@ Cs2Offsets offsets_from_snapshot(std::uint64_t client_base) {
   };
   const std::uint64_t vm_rva = pick(
       g_runtime_globals.valid ? g_runtime_globals.dwViewMatrix : 0,
-      snapshot::globals::dwViewMatrix);
+      encoded::decode(snapshot::globals::dwViewMatrix));
   const std::uint64_t va_rva = pick(
       g_runtime_globals.valid ? g_runtime_globals.dwViewAngles : 0,
-      snapshot::globals::dwViewAngles);
+      encoded::decode(snapshot::globals::dwViewAngles));
   const std::uint64_t sens_rva = pick(
       g_runtime_globals.valid ? g_runtime_globals.dwSensitivity : 0,
-      snapshot::globals::dwSensitivity);
+      encoded::decode(snapshot::globals::dwSensitivity));
+  const std::uint64_t gv_rva = pick(
+      g_runtime_globals.valid ? g_runtime_globals.dwGlobalVars : 0,
+      encoded::decode(snapshot::globals::dwGlobalVars));
 
   if (client_base != 0) {
     // Absolute addresses of globals (read_entity_list dereferences these).
@@ -386,6 +419,7 @@ Cs2Offsets offsets_from_snapshot(std::uint64_t client_base) {
     o.view_matrix = client_base + vm_rva;
     o.view_angles = client_base + va_rva;
     o.sensitivity = client_base + sens_rva;
+    if (gv_rva != 0) o.global_vars = client_base + gv_rva;
   } else {
     // Store RVAs only (caller must add base later).
     o.entity_list = ent_rva;
@@ -393,6 +427,7 @@ Cs2Offsets offsets_from_snapshot(std::uint64_t client_base) {
     o.view_matrix = vm_rva;
     o.view_angles = va_rva;
     o.sensitivity = sens_rva;
+    o.global_vars = gv_rva;
   }
   return o;
 }
@@ -475,6 +510,16 @@ Result<Cs2Offsets> resolve_offsets_for_process(std::uint32_t cs2_pid,
     if (runtime_fields.entity_list_entry) {
       offsets.entity_list_entry = runtime_fields.entity_list_entry;
     }
+    if (runtime_fields.entity_velocity) offsets.entity_velocity = runtime_fields.entity_velocity;
+    if (runtime_fields.entity_owner) offsets.entity_owner = runtime_fields.entity_owner;
+    if (runtime_fields.entity_view_offset) offsets.entity_view_offset = runtime_fields.entity_view_offset;
+    if (runtime_fields.controller_name) offsets.controller_name = runtime_fields.controller_name;
+    if (runtime_fields.pawn_weapon_services) offsets.pawn_weapon_services = runtime_fields.pawn_weapon_services;
+    if (runtime_fields.active_weapon) offsets.active_weapon = runtime_fields.active_weapon;
+    if (runtime_fields.econ_attribute_manager) offsets.econ_attribute_manager = runtime_fields.econ_attribute_manager;
+    if (runtime_fields.econ_item) offsets.econ_item = runtime_fields.econ_item;
+    if (runtime_fields.item_def_index) offsets.item_def_index = runtime_fields.item_def_index;
+    if (runtime_fields.observer_target) offsets.observer_target = runtime_fields.observer_target;
     // Re-apply globals with runtime RVAs if loaded.
     if (g_runtime_globals.valid && client_base != 0) {
       offsets.entity_list = client_base + g_runtime_globals.dwEntityList;
@@ -483,6 +528,8 @@ Result<Cs2Offsets> resolve_offsets_for_process(std::uint32_t cs2_pid,
         offsets.view_matrix = client_base + g_runtime_globals.dwViewMatrix;
       if (g_runtime_globals.dwViewAngles)
         offsets.view_angles = client_base + g_runtime_globals.dwViewAngles;
+      if (g_runtime_globals.dwGlobalVars)
+        offsets.global_vars = client_base + g_runtime_globals.dwGlobalVars;
     }
   }
 

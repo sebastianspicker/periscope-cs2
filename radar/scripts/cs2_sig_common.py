@@ -16,6 +16,7 @@ GLOBAL_KEYS = [
     "dwPlantedC4",
     "dwCSGOInput",
     "dwSensitivity",
+    "dwGlobalVars",
 ]
 
 CRITICAL_GLOBALS = ("dwEntityList", "dwLocalPlayerPawn")
@@ -40,6 +41,17 @@ FIELD_MAP = [
     ("C_PlantedC4", "m_nBombSite"),
     ("C_PlantedC4", "m_flC4Blow"),
     ("C_PlantedC4", "m_bBeingDefused"),
+    # Second-pass identity/visibility set (E48, E50-E54)
+    ("C_BaseEntity", "m_vecVelocity"),
+    ("C_BaseEntity", "m_hOwnerEntity"),
+    ("C_BaseModelEntity", "m_vecViewOffset"),
+    ("CCSPlayerController", "m_sSanitizedPlayerName"),
+    ("C_BasePlayerPawn", "m_pWeaponServices"),
+    ("CPlayer_WeaponServices", "m_hActiveWeapon"),
+    ("C_EconEntity", "m_AttributeManager"),
+    ("C_AttributeContainer", "m_Item"),
+    ("C_EconItemView", "m_iItemDefinitionIndex"),
+    ("CPlayer_ObserverServices", "m_hObserverTarget"),
 ]
 
 ENTITY_CONSTANTS = {

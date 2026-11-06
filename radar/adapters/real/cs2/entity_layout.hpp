@@ -26,6 +26,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <optional>
 #include <vector>
 
 namespace real::cs2::layout {
@@ -82,12 +83,29 @@ class Window {
 inline constexpr std::size_t kMaxWindowBytes = 0x10000;
 
 /// Smallest window that fully contains every field span that fits under
-/// ``kMaxWindowBytes`` (0 when none fit).
+/// ``kMaxWindowBytes`` (0 when none fit). Oversize fields are silently
+/// skipped; use the strict variant when the caller must know (E65 / S2).
 inline std::size_t required_window_size(const std::vector<FieldSpan>& fields) {
   std::size_t end = 0;
   for (const FieldSpan& f : fields) {
     const std::uint64_t field_end = f.offset + f.size;
     if (f.offset >= kMaxWindowBytes || field_end > kMaxWindowBytes) continue;
+    if (field_end > end) end = static_cast<std::size_t>(field_end);
+  }
+  return end;
+}
+
+/// Strict variant: ``std::nullopt`` when any field does not fit under the
+/// window cap. The caller then knows the window is incomplete instead of
+/// discovering it later as a failed extraction.
+inline std::optional<std::size_t> required_window_size_strict(
+    const std::vector<FieldSpan>& fields) {
+  std::size_t end = 0;
+  for (const FieldSpan& f : fields) {
+    const std::uint64_t field_end = f.offset + f.size;
+    if (f.offset >= kMaxWindowBytes || field_end > kMaxWindowBytes) {
+      return std::nullopt;
+    }
     if (field_end > end) end = static_cast<std::size_t>(field_end);
   }
   return end;

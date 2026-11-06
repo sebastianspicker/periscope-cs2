@@ -9,6 +9,7 @@
     "dwViewAngles": 37600000,
     "dwPlantedC4": 36000000,
     "dwCSGOInput": 37700000,
-    "dwSensitivity": 37800000
+    "dwSensitivity": 37800000,
+    "dwGlobalVars": 33920465
   }
 }

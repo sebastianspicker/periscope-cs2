@@ -60,6 +60,13 @@ struct EntityWalkOptions {
   /// When true, only indices that previously yielded alive/spotted (sticky).
   bool priority_filter = false;
   bool include_dormant = false;
+  /// World-entity scan (E53): half of [start, max) per call, phase flipped by
+  /// the caller. Off by default; players always scan.
+  bool world_entities = false;
+  bool world_skip_equipped = true;
+  int world_start = 64;
+  int world_max = 1024;
+  int world_phase = 0;
   std::uint64_t* rng = nullptr;
 };
 
@@ -291,6 +298,13 @@ bool write_offset_snapshot_file(const Cs2Offsets& offsets,
 EntityReadResult read_entity_list_scattered(RemoteReadFn read,
                                             const Cs2Offsets& offsets,
                                             const EntityWalkOptions& opt);
+
+/// Scan one half of the world-entity index range (E53). Returns only
+/// classified non-player entities; equipped weapons are skipped unless
+/// `opt.world_skip_equipped` is false.
+EntityReadResult read_world_entities_fn(RemoteReadFn read,
+                                        const Cs2Offsets& offsets,
+                                        const EntityWalkOptions& opt);
 
 Result<Cs2PlayerEntity> read_local_player_fn(RemoteReadFn read,
                                              const Cs2Offsets& offsets);

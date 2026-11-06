@@ -22,6 +22,12 @@ unsupported on Apple and stay off there.
 hud-echo (only what the in-game radar already shows) as blue pressure rises.
 Posture and its limits: [../anti-cheat/docs/STEALTH-POSTURE.md](../anti-cheat/docs/STEALTH-POSTURE.md).
 
+Live identity and visibility: player names, active weapon, spectator targets
+and loose world entities (weapons, projectiles, hostages) are read behind
+flags. When a map file exists under `data/maps/`, the radar also computes a
+geometry line-of-sight hint from eye to eye; with no file the memory
+`m_bSpotted` path is unchanged. See `data/maps/README.md`.
+
 ---
 
 ## Layout

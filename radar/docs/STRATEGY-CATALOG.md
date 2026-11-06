@@ -137,6 +137,15 @@ Simulated scar-based red/blue pairs from the assessment ledger (E18-E28). `159_d
 | `163_stale_chunk_cache` | Stale chunk cache under churn | T0-T1 | Delivery | Memoize container chunk pointers; read stale chunks after reallocation | Deliberate churn + generation counters detect stale reads |
 | `164_escalation_cost_curve` | Escalation cost curve | T1-T2 | Detection | Climb RPM -> syscall -> kernel rungs, each leaving persistent mutations | Price mutation footprints (testsigning, HVCI, registry toggles, pending reboot) |
 
+### Second-pass pairs (E73–E76, IDs 165–168)
+
+| ID | Title | Tiers | Family | Red | Blue |
+|----|-------|-------|--------|-----|------|
+| `165_handle_origin_chain` | Duplicate chain vs owner attribution | T0 | Evasion | Launder a duplicated handle through a relay | Walk the duplicate chain to the root before scoring |
+| `166_section_entropy_probe` | Entropy vs patch-free decode | T1 | Evasion | Decode an encrypted registry into registers, no data-section patch | Non-image section entropy + manifest requirement |
+| `167_byovd_service_diff` | BYOVD cleanup vs module-hash orphan | T2 | Detection | Delete the SCM service after use; the module hash stays | Hash loaded modules, diff the service DB, flag the orphan |
+| `168_capture_exclusion_diff` | Capture exclusion vs frame diff | T0 | Evasion | Exclude the overlay from capture; the player still sees it | Diff captured vs presented frames; empty diff is the scar |
+
 ## Path index by area
 
 See `scenarios/strategies/CATALOG.md` for the path-oriented index (all strategies under `scenarios/strategies/`).

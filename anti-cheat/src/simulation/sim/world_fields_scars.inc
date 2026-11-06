@@ -573,3 +573,28 @@
   bool pending_reboot_required = false;      // escalation left a pending reboot
   int escalation_footprints = 0;             // persistent mutations blue can price
 
+
+  // ── Wave 19: second-pass external assessment pairs (IDs 165–168) ──
+
+  // 165: handle_origin_chain — duplicated handles hide the true origin
+  // behind a relay hop; blue must walk the duplicate chain, not the owner.
+  int handle_chain_depth = 0;
+  int handle_origin_trace_hops = 0;
+  bool handle_origin_misattributed = false;
+
+  // 166: section_entropy_probe — encrypted registry decoded to registers
+  // only (no data-section patch), so blue measures section entropy instead.
+  bool section_entropy_probe_active = false;
+  int section_entropy_score = 0;       // 0..100, non-image section entropy
+  bool decode_register_only = false;   // no decode-time data-section write
+
+  // 167: byovd_service_diff — SCM/registry cleaned after use, module hash
+  // stays in PsLoadedModuleList; blue hashes modules and diffs the service DB.
+  bool byovd_service_cleaned = false;
+  bool loaded_module_hash_orphan = false;
+  int service_db_diff_count = 0;
+
+  // 168: capture_exclusion_diff — overlay excluded from capture; blue diffs
+  // the captured frame against the presented frame and finds nothing.
+  int capture_frame_diff_pixels = 0;
+  bool capture_exclusion_observed = false;

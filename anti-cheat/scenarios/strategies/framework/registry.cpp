@@ -152,6 +152,11 @@ StrategyEntry entry_161_torn_snapshot_artifacts();
 StrategyEntry entry_162_dirty_bitmap_invalidation();
 StrategyEntry entry_163_stale_chunk_cache();
 StrategyEntry entry_164_escalation_cost_curve();
+// Wave 19: second-pass assessment pairs (IDs 165–168)
+StrategyEntry entry_165_handle_origin_chain();
+StrategyEntry entry_166_section_entropy_probe();
+StrategyEntry entry_167_byovd_service_diff();
+StrategyEntry entry_168_capture_exclusion_diff();
 
 // Wave 8: remaining tier and crosscutting strategy pairs (IDs 29-99)
 StrategyEntry entry_29_process_cooccurrence();
@@ -299,6 +304,9 @@ const std::vector<StrategyEntry>& catalog() {
            entry_160_zero_run_carving(),             entry_161_torn_snapshot_artifacts(),
            entry_162_dirty_bitmap_invalidation(),    entry_163_stale_chunk_cache(),
            entry_164_escalation_cost_curve(),
+           // Wave 19: second-pass assessment pairs (IDs 165–168)
+           entry_165_handle_origin_chain(),          entry_166_section_entropy_probe(),
+           entry_167_byovd_service_diff(),           entry_168_capture_exclusion_diff(),
            // Wave 8: remaining tier and crosscutting strategy pairs
            entry_29_process_cooccurrence(),          entry_31_parent_lineage(),
            entry_32_inmatch_only(),                  entry_33_driver_allowlist(),

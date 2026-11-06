@@ -30,6 +30,7 @@ set(LR_REAL_RPM_SOURCES
   "${RADAR_SOURCE_DIR}/adapters/real/cs2/process_cache.cpp"
   "${RADAR_SOURCE_DIR}/adapters/real/cs2/process_finder.cpp"
   "${RADAR_SOURCE_DIR}/adapters/real/cs2/radar.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/kernel/preflight.cpp"
 )
 # Direct syscall support is separately selectable from ordinary RPM.
 set(LR_REAL_SYSCALL_SOURCES

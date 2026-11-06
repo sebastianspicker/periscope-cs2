@@ -17,6 +17,7 @@
 #include "real/cs2/offsets_snapshot.hpp"
 #include "real/cs2/periscope_hud.hpp"
 #include "real/cs2/periscope_scanner.hpp"
+#include "real/kernel/preflight.hpp"
 #include "real/gpu/render_pipeline.hpp"
 #include "real/gpu/gui.hpp"
 #include "real/win/api_table.hpp"
@@ -71,6 +72,18 @@ int main(int argc, char** argv) {
     return 1;
   }
   logf("  OK\n\n");
+
+  // E61: report the system posture before any driver work. Warnings do not
+  // stop the run; they turn an obscure SCM failure into a readable line.
+  {
+    const auto status = real::kernel::preflight::probe(nullptr);
+    logf("[preflight] %s\n",
+         real::kernel::preflight::describe(status).c_str());
+    if (real::kernel::preflight::classify(status) ==
+        real::kernel::preflight::Verdict::Blocked) {
+      logf("[preflight] not elevated — RPM may still work for a same-user game\n");
+    }
+  }
 #endif
 
   real::cs2::stack::AttachLadder ladder{};

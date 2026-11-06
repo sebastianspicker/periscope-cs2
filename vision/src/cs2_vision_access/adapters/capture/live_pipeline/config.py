@@ -73,6 +73,8 @@ class LivePipelineConfig:
     # Ledger V6: render boxes/labels/timing on the composite for field
     # debugging. Debug output is a diagnostic surface, never a default.
     debug_viz: bool = False
+    # E70: draw clamped edge arrows for tracked players outside the frame.
+    edge_cues: bool = False
     # Ledger V2 wiring: optional sanitized recorder fed every inferred frame.
     recorder: FrameRecorder | None = None
 

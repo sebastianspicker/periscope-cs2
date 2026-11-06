@@ -12,7 +12,8 @@ set(_HOST_TESTS
   radar_los_test
   radar_webradar_test
   radar_tri_loader_test
-  radar_entity_math_test)
+  radar_entity_math_test
+  radar_external_ledger_test)
 foreach(target ${_HOST_TESTS})
   add_executable(${target} "${RADAR_SOURCE_DIR}/tests/${target}.cpp")
   target_link_libraries(${target} PRIVATE lr_build_options)
@@ -32,7 +33,12 @@ foreach(target
     radar_los_test
     radar_webradar_test
     radar_tri_loader_test
-    radar_entity_math_test)
+    radar_entity_math_test
+    radar_external_ledger_test)
   target_link_libraries(${target} PRIVATE radar_snapshot radar_webradar
     radar_collision)
 endforeach()
+
+# The external-ledger test includes ac::Vec3 for the pure primitives.
+target_include_directories(radar_external_ledger_test PRIVATE
+  "${LR_ANTI_CHEAT_DIR}/src/domain")

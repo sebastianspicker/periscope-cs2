@@ -33,8 +33,13 @@ if(TARGET ac_real_rpm AND TARGET ac_real_syscall AND TARGET ac_real_gpu)
     "${_app}/live_radar_support.cpp"
     "${_app}/live_radar_loop.cpp")
   target_link_libraries(live_radar PRIVATE
-    lr_build_options ac_real_rpm ac_real_syscall ac_real_gpu ac_sim ac_common)
-  target_include_directories(live_radar PRIVATE "${RADAR_SOURCE_DIR}/apps")
+    lr_build_options ac_real_rpm ac_real_syscall ac_real_gpu ac_sim ac_common
+    radar_snapshot radar_collision)
+  target_include_directories(live_radar PRIVATE "${RADAR_SOURCE_DIR}/apps"
+    "${RADAR_SOURCE_DIR}/src/domain" "${RADAR_SOURCE_DIR}/src/application")
+  if(WIN32)
+    target_link_libraries(live_radar PRIVATE advapi32)
+  endif()
   foreach(probe donor_worker entity_probe radar_diag scale_probe hud_probe icvar_probe)
     if(EXISTS "${_app}/${probe}.cpp")
       lr_exe(${probe} apps/demos/${probe}.cpp ac_real_rpm ac_common)

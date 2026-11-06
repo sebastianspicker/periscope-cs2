@@ -1,18 +1,32 @@
 // live_radar_loop.cpp — main overlay frame loop for live_radar demo.
 #include "demos/live_radar_support.hpp"
 #include "demos/radar_shared.hpp"
+#include "real/cs2/dead_reckoning.hpp"
 #include "real/cs2/entity_cache.hpp"
 #include "real/cs2/frame_pacing.hpp"
 #include "real/cs2/hijack_reader.hpp"
 #include "real/cs2/periscope_radar.hpp"
+#include "real/cs2/schema_resolver.hpp"
+#include "real/cs2/spot_ttl.hpp"
+#include "real/cs2/view_point.hpp"
+#include "real/cs2/world_collision.hpp"
 #include "real/win/api_table.hpp"
 #include "real/win/timing.hpp"
 #include "real/win/xorstr.hpp"
+#include "radar/los_bvh.hpp"
+#include "radar/tri_loader.hpp"
 
 #include <cmath>
+#include <atomic>
 #include <chrono>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
+#include <filesystem>
+#include <fstream>
+#include <functional>
+#include <future>
+#include <memory>
 #include <string>
 
 #if LR_PLATFORM_WINDOWS
@@ -91,14 +105,112 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   // so a failed read holds the last good state instead of drawing nothing.
   real::cs2::cache::EntityCache<real::cs2::Cs2PlayerEntity> entity_cache;
   real::cs2::cache::CacheSnapshot<real::cs2::Cs2PlayerEntity> entity_snapshot{};
+  // Ledger E49/E54: spotted hysteresis and bounded far-entity extrapolation.
+  real::cs2::spot::SpotTtl spot_ttl(a.strict_intel ? 0 : 1000);
+  real::cs2::reckon::DeadReckoner reckoner;
+  // Ledger E46: map-collision LOS. Loaded off-thread, swapped atomically.
+  std::shared_ptr<const radar_domain::LosBvh> los_bvh;
+  std::string los_map;
+  std::string last_map_attempt;
+  std::future<std::shared_ptr<const radar_domain::LosBvh>> los_job;
+  bool los_job_active = false;
+  bool live_world_attempted = false;
+  std::uint64_t map_name_ptr_cache = 0;
+  std::string cached_map_name;
+  int world_phase = 0;
+  std::uint64_t now_ms = 0;
+  static std::atomic<bool> stop_requested{false};
+  stop_requested.store(false);
   // Ledger E15: idle debouncer for the frame cap.
   real::cs2::pacing::IdleDebouncer idle_debouncer{30};
   // Ledger E12: one functional offset validation after the first good walk.
   bool offsets_validation_done = false;
+  bool schema_resolve_done = false;
+  std::uint64_t schema_type_scope = 0;
+  if (const char* scope_env = std::getenv("LR_CS2_TYPE_SCOPE");
+      scope_env && *scope_env) {
+    schema_type_scope = std::strtoull(scope_env, nullptr, 0);
+  }
   real::cs2::stack::RoundIntel round_intel{};
   ac::Vec3 prev_local_origin{};
   bool have_prev_local = false;
+  // Resolve the map directory once (env override, then cwd-relative source
+  // fallbacks). A missing directory simply disables LOS.
+  std::filesystem::path map_dir;
+  if (const char* env = std::getenv("LR_CS2_MAP_DIR"); env && *env) {
+    map_dir = env;
+  } else {
+    for (const char* candidate : {"data/maps", "../data/maps", "radar/data/maps"}) {
+      if (std::filesystem::is_directory(candidate)) {
+        map_dir = candidate;
+        break;
+      }
+    }
+  }
+
+  // Read the current map name through GlobalVars (E46). Cached by string
+  // pointer; `<empty>` means "not in a map".
+  auto read_map_name = [&]() -> std::string {
+    if (offsets.global_vars == 0) return {};
+    std::uint64_t global_vars = 0;
+    if (!live_read(offsets.global_vars, &global_vars, sizeof(global_vars)) ||
+        global_vars == 0) {
+      return {};
+    }
+    std::uint64_t name_ptr = 0;
+    if (!live_read(global_vars + 0x188, &name_ptr, sizeof(name_ptr)) ||
+        name_ptr == 0) {
+      return {};
+    }
+    if (name_ptr == map_name_ptr_cache) return cached_map_name;
+    char raw[64]{};
+    if (!live_read(name_ptr, raw, sizeof(raw) - 1)) return {};
+    std::string name(raw);
+    for (char& c : name) {
+      if (c == '/' || c == '\\' || c == ':' || c == ' ') c = '_';
+    }
+    map_name_ptr_cache = name_ptr;
+    cached_map_name = name;
+    return cached_map_name;
+  };
+
+  auto maybe_load_los = [&]() {
+    if (los_job_active &&
+        los_job.wait_for(std::chrono::milliseconds(0)) ==
+            std::future_status::ready) {
+      los_bvh = los_job.get();
+      los_job_active = false;
+      logf("[los] map=%s nodes=%zu triangles=%zu\n", los_map.c_str(),
+           los_bvh ? los_bvh->node_count() : 0,
+           los_bvh ? los_bvh->triangle_count() : 0);
+    }
+    if (los_job_active || map_dir.empty()) return;
+
+    const std::string detected = read_map_name();
+    if (detected.empty() || detected == "<empty>" ||
+        detected == last_map_attempt) {
+      return;
+    }
+    last_map_attempt = detected;
+    const auto path = map_dir / (detected + ".tri");
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(path, error)) {
+      los_map.clear();
+      los_bvh.reset();
+      return;
+    }
+    los_map = detected;
+    los_job_active = true;
+    los_job = std::async(std::launch::async, [path]() {
+      std::ifstream in(path, std::ios::binary);
+      auto loaded = radar_application::load_tri_stream(in);
+      if (!loaded.ok) return std::shared_ptr<const radar_domain::LosBvh>{};
+      return std::make_shared<const radar_domain::LosBvh>(loaded.triangles);
+    });
+  };
+
   while (true) {
+    if (stop_requested.load()) break;
     if (!renderer->process_messages()) break;
 
 #if LR_PLATFORM_WINDOWS
@@ -180,6 +292,66 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
 #endif
 
     const auto now_steady = std::chrono::steady_clock::now();
+    now_ms = static_cast<std::uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            now_steady.time_since_epoch())
+            .count());
+    maybe_load_los();
+
+    // E47: optional live vphys2 world parse. An env-supplied world pointer is
+    // a deliberate research switch; the baked `.tri` path stays the default.
+    if (!live_world_attempted) {
+      if (const char* world_env = std::getenv("LR_CS2_VPHYS2_WORLD");
+          world_env && *world_env) {
+        live_world_attempted = true;
+        const std::uint64_t world = std::strtoull(world_env, nullptr, 0);
+        std::vector<radar_domain::Triangle> triangles;
+        const auto extracted =
+            real::cs2::collision::extract_world(live_read, world, triangles);
+        if (extracted.ok) {
+          los_bvh = std::make_shared<const radar_domain::LosBvh>(triangles);
+          los_map = "live-vphys2";
+          logf("[los] live world bodies=%zu triangles=%zu\n", extracted.bodies,
+               extracted.triangles);
+        } else {
+          logf("[los] live world failed: %s\n", extracted.error.c_str());
+        }
+      }
+    }
+
+    // E55: optional data-only schema resolution. A supplied type scope is
+    // scanned once for the fields the live path needs; a hit overrides the
+    // pinned snapshot value, a miss leaves it alone.
+    if (!schema_resolve_done && schema_type_scope != 0) {
+      schema_resolve_done = true;
+      struct FieldTarget {
+        const char* class_name;
+        const char* field_name;
+        std::uint64_t* destination;
+      };
+      const FieldTarget targets[] = {
+          {"C_BaseEntity", "m_iHealth", &offsets.entity_health},
+          {"C_BaseEntity", "m_iTeamNum", &offsets.entity_team},
+          {"C_BaseEntity", "m_lifeState", &offsets.entity_lifestate},
+          {"C_BasePlayerPawn", "m_vOldOrigin", &offsets.entity_origin},
+          {"C_CSPlayerPawn", "m_angEyeAngles", &offsets.entity_viewangles},
+          {"C_BaseEntity", "m_vecVelocity", &offsets.entity_velocity},
+          {"C_BaseModelEntity", "m_vecViewOffset", &offsets.entity_view_offset},
+          {"CCSPlayerController", "m_hPlayerPawn", &offsets.entity_controller_pawn},
+      };
+      int hits = 0;
+      for (const auto& target : targets) {
+        const auto found = real::cs2::schema::resolve_field_bruteforce(
+            live_read, schema_type_scope, target.class_name, target.field_name);
+        if (found.found) {
+          *target.destination = found.offset;
+          ++hits;
+        }
+      }
+      logf("[schema] type_scope=0x%llX resolved=%d/%zu\n",
+           (unsigned long long)schema_type_scope, hits,
+           sizeof(targets) / sizeof(targets[0]));
+    }
     // HudRadar refresh: 5s (was 3s) — cuts IPC; map center is stable enough.
     if (std::chrono::duration_cast<std::chrono::seconds>(now_steady - last_cvar_refresh)
             .count() >= 5) {
@@ -234,13 +406,28 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       walk.jitter_us = true;
       walk.include_dormant = do_far;
       walk.rng = &g_entity_rng;
+      walk.world_entities = settings.world_entities;
+      walk.world_phase = world_phase;
+      world_phase ^= 1;
       entities = real::cs2::stack::read_entity_list_scattered(live_read, offsets, walk);
+      if (walk.world_entities) {
+        auto world = real::cs2::stack::read_world_entities_fn(live_read, offsets, walk);
+        if (world.read_successful) {
+          for (auto& entity : world.entities) {
+            entities.entities.push_back(std::move(entity));
+            ++entities.entity_count;
+          }
+        }
+      }
       throttle.arm_full(now_steady);
       if (do_far) throttle.arm_far(now_steady);
       if (entities.read_successful) {
         entity_snapshot = entity_cache.sync(
-            entities.entities,
-            [](const real::cs2::Cs2PlayerEntity& e) { return e.controller_handle; });
+            entities.entities, [](const real::cs2::Cs2PlayerEntity& e) {
+              // E64: pawn handle survives a slot reuse; fall back to the
+              // controller handle only when the pawn is unknown.
+              return e.pawn_handle != 0 ? e.pawn_handle : e.controller_handle;
+            });
       }
       // Ledger E12: freshness is necessary but not sufficient — classify the
       // offsets once against live data and log the verdict (fail-open: the
@@ -248,9 +435,24 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       if (!offsets_validation_done && entities.read_successful &&
           a.reader != nullptr && a.reader->is_attached()) {
         offsets_validation_done = true;
-        const auto report = real::cs2::validate_offsets_live(*a.reader, offsets);
+        auto report = real::cs2::validate_offsets_live(*a.reader, offsets);
         if (report) {
           logf("[offsets] %s\n", report->describe().c_str());
+          // E57: a Wrong verdict gets one bounded recovery attempt
+          // (re-resolve from the snapshot/runtime JSON, then re-validate).
+          if (report->validation == real::cs2::validate::OffsetsValidation::Wrong &&
+              a.attach != nullptr && a.client_base != 0) {
+            auto recovered = real::cs2::resolve_offsets_for_process(
+                a.attach->pid, a.attach->handle, a.client_base, a.client_size);
+            if (recovered) {
+              offsets = *recovered;
+              auto second = real::cs2::validate_offsets_live(*a.reader, offsets);
+              logf("[offsets] recovery=%s\n",
+                   second ? second->describe().c_str() : "unavailable");
+            } else {
+              logf("[offsets] recovery failed: %s\n", recovered.error_msg.c_str());
+            }
+          }
         } else {
           logf("[offsets] validation unavailable: %s\n", report.error_msg.c_str());
         }
@@ -309,22 +511,62 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       const std::uint8_t local_team = static_cast<std::uint8_t>(local->team);
 
       auto push_entity_blip = [&](const real::cs2::Cs2PlayerEntity& ent) {
-        if (!ent.is_alive && !ent.is_bomb) return;
-        if (!ent.is_local_player && !ent.is_bomb) {
-          if (ent.dormant) return;
-          // HudEcho: hide unspotted enemies — exactly what the official radar
-          // shows. In strict mode an unreadable spotted flag counts as hidden,
-          // so a failed read cannot leak an unspotted enemy.
-          if (intel_mode == real::cs2::stack::IntelMode::HudEcho &&
-              ent.team != local_team) {
-            if (!ent.spotted_known) {
-              if (a.strict_intel) return;
-            } else if (!ent.spotted) {
-              return;
+        const bool world = ent.world_kind != real::cs2::WorldKind::None;
+        if (world) {
+          if (!settings.world_entities) return;
+        } else {
+          if (!ent.is_alive && !ent.is_bomb) return;
+          if (!ent.is_local_player && !ent.is_bomb) {
+            if (ent.dormant) return;
+            // HudEcho: hide unspotted enemies — exactly what the official
+            // radar shows. Recently-spotted hysteresis (E49) keeps the blip
+            // from flickering; strict mode has a zero TTL.
+            const std::uint32_t key =
+                ent.pawn_handle != 0 ? ent.pawn_handle : ent.controller_handle;
+            spot_ttl.observe(key, ent.spotted_known, ent.spotted, now_ms);
+            if (intel_mode == real::cs2::stack::IntelMode::HudEcho &&
+                ent.team != local_team) {
+              if (!spot_ttl.visible(key, ent.spotted_known, ent.spotted, now_ms)) {
+                return;
+              }
             }
+            if (filter == BlipFilter::EnemyOnly && ent.team == local_team) return;
+            if (filter == BlipFilter::TeamOnly && ent.team != local_team) return;
           }
-          if (filter == BlipFilter::EnemyOnly && ent.team == local_team) return;
-          if (filter == BlipFilter::TeamOnly && ent.team != local_team) return;
+        }
+
+        const std::uint32_t key =
+            ent.pawn_handle != 0 ? ent.pawn_handle : ent.controller_handle;
+
+        // E54: extrapolate throttled far entities, then sample the fresh
+        // observation. Local/bomb/world entities are not extrapolated.
+        ac::Vec3 draw_origin = ent.origin;
+        if (!world && !ent.is_local_player && !ent.is_bomb) {
+          ac::Vec3 extrapolated{};
+          if (reckoner.position(key, now_ms, extrapolated)) draw_origin = extrapolated;
+          reckoner.sample(key, ent.origin, ent.velocity, now_ms);
+        }
+
+        // E48/E46: geometry LOS from eye to eye, only when a map is loaded.
+        // No map or no eye point leaves the memory spotted flag as the hint.
+        bool los_known = false;
+        bool los_visible = false;
+        if (los_bvh && settings.los_visibility && !world && !ent.is_local_player &&
+            !ent.is_bomb) {
+          const auto local_eye = real::cs2::view::eye_from(
+              local->origin, local->view_offset, local->view_offset_known);
+          const auto target_eye = real::cs2::view::eye_from(
+              ent.origin, ent.view_offset, ent.view_offset_known);
+          if (local_eye.valid && target_eye.valid) {
+            const radar_domain::WorldPosition a{local_eye.origin.x,
+                                                local_eye.origin.y,
+                                                local_eye.origin.z};
+            const radar_domain::WorldPosition b{target_eye.origin.x,
+                                                target_eye.origin.y,
+                                                target_eye.origin.z};
+            los_visible = !los_bvh->segment_blocked(a, b);
+            los_known = true;
+          }
         }
 
         real::gpu::RadarBlipLayout blip{};
@@ -332,13 +574,13 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
         blip.armor = ent.armor;
         blip.is_local = ent.is_local_player;
         blip.is_alive = ent.is_alive;
-        blip.is_visible = ent.spotted;
+        blip.is_visible = los_known ? los_visible : ent.spotted;
         blip.is_bomb = ent.is_bomb;
         blip.is_hostage = ent.is_hostage;
         blip.team = static_cast<std::uint8_t>(ent.team);
 
         if (use_polar) {
-          real::cs2::periscope::Vector3 w{ent.origin.x, ent.origin.y, ent.origin.z};
+          real::cs2::periscope::Vector3 w{draw_origin.x, draw_origin.y, draw_origin.z};
           bool oob = false;
           auto p = real::cs2::periscope::polar_map_player_to_radar(
               hud_snap, w, yaw_rad, rtts, &oob);
@@ -348,7 +590,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
           (void)oob;
         } else {
           const float lx = local->origin.x, ly = local->origin.y;
-          const float dx = ent.origin.x - lx, dy = ent.origin.y - ly;
+          const float dx = draw_origin.x - lx, dy = draw_origin.y - ly;
           const float cf = std::cos(yaw_rad), sf = std::sin(yaw_rad);
           const float forward = dx * cf + dy * sf;
           const float right = dx * sf - dy * cf;
@@ -356,7 +598,30 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
           blip.screen_y = -forward / edge;
         }
 
-        if (ent.is_local_player) {
+        if (world) {
+          blip.angle = 0.f;
+          switch (ent.world_kind) {
+            case real::cs2::WorldKind::Weapon:
+              blip.color = 0xFF66CC66;
+              std::snprintf(blip.label, sizeof(blip.label), "%s",
+                            ent.weapon.empty() ? "GUN" : ent.weapon.c_str());
+              break;
+            case real::cs2::WorldKind::Projectile:
+              blip.color = 0xFF33AAFF;
+              std::snprintf(blip.label, sizeof(blip.label), "NADE");
+              break;
+            case real::cs2::WorldKind::Hostage:
+              blip.color = 0xFF44DD44;
+              std::snprintf(blip.label, sizeof(blip.label), "HOSTAGE");
+              break;
+            case real::cs2::WorldKind::Chicken:
+              blip.color = 0xFFDDDDDD;
+              std::snprintf(blip.label, sizeof(blip.label), "CHICKEN");
+              break;
+            default:
+              break;
+          }
+        } else if (ent.is_local_player) {
           blip.angle = -3.14159265f * 0.5f;
           blip.color = 0xFFFFFFFF;
           std::snprintf(blip.label, sizeof(blip.label), "YOU");
@@ -369,6 +634,11 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
           if (ent.team == 3) blip.color = 0xFF4488CC;
           else if (ent.team == 2) blip.color = 0xFFCC6644;
           else blip.color = 0xFF888888;
+          if (!ent.name.empty()) {
+            std::snprintf(blip.label, sizeof(blip.label), "%s", ent.name.c_str());
+          } else if (!ent.weapon.empty()) {
+            std::snprintf(blip.label, sizeof(blip.label), "%s", ent.weapon.c_str());
+          }
         }
         frame.blips.push_back(blip);
       };
@@ -398,6 +668,8 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
           push_entity_blip(bomb);
         }
       }
+      spot_ttl.prune(now_ms);
+      if (reckoner.size() > 256) reckoner.clear();
 
       // Behavior shaping: reads cluster around gameplay events. Track the
       // local player's movement to fold rotates/retakes into the bursts.
@@ -583,25 +855,57 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
     }
   }
 
-  // Persist GUI panel settings to disk.
-  {
-    const std::string cfg = real::gpu::gui::default_config_path();
-    (void)real::gpu::gui::save_radar_config(cfg.c_str(), settings);
-    logf("[cleanup] saved gui config: %s\n", cfg.c_str());
-  }
-
-  logf("\n[cleanup] forensic exit...\n");
-  renderer->shutdown();
-  delete renderer;
-  g_reader = nullptr;
-  g_donor_ipc = nullptr;
-  donor_ipc.disconnect();
-  reader.detach();
+  // E60: one idempotent cleanup funnel used by normal exit, Ctrl-C/close,
+  // an unhandled exception and atexit. `atomic_flag` makes double entry safe.
+  static std::atomic_flag cleanup_once = ATOMIC_FLAG_INIT;
+  std::function<void()> cleanup = [&]() {
+    if (cleanup_once.test_and_set()) return;
+    stop_requested.store(true);
+    {
+      const std::string cfg = real::gpu::gui::default_config_path();
+      (void)real::gpu::gui::save_radar_config(cfg.c_str(), settings);
+      logf("[cleanup] saved gui config: %s\n", cfg.c_str());
+    }
+    logf("\n[cleanup] forensic exit...\n");
+    if (renderer != nullptr) {
+      renderer->shutdown();
+      delete renderer;
+      renderer = nullptr;
+    }
+    g_reader = nullptr;
+    g_donor_ipc = nullptr;
+    donor_ipc.disconnect();
+    reader.detach();
 #if LR_PLATFORM_WINDOWS
-  real::cs2::hijack::g_Hijack().shutdown();
-  real::cs2::stack::forensic_cleanup_ipc();
+    real::cs2::hijack::g_Hijack().shutdown();
+    real::cs2::stack::forensic_cleanup_ipc();
 #endif
-  if (attach.handle) real::cs2::detach_from_cs2(attach.handle);
+    if (attach.handle) real::cs2::detach_from_cs2(attach.handle);
+    real::win::restore_timer_resolution();
+  };
+
+  static std::function<void()>* g_cleanup_fn = nullptr;
+  // Heap-owned so the atexit handler never calls a destroyed std::function.
+  g_cleanup_fn = new std::function<void()>(cleanup);
+#if LR_PLATFORM_WINDOWS
+  SetConsoleCtrlHandler(
+      [](DWORD) -> BOOL {
+        if (g_cleanup_fn != nullptr && *g_cleanup_fn) (*g_cleanup_fn)();
+        return TRUE;
+      },
+      TRUE);
+  SetUnhandledExceptionFilter(
+      [](EXCEPTION_POINTERS*) -> LONG {
+        if (g_cleanup_fn != nullptr && *g_cleanup_fn) (*g_cleanup_fn)();
+        return EXCEPTION_CONTINUE_SEARCH;
+      });
+#endif
+  std::atexit([]() {
+    if (g_cleanup_fn != nullptr && *g_cleanup_fn) (*g_cleanup_fn)();
+  });
+  (void)real::win::raise_timer_resolution();
+
+  cleanup();
   logf("Done. ladder=%s ui_detached=%d reads=%llu\n",
        real::cs2::stack::AttachLadder::stage_name(ladder.stage),
        ladder.ui_detached ? 1 : 0, (unsigned long long)g_live_reads);

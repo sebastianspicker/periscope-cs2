@@ -53,7 +53,9 @@ struct SchemaLayout {
   std::size_t field_stride = 0x20;               ///< one SchemaFieldInfo entry
   std::uint64_t field_name_offset = 0x08;        ///< char* name pointer
   std::uint64_t field_offset_offset = 0x10;      ///< single-field offset
-  std::uint64_t field_count_offset = 0x28;       ///< class field count (u32)
+  std::uint64_t field_count_offset = 0x24;       ///< class field count (u32)
+  std::uint64_t class_name_offset = 0x8;         ///< class-info name pointer
+  std::uint64_t max_scope_scan = 0x4000;         ///< scope scan bound
   std::size_t max_fields_per_class = 4096;       ///< walk bound (corrupt table)
   std::size_t max_name_length = 256;             ///< name read bound
 };

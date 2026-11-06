@@ -73,6 +73,9 @@ bool radar_panel(GuiSystem& gui, RadarPanelSettings& s) {
     any |= gui.checkbox("Show intel", &s.show_intel);
     any |= gui.checkbox("Show blue score", &s.show_blue);
     gui.separator();
+    any |= gui.checkbox("World entities", &s.world_entities);
+    any |= gui.checkbox("Geometry LOS", &s.los_visibility);
+    gui.separator();
     if (gui.button("Save Config")) {
       save_radar_config(default_config_path().c_str(), s);
       any = true;
@@ -159,6 +162,8 @@ bool save_radar_config(const char* path, const RadarPanelSettings& s) {
   wrb("show_fps", s.show_fps);
   wrb("show_intel", s.show_intel);
   wrb("show_blue", s.show_blue);
+  wrb("world_entities", s.world_entities);
+  wrb("los_visibility", s.los_visibility);
   return out.good();
 }
 
@@ -210,6 +215,8 @@ bool load_radar_config(const char* path, RadarPanelSettings& s) {
     else if (key == "show_fps") setb(s.show_fps);
     else if (key == "show_intel") setb(s.show_intel);
     else if (key == "show_blue") setb(s.show_blue);
+    else if (key == "world_entities") setb(s.world_entities);
+    else if (key == "los_visibility") setb(s.los_visibility);
   }
   return true;
 }

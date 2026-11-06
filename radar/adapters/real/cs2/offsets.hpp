@@ -59,6 +59,18 @@ struct Cs2Offsets {
   std::uint64_t entity_lifestate = 0;    ///< m_lifeState
   std::uint64_t entity_origin = 0;       ///< m_vOldOrigin
   std::uint64_t entity_viewangles = 0;   ///< m_angEyeAngles
+  // Second-pass identity/visibility fields (E48, E50-E54). Zero means the
+  // pinned snapshot predates them or the refresh did not carry them.
+  std::uint64_t entity_velocity = 0;     ///< m_vecVelocity
+  std::uint64_t entity_owner = 0;        ///< m_hOwnerEntity
+  std::uint64_t entity_view_offset = 0;  ///< m_vecViewOffset
+  std::uint64_t controller_name = 0;     ///< m_sSanitizedPlayerName
+  std::uint64_t pawn_weapon_services = 0;///< m_pWeaponServices
+  std::uint64_t active_weapon = 0;       ///< m_hActiveWeapon
+  std::uint64_t econ_attribute_manager = 0; ///< m_AttributeManager
+  std::uint64_t econ_item = 0;           ///< m_Item
+  std::uint64_t item_def_index = 0;      ///< m_iItemDefinitionIndex
+  std::uint64_t observer_target = 0;     ///< m_hObserverTarget
 
   // ── Radar ──────────────────────────────────────────────────────
   std::uint64_t radar_base = 0;          ///< dwRadarBase
@@ -75,6 +87,7 @@ struct Cs2Offsets {
   std::uint64_t sensitivity = 0;         ///< m_flSensitivity
   std::uint64_t view_matrix = 0;         ///< dwViewMatrix
   std::uint64_t view_angles = 0;         ///< dwViewAngles
+  std::uint64_t global_vars = 0;         ///< dwGlobalVars (map name)
 
   /// Whether all critical offsets have been resolved.
   bool is_complete() const;

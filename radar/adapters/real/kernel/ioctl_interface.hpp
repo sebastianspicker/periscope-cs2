@@ -120,6 +120,32 @@ inline std::vector<ChunkPlan> plan_chunked_read(std::uint64_t address,
   return plan;
 }
 
+/// Page-aware variant: never lets a chunk straddle a 4 KiB page boundary
+/// (E69). Useful for hypercall/IOCTL paths where a mapping boundary mid-chunk
+/// would fault or split the target page.
+inline std::vector<ChunkPlan> plan_chunked_read_pages(std::uint64_t address,
+                                                      std::size_t total,
+                                                      std::size_t max_chunk,
+                                                      std::size_t page_size = 0x1000) {
+  std::vector<ChunkPlan> plan;
+  if (total == 0 || max_chunk == 0 || page_size == 0) return plan;
+  std::size_t done = 0;
+  while (done < total) {
+    const std::uint64_t current = address + done;
+    const std::size_t page_room =
+        static_cast<std::size_t>(page_size - (current & (page_size - 1)));
+    std::size_t chunk = total - done < max_chunk ? total - done : max_chunk;
+    if (chunk > page_room) chunk = page_room;
+    if (!chunk_range_ok(address, done, chunk)) {
+      plan.clear();
+      return plan;
+    }
+    plan.push_back(ChunkPlan{address + done, chunk});
+    done += chunk;
+  }
+  return plan;
+}
+
 /// CTL_CODE macro as a constexpr pure helper (matches Windows SDK layout).
 constexpr std::uint32_t ctl_code(int device_type, int function, int method, int access) {
   return (static_cast<std::uint32_t>(device_type) << 16) |

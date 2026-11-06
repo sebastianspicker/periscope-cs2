@@ -32,7 +32,7 @@ int main(){
   printf("radar panel=0x%llx\n",(unsigned long long)rb);
 
   // local origin for comparison
-  uint64_t pawn=0; rfn(client+real::cs2::snapshot::globals::dwLocalPlayerPawn,&pawn,8);
+  uint64_t pawn=0; rfn(client+real::cs2::encoded::decode(snapshot::globals::dwLocalPlayerPawn),&pawn,8);
   float lo[3]={}; if(pawn) rfn(pawn+real::cs2::snapshot::fields::m_vOldOrigin,lo,12);
   printf("local origin (%.1f,%.1f,%.1f)\n", lo[0],lo[1],lo[2]);
 

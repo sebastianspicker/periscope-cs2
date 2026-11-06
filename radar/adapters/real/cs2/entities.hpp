@@ -30,6 +30,17 @@
 
 namespace real::cs2 {
 
+/// Broad classification for non-player entities found by the optional world
+/// scan (E53). `None` is a player/controller.
+enum class WorldKind : std::uint8_t {
+  None = 0,
+  Weapon,
+  Projectile,
+  Hostage,
+  Chicken,
+  Other,
+};
+
 /// A single player entity read from the real CS2 process.
 /// Mirror of ac::EntitySnapshot with CS2-specific fields.
 struct Cs2PlayerEntity {
@@ -41,6 +52,14 @@ struct Cs2PlayerEntity {
   int32_t life_state = 0;
   ac::Vec3 origin{};
   ac::Vec3 eye_angles{};
+  ac::Vec3 velocity{};        ///< m_vecVelocity (E54)
+  ac::Vec3 view_offset{};     ///< m_vecViewOffset (E48)
+  bool view_offset_known = false;
+  std::string name;           ///< sanitised m_sSanitizedPlayerName (E50)
+  std::uint16_t weapon_def_index = 0;  ///< active weapon def index (E51)
+  std::string weapon;         ///< display name from the def-index table
+  std::uint32_t observer_target = 0;  ///< m_hObserverTarget (E52)
+  WorldKind world_kind = WorldKind::None;  ///< non-None for world scans (E53)
   bool is_alive = false;
   bool is_local_player = false;
   bool dormant = false;

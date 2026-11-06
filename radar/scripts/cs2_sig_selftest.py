@@ -162,7 +162,8 @@ def run_self_test(script_dir: Path, code_dir: Path) -> int:
         hpp = emit_hpp(snap)
         _assert("#pragma once" in hpp, "pragma")
         _assert("namespace real::cs2::snapshot" in hpp, "namespace")
-        _assert("dwEntityList = 0x254FE70" in hpp, "entity list hex")
+        _assert("dwEntityList = encoded::encode(0x254FE70)" in hpp,
+                "entity list hex (encoded)")
         _assert("m_iHealth = 0x34C" in hpp, "health hex")
         _assert("entity_identity_stride = 0x70" in hpp, "stride")
         _assert('kGeneratedAt = "2000-01-01T00:00:00Z"' in hpp, "timestamp")

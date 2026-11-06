@@ -95,6 +95,8 @@ struct RadarPanelSettings {
   bool    show_fps = true;
   bool    show_intel = true;
   bool    show_blue = true;
+  bool    world_entities = false;  ///< scan dropped weapons/projectiles (E53)
+  bool    los_visibility = true;   ///< geometry LOS hint when a map is loaded (E46)
 };
 
 // ── Immediate-mode GUI system ──────────────────────────────────────

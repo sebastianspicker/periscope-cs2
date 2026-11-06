@@ -7,6 +7,7 @@
 
 #include "real/kernel/kernel_memory.hpp"
 #include "real/kernel/ioctl_interface.hpp"
+#include "real/kernel/pinned_buffer.hpp"
 #include "real/platform.hpp"
 
 #include <algorithm>
@@ -101,11 +102,12 @@ Result<std::vector<std::uint8_t>> read_physical_via_section(std::uint64_t phys_a
       LARGE_INTEGER offset;
       offset.QuadPart = static_cast<LONGLONG>(phys_addr);
       std::vector<std::uint8_t> buf(size);
+      PinnedBuffer pinned(size);
       DWORD read = 0;
       if (SetFilePointerEx(h, offset, nullptr, FILE_BEGIN) &&
-          api.ReadFile(h, buf.data(), static_cast<DWORD>(size), &read, nullptr) &&
+          api.ReadFile(h, pinned.data(), static_cast<DWORD>(size), &read, nullptr) &&
           read > 0) {
-        buf.resize(read);
+        buf.assign(pinned.data(), pinned.data() + read);
         api.CloseHandle(h);
         return buf;
       }
@@ -149,8 +151,9 @@ Result<std::vector<std::uint8_t>> read_physical_via_section(std::uint64_t phys_a
           section, reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1)), &view, 0,
           size, &section_offset, &view_size, kViewShare, 0, PAGE_READONLY);
       if (NT_SUCCESS(status) && view != nullptr) {
-        std::vector<std::uint8_t> buf(size);
-        std::memcpy(buf.data(), view, size);
+        PinnedBuffer pinned(size);
+        std::memcpy(pinned.data(), view, size);
+        std::vector<std::uint8_t> buf(pinned.data(), pinned.data() + size);
         api.NtUnmapViewOfSection(
             reinterpret_cast<HANDLE>(static_cast<intptr_t>(-1)), view);
         api.NtClose(section);

@@ -98,7 +98,9 @@ def test_animator_disabled_is_identity() -> None:
 
 
 def test_animator_smooths_jitter_toward_detection() -> None:
-    animator = TrackAnimator(TrackSmoothingConfig(enabled=True, smoothing_rate=12.0))
+    animator = TrackAnimator(
+        TrackSmoothingConfig(enabled=True, min_confirmations=1, smoothing_rate=12.0)
+    )
     first, _ = animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
     assert len(first) == 1
     # A small detection move must be damped, not followed exactly.
@@ -111,7 +113,9 @@ def test_animator_smooths_jitter_toward_detection() -> None:
 
 def test_animator_uses_exp_frame_rate_independent_integration() -> None:
     # One update with rate k must move the box by exactly 1-exp(-k).
-    animator = TrackAnimator(TrackSmoothingConfig(enabled=True, smoothing_rate=6.0))
+    animator = TrackAnimator(
+        TrackSmoothingConfig(enabled=True, min_confirmations=1, smoothing_rate=6.0)
+    )
     animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
     emitted, _ = animator.update((_mask(10, 0, 110, 100, frame_index=1),), frame_index=1)
     expected_shift = 10.0 * (1.0 - np.exp(-6.0))
@@ -120,7 +124,9 @@ def test_animator_uses_exp_frame_rate_independent_integration() -> None:
 
 
 def test_animator_fade_in_grows_then_full() -> None:
-    animator = TrackAnimator(TrackSmoothingConfig(enabled=True, fade_in_frames=3))
+    animator = TrackAnimator(
+        TrackSmoothingConfig(enabled=True, min_confirmations=1, fade_in_frames=3)
+    )
     first, _ = animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
     grown_box = polygon_bbox(first[0].polygon)
     assert grown_box[2] - grown_box[0] < 100.0  # scaled in, not full yet
@@ -132,7 +138,9 @@ def test_animator_fade_in_grows_then_full() -> None:
 
 def test_animator_fade_out_shrinks_then_drops() -> None:
     animator = TrackAnimator(
-        TrackSmoothingConfig(enabled=True, fade_in_frames=0, fade_out_frames=2, max_gap_frames=4)
+        TrackSmoothingConfig(
+            enabled=True, min_confirmations=1, fade_in_frames=0, fade_out_frames=2, max_gap_frames=4
+        )
     )
     animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
     fading, diag = animator.update((), frame_index=1)
@@ -151,7 +159,9 @@ def test_animator_fade_out_shrinks_then_drops() -> None:
 
 def test_animator_fading_confidence_decays_and_stays_valid() -> None:
     animator = TrackAnimator(
-        TrackSmoothingConfig(enabled=True, fade_in_frames=0, fade_out_frames=3, max_gap_frames=5)
+        TrackSmoothingConfig(
+            enabled=True, min_confirmations=1, fade_in_frames=0, fade_out_frames=3, max_gap_frames=5
+        )
     )
     animator.update((_mask(0, 0, 100, 100, confidence=0.8, frame_index=0),), frame_index=0)
     fading, _ = animator.update((), frame_index=1)
@@ -163,7 +173,9 @@ def test_animator_class_change_starts_new_track_old_fades() -> None:
     class flip legitimately retires the old track (fading) and starts a new
     one; the flip itself is the cold-field invalidation (E9)."""
     animator = TrackAnimator(
-        TrackSmoothingConfig(enabled=True, fade_in_frames=0, fade_out_frames=1, max_gap_frames=4)
+        TrackSmoothingConfig(
+            enabled=True, min_confirmations=1, fade_in_frames=0, fade_out_frames=1, max_gap_frames=4
+        )
     )
     animator.update(
         (_mask(0, 0, 100, 100, class_id=1, class_name="a", frame_index=0),), frame_index=0
@@ -185,7 +197,9 @@ def test_animator_class_change_starts_new_track_old_fades() -> None:
 
 def test_animator_persists_track_across_gap_and_rematches() -> None:
     animator = TrackAnimator(
-        TrackSmoothingConfig(enabled=True, fade_in_frames=0, fade_out_frames=2, max_gap_frames=3)
+        TrackSmoothingConfig(
+            enabled=True, min_confirmations=1, fade_in_frames=0, fade_out_frames=2, max_gap_frames=3
+        )
     )
     animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
     _fading, diag = animator.update((), frame_index=1)
@@ -201,7 +215,9 @@ def test_animator_persists_track_across_gap_and_rematches() -> None:
 
 def test_animator_prunes_beyond_max_tracks() -> None:
     animator = TrackAnimator(
-        TrackSmoothingConfig(enabled=True, max_tracks=2, fade_in_frames=0, max_gap_frames=0)
+        TrackSmoothingConfig(
+            enabled=True, min_confirmations=1, max_tracks=2, fade_in_frames=0, max_gap_frames=0
+        )
     )
     # Three distinct far-apart detections: the oldest track must be pruned.
     for frame, x in ((0, 0.0), (1, 500.0), (2, 1000.0)):
@@ -212,7 +228,9 @@ def test_animator_prunes_beyond_max_tracks() -> None:
 
 
 def test_animator_reset_clears_tracks() -> None:
-    animator = TrackAnimator(TrackSmoothingConfig(enabled=True, fade_in_frames=0))
+    animator = TrackAnimator(
+        TrackSmoothingConfig(enabled=True, min_confirmations=1, fade_in_frames=0)
+    )
     animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
     animator.reset()
     _out, diag = animator.update((), frame_index=1)
@@ -224,9 +242,9 @@ def test_animator_config_validation() -> None:
     with pytest.raises(ValueError):
         TrackSmoothingConfig(smoothing_rate=-1.0)
     with pytest.raises(ValueError):
-        TrackSmoothingConfig(fade_in_frames=-1)
+        TrackSmoothingConfig(fade_in_frames=-1, min_confirmations=1)
     with pytest.raises(ValueError):
-        TrackSmoothingConfig(max_tracks=0)
+        TrackSmoothingConfig(max_tracks=0, min_confirmations=1)
     with pytest.raises(ValueError):
         TrackAnimator(iou_threshold=1.5)
     with pytest.raises(ValueError):
@@ -394,3 +412,64 @@ def test_shared_sink_accepts_read_only_frame() -> None:
         out = read_shared_frame(sink._shm, 6, 4, 2)
     assert out.shape == (4, 6, 4)
     assert int(out[0, 0, 0]) == 7
+
+
+# ------------------------------------------------------- E71 tentative tracks
+
+
+def test_animator_holds_first_frame_until_confirmed() -> None:
+    animator = TrackAnimator(TrackSmoothingConfig(enabled=True, fade_in_frames=0))
+    first, diag = animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
+    assert first == ()
+    assert diag.tentative_count == 1
+    second, diag_second = animator.update((_mask(0, 0, 100, 100, frame_index=1),), frame_index=1)
+    assert len(second) == 1
+    assert diag_second.tentative_count == 0
+
+
+def test_tentative_track_that_vanishes_does_not_fade() -> None:
+    animator = TrackAnimator(TrackSmoothingConfig(enabled=True, fade_in_frames=0))
+    animator.update((_mask(0, 0, 100, 100, frame_index=0),), frame_index=0)
+    emitted, diag = animator.update((), frame_index=1)
+    assert emitted == ()
+    assert diag.active_tracks == 0
+
+
+def test_min_confirmations_validation() -> None:
+    with pytest.raises(ValueError):
+        TrackSmoothingConfig(min_confirmations=0)
+    with pytest.raises(ValueError):
+        TrackSmoothingConfig(min_confirmations=True)  # type: ignore[arg-type]
+
+
+# ------------------------------------------------------------ E70 edge cues
+
+
+def test_edge_cues_skip_inside_and_clamp_outside() -> None:
+    from cs2_vision_access.application.live.inference.edge_cues import compute_edge_cues
+
+    inside = _mask(40, 40, 60, 60)
+    outside = _mask(200, 100, 220, 120)
+    cues = compute_edge_cues((inside, outside), 100, 100, margin=10)
+    assert len(cues) == 1
+    cue = cues[0]
+    assert cue.x == pytest.approx(90.0)
+    assert cue.y == pytest.approx(90.0)
+    assert cue.distance > 0.0
+    assert cue.angle > 0.0
+
+
+def test_edge_cues_cap_and_confidence_order() -> None:
+    from cs2_vision_access.application.live.inference.edge_cues import compute_edge_cues
+
+    masks = [_mask(200, 50 * i, 220, 50 * i + 10, confidence=0.2 + i * 0.05) for i in range(12)]
+    cues = compute_edge_cues(masks, 100, 100, max_cues=8)
+    assert len(cues) == 8
+    assert cues[0].confidence == pytest.approx(max(m.confidence for m in masks))
+
+
+def test_edge_cues_empty_and_degenerate() -> None:
+    from cs2_vision_access.application.live.inference.edge_cues import compute_edge_cues
+
+    assert compute_edge_cues((), 100, 100) == ()
+    assert compute_edge_cues((_mask(0, 0, 10, 10),), 0, 100) == ()

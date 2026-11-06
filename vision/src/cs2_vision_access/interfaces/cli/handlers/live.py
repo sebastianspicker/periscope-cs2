@@ -270,6 +270,15 @@ def register_live_commands(subcommands: Subcommands) -> None:
         ),
     )
     live.add_argument(
+        "--edge-cues",
+        action="store_true",
+        default=None,
+        help=(
+            "Draw clamped edge arrows for tracked players outside the frame. "
+            "Requires track smoothing; off by default."
+        ),
+    )
+    live.add_argument(
         "--record",
         type=Path,
         default=None,
@@ -724,6 +733,7 @@ def _handle_live(arguments: argparse.Namespace) -> int:
             arguments.max_capture_age_ms if arguments.max_capture_age_ms is not None else 0.0
         ),
         debug_viz=bool(arguments.debug_viz),
+        edge_cues=bool(arguments.edge_cues),
         recorder=recorder,
     )
 

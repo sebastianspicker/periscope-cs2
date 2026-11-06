@@ -48,11 +48,52 @@ void yield() noexcept {
   }
 }
 
+namespace {
+
+using NtSetTimerResolutionFn = NTSTATUS(NTAPI*)(ULONG, BOOLEAN, PULONG);
+
+NtSetTimerResolutionFn timer_resolution_fn() {
+  static NtSetTimerResolutionFn fn = []() -> NtSetTimerResolutionFn {
+    HMODULE ntdll = ::GetModuleHandleW(L"ntdll.dll");
+    if (ntdll == nullptr) return nullptr;
+    return reinterpret_cast<NtSetTimerResolutionFn>(
+        ::GetProcAddress(ntdll, "NtSetTimerResolution"));
+  }();
+  return fn;
+}
+
+bool g_timer_raised = false;
+
+}  // namespace
+
+bool raise_timer_resolution() noexcept {
+  if (g_timer_raised) return true;
+  const auto fn = timer_resolution_fn();
+  if (fn == nullptr) return false;
+  ULONG actual = 0;
+  // 10000 * 100 ns = 1 ms.
+  if (fn(10000, TRUE, &actual) < 0) return false;
+  g_timer_raised = true;
+  return true;
+}
+
+void restore_timer_resolution() noexcept {
+  if (!g_timer_raised) return;
+  const auto fn = timer_resolution_fn();
+  if (fn != nullptr) {
+    ULONG actual = 0;
+    (void)fn(0, FALSE, &actual);
+  }
+  g_timer_raised = false;
+}
+
 }  // namespace real::win
 
 #else
 namespace real::win {
 void fuzzed_sleep(int32_t, int32_t) noexcept {}
 void yield() noexcept {}
+bool raise_timer_resolution() noexcept { return false; }
+void restore_timer_resolution() noexcept {}
 }  // namespace real::win
 #endif

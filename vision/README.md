@@ -14,6 +14,8 @@ Help low-vision accessibility research by outlining visible player models on CS2
 
 - Offline outline and timing (`outline`, `benchmark`, `outline-presets`)
 - Live capture and OS overlay (`live`), plus a tkinter desktop dashboard (`gui`)
+- Optional off-screen edge cues for tracked players (`--edge-cues`), and a
+  read-only radar bridge contract (`docs/decisions/0003-radar-vision-bridge.md`)
 - Second-device contour composite: capture-card fourcc negotiation, bounded reconnect with stale-frame drain, `--max-capture-age-ms` latency bound, shared-memory frame ring (`--output-stream shm:<name>`), and a 1:1 fullscreen presenter (`docs/CONTOUR_PIPELINE.md`)
 - Dataset staging, validation, audit, session-split assembly, box import, draft mask review
 - Fine-tune and export of YOLO-seg ONNX models with checksum manifests (`train`)

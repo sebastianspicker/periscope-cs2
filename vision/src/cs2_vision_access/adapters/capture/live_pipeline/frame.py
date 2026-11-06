@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from cs2_vision_access.adapters.capture.live_pipeline.diagnostics import _Diagno
 from cs2_vision_access.adapters.models.segmenters import Segmenter
 from cs2_vision_access.adapters.rendering.renderer import OutlineRenderer, OutlineStyle
 from cs2_vision_access.adapters.rendering.renderer.debug import draw_debug_overlay
+from cs2_vision_access.application.live.inference.edge_cues import compute_edge_cues
 from cs2_vision_access.application.live.inference.scene import SceneChangeDetector
 from cs2_vision_access.application.live.inference.temporal import (
     SuppressOnlyTemporalPolicy,
@@ -195,6 +197,41 @@ def run_frame(
     rendered = renderer.render(frame, predictions, frame_index=frame_index)
 
     current_frame_preds = [p for p in predictions if p.frame_index == frame_index]
+
+    # E70: off-screen cues. Drawn after the outline pass and before the frame
+    # becomes read-only. A missing cv2 (headless test harness) skips quietly.
+    if cfg.edge_cues and current_frame_preds:
+        try:
+            import cv2  # noqa: PLC0415
+        except ImportError:
+            cv2 = None  # type: ignore[assignment]
+        if cv2 is not None:
+            height, width = rendered.shape[:2]
+            color = (0, 255, 255) if rendered.ndim == 3 else 255
+            for cue in compute_edge_cues(current_frame_preds, width, height):
+                tip = (
+                    int(cue.x + math.cos(cue.angle) * 18.0),
+                    int(cue.y + math.sin(cue.angle) * 18.0),
+                )
+                cv2.arrowedLine(
+                    rendered,
+                    (int(cue.x), int(cue.y)),
+                    tip,
+                    color,
+                    2,
+                    cv2.LINE_AA,
+                    tipLength=0.5,
+                )
+                cv2.putText(
+                    rendered,
+                    cue.class_name[:12],
+                    (int(cue.x) - 16, int(cue.y) - 8),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.4,
+                    color,
+                    1,
+                    cv2.LINE_AA,
+                )
 
     if cfg.recorder is not None:
         # Ledger V2 wiring: one sanitized absolute record per inferred frame.

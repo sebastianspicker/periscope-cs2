@@ -37,11 +37,11 @@ std::vector<uint8_t> do_read(Cs2MemoryReader& reader, uint64_t addr, size_t size
 // RVA (absolute global − embedded RVA).
 std::uint64_t client_base_from_offsets(const Cs2Offsets& offsets) {
   if (offsets.client_base) return offsets.client_base;
-  if (offsets.entity_list > snapshot::globals::dwEntityList) {
-    return offsets.entity_list - snapshot::globals::dwEntityList;
+  if (offsets.entity_list > encoded::decode(snapshot::globals::dwEntityList)) {
+    return offsets.entity_list - encoded::decode(snapshot::globals::dwEntityList);
   }
-  if (offsets.local_player > snapshot::globals::dwLocalPlayerPawn) {
-    return offsets.local_player - snapshot::globals::dwLocalPlayerPawn;
+  if (offsets.local_player > encoded::decode(snapshot::globals::dwLocalPlayerPawn)) {
+    return offsets.local_player - encoded::decode(snapshot::globals::dwLocalPlayerPawn);
   }
   return 0;
 }

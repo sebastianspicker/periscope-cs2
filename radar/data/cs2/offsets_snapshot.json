@@ -12,7 +12,8 @@
     "dwViewAngles": 39321608,
     "dwPlantedC4": 38599520,
     "dwCSGOInput": 39319936,
-    "dwSensitivity": 39218120
+    "dwSensitivity": 39218120,
+    "dwGlobalVars": 35864840
   },
   "fields": {
     "m_iHealth": 844,
@@ -32,7 +33,17 @@
     "m_bBombTicking": 4744,
     "m_nBombSite": 4748,
     "m_flC4Blow": 4792,
-    "m_bBeingDefused": 4804
+    "m_bBeingDefused": 4804,
+    "m_vecVelocity": 1080,
+    "m_hOwnerEntity": 1320,
+    "m_vecViewOffset": 3416,
+    "m_sSanitizedPlayerName": 2144,
+    "m_pWeaponServices": 5080,
+    "m_hActiveWeapon": 96,
+    "m_AttributeManager": 4984,
+    "m_Item": 80,
+    "m_iItemDefinitionIndex": 442,
+    "m_hObserverTarget": 76
   },
   "constants": {
     "entity_identity_stride": 112,

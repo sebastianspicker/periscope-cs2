@@ -135,3 +135,15 @@ See `scenarios/strategies/CATALOG.md` for the path-oriented index (all strategie
 ## 29_pattern_offset_scan (T0 Delivery)
 
 External bulk pattern scan for lab `ACPT` marker → entity RPM. Blue: handle + bulk reads + co-occurrence; fog mitigate.
+
+## Second-pass assessment pairs (165–168)
+
+Added by the 2026-11-06 external-repo second pass. Path index lives in
+`scenarios/strategies/CATALOG.md`; live truth stays `strategy_lab list`.
+
+| ID | Title | Tiers | Family | Red | Blue |
+|----|-------|-------|--------|-----|------|
+| `165_handle_origin_chain` | Duplicate chain vs owner-only attribution | T0 | Evasion | Launder a duplicated handle through a relay so the owner is not the origin | Walk the duplicate chain to the root, then score root reputation |
+| `166_section_entropy_probe` | High-entropy section vs patch-free decode | T1 | Evasion | Decode an encrypted registry into registers; never patch the data section | Measure non-image section entropy and require a manifest |
+| `167_byovd_service_diff` | BYOVD service cleanup vs module-hash orphan | T2 | Detection | Delete the SCM service and registry key after using a signed vulnerable driver | Hash loaded modules and flag the orphaned known-bad hash |
+| `168_capture_exclusion_diff` | Capture exclusion vs frame diff | T0 | Evasion | Exclude the overlay from capture while the player still sees it | Diff captured and presented frames; an empty diff is the scar |

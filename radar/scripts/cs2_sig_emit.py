@@ -95,6 +95,8 @@ def emit_hpp(snap: dict) -> str:
         "#include <cstddef>",
         "#include <cstdint>",
         "",
+        '#include "real/cs2/encoded_rva.hpp"',
+        "",
         "namespace real::cs2::snapshot {",
         "",
         "inline constexpr const char* kSourceUrl =",
@@ -105,10 +107,14 @@ def emit_hpp(snap: dict) -> str:
         "namespace globals {",
     ]
     for name in GLOBAL_KEYS:
-        lines.append(f"inline constexpr std::uint64_t {name} = {hx(g[name])};")
+        lines.append(
+            f"inline constexpr std::uint64_t {name} = encoded::encode({hx(g[name])});"
+        )
     # Preserve any extra globals present in the snapshot.
     for name in sorted(k for k in g.keys() if k not in GLOBAL_KEYS):
-        lines.append(f"inline constexpr std::uint64_t {name} = {hx(g[name])};")
+        lines.append(
+            f"inline constexpr std::uint64_t {name} = encoded::encode({hx(g[name])});"
+        )
     lines.append("}  // namespace globals")
     lines.append("")
 

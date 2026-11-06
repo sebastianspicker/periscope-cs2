@@ -38,6 +38,8 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 88_printwindow | printwindow |
 | 89_block_input | block_input |
 | 161_torn_snapshot_artifacts | torn_snapshot_artifacts |
+| 165_handle_origin_chain | handle_origin_chain |
+| 168_capture_exclusion_diff | capture_exclusion_diff |
 
 ## T1 - `strategies/t1/`
 
@@ -54,6 +56,7 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 156_eprocess_derivation | eprocess_derivation |
 | 158_loader_addr_registry | loader_addr_registry |
 | 163_stale_chunk_cache | stale_chunk_cache |
+| 166_section_entropy_probe | section_entropy_probe |
 
 ## T2 - `strategies/t2/`
 
@@ -71,6 +74,10 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 | 157_auditor_introspection_spoof | auditor_introspection_spoof |
 | 160_zero_run_carving | zero_run_carving |
 | 164_escalation_cost_curve | escalation_cost_curve |
+| 167_byovd_service_diff | byovd_service_diff |
+| 166_section_entropy_probe | section_entropy_probe |
+| 165_handle_origin_chain | handle_origin_chain |
+| 168_capture_exclusion_diff | capture_exclusion_diff |
 
 ## T3 - `strategies/t3/`
 

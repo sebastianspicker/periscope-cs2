@@ -2,8 +2,12 @@
 #include "real/cs2/live_radar_stack.hpp"
 #include "real/cs2/live_radar_stack_internal.hpp"
 #include "real/cs2/entity_layout.hpp"
+#include "real/cs2/handle_sanity.hpp"
 #include "real/cs2/offsets_snapshot.hpp"
+#include "real/cs2/player_name.hpp"
 #include "real/cs2/process.hpp"
+#include "real/cs2/view_point.hpp"
+#include "real/cs2/weapon_table.hpp"
 #include "real/win/api_table.hpp"
 #include "real/win/timing.hpp"
 #include "real/win/xorstr.hpp"
@@ -15,6 +19,7 @@
 #include <fstream>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #if LR_PLATFORM_WINDOWS
@@ -40,17 +45,79 @@ std::uint64_t identity_stride(const Cs2Offsets& o) {
 
 bool resolve_handle_fn(RemoteReadFn fn, std::uint64_t entity_list, std::uint32_t handle,
                        const Cs2Offsets& offsets, std::uint64_t& out) {
+  if (!handle::handle_usable(handle)) return false;
   const std::uint32_t index = handle & handle_index_mask();
   if (index == 0) return false;
   const std::uint64_t chunk_address =
       entity_list + chunk_table_offset() +
       static_cast<std::uint64_t>(index >> chunk_shift()) * 8ull;
   std::uint64_t chunk = 0;
-  if (!rd_t(fn, chunk_address, chunk) || !chunk) return false;
+  if (!rd_t(fn, chunk_address, chunk) || !handle::pointer_usable(chunk)) return false;
   const std::uint64_t stride = identity_stride(offsets);
   const std::uint64_t slot =
       chunk + static_cast<std::uint64_t>(index & ((1u << chunk_shift()) - 1u)) * stride;
-  return rd_t(fn, slot, out) && out != 0;
+  return rd_t(fn, slot, out) && handle::pointer_usable(out);
+}
+
+/// Read and sanitise the controller's name (E50). Failure is non-fatal.
+void read_name_fn(RemoteReadFn fn, std::uint64_t controller,
+                  const Cs2Offsets& offsets, std::string& out) {
+  out.clear();
+  if (offsets.controller_name == 0 || !handle::pointer_usable(controller)) return;
+  std::uint64_t name_ptr = 0;
+  if (!rd_t(fn, controller + offsets.controller_name, name_ptr) ||
+      !handle::pointer_usable(name_ptr)) {
+    return;
+  }
+  char raw[128]{};
+  if (rd(fn, name_ptr, raw, sizeof(raw) - 1)) out = name::sanitize(raw);
+}
+
+/// Resolve the active weapon def index (E51). Best effort; a missing chain
+/// leaves the index at zero.
+void read_weapon_fn(RemoteReadFn fn, std::uint64_t entity_list, std::uint64_t pawn,
+                    const Cs2Offsets& offsets, Cs2PlayerEntity& entity) {
+  if (offsets.pawn_weapon_services == 0 || offsets.active_weapon == 0 ||
+      offsets.econ_attribute_manager == 0 || offsets.econ_item == 0 ||
+      offsets.item_def_index == 0) {
+    return;
+  }
+  std::uint64_t services = 0;
+  if (!rd_t(fn, pawn + offsets.pawn_weapon_services, services) ||
+      !handle::pointer_usable(services)) {
+    return;
+  }
+  std::uint32_t handle_value = 0;
+  if (!rd_t(fn, services + offsets.active_weapon, handle_value) ||
+      (handle_value & 0xFFFFFFu) == 0xFFFFFFu) {
+    return;
+  }
+  std::uint64_t weapon = 0;
+  if (!resolve_handle_fn(fn, entity_list, handle_value, offsets, weapon)) return;
+  std::uint16_t def_index = 0;
+  if (!rd_t(fn, weapon + offsets.econ_attribute_manager + offsets.econ_item +
+                    offsets.item_def_index,
+           def_index) ||
+      def_index == 0) {
+    return;
+  }
+  entity.weapon_def_index = def_index;
+  entity.weapon = weapon::display_name(def_index);
+}
+
+/// Read the observer target for the spectator list (E52).
+void read_observer_target_fn(RemoteReadFn fn, std::uint64_t pawn,
+                             const Cs2Offsets& offsets, Cs2PlayerEntity& entity) {
+  if (offsets.observer_target == 0) return;
+  std::uint64_t services = 0;
+  if (!rd_t(fn, pawn + snapshot::fields::m_pObserverServices, services) ||
+      !handle::pointer_usable(services)) {
+    return;
+  }
+  std::uint32_t target = 0;
+  if (rd_t(fn, services + offsets.observer_target, target)) {
+    entity.observer_target = target;
+  }
 }
 
 // ── Bulk-read fast path (assessment ledger E11) ─────────────────────
@@ -87,6 +154,9 @@ std::vector<layout::FieldSpan> pawn_window_spans(const Cs2Offsets& offsets) {
   add(offsets.entity_lifestate, 1);
   add(offsets.entity_viewangles, 12);
   add(offsets.entity_origin, 12);
+  add(offsets.entity_velocity, 12);
+  add(offsets.entity_view_offset, 12);
+  add(offsets.pawn_weapon_services, 8);
   add(snapshot::fields::m_pGameSceneNode, 8);
   add(snapshot::fields::m_ArmorValue, 4);
   add(snapshot::fields::m_entitySpottedState + snapshot::fields::m_bSpotted, 1);
@@ -104,8 +174,12 @@ struct PawnWindow {
   layout::FieldSpan armor{};
   layout::FieldSpan spotted{};
   layout::FieldSpan observer{};
+  layout::FieldSpan velocity{};
+  layout::FieldSpan view_offset{};
+  layout::FieldSpan weapon_services{};
   bool has_team = false, has_health = false, has_life = false;
   bool has_scene = false, has_armor = false, has_spotted = false, has_observer = false;
+  bool has_velocity = false, has_view_offset = false, has_weapon_services = false;
 };
 
 PawnWindow pawn_window_for(const Cs2Offsets& offsets) {
@@ -127,6 +201,9 @@ PawnWindow pawn_window_for(const Cs2Offsets& offsets) {
   w.has_spotted =
       fits(snapshot::fields::m_entitySpottedState + snapshot::fields::m_bSpotted, 1, w.spotted);
   w.has_observer = fits(snapshot::fields::m_pObserverServices, 8, w.observer);
+  w.has_velocity = fits(offsets.entity_velocity, 12, w.velocity);
+  w.has_view_offset = fits(offsets.entity_view_offset, 12, w.view_offset);
+  w.has_weapon_services = fits(offsets.pawn_weapon_services, 8, w.weapon_services);
   const std::size_t window_bytes =
       layout::required_window_size(pawn_window_spans(offsets));
   if (window_bytes > 0) w.window = layout::Window(std::vector<std::uint8_t>(window_bytes));
@@ -136,8 +213,10 @@ PawnWindow pawn_window_for(const Cs2Offsets& offsets) {
 /// One bulk pawn read + field extraction, mirroring read_player_fn's
 /// fallbacks. Returns false when a required field is unavailable.
 bool read_player_bulk_fn(RemoteReadFn fn, const Cs2Offsets& offsets,
-                         PawnWindow& spec, std::uint64_t pawn,
-                         std::uint64_t local_pawn, Cs2PlayerEntity& entity) {
+                         std::uint64_t entity_list, std::uint64_t controller,
+                         std::uint32_t controller_handle, PawnWindow& spec,
+                         std::uint64_t pawn, std::uint64_t local_pawn,
+                         Cs2PlayerEntity& entity) {
   if (!spec.window.valid()) return false;
   // One transaction for the whole pawn head.
   if (!fn(pawn, spec.window.data_mutable(), spec.window.size())) {
@@ -195,6 +274,17 @@ bool read_player_bulk_fn(RemoteReadFn fn, const Cs2Offsets& offsets,
     std::int32_t armor = 0;
     if (spec.window.extract<std::int32_t>(spec.armor, armor)) entity.armor = armor;
   }
+  if (spec.has_velocity) {
+    ac::Vec3 velocity{};
+    if (spec.window.extract<ac::Vec3>(spec.velocity, velocity)) entity.velocity = velocity;
+  }
+  if (spec.has_view_offset) {
+    ac::Vec3 offset{};
+    if (spec.window.extract<ac::Vec3>(spec.view_offset, offset)) {
+      entity.view_offset = offset;
+      entity.view_offset_known = true;
+    }
+  }
   if (scene) {
     std::uint8_t dorm = 0;
     if (rd_t(fn, scene + snapshot::fields::m_bDormant, dorm)) entity.dormant = dorm != 0;
@@ -221,6 +311,11 @@ bool read_player_bulk_fn(RemoteReadFn fn, const Cs2Offsets& offsets,
       }
     }
   }
+  // E50/E51/E52: identity, weapon and spectator target. All best effort.
+  entity.controller_handle = controller_handle;
+  read_name_fn(fn, controller, offsets, entity.name);
+  read_weapon_fn(fn, entity_list, pawn, offsets, entity);
+  read_observer_target_fn(fn, pawn, offsets, entity);
   if (offsets.entity_viewangles) {
     ac::Vec3 ang{};
     if (offsets.entity_viewangles + 12 <= spec.window.size()) {
@@ -235,13 +330,61 @@ bool read_player_bulk_fn(RemoteReadFn fn, const Cs2Offsets& offsets,
 
 }  // namespace bulk
 
+// ── World-entity scan (E53) ─────────────────────────────────────────
+namespace {
+
+WorldKind classify_schema_name(const char* name) {
+  if (name == nullptr || *name == '\0') return WorldKind::Other;
+  if (std::strncmp(name, "C_Weapon", 8) == 0 ||
+      std::strncmp(name, "C_Knife", 7) == 0 ||
+      std::strncmp(name, "C_AK47", 6) == 0 ||
+      std::strncmp(name, "C_DEagle", 8) == 0 ||
+      std::strncmp(name, "C_EconEntity", 12) == 0) {
+    return WorldKind::Weapon;
+  }
+  if (std::strstr(name, "Projectile") != nullptr) return WorldKind::Projectile;
+  if (std::strstr(name, "Hostage") != nullptr) return WorldKind::Hostage;
+  if (std::strstr(name, "Chicken") != nullptr) return WorldKind::Chicken;
+  return WorldKind::Other;
+}
+
+/// Follow the identity → class-info → name chain. Best effort.
+bool read_schema_name_fn(RemoteReadFn fn, std::uint64_t entity, char* out,
+                         std::size_t size) {
+  if (out == nullptr || size == 0) return false;
+  out[0] = '\0';
+  std::uint64_t identity = 0;
+  if (!rd_t(fn, entity + 0x10, identity) || !handle::pointer_usable(identity)) {
+    return false;
+  }
+  std::uint64_t class_info = 0;
+  if (!rd_t(fn, identity + 0x8, class_info) || !handle::pointer_usable(class_info)) {
+    return false;
+  }
+  std::uint64_t container = 0;
+  if (!rd_t(fn, class_info + 0x8, container) || !handle::pointer_usable(container)) {
+    return false;
+  }
+  std::uint64_t name_ptr = 0;
+  if (!rd_t(fn, container + 0x8, name_ptr) || !handle::pointer_usable(name_ptr)) {
+    return false;
+  }
+  char raw[96]{};
+  if (!rd(fn, name_ptr, raw, sizeof(raw) - 1)) return false;
+  std::memcpy(out, raw, size - 1);
+  out[size - 1] = '\0';
+  return out[0] != '\0';
+}
+
+}  // namespace
+
 bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t entity_list,
                     std::uint64_t controller, std::uint32_t controller_handle,
                     std::uint64_t local_pawn, Cs2PlayerEntity& entity) {
   if (!controller || !offsets.entity_controller_pawn) return false;
   std::uint32_t pawn_handle = 0;
   if (!rd_t(fn, controller + offsets.entity_controller_pawn, pawn_handle) ||
-      !pawn_handle)
+      !handle::handle_usable(pawn_handle))
     return false;
   std::uint64_t pawn = 0;
   if (!resolve_handle_fn(fn, entity_list, pawn_handle, offsets, pawn)) return false;
@@ -288,6 +431,8 @@ bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t en
     // Still need origin for dead teammate spectator heuristics — cheap path
     if (!read_origin(origin)) return false;
     entity.origin = origin;
+    read_name_fn(fn, controller, offsets, entity.name);
+    read_observer_target_fn(fn, pawn, offsets, entity);
     // Observer services only
     std::uint64_t obs = 0;
     if (rd_t(fn, pawn + snapshot::fields::m_pObserverServices, obs) && obs) {
@@ -302,6 +447,21 @@ bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t en
   }
   if (!read_origin(origin)) return false;
   entity.origin = origin;
+
+  if (offsets.entity_velocity) {
+    ac::Vec3 velocity{};
+    if (rd_t(fn, pawn + offsets.entity_velocity, velocity)) entity.velocity = velocity;
+  }
+  if (offsets.entity_view_offset) {
+    ac::Vec3 offset{};
+    if (rd_t(fn, pawn + offsets.entity_view_offset, offset)) {
+      entity.view_offset = offset;
+      entity.view_offset_known = true;
+    }
+  }
+  read_name_fn(fn, controller, offsets, entity.name);
+  read_weapon_fn(fn, entity_list, pawn, offsets, entity);
+  read_observer_target_fn(fn, pawn, offsets, entity);
 
   if (offsets.entity_viewangles) {
     ac::Vec3 ang{};
@@ -473,8 +633,9 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
         }
         if (pawn_chunk != 0) {
           const std::uint64_t pawn = layout::slot_address(pawn_chunk, pawn_index, geo);
-          have_entity = read_player_bulk_fn(read, offsets, pawn_window, pawn,
-                                            local_pawn, ent);
+          have_entity = read_player_bulk_fn(read, offsets, entity_list, controller,
+                                            static_cast<std::uint32_t>(index),
+                                            pawn_window, pawn, local_pawn, ent);
           if (have_entity) {
             ent.controller_handle = static_cast<std::uint32_t>(index);
             ent.pawn_handle = pawn_handle;
@@ -497,6 +658,87 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
       std::chrono::duration_cast<std::chrono::microseconds>(
           std::chrono::high_resolution_clock::now() - start)
           .count());
+  return result;
+}
+
+EntityReadResult read_world_entities_fn(RemoteReadFn read,
+                                        const Cs2Offsets& offsets,
+                                        const EntityWalkOptions& opt) {
+  EntityReadResult result;
+  if (!read || !offsets.entity_list) {
+    result.error_msg = "missing read/offsets";
+    return result;
+  }
+  std::uint64_t list_ptr = 0;
+  if (!rd_t(read, offsets.entity_list, list_ptr) ||
+      !handle::pointer_usable(list_ptr)) {
+    result.error_msg = "entity list pointer";
+    return result;
+  }
+  const std::uint64_t entity_list = list_ptr;
+
+  const int max = std::max(opt.world_start, std::min(opt.world_max, 4096));
+  const int span = std::max(1, (max - opt.world_start) / 2);
+  const int start = opt.world_start + (opt.world_phase ? span : 0);
+  const int end = std::min(max, start + span);
+  if (start >= end) {
+    result.read_successful = true;
+    return result;
+  }
+
+  for (int index = start; index < end; ++index) {
+    std::uint64_t entity = 0;
+    if (!resolve_handle_fn(read, entity_list, static_cast<std::uint32_t>(index),
+                           offsets, entity)) {
+      continue;
+    }
+    char schema[96]{};
+    if (!read_schema_name_fn(read, entity, schema, sizeof(schema))) continue;
+    const WorldKind kind = classify_schema_name(schema);
+    if (kind == WorldKind::Other || kind == WorldKind::None) continue;
+
+    if (kind == WorldKind::Weapon && opt.world_skip_equipped &&
+        offsets.entity_owner != 0) {
+      std::uint32_t owner = 0;
+      if (rd_t(read, entity + offsets.entity_owner, owner) &&
+          (owner & 0x7FFFu) != 0 && (owner & 0xFFFFFFu) != 0xFFFFFFu) {
+        continue;  // equipped by a live pawn
+      }
+    }
+
+    ac::Vec3 origin{};
+    std::uint64_t scene = 0;
+    if (rd_t(read, entity + snapshot::fields::m_pGameSceneNode, scene) &&
+        handle::pointer_usable(scene) &&
+        rd_t(read, scene + snapshot::fields::m_vecAbsOrigin, origin)) {
+      // current-tick origin
+    } else if (offsets.entity_origin == 0 ||
+               !rd_t(read, entity + offsets.entity_origin, origin)) {
+      continue;
+    }
+
+    Cs2PlayerEntity ent{};
+    ent.controller_handle = static_cast<std::uint32_t>(index);
+    ent.origin = origin;
+    ent.world_kind = kind;
+    ent.is_alive = true;
+    ent.is_hostage = (kind == WorldKind::Hostage);
+    if (kind == WorldKind::Weapon && offsets.econ_attribute_manager != 0 &&
+        offsets.econ_item != 0 && offsets.item_def_index != 0) {
+      std::uint16_t def_index = 0;
+      if (rd_t(read, entity + offsets.econ_attribute_manager + offsets.econ_item +
+                        offsets.item_def_index,
+               def_index) &&
+          def_index != 0) {
+        ent.weapon_def_index = def_index;
+        ent.weapon = weapon::display_name(def_index);
+      }
+    }
+    result.entities.push_back(std::move(ent));
+    ++result.entity_count;
+    if (result.entities.size() >= 256) break;
+  }
+  result.read_successful = true;
   return result;
 }
 
@@ -534,6 +776,17 @@ Result<Cs2PlayerEntity> read_local_player_fn(RemoteReadFn read,
   if (offsets.entity_viewangles) {
     ac::Vec3 ang{};
     if (rd_t(read, local + offsets.entity_viewangles, ang)) entity.eye_angles = ang;
+  }
+  if (offsets.entity_velocity) {
+    ac::Vec3 velocity{};
+    if (rd_t(read, local + offsets.entity_velocity, velocity)) entity.velocity = velocity;
+  }
+  if (offsets.entity_view_offset) {
+    ac::Vec3 offset{};
+    if (rd_t(read, local + offsets.entity_view_offset, offset)) {
+      entity.view_offset = offset;
+      entity.view_offset_known = true;
+    }
   }
   return Result<Cs2PlayerEntity>(entity);
 }
