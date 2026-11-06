@@ -81,6 +81,7 @@ implementation-report.*
 completion-report.*
 *-ledger.md
 *_ledger.md
+!docs/*_LEDGER.md
 /plan.md
 /progress.md
 
@@ -237,6 +238,8 @@ cs2-vision-config.json
 /radar/examples/firmware/example_pcie_dma/tests/
 /vision/tests/*
 !/vision/tests/test_*.py
+/lens/tests/*
+!/lens/tests/test_*.py
 
 # Local maintenance inventory
 /THINGS_TO_DO_LEDGER.md

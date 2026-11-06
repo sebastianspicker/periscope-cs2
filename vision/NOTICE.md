@@ -8,6 +8,9 @@ backend. Ultralytics publishes that software and its trained models under
 AGPL-3.0 by default, with separate commercial licensing available. Dataset,
 model-weight, game-content, and framework licenses remain separate obligations.
 
+Lens-track third-party verdicts moved with the subtree split: see
+[`../lens/NOTICE.md`](../lens/NOTICE.md).
+
 Model-weight licenses shipped through the model registry (see
 `docs/MODEL-GOVERNANCE.md` for the governance policy):
 

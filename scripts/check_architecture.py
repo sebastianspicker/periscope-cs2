@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the dependency boundaries shared by the Radar and Vision projects."""
+"""Check the dependency boundaries shared by the anti-cheat, Radar and Vision projects."""
 
 from __future__ import annotations
 
@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 VISION_PACKAGE = ROOT / "vision" / "src" / "cs2_vision_access"
 RADAR_ROOT = ROOT / "radar"
+ANTI_CHEAT_ROOT = ROOT / "anti-cheat"
 
 
 def python_imports(path: Path) -> set[str]:
@@ -178,10 +179,20 @@ def check_radar(errors: list[str]) -> None:
         if remaining:
             errors.append("radar/code still contains files after the architecture migration")
 
-    for relative in ("src", "scenarios"):
-        source_root = RADAR_ROOT / relative
+    # Portable source layers: radar keeps its own src (domain/radar,
+    # application/radar). The lab layers (src, scenarios) moved to anti-cheat
+    # and are scanned by check_anti_cheat; radar/scenarios no longer exists,
+    # but if it ever reappears it stays under the same no-real rule.
+    source_roots = (
+        (RADAR_ROOT / "src", True),
+        (RADAR_ROOT / "scenarios", False),
+    )
+    for source_root, required in source_roots:
         if not source_root.exists():
-            errors.append(f"missing Radar architecture layer: radar/{relative}")
+            if required:
+                errors.append(
+                    f"missing architecture layer: {source_root.relative_to(ROOT)}"
+                )
             continue
         for path in source_root.rglob("*"):
             if path.suffix not in {".c", ".cc", ".cpp", ".h", ".hpp"}:
@@ -192,21 +203,29 @@ def check_radar(errors: list[str]) -> None:
             if re.search(r"^\s*#\s*if\s+0(?:\s|$)", content, re.MULTILINE):
                 errors.append(f"{path.relative_to(ROOT)} contains a disabled implementation block")
 
-    domain_root = RADAR_ROOT / "src" / "domain"
-    for path in domain_root.rglob("*"):
-        if path.suffix not in {".c", ".cc", ".cpp", ".h", ".hpp"}:
+    # Domain purity: the radar domain (radar modules) may not import outer
+    # layers — including the lab's own domain vocabulary (plain `ac/…`), so
+    # radar's domain stays self-contained. (The lab domain rule lives in
+    # check_anti_cheat; Python's alternation backtracking keeps `ac_sim`
+    # matching ahead of the plain `ac` alternative.)
+    domain_roots = (
+        RADAR_ROOT / "src" / "domain" / "radar",
+    )
+    for domain_root in domain_roots:
+        if not domain_root.exists():
+            errors.append(
+                f"missing domain layer: {domain_root.relative_to(ROOT)}"
+            )
             continue
-        content = path.read_text(encoding="utf-8", errors="replace")
-        if re.search(
-            r'#\s*include\s*[<"](?:sim|ac_sim|cs2|fps|lab|teams|application|scenarios|adapters)/',
-            content,
-        ):
-            errors.append(f"{path.relative_to(ROOT)} depends outward from the domain")
-
-    for name in ("DomainTargets.cmake", "SimulationTargets.cmake", "ScenarioTargets.cmake"):
-        path = RADAR_ROOT / "cmake" / name
-        if path.exists() and '"${RADAR_SOURCE_DIR}/adapters"' in path.read_text(encoding="utf-8"):
-            errors.append(f"{path.relative_to(ROOT)} exposes real-adapter headers to an inner target")
+        for path in domain_root.rglob("*"):
+            if path.suffix not in {".c", ".cc", ".cpp", ".h", ".hpp"}:
+                continue
+            content = path.read_text(encoding="utf-8", errors="replace")
+            if re.search(
+                r'#\s*include\s*[<"](?:sim|ac_sim|ac|cs2|fps|lab|teams|application|scenarios|adapters)/',
+                content,
+            ):
+                errors.append(f"{path.relative_to(ROOT)} depends outward from the domain")
 
     cmake_files = [RADAR_ROOT / "CMakeLists.txt", *sorted((RADAR_ROOT / "cmake").glob("*.cmake"))]
     for path in cmake_files:
@@ -319,6 +338,90 @@ def check_radar(errors: list[str]) -> None:
         if any(token not in content for token in required_ci_tokens):
             errors.append("Radar CI does not build the supported shellcode capability combination")
 
+
+
+def check_anti_cheat(errors: list[str]) -> None:
+    # The lab never imports real code: anti-cheat must build with no
+    # Windows/real flags set (split ledger non-negotiable 2). Test
+    # exception: anti-cheat/tests/stack_posture_test.cpp deliberately
+    # includes "real/cs2/posture.hpp" from the radar tree (via the
+    # test-only LR_RADAR_DIR include root) — it audits the real stack's
+    # posture from the lab side — so the no-real scan below scopes to
+    # src + scenarios only and deliberately excludes anti-cheat/tests.
+    source_roots = (ANTI_CHEAT_ROOT / "src", ANTI_CHEAT_ROOT / "scenarios")
+    for source_root in source_roots:
+        if not source_root.exists():
+            errors.append(
+                f"missing architecture layer: {source_root.relative_to(ROOT)}"
+            )
+            continue
+        for path in source_root.rglob("*"):
+            if path.suffix not in {".c", ".cc", ".cpp", ".h", ".hpp"}:
+                continue
+            content = path.read_text(encoding="utf-8", errors="replace")
+            if re.search(r'#\s*include\s*[<"](?:adapters/)?real/', content):
+                errors.append(f"{path.relative_to(ROOT)} imports a real adapter")
+            if re.search(r"^\s*#\s*if\s+0(?:\s|$)", content, re.MULTILINE):
+                errors.append(f"{path.relative_to(ROOT)} contains a disabled implementation block")
+
+    # Domain purity: the lab domain (ac, server) may not import outer layers.
+    # Plain `ac/…` includes stay fine — ac is the lab's own domain.
+    domain_root = ANTI_CHEAT_ROOT / "src" / "domain"
+    if not domain_root.exists():
+        errors.append(f"missing domain layer: {domain_root.relative_to(ROOT)}")
+    else:
+        for path in domain_root.rglob("*"):
+            if path.suffix not in {".c", ".cc", ".cpp", ".h", ".hpp"}:
+                continue
+            content = path.read_text(encoding="utf-8", errors="replace")
+            if re.search(
+                r'#\s*include\s*[<"](?:sim|ac_sim|cs2|fps|lab|teams|application|scenarios|adapters)/',
+                content,
+            ):
+                errors.append(f"{path.relative_to(ROOT)} depends outward from the domain")
+
+    for needed in ("README.md", "LICENSE", "NOTICE.md", "SECURITY.md", "CONTRIBUTING.md"):
+        if not (ANTI_CHEAT_ROOT / needed).exists():
+            errors.append(f"missing anti-cheat/{needed}")
+
+    cmake_files = [
+        ANTI_CHEAT_ROOT / "CMakeLists.txt",
+        *sorted((ANTI_CHEAT_ROOT / "cmake").glob("*.cmake")),
+    ]
+    for path in cmake_files:
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8")
+        if re.search(r"\bfile\s*\(\s*GLOB(?:_RECURSE)?\b", content, re.IGNORECASE):
+            errors.append(f"{path.relative_to(ROOT)} uses implicit source globbing")
+
+    # The library cmake for these targets lives in the anti-cheat tree; the
+    # rule keeps inner targets from seeing radar's real-adapter headers.
+    for name in ("DomainTargets.cmake", "SimulationTargets.cmake", "ScenarioTargets.cmake"):
+        path = ANTI_CHEAT_ROOT / "cmake" / name
+        if path.exists() and '"${RADAR_SOURCE_DIR}/adapters"' in path.read_text(encoding="utf-8"):
+            errors.append(f"{path.relative_to(ROOT)} exposes real-adapter headers to an inner target")
+
+    # Real flags belong to radar's Options.cmake; the lab must not own them.
+    options_cmake = ANTI_CHEAT_ROOT / "cmake" / "Options.cmake"
+    if options_cmake.exists():
+        content = options_cmake.read_text(encoding="utf-8")
+        for option in (
+            "LR_ENABLE_REAL_RPM",
+            "LR_ENABLE_REAL_SYSCALL",
+            "LR_ENABLE_REAL_KERNEL",
+            "LR_ENABLE_REAL_VMX",
+            "LR_ENABLE_REAL_DMA",
+            "LR_ENABLE_REAL_SMM",
+            "LR_ENABLE_REAL_GPU",
+            "LR_ENABLE_REAL_NET",
+            "LR_ENABLE_REAL_UEFI",
+            "LR_ENABLE_REAL_LINUX",
+            "LR_ENABLE_REAL_ALL",
+        ):
+            if re.search(rf"\b{option}\b", content):
+                errors.append(f"real option declared outside the radar tree: {option}")
+
     forbidden_simulation_markers = (
         r"LR_SIMULATION_REAL_PORT",
         r"\breal::",
@@ -328,27 +431,62 @@ def check_radar(errors: list[str]) -> None:
         r"GetEnvironment|PowerCreateRequest|steady_clock|random_device)\b",
         r"\b__rdtscp\b",
     )
-    for path in (RADAR_ROOT / "src" / "simulation").rglob("*"):
+    for path in (ANTI_CHEAT_ROOT / "src" / "simulation").rglob("*"):
         if path.suffix not in {".c", ".cc", ".cpp", ".h", ".hpp"}:
             continue
         content = path.read_text(encoding="utf-8", errors="replace")
         if any(re.search(marker, content) for marker in forbidden_simulation_markers):
             errors.append(f"simulation source retains a host-operation marker: {path.relative_to(ROOT)}")
 
-    if (RADAR_ROOT / "src" / "simulation" / "ac_sim" / "shellcode.cpp").exists():
+    if (ANTI_CHEAT_ROOT / "src" / "simulation" / "ac_sim" / "shellcode.cpp").exists():
         errors.append("operational shellcode remains in the simulation layer")
+
+    # Two same-named pipeline headers coexist after the split (ledger S4e):
+    # the sim-side FramePipeline here, the real-side RealFramePipeline in
+    # radar's adapters. The unambiguous real-side names keep the pair
+    # distinguishable.
     real_pipeline = RADAR_ROOT / "adapters" / "real" / "application" / "radar_pipeline.hpp"
-    sim_pipeline = RADAR_ROOT / "src" / "application" / "radar_pipeline.hpp"
+    sim_pipeline = ANTI_CHEAT_ROOT / "src" / "application" / "radar_pipeline.hpp"
     if real_pipeline.exists() and sim_pipeline.exists():
         content = real_pipeline.read_text(encoding="utf-8")
         if "namespace radar::real_adapter" not in content or "class RealFramePipeline" not in content:
             errors.append("real pipeline does not have an unambiguous adapter type name")
 
 
+def check_lens(errors: list[str]) -> None:
+    """Lens is a self-contained third subtree: numpy and its own modules only."""
+    lens_root = ROOT / "lens"
+    if not lens_root.exists():
+        errors.append("missing Lens subtree: lens/")
+        return
+    package = lens_root / "src" / "periscope_lens"
+    if not package.exists():
+        errors.append("missing Lens package: lens/src/periscope_lens")
+    if not (lens_root / "pyproject.toml").exists():
+        errors.append("missing lens/pyproject.toml (subtree must stay independently buildable)")
+    forbidden_prefixes = ("cs2_vision_access", "radar", "ac_sim")
+    for path in list(package.glob("*.py")) + list((lens_root / "tests").glob("*.py")):
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8", errors="replace")
+        for prefix in forbidden_prefixes:
+            needle = f"import {prefix}"
+            if needle in content or f"from {prefix}" in content:
+                errors.append(
+                    f"{path.relative_to(ROOT)} reaches across subtrees ({prefix}); "
+                    "Lens must stay self-contained"
+                )
+    for needed in ("README.md", "LICENSE", "NOTICE.md", "SECURITY.md"):
+        if not (lens_root / needed).exists():
+            errors.append(f"missing lens/{needed}")
+
+
 def main() -> int:
     errors: list[str] = []
+    check_anti_cheat(errors)
     check_radar(errors)
     check_vision(errors)
+    check_lens(errors)
     if errors:
         print("Architecture check failed:", file=sys.stderr)
         for error in errors:

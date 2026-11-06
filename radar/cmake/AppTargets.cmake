@@ -1,14 +1,11 @@
 set(_app "${RADAR_SOURCE_DIR}/apps/demos")
 
-# The pipeline is an application service: it composes simulation services but
-# never links a real adapter. Real executable composition happens below.
-lr_library(ac_pipeline
-  "${RADAR_SOURCE_DIR}/src/application/radar_pipeline.cpp")
-target_link_libraries(ac_pipeline PUBLIC ac_sim ac_common)
-target_include_directories(ac_pipeline PUBLIC "${RADAR_SOURCE_DIR}/src/application")
+# Radar-owned application targets (S5): the real/hybrid demos. The lab's
+# sim-only demos, ac_pipeline and strategy_lab are registered by the
+# anti-cheat AppTargets included before this file (radar's root CMakeLists
+# includes "${LR_ANTI_CHEAT_DIR}/cmake/AppTargets.cmake"); the lab's
+# ac_pipeline must exist by the time cs2_radar_t0's sim fallback links it.
 
-lr_exe(fps_demo apps/demos/fps_demo.cpp ac_fps ac_server)
-target_include_directories(fps_demo PRIVATE "${RADAR_SOURCE_DIR}/apps")
 foreach(tier 0 1 2 3 4)
   lr_exe(radar_t${tier} apps/demos/radar_t${tier}.cpp ac_common ac_sim)
   target_include_directories(radar_t${tier} PRIVATE "${RADAR_SOURCE_DIR}/apps")
@@ -57,8 +54,6 @@ endif()
 
 if(LR_BUILD_PROTOS)
   foreach(tier 0 1 2 3 4)
-    lr_exe(proto_t${tier}_red apps/demos/proto_t${tier}_red.cpp ac_t${tier}_red)
-    lr_exe(proto_t${tier}_blue apps/demos/proto_t${tier}_blue.cpp ac_t${tier}_blue ac_t${tier}_red)
     add_executable(cs2_radar_t${tier}
       "${_app}/cs2_radar/t${tier}/cs2_radar.cpp"
       "${_app}/cs2_radar/t${tier}/main.cpp")
@@ -67,8 +62,6 @@ if(LR_BUILD_PROTOS)
       "${RADAR_SOURCE_DIR}/apps"
       "${_app}/cs2_radar/t${tier}")
   endforeach()
-  target_link_libraries(proto_t1_blue PRIVATE ac_t0_blue)
-  target_link_libraries(proto_t2_blue PRIVATE ac_t0_blue)
   if(TARGET ac_real_pipeline)
     target_link_libraries(cs2_radar_t0 PRIVATE ac_real_pipeline ac_t0_red ac_t0_blue ac_cs2 ac_common ac_sim)
     target_include_directories(cs2_radar_t0 PRIVATE "${RADAR_SOURCE_DIR}/adapters")
@@ -80,25 +73,15 @@ if(LR_BUILD_PROTOS)
   target_link_libraries(cs2_radar_t3 PRIVATE ac_t3_red ac_t3_blue ac_cs2 ac_common ac_sim ac_depth)
   target_link_libraries(cs2_radar_t4 PRIVATE ac_t4_red ac_t4_blue ac_t0_red ac_t0_blue ac_cs2 ac_common ac_sim ac_depth ac_server)
 endif()
-if(LR_BUILD_DUELS)
-  foreach(tier 0 1 2 3 4)
-    lr_exe(duel_t${tier} apps/demos/duel_t${tier}.cpp ac_t${tier}_red ac_t${tier}_blue)
-  endforeach()
-  target_link_libraries(duel_t1 PRIVATE ac_t0_red ac_t0_blue)
-  target_link_libraries(duel_t2 PRIVATE ac_t0_red ac_t0_blue)
-  target_link_libraries(duel_t3 PRIVATE ac_t2_red ac_t0_red ac_server)
-  target_link_libraries(duel_t4 PRIVATE ac_server)
-endif()
 if(TARGET ac_strategies)
-  lr_exe(strategy_lab scenarios/strategies/framework/main.cpp ac_strategies)
+  # strategy_lab is already registered by the lab's AppTargets (included
+  # before this file in radar's configure); register it here only when this
+  # file stands alone, and keep the full_prototype strategy wiring regardless.
+  if(NOT TARGET strategy_lab)
+    lr_exe(strategy_lab "${AC_SOURCE_DIR}/scenarios/strategies/framework/main.cpp" ac_strategies)
+  endif()
   if(TARGET full_prototype)
     target_link_libraries(full_prototype PRIVATE ac_strategies)
-  endif()
-  if(LR_BUILD_DUELS)
-    lr_exe(evasion_lab apps/demos/evasion_lab.cpp ac_strategies)
-    lr_exe(features_lab apps/demos/features_lab.cpp ac_strategies)
-    lr_exe(ops_lab apps/demos/ops_lab.cpp ac_strategies)
-    lr_exe(structural_lab apps/demos/structural_lab.cpp ac_strategies)
   endif()
 endif()
 

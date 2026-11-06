@@ -1,22 +1,29 @@
 # Architecture
 
-## Monorepo layout
+Radar is the game-facing product of the Periscope monorepo: optional
+platform backends that read the live game, the applications built on them
+(web radar service, tri_loader) and an outbound relay. The tiered red/blue
+teaching lab that shares this tree's history — the `sim::World`, the evasion
+components and the strategy catalog — lives in the sibling
+[`anti-cheat/`](../../anti-cheat/README.md) tree; its docs are indexed at
+[`anti-cheat/docs/INDEX.md`](../../anti-cheat/docs/INDEX.md).
+
+## Tree layout
 
 ```
-.
-├── CMakeLists.txt                 Build entry point
-├── cmake/                         CMake helpers / generated headers
+radar/
+├── CMakeLists.txt                 Build entry point (consumes ../anti-cheat libraries)
+├── cmake/                         Options (real flags), RealTargets, AppTargets, TestTargets
 ├── src/
-│   ├── domain/                    Core values, telemetry, server-side policy
-│   ├── simulation/                Deterministic world and scenario engines
-│   ├── application/               Detection, analysis, strategies, simulation pipeline
-│   └── lab_components/             Lab infrastructure and tier components
-├── adapters/real/                 Optional platform backends
-├── scenarios/strategies/           Pair lessons + strategy_lab
-├── apps/demos/                    Runnable executables
+│   ├── domain/radar/              Snapshot, sampling, projection, scatter, LOS, mini-radar modules
+│   └── application/radar/         Web radar service, tri_loader
+├── adapters/real/                 Optional OS/hardware backends (T0–T4)
+├── apps/demos/                    radar_tN, live_radar, probes, cs2_radar, tier_comparison
 ├── examples/drivers/              Kernel driver examples (WDK lab)
 ├── examples/firmware/             FPGA DMA host-sim examples
+├── relay/                         Outbound-only radar relay (Python)
 ├── scripts/                       Signature / offset tooling
+├── tests/                         radar_* host tests
 └── data/                          Offset snapshots and related data
 ```
 
@@ -26,81 +33,64 @@ Each library target keeps headers and sources in one directory. There is no sepa
 
 | Target | Path | Purpose |
 |--------|------|---------|
-| ac_common | `src/domain/ac/` | Core types, telemetry, risk |
-| ac_sim | `src/simulation/sim/` + `src/simulation/ac_sim/` | World arena + temporal/behavioral helpers |
-| ac_server | `src/domain/server/` | Interest, info-advantage, bans |
-| ac_strategy_core | `src/application/strategies/` | Strategy contracts and shared policy |
-| ac_blue | `src/application/detection/blue/` | Simulation-backed detection policy |
-| ac_depth | `src/application/analysis/depth/` | Multi-sample / trust / fusion scorers |
-| ac_lab | `src/lab_components/lab/` | Fixture process, lab memory, scanners |
-| ac_fps | `src/simulation/fps/` | FPS map and scenario |
-| ac_cs2 | `src/simulation/cs2/` | CS2-shaped helpers and signatures |
-| ac_t0_red … ac_t4_blue | `src/lab_components/teams/tN_*` | Tier team libraries |
-| ac_strategies | `scenarios/strategies/` | Catalog registry + all pairs |
+| radar_snapshot | `src/domain/radar/` | Snapshot, projection, mini-radar, offset overrides, scatter batching, LOS BVH |
+| radar_webradar | `src/application/radar/` | Transport-independent web radar service core |
+| radar_collision | `src/application/radar/` | Map-collision `.tri` file loader |
 | ac_real_core, ac_real_rpm, ac_real_syscall, … | `adapters/real/…` | Narrow opt-in capability backends |
 | ac_real_pipeline | `adapters/real/application/` | Opt-in live pipeline composition |
 
-Exact CMake target names can vary slightly; see `CMakeLists.txt`.
+The `radar_*` libraries are pure portable logic: no real adapter and no
+simulation layer underneath, which is what lets the host test suite run on
+every platform.
 
-## sim::World: single source of truth
+Exact CMake target names can vary slightly; see `CMakeLists.txt` and `cmake/`.
 
-Strategies and team libraries interact through `sim::World` fields. The World represents game-shaped state plus detectable scars:
+## Dependency direction: radar consumes the anti-cheat lab, one-way
 
-- Processes, handles, modules (RPM, inject, hollowing, hooks)
-- Drivers, devices (BYOVD, IOCTL, HV bridge)
-- Trust flags (VBS, HVCI, personal HV, IOMMU, DMA, attestation)
-- Input and aim samples (humanization, silent aim, provenance)
-- Accounts, network, overlays (graph, C2, ESP)
-- Operations residuals (VPN, overwatch, clipboard)
+The lab subtree is configured through a single seam, `LR_ANTI_CHEAT_DIR`
+(default `../anti-cheat`, override with `-DLR_ANTI_CHEAT_DIR=…`; configure
+fails with a clear error when it does not point at an anti-cheat checkout).
+Through that seam radar includes the lab's library CMake and its `src/` include
+root, so the existing `"ac/…"`, `"sim/…"`, `"ac_sim/…"` quote-includes keep
+working verbatim — the real pipeline (`adapters/real/application/`) composes
+the lab's evasion components, and the sim fallback of the `cs2_radar` family
+links the lab's pipeline library.
 
-## Multi-step pattern
+The direction is strictly one-way:
 
-```
-Red::apply(World&)
-  Plants scars A and B on the World
-  Achieved only if multi-field narrative conditions hold
-
-Blue::detect(World&)
-  multi_reason / score / fog
-  Returns detected or mitigated with evidence
-```
+- The lab never includes radar CMake or imports radar code (enforced by the
+  architecture checker); it builds with no real flags set.
+- The only seam back across the boundary is a test: the lab's
+  `stack_posture_test` includes radar's `adapters/real/cs2/posture.hpp`
+  (`real/cs2/posture.hpp` through radar's adapters include root) because the
+  intel policy and read-shaping posture it verifies are product logic.
 
 ## Demo and test dependencies
 
 ```
-strategy_lab  -> ac_strategies -> team libs + sim/depth/server
-duel_tN / proto_tN_* -> team libs
-radar_t0 … t4 -> sim
-live_radar -> selected ac_real_* capability targets + sim (when enabled)
-fps_demo -> ac_fps + ac_server
+radar_t0 … radar_t4  -> ac_common + ac_sim (the lab's sim::World)
+cs2_radar_t0         -> ac_real_pipeline (real) or the lab's ac_pipeline + team libs (sim fallback)
+cs2_radar_t1 … t4    -> team libs + ac_cs2 + ac_sim
+live_radar           -> selected ac_real_* capability targets + sim (when enabled)
+radar_*_test         -> radar_snapshot / radar_webradar / radar_collision
 ```
 
-## Data flow examples
+`strategy_lab`, the sim-only demos (`duel_tN`, `proto_tN_*`, `fps_demo`, the
+labs) and the full lab target graph are registered by the lab's own CMake and
+documented in [`anti-cheat/README.md`](../../anti-cheat/README.md); in a radar
+configure they are built into radar's build directory so the `radar-sim`
+verify lane can run the catalog from here.
 
-### T0 external RPM
-
-```
-reader.OpenProcess(game, VM_READ)
-  -> NtReadVirtualMemory(handle, entity_blob)
-  -> project world to radar coordinates
-  -> render overlay
-Blue: handle graph analysis on World.processes
-```
-
-### T2 BYOVD (simulation)
+## Live read path
 
 ```
-clear driver mitigation flags
-  -> load vulnerable driver into World.drivers
-  -> IOCTL read via World.devices
-  -> no game handle in World.processes
-Blue: driver blocklist, device watch, callback integrity
+attach / find game process (adapters/real/process.*, cs2/process_finder.*)
+  -> read entities (adapters/real/cs2/entities.*, memory.*)
+  -> project world to radar coordinates (src/domain/radar/projection.*)
+  -> render overlay, or publish to the web radar service (src/application/radar/webradar_service.*)
+  -> remote viewers receive it through the outbound relay (relay/)
 ```
 
-### T4 DMA (simulation)
-
-```
-dma_device + iommu_off -> dma_read
-  -> no local process involved
-Blue: IOMMU state signal + leakage fog + InfoAdvantage scoring
-```
+Backends are opt-in per capability: every `LR_ENABLE_REAL_*` backend lives in
+its own `adapters/real/` area and nothing real is linked unless its capability
+targets exist. See [BUILD-AND-TEST.md](BUILD-AND-TEST.md) for the options.

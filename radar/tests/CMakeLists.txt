@@ -3,7 +3,6 @@
 # `enable_testing()` is called by the parent CMakeLists before this directory.
 
 set(_HOST_TESTS
-  stack_posture_test
   radar_snapshot_test
   radar_sampling_test
   radar_ring_test

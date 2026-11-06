@@ -2,8 +2,8 @@
 
 Status: portable policies implemented and tested; the live wiring below is
 **lab-only** and follows the same opt-in posture as the rest of
-`adapters/real/` (see `../SECURITY.md` and the audit-exclusion notes in
-`docs/ARCHITECTURE.md`).
+`adapters/real/` (see `../SECURITY.md`, including its lab-only component
+table).
 
 ## What is already portable (tested, no hardware)
 
@@ -44,5 +44,5 @@ The adapter wiring itself is not implemented in this pass: the real DMA
 adapter area is excluded from ordinary review (audit posture), and wiring new
 hardware-facing code without that review would expand the unreviewed surface.
 When the lab review window opens, the adapter should consume the policies
-above and add a lab-flag-gated integration test; until then the portable
+above and add a real-flag-gated integration test; until then the portable
 policies are the reviewed, tested half of R10.

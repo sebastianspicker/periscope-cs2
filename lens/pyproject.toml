@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "periscope-lens"
+version = "0.1.0"
+description = "Phone-camera lens track for Counter-Strike 2: screen calibration, optical preflight, USB target transport, latency compensation and assist policy"
+readme = "README.md"
+requires-python = ">=3.11,<3.14"
+license = "AGPL-3.0-only"
+authors = [
+  { name = "Periscope Lens contributors" },
+]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Science/Research",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Games/Entertainment :: First Person Shooters",
+  "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+  "numpy>=1.26,<3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.17,<3",
+  "pytest>=8,<10",
+  "ruff>=0.16",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+packages = ["periscope_lens"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/typings"

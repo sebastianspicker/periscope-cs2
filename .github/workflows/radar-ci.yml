@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "radar/**"
+      - "anti-cheat/**"
       - "scripts/check_architecture.py"
       - "scripts/verify.py"
       - ".github/workflows/radar-ci.yml"

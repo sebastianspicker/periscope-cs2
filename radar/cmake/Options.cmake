@@ -1,26 +1,13 @@
-# Simulation replay must be reproducible across fresh configure runs.  These
-# values are intentionally stable; real-adapter experiments own any host or
-# build-specific material at their outer boundary.
-set(XOR_KEY_SEED 0x2A5D1C3E)
-set(TIMING_SALT 0x4B7F19D2)
-set(CLASS_SEED 0x1A2B3C4D)
-set(API_SALT 0x5E6F7081)
-set(COMPILE_SALT 0x13579BDF)
-set(SECTION_SEED 0x2468ACE0)
-set(GUID_SEED 0x10293847)
-set(SURFACE_SEED 0x55667788)
+# Radar product options: real backends, compiler hardening. Lab/simulation
+# options and the simulation seed generation live in
+# anti-cheat/cmake/Options.cmake.
+#
+# Include order matters: include anti-cheat's LrHelpers.cmake FIRST (it creates
+# lr_build_options), then anti-cheat's Options.cmake, then this file. Nothing
+# here may re-define what LrHelpers.cmake owns (lr_build_options, lr_library,
+# lr_exe, platform compile definitions).
 
-option(LR_BUILD_ID "Build identifier for watermarking" 0)
-option(LAB_ALLOW_HIJACK_PROXY "Simulate hijack/proxy acquisition" OFF)
-option(LAB_ALLOW_KERNEL "Simulate kernel driver (T2)" OFF)
-option(LAB_ALLOW_HV "Simulate hypervisor (T3)" OFF)
-option(LAB_ALLOW_DMA "Simulate DMA (T4)" OFF)
-option(LAB_ALLOW_BAND4 "Simulate band-4 overlay" OFF)
-option(LAB_ALLOW_SEDEBUG "Simulate SeDebugPrivilege use" OFF)
 option(LR_ENABLE_VEH "Enable VEH anti-debug handler (kernel-visible)" OFF)
-option(LR_BUILD_PROTOS "Build per-tier proto demos" ON)
-option(LR_BUILD_DUELS "Build per-tier duel demos" ON)
-option(LR_BUILD_STRATEGY_LAB "Build strategy_lab catalog runner" ON)
 
 option(LR_ENABLE_REAL_RPM "Build real Windows ReadProcessMemory backend" OFF)
 option(LR_ENABLE_REAL_SYSCALL "Build real direct syscall backend" OFF)
@@ -41,10 +28,7 @@ if(LR_ENABLE_REAL_ALL)
   endforeach()
 endif()
 
-if(LR_BUILD_ID)
-  target_compile_definitions(lr_build_options INTERFACE BUILD_ID=${LR_BUILD_ID})
-endif()
-foreach(opt LAB_ALLOW_HIJACK_PROXY LAB_ALLOW_KERNEL LAB_ALLOW_HV LAB_ALLOW_DMA LAB_ALLOW_BAND4 LAB_ALLOW_SEDEBUG LR_ENABLE_VEH)
+foreach(opt LR_ENABLE_VEH)
   if(${opt})
     target_compile_definitions(lr_build_options INTERFACE ${opt}=1)
   endif()
@@ -71,18 +55,6 @@ if(LR_ENABLE_SHELLCODE_INJECTION)
 else()
   target_compile_definitions(lr_build_options INTERFACE LR_HAS_REAL_SHELLCODE=0)
 endif()
-if(WIN32)
-  target_compile_definitions(lr_build_options INTERFACE LR_PLATFORM_WINDOWS=1 LR_PLATFORM_LINUX=0)
-  set(REAL_PLATFORM_LIBS "")
-elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  target_compile_definitions(lr_build_options INTERFACE LR_PLATFORM_WINDOWS=0 LR_PLATFORM_LINUX=1)
-  set(REAL_PLATFORM_LIBS pthread dl rt)
-else()
-  target_compile_definitions(lr_build_options INTERFACE LR_PLATFORM_WINDOWS=0 LR_PLATFORM_LINUX=0)
-endif()
-
-message(STATUS "Deterministic simulation seed: ${XOR_KEY_SEED} BUILD_ID:${LR_BUILD_ID}")
-configure_file("${RADAR_SOURCE_DIR}/cmake/build_keys.hpp.in" "${RADAR_GENERATED_DIR}/build_keys.hpp" @ONLY)
 
 if(MSVC)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")

@@ -2,7 +2,7 @@
 
 ## What this project is
 
-Educational red/blue lab (radar track under the Periscope monorepo) for studying external radar techniques and detection. Simulation mode never touches a game. Real mode can attach to processes and exercise low-level Windows / hardware paths when you opt in at configure time.
+The game-facing radar product tree of the Periscope monorepo: real adapters, live CS2 reading, the web radar and the relay. Its simulation demos run on the anti-cheat lab's simulated world — the lab is simulation-only and has its own posture notes ([../anti-cheat/SECURITY.md](../anti-cheat/SECURITY.md)); the simulation never touches a game. Real mode can attach to processes and exercise low-level Windows / hardware paths when you opt in at configure time.
 
 ## What it is not
 

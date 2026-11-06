@@ -6,22 +6,22 @@ Periscope is an umbrella for CS2-related research projects. Security expectation
 
 | Subtree | What it is | What it is not |
 |---------|------------|----------------|
-| [`radar/`](radar/) | Educational red/blue lab for external radar techniques and detection (sim + optional Windows real backends) | Not a supported cheat pack; not a production anti-cheat; not a toolkit for bypassing commercial AC in the wild |
-| [`vision/`](vision/) | Pre-alpha pixel-only outlining (screen / capture device / local video), including the camera-only "Lens" phone-companion track | Not process injection, not game-memory access, not aim or input automation by default |
+| [`anti-cheat/`](anti-cheat/) | Simulation-only tiered red/blue lab: evasion and detection lessons over a simulated world | Not a source of real drivers, firmware or live backends; not a supported cheat pack; not a production anti-cheat |
+| [`radar/`](radar/) | Game-facing radar product: real adapters, live CS2 reading, web radar and relay (optional Windows real backends) | Not a supported cheat pack; not a production anti-cheat; not a toolkit for bypassing commercial AC in the wild |
+| [`vision/`](vision/) | Pre-alpha pixel-only outlining (screen / capture device / local video) | Not process injection, not game-memory access, not aim or input automation by default |
+| [`lens/`](lens/) | Pre-alpha phone-camera track: a smartphone watches the monitor; portable calibration/transport/policy core + Android source drop | Not an Android release; actuation paths are lab opt-in; camera-only, so it touches nothing on the game PC |
 
-Per-project detail: [`radar/SECURITY.md`](radar/SECURITY.md), [`vision/SECURITY.md`](vision/SECURITY.md).
+Per-project detail: [`anti-cheat/SECURITY.md`](anti-cheat/SECURITY.md), [`radar/SECURITY.md`](radar/SECURITY.md), [`vision/SECURITY.md`](vision/SECURITY.md), [`lens/SECURITY.md`](lens/SECURITY.md).
 
 ### Lens track posture (added 2026-11-06, ledger X6)
 
-The Lens track (`vision/src/cs2_vision_access/application/lens/`,
-`vision/src/cs2_vision_access/adapters/capture/phone.py`,
-`vision/lens-android/`) is **camera-only**: the phone watches the same light
-a human watches; the game PC runs nothing and shares nothing. Its
-output/actuation paths (HID gadget, PC agent — `application/lens/output.py`,
-`application/lens/policy.py`) compute motion deltas but are **lab-only
+The Lens subtree (`lens/`) is **camera-only**: the phone watches the same
+light a human watches; the game PC runs nothing and shares nothing. Its
+output/actuation paths (HID gadget, PC agent — `lens/src/periscope_lens/output.py`,
+`lens/src/periscope_lens/policy.py`) compute motion deltas but are **lab-only
 opt-in** like radar's real backends; nothing is default-on, hardware
 injectors (kmbox-class) are documented as compatible hardware and are never
-implemented here. See [`vision/docs/LENS-TOPOLOGY.md`](vision/docs/LENS-TOPOLOGY.md).
+implemented here. See [`lens/docs/TOPOLOGY.md`](lens/docs/TOPOLOGY.md).
 
 ## Reporting
 

@@ -14,6 +14,9 @@ branch, squashed to one commit, and locally merged into `main`.
 | Lens | `73bfd15` | L1–L10 |
 | Cross | `e71d408` | X1–X7 |
 
+A final restructure commit moves the Lens track out of `vision/` into the
+top-level `lens/` subtree (structure: lens, radar, vision).
+
 Nothing has been pushed (standing decision; local merges only). Two
 proofreading commits follow the domain commits (`ef185d4`, `57713a1` plus
 the follow-up corrections); they carry no domain content.
@@ -41,23 +44,83 @@ the follow-up corrections); they carry no domain content.
 | V7 | vision | harness done | `application/live/cv_validate.py` + `tests/test_ledger_v7_validator.py` + `vision/docs/CV-VALIDATOR-SPIKE.md`; measured report pending real recordings (recorded in doc checklist) | vision domain squash |
 | V8 | vision | done | `tests/test_ledger_regressions.py` (A3/V1 incident set, tracked, PR-run); A4/A5 guards already in `test_live_core.py` (house) | vision domain squash |
 | V9 | vision | done | `tests/test_model_governance.py` + `vision/docs/MODEL-GOVERNANCE.md`; registry license fix (EdgeSAM NTU-S-Lab-1.0, was wrongly "MIT") + NOTICE update | vision domain squash |
-| X1 | cross | done | radar half + vision/lens halves: `NOTICE.md` records every adapted/referenced component with code/design/nothing distinction (radar upstreams in the radar commit; scrcpy/ncnn/Arian04/arXiv/webcam-clients in the cross commit); EdgeSAM registry fix in the vision commit | cross domain squash |
+| X1 | cross | done | radar half + vision/lens halves: `NOTICE.md` records every adapted/referenced component with code/design/nothing distinction (radar upstreams in the radar commit; lens refs later moved to `lens/NOTICE.md`; EdgeSAM registry fix in the vision commit) | cross domain squash + restructure |
 | X2 | cross | done | radar half: relay/offset self-tests in `radar-ci.yml` PR lane (radar commit); vision half: `vision-ci.yml` runs the tracked ledger tests on every PR (no gating ifs — verified 2026-11-06) | cross domain squash |
 | X3 | cross | done | decisions live in `docs/ADAPTATION_LEDGER.md` do-not-adapt list; enforcement = NOTICE notes (X1) | done by design |
 | X4 | cross | done | dated VACnet field-context note in `radar/SECURITY.md`, explicitly marked as one author's unverified observation supporting — not driving — the posture | cross domain squash |
-| X5 | cross | done | license verdicts recorded per component in `NOTICE.md` + `vision/docs/MODEL-GOVERNANCE.md`; nothing code-copied without a verdict | cross domain squash |
+| X5 | cross | done | license verdicts recorded per component in `NOTICE.md` / `lens/NOTICE.md` + `vision/docs/MODEL-GOVERNANCE.md`; nothing code-copied without a verdict | cross domain squash + restructure |
 | X6 | cross | done | root `SECURITY.md` scope table carries the Lens track (camera-only; actuation lab-only opt-in) | cross domain squash |
-| X7 | cross | done | kmbox/Makcu/DMA-injector exclusion recorded in the ledger Lens addendum + LENS-OUTPUT-SUPPORT.md ("compatible hardware, never implemented") | cross domain squash |
-| L1 | lens | done | `vision/docs/LENS-TOPOLOGY.md` (A/B/C decision record, latency budget, posture mapping, iOS deferral = L10) | lens domain squash |
-| L2 | lens | done | `adapters/capture/phone.py` + `tests/test_ledger_l2_phone_source.py` (read-loop contract, scrcpy composition, backends); real bindings runtime-unverified (house style) | lens domain squash |
-| L3 | lens | done | `application/lens/calibration.py` + `tests/test_ledger_l3_calibration.py` (exact/keystone/noise solves, drift monitor) | lens domain squash |
-| L4 | lens | done | `application/lens/preflight.py` + `tests/test_ledger_l4_preflight.py` (banding/moiré/focus/coverage, advice strings) | lens domain squash |
-| L5 | lens | sources done | `vision/lens-android/` (Kotlin: TargetsEncoder byte-mirror, HID probe, TransportHub, MainActivity seams) + README with honest gaps + benchmark template; no Android CI lane (recorded) | lens domain squash |
-| L6 | lens | done | `application/lens/transport.py` + tests in `test_ledger_lens_transport.py` (round-trip all types, version rejection, unknown-type skip, truncation, oversize, length mismatch; u16→u32 length fix surfaced by tests) | lens domain squash |
-| L7 | lens | done | `application/lens/latency.py` (RTT + outlier rejection, alpha-beta predictor, measured-vs-assumed breakdown) + tests | lens domain squash |
-| L8 | lens | pure done | `application/lens/output.py` (path ladder, delta shaper, report encoder) + `docs/LENS-OUTPUT-SUPPORT.md`; configfs/agent runtime wiring documented as lab work | lens domain squash |
-| L9 | lens | done | `application/lens/policy.py` (FOV gate, sticky lock, capped smoothed deltas, cooldown) + determinism tests; pure, no actuation | lens domain squash |
-| L10 | lens | done | deferral note in `LENS-TOPOLOGY.md` | lens domain squash |
+| X7 | cross | done | kmbox/Makcu/DMA-injector exclusion recorded in the ledger Lens addendum + `lens/docs/OUTPUT-SUPPORT.md` ("compatible hardware, never implemented") | cross domain squash |
+| L1 | lens | done | `lens/docs/TOPOLOGY.md` (A/B/C decision record, latency budget, posture mapping, iOS deferral = L10) | lens domain squash |
+| L2 | lens | done | `lens/src/periscope_lens/phone.py` + `lens/tests/test_phone_source.py` (contract, scrcpy composition, backends); real bindings runtime-unverified (house style) | lens domain squash |
+| L3 | lens | done | `lens/src/periscope_lens/calibration.py` + `lens/tests/test_calibration.py` (exact/keystone/noise solves, drift monitor) | lens domain squash |
+| L4 | lens | done | `lens/src/periscope_lens/preflight.py` + `lens/tests/test_preflight.py` (banding/moiré/focus/coverage, advice strings) | lens domain squash |
+| L5 | lens | sources done | `lens/android/` (Kotlin: TargetsEncoder byte-mirror, HID probe, TransportHub, transport lifecycle) + README with honest gaps + benchmark template; no Android CI lane (recorded) | lens domain squash |
+| L6 | lens | done | `lens/src/periscope_lens/transport.py` + `lens/tests/test_transport.py` (round-trip all types, version rejection, unknown-type skip, truncation, oversize, length mismatch; u16→u32 fix surfaced by tests) | lens domain squash |
+| L7 | lens | done | `lens/src/periscope_lens/latency.py` (RTT + outlier rejection, alpha-beta predictor, measured-vs-assumed breakdown) + tests | lens domain squash |
+| L8 | lens | pure done | `lens/src/periscope_lens/output.py` (path ladder, delta shaper, report encoder) + `lens/docs/OUTPUT-SUPPORT.md`; configfs/agent runtime wiring documented as lab work | lens domain squash |
+| L9 | lens | done | `lens/src/periscope_lens/policy.py` (FOV gate, sticky lock, capped smoothed deltas, cooldown) + determinism tests; pure, no actuation | lens domain squash |
+| L10 | lens | done | deferral note in `lens/docs/TOPOLOGY.md` | lens domain squash |
+
+## Done: anti-cheat split (S-series)
+
+Owner request 2026-11-06: `radar/` becomes a clean slate for the game-facing
+radar (real examples, adapters, live reading); the lab moves to a new
+`anti-cheat/` subtree. Full plan, dependency evidence, phases, acceptance
+and rollback: [`docs/ANTI_CHEAT_SPLIT_LEDGER.md`](ANTI_CHEAT_SPLIT_LEDGER.md).
+
+**Final state (2026-11-06): all 13 steps done.** One commit per phase, each
+verified green before landing:
+
+| Phase | Commit | Content |
+|---|---|---|
+| 0 | `c85290a` | S1–S3 seam: `LR_ANTI_CHEAT_DIR`, options split, `LrHelpers.cmake`, library cmake + `build_keys.hpp.in` git-mv'd to `anti-cheat/cmake/` |
+| 1 | `7713581` | S4a–S4i extraction: 1422-file `git mv` of lab sources/docs/demos/scripts/stack_posture test; cmake re-rooted on `AC_SOURCE_DIR`; checker paths re-pointed |
+| 2 | `4186c38` | S5–S7 re-composition: lab AppTargets/TestTargets + full `ac_lab` root project; radar = `periscope_radar` with real/hybrid apps + 9 tests |
+| 3 | `eb7cf6d` | S8–S10 docs/CI/checker: anti-cheat README/NOTICE/SECURITY/LICENSE/CONTRIBUTING + docs INDEX; radar product README/NOTICE; `anti-cheat-ci.yml` + `verify.py anti-cheat-sim`; full `check_anti_cheat` |
+| 4 | this commit | S11 wording sweep (both trees), S12 ledger close-out, S13 final checks |
+
+Acceptance evidence (all run locally on macOS, portable, real flags OFF):
+`verify.py all` green — architecture ✓; anti-cheat-sim CTest 1/1 +
+strategy_lab 187/0; radar-sim CTest 9/9 (was 10/10, `stack_posture_test`
+moved) + 187/0; vision + lens lanes ✓. actionlint clean on both workflows.
+Stale-path grep (`radar/src/simulation`, `radar/scenarios`) over tracked
+live files: 0 actionable hits (remaining hits are historical ledgers and an
+intentional checker comment). R1–R12 evidence paths in the tables above are
+unchanged — radar modules stayed in `radar/` as planned. Real-capability
+Windows dispatch job not re-run locally (no push; it consumes both trees by
+unchanged design) — noted as pending for the next push.
+
+| Step | Phase | Status | Evidence / notes |
+|---|---|---|---|
+| S1 dependency seam | 0 | done | `LR_ANTI_CHEAT_DIR` cache var + include order in `radar/CMakeLists.txt`; commit `c85290a` |
+| S2 options split | 0 | done | lab Options (`LR_BUILD_*`, `LAB_ALLOW_*`, seeds, `LR_BUILD_ID`, build_keys) in `anti-cheat/cmake/Options.cmake`; real flags + hardening stay in `radar/cmake/Options.cmake` |
+| S3 shared helpers + cmake moves | 0 | done | `DomainTargets/SimulationTargets/ScenarioTargets/ScenarioSources/TeamSources/build_keys.hpp.in` git-mv'd; `LrHelpers.cmake` owns `lr_build_options`/`lr_library`/`lr_exe`/platform macros; stub `anti-cheat/CMakeLists.txt` configures |
+| S4a–S4i lab extraction | 1 | done | lab sources/docs/demos/scripts/stack_posture test git-mv'd to `anti-cheat/`; lab-side cmake paths re-rooted on `AC_SOURCE_DIR` (radar block in DomainTargets guarded by `if(RADAR_SOURCE_DIR)`); architecture checker paths re-pointed; radar build green, CTest 10/10, strategy_lab 187/0 |
+| S5 AppTargets split | 2 | done | `anti-cheat/cmake/AppTargets.cmake` (lab apps + `ac_pipeline` + strip loop); radar AppTargets keeps real/hybrid set; `strategy_lab` dual-registered (anti-cheat first, radar `if(NOT TARGET)` guard) so the radar-sim lane keeps its 187-pair run |
+| S6 TestTargets split | 2 | done | radar registers 9 `radar_*_test` (9/9); `anti-cheat/tests/CMakeLists.txt` registers `stack_posture_test` (1/1) via test-only `LR_RADAR_DIR` seam for the adapters include root |
+| S7 root CMakeLists split | 2 | done | `anti-cheat/CMakeLists.txt` = full `project(ac_lab)` (libs + lab apps + tests, no RealTargets); `radar/CMakeLists.txt` = `project(periscope_radar)` (was `ac_sim`); radar still includes anti-cheat library cmake |
+| S8 README/NOTICE/SECURITY split | 3 | done | `anti-cheat/{README,CONTRIBUTING,SECURITY,LICENSE,NOTICE}.md` + `anti-cheat/docs/INDEX.md`; `radar/README.md` product-only; `radar/NOTICE.md` carved from root NOTICE; root four-tree maps (anti-cheat first); link check 0 dangling |
+| S9 CI + verify lanes | 3 | done | `.github/workflows/anti-cheat-ci.yml` (portable lane, pinned actions); radar-ci paths gain `anti-cheat/**`; `verify.py` gains `anti-cheat-sim` + `all` order; actionlint clean |
+| S10 architecture checker | 3 | done | `check_anti_cheat`: no-real + no-`#if 0` over lab src+scenarios, lab domain purity, required files, no-GLOB, no real flags in lab Options, pipeline disambiguation; radar domain purity extended with `ac/`; negative probes verified |
+| S11 wording sweep | 4 | done | both trees: lab docs re-pathed to `anti-cheat/build/dev` + `../../radar/…` pointers (incl. tier LESSON sweep, verify_features scripts); radar ARCHITECTURE/BUILD-AND-TEST/CONTRIBUTING product-only with lab pointers; link checks 0 dangling; `verify_features.sh` runs 35/0 |
+| S12 progress ledger | 4 | done | this block finalized |
+| S13 final checks | 4 | done | `verify.py all` green (all five lanes); actionlint ✓; stale-path grep clean; clean tree |
+
+Recorded deviations from the plan text (justified, none behaviour-changing):
+- `build_keys.hpp.in` moved to `anti-cheat/cmake/` in Phase 0 (ledger said it
+  stays in `radar/cmake/` until S5–S7): it is the lab's per-build simulation
+  key header, generated by anti-cheat's Options and consumed by `ac_sim`.
+- `ScenarioSources.cmake` moved along with `ScenarioTargets.cmake` (the
+  ledger's S3 list implied it; `ScenarioTargets` includes it directly).
+- `LR_BUILD_ID` option declared once, in `anti-cheat/cmake/Options.cmake`
+  (it feeds the lab-owned build_keys watermark), not in radar's Options.
+- `anti-cheat/tests/stack_posture_test.cpp` includes `real/cs2/posture.hpp`
+  (header-only, portable) from radar's adapters root: S4i moves the test per
+  the ledger, so S10's "no `real/` includes" scan is scoped to
+  `anti-cheat/src` + `anti-cheat/scenarios`, with the tests directory
+  documented as the deliberate exception (it audits the real stack's
+  posture from the lab side).
 
 ## Working notes
 
@@ -92,11 +155,13 @@ the follow-up corrections); they carry no domain content.
 - 2026-11-06 (vision): V2's CLI wiring is deliberately deferred to the V6
   slice (debug/visibility flags land together, one CLI surface change); the
   recorder/replay core and its acceptance tests are complete.
-- 2026-11-06 (lens): lens Python modules live inside the vision package
-  (`application/lens/`, `adapters/capture/phone.py`) rather than a new
-  top-level subtree — camera-only perception inherits the vision posture,
-  AGPL license and CI gates; the Android companion is a source drop under
-  `vision/lens-android/` with no CI lane (recorded in its README).
+- 2026-11-06 (lens, superseded): the lens modules were first implemented
+  inside the vision package and **moved out the same day** at the owner's
+  request: the repository structure is now `lens/`, `radar/`, `vision/`.
+  The package `periscope_lens` is self-contained (numpy only, enforced by
+  the architecture check) with its own pyproject, lock, lane and CI; the
+  Android companion lives in `lens/android/` (source drop, no CI lane,
+  recorded in its README). X5 verdicts now live in `lens/NOTICE.md` (restructure commit).
 - 2026-11-06 (lens): the L6 header length field grew u16→u32 because the
   512 KiB frame cap is inexpressible in 16 bits — caught by the protocol
   tests before any peer implementation existed.

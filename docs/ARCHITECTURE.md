@@ -1,21 +1,31 @@
 # Architecture
 
-Periscope is an umbrella repository, not a single application. It contains two
-independently licensed and independently built research products that share a
-subject area but no runtime code ([decision 0001](decisions/0001-independent-products.md)):
+Periscope is an umbrella repository, not a single application. It contains
+four independently licensed and independently built research products that
+share a subject area but no runtime code
+([decision 0001](decisions/0001-independent-products.md)):
 
-- **Radar** (`radar/`, C++20, MIT) is a red/blue teaching lab. It runs
-  in a deterministic simulation by default. Each "strategy pair" plants an
-  attack trace in a simulated world, then scores whether the matching
-  detection catches it.
+- **Anti-Cheat Lab** (`anti-cheat/`, C++20, MIT) is a simulation-only
+  red/blue teaching lab. Each "strategy pair" plants an attack trace in a
+  deterministic simulated world, then scores whether the matching detection
+  catches it. It owns `sim::World` and the tier curriculum.
+- **Radar** (`radar/`, C++20, MIT) is the game-facing product: real adapters,
+  live CS2 reading, the web radar and the relay. It consumes the anti-cheat
+  lab's libraries one-way.
 - **Vision** (`vision/`, Python, AGPL-3.0-only) is a pixel-only accessibility
   package. It reads frames from a video, capture device or screen, segments
   visible players with an ONNX model and draws outlines.
+- **Lens** (`lens/`, Python + Kotlin companion, AGPL-3.0-only) is a
+  camera-only phone track: a smartphone pointed at the monitor supplies the
+  pixels; portable modules cover calibration, optical preflight, USB target
+  transport, latency compensation and lab-only output shaping.
 
 This page is the newcomer's map: what runs where, what happens when you run
 each tool, and where the code lives. Per-project detail stays in
-[radar/docs/ARCHITECTURE.md](../radar/docs/ARCHITECTURE.md) and
-[vision/docs/ARCHITECTURE.md](../vision/docs/ARCHITECTURE.md).
+[anti-cheat/README.md](../anti-cheat/README.md),
+[radar/docs/ARCHITECTURE.md](../radar/docs/ARCHITECTURE.md),
+[vision/docs/ARCHITECTURE.md](../vision/docs/ARCHITECTURE.md) and
+[lens/docs/TOPOLOGY.md](../lens/docs/TOPOLOGY.md).
 
 ## System overview
 
@@ -24,11 +34,13 @@ What is in the repository, and what does each part run?
 ```mermaid
 flowchart LR
   dev((Contributor))
-  subgraph radarTree ["radar/ (C++20, CMake)"]
+  subgraph acTree ["anti-cheat/ (C++20, CMake)"]
     lab["strategy_lab"]
-    demos["apps/demos"]
     pairs["scenarios/strategies"]
     world[("sim::World")]
+  end
+  subgraph radarTree ["radar/ (C++20, CMake)"]
+    demos["apps/demos"]
     real["adapters/real"]
   end
   subgraph visionTree ["vision/ (Python, uv)"]
@@ -36,82 +48,97 @@ flowchart LR
     pipe["live_pipeline"]
     model[ONNX segmenter]
   end
+  subgraph lensTree ["lens/ (Python + Kotlin drop)"]
+    phone["phone camera source"]
+    lenscore["calibration / transport / policy"]
+    android["android companion"]
+  end
   frames[/"Video, capture card<br/>or screen"/]
   out[/"Window, overlay,<br/>file or shm ring"/]
   dev -->|"strategy_lab all"| lab
   lab -->|"entry.run(world)"| pairs
   pairs -->|"red apply, blue detect"| world
+  demos -->|"consumes lab libraries (one-way)"| world
   demos -->|"only with LR_ENABLE_REAL_*"| real
   dev -->|"cs2-vision live"| cli
   cli -->|LivePipelineConfig| pipe
   frames -->|frames| pipe
   pipe -->|"predict(frame)"| model
   pipe -->|rendered frame| out
+  dev -->|"lens lane (pytest)"| lenscore
+  phone -->|frames| lenscore
+  lenscore -->|"Targets / deltas"| android
   classDef focus fill:#fde68a,stroke:#b45309,color:#1f2937
   class world,pipe focus
 ```
 
-No arrow crosses between the two subgraphs. That is intentional: no Radar
-target includes or links Vision, and no Vision module imports Radar.
-The default Radar build never compiles `real`: every real-platform backend sits
-behind its own `LR_ENABLE_REAL_*` CMake option (all `OFF`), and the
-`strategy_lab` you get from a default build refuses `attach` and `mode real`. Vision never opens the game process. Its only input is
-pixels.
+The only arrow that crosses between the C++ subgraphs is the one-way radar →
+anti-cheat edge: radar consumes the lab's libraries (types, world, teams,
+strategies), and the lab never imports radar code. No Radar target includes or
+links Vision, and no Vision module imports Radar. The default Radar build never
+compiles `real`: every real-platform backend sits behind its own
+`LR_ENABLE_REAL_*` CMake option (all `OFF`). Vision never opens the game
+process. Its only input is pixels. The `strategy_lab` you get from a default
+lab build refuses `attach` and `mode real`.
 
 **Where in the code**
 
-- [radar/CMakeLists.txt](../radar/CMakeLists.txt) and [radar/cmake/Options.cmake](../radar/cmake/Options.cmake): build entry and opt-in flags
-- [radar/scenarios/strategies/framework/main.cpp](../radar/scenarios/strategies/framework/main.cpp): `strategy_lab` CLI
-- [radar/src/simulation/sim/world.hpp](../radar/src/simulation/sim/world.hpp): `sim::World`, the single source of truth for the lab
+- [anti-cheat/CMakeLists.txt](../anti-cheat/CMakeLists.txt) and [radar/CMakeLists.txt](../radar/CMakeLists.txt): the two build entries; radar points at the lab via `LR_ANTI_CHEAT_DIR`
+- [radar/cmake/Options.cmake](../radar/cmake/Options.cmake): the opt-in real flags
+- [anti-cheat/scenarios/strategies/framework/main.cpp](../anti-cheat/scenarios/strategies/framework/main.cpp): `strategy_lab` CLI
+- [anti-cheat/src/simulation/sim/world.hpp](../anti-cheat/src/simulation/sim/world.hpp): `sim::World`, the single source of truth for the lab
 - [vision/pyproject.toml](../vision/pyproject.toml): `cs2-vision` → `cs2_vision_access.cli:main`
+- [lens/pyproject.toml](../lens/pyproject.toml): the `periscope_lens` package (library only; no CLI yet)
 - [vision/src/cs2_vision_access/adapters/capture/live_pipeline/](../vision/src/cs2_vision_access/adapters/capture/live_pipeline/): the frame loop
 
 ## How it runs
 
-| | Radar | Vision |
-| --- | --- | --- |
-| Process | Short-lived native executables (`strategy_lab`, `duel_tN`, `proto_tN_*`, `radar_tN`, …) | One Python process per `cs2-vision` command |
-| Build | `cmake -S radar -B radar/build/dev` | `uv sync --frozen --extra dev` in `vision/` |
-| State | In memory only: a fresh `sim::World` per pair run | Config file, ONNX models + manifests, datasets and artifacts on disk |
-| Output | Console narrative and exit code | Display window, overlay, video file, or `shm:<name>` ring |
-| Default | Simulation, no game process needed | ONNX Runtime on CPU, CUDA optional. The HDMI second-device presenter is Windows-only |
+| | Anti-cheat lab / Radar | Vision | Lens |
+| --- | --- | --- | --- |
+| Process | Short-lived native executables (`strategy_lab`, `duel_tN`, `proto_tN_*` in the lab; `radar_tN`, `live_radar`, `radar_diag`, … in radar) | One Python process per `cs2-vision` command | `pytest` (library; Android drop is not run) |
+| Build | `cmake -S anti-cheat -B anti-cheat/build/dev` and `cmake -S radar -B radar/build/dev` | `uv sync --frozen --extra dev` in `vision/` | `uv sync --frozen --extra dev` in `lens/` |
+| State | In memory only: a fresh `sim::World` per pair run | Config file, ONNX models + manifests, datasets and artifacts on disk | Unit-test state only: the portable core is unit-tested, no hardware state |
+| Output | Console narrative and exit code | Display window, overlay, video file, or `shm:<name>` ring | Pytest results; output shaping and policy are library code, not a live product |
+| Default | Simulation; radar's real backends are opt-in | ONNX Runtime on CPU, CUDA optional. The HDMI second-device presenter is Windows-only | Camera-only; end-to-end live operation is not claimed |
 
 The Vision presenter for the second-device setup has its own guide,
 [vision/docs/CONTOUR_PIPELINE.md](../vision/docs/CONTOUR_PIPELINE.md).
 
-## Radar: layers
+## Radar and the anti-cheat lab: layers
 
-Which Radar code may depend on which?
+Which Radar and anti-cheat code may depend on which?
 
 ```mermaid
 flowchart LR
-  apps["apps/demos and strategy_lab"]
-  scen["scenarios/strategies"]
-  appl["src/application"]
-  core["src/simulation and src/domain"]
-  real["adapters/real"]
-  apps -->|links| scen
-  scen -->|links| appl
-  appl -->|links| core
+  apps["radar apps/demos"]
+  rad["radar src/domain/radar and src/application/radar"]
+  real["radar adapters/real"]
+  ac["anti-cheat libraries (domain, simulation, teams, strategies)"]
+  apps -->|links| rad
+  apps -->|links| ac
   apps -->|"links, opt-in only"| real
-  real -->|implements ports of| appl
+  real -->|implements ports of| rad
+  real -->|"includes ac / ac_sim headers"| ac
 ```
 
 Executables are the composition roots: `lr_exe` in `radar/CMakeLists.txt`
 adds `adapters/` to every executable's include path, and reusable library
 targets never receive it. The reverse
-direction is forbidden: `src/domain` and `src/simulation` never include a real
-adapter. The real Windows, Linux, kernel, DMA, VMX, SMM, UEFI, GPU, network,
+direction is forbidden: radar's `src/domain/radar` never includes a real
+adapter, and the anti-cheat lab never imports radar code at all — the single
+exception is the lab's `tests/stack_posture_test.cpp`, which reads radar's
+`real/cs2/posture.hpp` through a test-only include path (`LR_RADAR_DIR`).
+The real Windows, Linux, kernel, DMA, VMX, SMM, UEFI, GPU, network,
 driver and firmware lanes are teaching material, never part of the default
 simulation graph, and remain explicit build and runtime opt-ins.
 
 **Where in the code**
 
 - [radar/cmake/AppTargets.cmake](../radar/cmake/AppTargets.cmake): which executable links which library
-- [radar/cmake/ScenarioTargets.cmake](../radar/cmake/ScenarioTargets.cmake), [radar/cmake/SimulationTargets.cmake](../radar/cmake/SimulationTargets.cmake), [radar/cmake/RealTargets.cmake](../radar/cmake/RealTargets.cmake): the library graph
+- [anti-cheat/cmake/ScenarioTargets.cmake](../anti-cheat/cmake/ScenarioTargets.cmake), [anti-cheat/cmake/SimulationTargets.cmake](../anti-cheat/cmake/SimulationTargets.cmake), [radar/cmake/RealTargets.cmake](../radar/cmake/RealTargets.cmake): the library graph
 - [radar/docs/ARCHITECTURE.md](../radar/docs/ARCHITECTURE.md): the full target table
 
-## Radar: what happens when you run the lab
+## Anti-cheat lab: what happens when you run the lab
 
 What does `strategy_lab all --tier T0` actually do?
 
@@ -145,11 +172,11 @@ the scenario.
 
 **Where in the code**
 
-- [radar/scenarios/strategies/framework/main.cpp](../radar/scenarios/strategies/framework/main.cpp): argument parsing and dispatch
-- [radar/scenarios/strategies/framework/registry_run.cpp](../radar/scenarios/strategies/framework/registry_run.cpp): `run_one`, `run_all`, `run_filtered`
-- [radar/src/application/strategies/framework.hpp](../radar/src/application/strategies/framework.hpp): `StrategyMeta`, `StrategyResult`, `StrategyEntry`
-- [radar/scenarios/strategies/t0/accept_readiness_gate/](../radar/scenarios/strategies/t0/accept_readiness_gate/): one complete pair (`pair.cpp`, `red_example.cpp`, `blue_example.cpp`, `LESSON.md`)
-- [radar/scenarios/strategies/CATALOG.md](../radar/scenarios/strategies/CATALOG.md): the pair catalog
+- [anti-cheat/scenarios/strategies/framework/main.cpp](../anti-cheat/scenarios/strategies/framework/main.cpp): argument parsing and dispatch
+- [anti-cheat/scenarios/strategies/framework/registry_run.cpp](../anti-cheat/scenarios/strategies/framework/registry_run.cpp): `run_one`, `run_all`, `run_filtered`
+- [anti-cheat/src/application/strategies/framework.hpp](../anti-cheat/src/application/strategies/framework.hpp): `StrategyMeta`, `StrategyResult`, `StrategyEntry`
+- [anti-cheat/scenarios/strategies/t0/accept_readiness_gate/](../anti-cheat/scenarios/strategies/t0/accept_readiness_gate/): one complete pair (`pair.cpp`, `red_example.cpp`, `blue_example.cpp`, `LESSON.md`)
+- [anti-cheat/scenarios/strategies/CATALOG.md](../anti-cheat/scenarios/strategies/CATALOG.md): the pair catalog
 
 ## Vision: layers
 
@@ -245,8 +272,10 @@ How is a change checked?
 
 ```mermaid
 flowchart LR
-  pr[Pull request] -->|"radar/**"| rci[Radar CI]
+  pr[Pull request] -->|"anti-cheat/**"| aci[Anti-cheat CI]
+  pr -->|"radar/**"| rci[Radar CI]
   pr -->|"vision/**"| vci[Vision CI]
+  aci -->|ubuntu| acsim["verify.py anti-cheat-sim"]
   rci -->|ubuntu| rsim["verify.py radar-sim"]
   rci -.->|"windows, dispatch or Dependabot only"| rreal["real-capability build"]
   vci -->|"3.11-3.13"| vlint[ruff]
@@ -257,9 +286,12 @@ flowchart LR
 ```
 
 `scripts/verify.py` runs the same checks locally:
-`python3 scripts/verify.py architecture|radar-sim|vision-cpu|all`. `radar-sim`
-configures, builds, runs `ctest`, then runs `strategy_lab list` and
-`strategy_lab all --quiet`. Every pair must pass. `vision-cpu` runs pytest.
+`python3 scripts/verify.py architecture|anti-cheat-sim|radar-sim|vision-cpu|all`.
+`anti-cheat-sim` configures and builds the lab, runs its ctest, then runs
+`strategy_lab all --quiet`.
+`radar-sim` configures, builds, runs `ctest`, then runs `strategy_lab list`
+and `strategy_lab all --quiet` from the radar lane. Every pair must pass.
+`vision-cpu` runs pytest.
 CodeQL also runs weekly on a schedule.
 The portable jobs run on every pull request that touches their paths. The
 Windows job runs only on manual `workflow_dispatch` or Dependabot pull requests
@@ -270,7 +302,7 @@ publishes a release artifact.
 **Where in the code**
 
 - [scripts/verify.py](../scripts/verify.py), [scripts/check_architecture.py](../scripts/check_architecture.py)
-- [.github/workflows/radar-ci.yml](../.github/workflows/radar-ci.yml), [.github/workflows/vision-ci.yml](../.github/workflows/vision-ci.yml), [.github/workflows/security.yml](../.github/workflows/security.yml)
+- [.github/workflows/anti-cheat-ci.yml](../.github/workflows/anti-cheat-ci.yml), [.github/workflows/radar-ci.yml](../.github/workflows/radar-ci.yml), [.github/workflows/vision-ci.yml](../.github/workflows/vision-ci.yml), [.github/workflows/security.yml](../.github/workflows/security.yml)
 
 ## Code map
 
@@ -278,12 +310,15 @@ Read in this order:
 
 | Path | Responsibility |
 | --- | --- |
-| [README.md](../README.md), [docs/decisions/](decisions/) | What the two projects are and why they stay separate |
-| [radar/README.md](../radar/README.md), [radar/docs/INDEX.md](../radar/docs/INDEX.md) | Radar curriculum, tiers T0–T4, build |
-| [radar/src/simulation/sim/](../radar/src/simulation/sim/) | `sim::World` and its scar fields |
-| [radar/src/application/strategies/](../radar/src/application/strategies/) | Pair contracts and shared detection helpers |
-| [radar/scenarios/strategies/](../radar/scenarios/strategies/) | `strategy_lab` and every red/blue pair, by tier |
-| [radar/src/lab_components/teams/](../radar/src/lab_components/teams/) | Per-tier team libraries used by `duel_tN` and `proto_tN_*` |
+| [README.md](../README.md), [docs/decisions/](decisions/) | What the four projects are and why they stay separate |
+| [anti-cheat/README.md](../anti-cheat/README.md), [anti-cheat/docs/INDEX.md](../anti-cheat/docs/INDEX.md) | Lab curriculum, tiers T0–T4, build |
+| [anti-cheat/src/simulation/sim/](../anti-cheat/src/simulation/sim/) | `sim::World` and its scar fields |
+| [anti-cheat/src/application/strategies/](../anti-cheat/src/application/strategies/) | Pair contracts and shared detection helpers |
+| [anti-cheat/scenarios/strategies/](../anti-cheat/scenarios/strategies/) | `strategy_lab` and every red/blue pair, by tier |
+| [anti-cheat/src/lab_components/teams/](../anti-cheat/src/lab_components/teams/) | Per-tier team libraries used by `duel_tN` and `proto_tN_*` |
+| [radar/README.md](../radar/README.md), [radar/docs/INDEX.md](../radar/docs/INDEX.md) | Radar product overview, docs and build |
+| [radar/src/domain/radar/](../radar/src/domain/radar/) | Radar product modules: snapshot, sampling, projection, scatter, mini-radar |
+| [radar/src/application/radar/](../radar/src/application/radar/) | Web radar service and tri_loader |
 | [radar/apps/demos/](../radar/apps/demos/) | Runnable executables (composition roots) |
 | [radar/adapters/real/](../radar/adapters/real/) | Opt-in platform backends, see [radar/SECURITY.md](../radar/SECURITY.md) |
 | [vision/README.md](../vision/README.md), [vision/docs/CLI.md](../vision/docs/CLI.md) | Vision install and commands |
@@ -300,9 +335,11 @@ Read in this order:
   `python -m cs2_vision_access`, documented public imports, backend names,
   configuration and artifact schemas, model checksum binding, and pixel-only
   safety boundary.
-- Radar preserves documented executable and CMake option names, simulation as
-  the default, strategy-lab commands, offset snapshot formats, and versioned
+- Radar preserves documented executable and CMake option names, real-mode
+  opt-in flags, offset snapshot formats, and versioned
   driver, firmware, IPC, and network layouts.
+- Anti-cheat keeps simulation as the only mode, the `strategy_lab` commands,
+  and the tier curriculum layout.
 - Source-tree module names, private helpers, CMake library decomposition, and
   directory locations are internal unless active documentation says otherwise.
 

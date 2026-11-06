@@ -1,41 +1,42 @@
 # Contributing
 
-Educational anti-cheat research lab (radar track of the Periscope monorepo). Useful contributions: clearer lessons, better blue sensors, or docs that match the tree.
+Game-facing radar product (radar track of the Periscope monorepo): real adapters, live CS2 reading, the web radar service and the outbound relay. Useful contributions: cleaner adapter seams, better radar domain modules, or docs that match the tree. The tiered red/blue teaching lab lives in [`../anti-cheat/`](../anti-cheat/README.md); lab and strategy-pair work is covered by [`../anti-cheat/CONTRIBUTING.md`](../anti-cheat/CONTRIBUTING.md).
 
 ## Monorepo
 
 - Work that only touches this track: PR under `radar/` (this tree).
-- Cross-cutting monorepo changes (shared CI, root layout, both tracks): follow parent-level contribution notes when they exist; otherwise say so in the PR description.
+- Cross-cutting monorepo changes (shared CI, root layout, several tracks): follow parent-level contribution notes when they exist; otherwise say so in the PR description.
 
 ## Ground rules
 
 - Keep it educational. Do not ship ready-to-run cheat tooling aimed at live competitive play.
-- Prefer multi-step red and multi-reason blue. One-bool “detected = true” lessons are not the quality bar.
 - Simulation is the default path. Real backends stay behind CMake flags and should degrade cleanly when hardware or the game is missing.
-- Match existing style in the folder you touch. Headers and sources live together under `src/` and `src/lab_components/teams/`.
+- Radar consumes the anti-cheat lab one-way (`LR_ANTI_CHEAT_DIR`); do not add code paths that the lab would need to import from radar.
+- Match existing style in the folder you touch. Headers and sources live together under `src/` and `adapters/real/`.
 
-## New strategy pair
+## Verify
 
-1. Pick a tier folder (or `crosscutting/`):
-   ```
-   scenarios/strategies/<tier>/<short_name>/
-     red_example.hpp / red_example.cpp
-     blue_example.hpp / blue_example.cpp
-     pair.cpp
-     LESSON.md          # what the scar is, what blue looks for
-   ```
-2. Export `entry_NN_short_name()` from `pair.cpp`.
-3. Register it in `scenarios/strategies/framework/registry.cpp`.
-4. Rebuild and run:
-   ```bash
-   ./build/strategy_lab run <id>
-   ```
-5. If the pair introduces a new surface class, update the CMake wiring.
+From the repository root:
+
+```bash
+python3 scripts/verify.py radar-sim
+```
+
+Or directly in this tree:
+
+```bash
+cmake -S . -B build/dev
+cmake --build build/dev -j
+ctest --test-dir build/dev --output-on-failure
+```
+
+Real backends additionally need `-DLR_ENABLE_REAL_*` flags and a Windows host;
+see [docs/BUILD-AND-TEST.md](docs/BUILD-AND-TEST.md).
 
 ## Doc updates
 
-- Live catalog truth: `./build/strategy_lab list`.
-- Curriculum and architecture live under `docs/`.
+- Product docs live under `docs/` (`docs/INDEX.md` is the index).
+- Strategy catalog and curriculum truth moved with the lab: see [`../anti-cheat/CONTRIBUTING.md`](../anti-cheat/CONTRIBUTING.md).
 
 ## Pull requests
 

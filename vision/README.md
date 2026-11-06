@@ -296,7 +296,7 @@ Details: [docs/CLI.md](docs/CLI.md).
 
 ## Repository structure
 
-This tree is the `vision/` package root inside the Periscope monorepo (sibling of `radar/`).
+This tree is the `vision/` package root inside the Periscope monorepo (sibling of `radar/` and `lens/`; the camera-only Lens track left this package on 2026-11-06 and lives in `lens/`).
 
 ```text
 vision/   # cwd for uv and cs2-vision

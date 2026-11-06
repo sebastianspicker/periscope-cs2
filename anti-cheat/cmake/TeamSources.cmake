@@ -1,0 +1,65 @@
+# Explicit reusable-team source manifest.
+set(LR_t0_blue_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_blue/ac_agent.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_blue/false_positive_policy.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_blue/handle_graph_monitor.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_blue/process_cooccurrence.cpp"
+)
+set(LR_t0_red_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/cheat_client.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/cheat_client_evasion.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/entity_pipeline.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/evasion_advanced.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/evasion_weak.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/radar_ui.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t0_red/rpm_backend.cpp"
+)
+set(LR_t1_blue_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_blue/hook_trap.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_blue/staging_detector.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_blue/staging_watch.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_blue/syscall_aware_monitor.cpp"
+)
+set(LR_t1_red_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_red/crypto_offsets.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_red/evasion_t1_advanced.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_red/offset_blob.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_red/staged_loader.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_red/syscall_backend.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t1_red/syscall_cheat.cpp"
+)
+set(LR_t2_blue_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_blue/byovd_blocklist.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_blue/callback_integrity.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_blue/device_watch.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_blue/driver_guard.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_blue/kernel_ac.cpp"
+)
+set(LR_t2_red_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_red/byovd_surface.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_red/callback_strip_sim.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_red/evasion_t2_advanced.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_red/ioctl_backend.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t2_red/kernel_radar.cpp"
+)
+set(LR_t3_blue_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_blue/attestation_gate.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_blue/bridge_intel.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_blue/hv_probe.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_blue/platform_ac.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_blue/trust_policy.cpp"
+)
+set(LR_t3_red_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_red/bridge_surface.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_red/evasion_t3_advanced.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_red/fallback_chain.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_red/hv_backend.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t3_red/hv_radar.cpp"
+)
+set(LR_t4_blue_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t4_blue/dma_defense.cpp"
+)
+set(LR_t4_red_SOURCES
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t4_red/dma_radar.cpp"
+  "${AC_SOURCE_DIR}/src/lab_components/teams/t4_red/evasion_t4_advanced.cpp"
+)
