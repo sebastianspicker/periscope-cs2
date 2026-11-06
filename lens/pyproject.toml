@@ -38,7 +38,7 @@ dev = [
 # Only the real UVC/scrcpy/DroidCam bindings import cv2; the portable core and
 # the unit suite do not, so it stays out of the default install.
 capture = [
-  "opencv-python>=4.10,<5",
+  "opencv-python>=4.10,<6",
 ]
 
 [tool.pytest.ini_options]
