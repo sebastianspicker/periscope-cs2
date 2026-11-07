@@ -1,7 +1,7 @@
 {
   "source": "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/",
   "module": "client.dll",
-  "generated_at_utc": "2026-11-05T19:12:21Z",
+  "generated_at_utc": "2026-11-07T21:57:58Z",
   "globals": {
     "dwEntityList": 41020168,
     "dwGameEntitySystem": 41020168,
@@ -34,13 +34,13 @@
     "m_nBombSite": 4748,
     "m_flC4Blow": 4792,
     "m_bBeingDefused": 4804,
-    "m_vecVelocity": 1080,
-    "m_hOwnerEntity": 1320,
-    "m_vecViewOffset": 3416,
-    "m_sSanitizedPlayerName": 2144,
-    "m_pWeaponServices": 5080,
+    "m_vecVelocity": 1072,
+    "m_hOwnerEntity": 1312,
+    "m_vecViewOffset": 3936,
+    "m_sSanitizedPlayerName": 2168,
+    "m_pWeaponServices": 4848,
     "m_hActiveWeapon": 96,
-    "m_AttributeManager": 4984,
+    "m_AttributeManager": 4752,
     "m_Item": 80,
     "m_iItemDefinitionIndex": 442,
     "m_hObserverTarget": 76
