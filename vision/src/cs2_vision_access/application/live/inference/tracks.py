@@ -8,7 +8,7 @@ state) and E9 (hot/cold field caching on reusable track objects):
   IoU / centroid proximity within class). Each track owns a stable identity
   (monotonic id), its class label, and a smoothed bounding box.
 - **Jitter smoothing (E6):** the track's bounding box follows the detection
-  with exponential smoothing (``1 - exp(-rate)`` per update — frame-rate
+  with exponential smoothing (``1 - exp(-rate)`` per update, frame-rate
   independent integration, unlike a naive ``dt * speed``). The frame's
   polygon is then linearly re-mapped from its own raw bounding box onto the
   smoothed box, which kills box wobble without ever inventing geometry:
@@ -18,7 +18,7 @@ state) and E9 (hot/cold field caching on reusable track objects):
   ``fade_in_frames`` updates; a track that stops matching shrinks toward its
   centroid over ``fade_out_frames`` updates before it is dropped. The
   shrink/grow re-uses only polygons the detector actually produced (last
-  seen for fading tracks), bounded like hold-last-mask — nothing is invented
+  seen for fading tracks), bounded like hold-last-mask, nothing is invented
   beyond an affine scale of seen geometry.
 - **Hot/cold caching (E9):** the track object is the cache. Hot fields
   (smoothed box, polygon) refresh every matched frame; cold fields (class

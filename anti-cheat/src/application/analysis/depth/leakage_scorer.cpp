@@ -1,4 +1,4 @@
-// leakage_scorer.cpp — depth analytics: multi-sample / fusion scoring for blue.
+// leakage_scorer.cpp: depth analytics: multi-sample / fusion scoring for blue.
 // Educational scorers over World residuals.
 
 #include "depth/leakage_scorer.hpp"
@@ -126,7 +126,7 @@ LeakageScore LeakageScorer::score(const server::Observer& obs, std::uint8_t team
 
   // Stream crypto dynamics
   if (stream.key_exfiltrated || (stream.encrypted && stream.client_has_key)) {
-    s.key_exfil_events = stream.key_exfiltrated ? 1 : 0;
+    s.key_exfil_events = stream.key_exfiltrated ? 1: 0;
     s.risk += 2.0;  // plaintext or decryptable XY still available
   }
   if (stream.encrypted && !stream.client_has_key && !stream.key_exfiltrated) {
@@ -159,7 +159,7 @@ LeakageScore LeakageScorer::score(const server::Observer& obs, std::uint8_t team
       << " repl_e=" << s.replicated_enemies << " leak=" << s.leaked_beyond_fog
       << " delayed=" << s.delayed_origins << " ratio=" << s.leakage_ratio
       << " key_exfil=" << s.key_exfil_events << " risk=" << s.risk
-      << " kill=" << (s.structural_kill ? 1 : 0);
+      << " kill=" << (s.structural_kill ? 1: 0);
   s.detail = oss.str();
   return s;
 }
@@ -223,8 +223,8 @@ StreamExfilResult run_stream_exfil_red(sim::World& w) {
   r.useful_radar =
       w.server_sends_full_enemy_origin || w.stream_key_exfiltrated;
   r.detail = std::string("full_repl=") +
-             (r.wanted_full_replication ? "1" : "0") +
-             " key_exfil=" + (r.key_exfiltrated ? "1" : "0");
+             (r.wanted_full_replication ? "1": "0") +
+             " key_exfil=" + (r.key_exfiltrated ? "1": "0");
   w.note("stream_exfil_red " + r.detail);
   return r;
 }

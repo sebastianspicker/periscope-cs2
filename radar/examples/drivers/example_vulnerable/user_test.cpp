@@ -1,4 +1,4 @@
-// user_test.cpp — Full T2 BYOVD CS2 radar client for the educational gdrv stack.
+// user_test.cpp: Full T2 BYOVD CS2 radar client for the educational gdrv stack.
 //
 // Self-contained under examples/drivers (no external lib includes).
 // Shares ABI with vuln_driver.c via gdrv_abi.h / gdrv_pack.hpp.
@@ -103,7 +103,7 @@ static void test_ioctl(const char* name, DWORD code,
     bool passed = (ok && expect_success) || (!ok && !expect_success);
     if (passed) g_ioctl_passed++;
     printf("  %-40s %s (code=0x%08lx, ret=%lu)\n",
-           name, ok ? "OK" : "FAIL", (unsigned long)code, returned);
+           name, ok ? "OK": "FAIL", (unsigned long)code, returned);
 }
 
 static bool open_driver() {
@@ -234,7 +234,7 @@ static void cmd_list() {
     printf("%-20s 0x222000      PORT I/O\n", "winio.sys");
     printf("%-20s 0x80202040    PHYS_MEM\n", "aswArPot.sys");
 
-    printf("\nThis stack IOCTL range: 0x%08X .. 0x%08X (%u codes)\n",
+    printf("\nThis stack IOCTL range: 0x%08X.. 0x%08X (%u codes)\n",
            IOCTL_GDRV_FIRST, IOCTL_GDRV_LAST, (unsigned)IOCTL_GDRV_COUNT);
     for (unsigned i = 0; i < IOCTL_GDRV_COUNT; ++i) {
         printf("  [%u] 0x%08X\n", i, gdrv::ioctl_code_at(i));
@@ -317,7 +317,7 @@ static void cmd_t2_cs2() {
     printf("\n=== Educational Summary ===\n");
     printf("Technique:  KeStackAttachProcess (via IOCTL 0x%08X)\n",
            IOCTL_GDRV_VIRT_READ);
-    printf("Handle:     NONE — no OpenProcess to cs2.exe for the read path\n");
+    printf("Handle:     NONE, no OpenProcess to cs2.exe for the read path\n");
     printf("Blue sees:  Device IOCTL on %s\n", GDRV_USERMODE_PATH_A);
     printf("Mitigation: DSE + HVCI + BYOVD blocklist\n");
     close_driver();
@@ -474,7 +474,7 @@ static void cmd_callback(int type) {
 
     printf("\n%s callbacks: %u registered (status_hint=%u)\n",
            type_names[type], req.count, req.status_hint);
-    printf("Actions: 0=query, 1=remove_all, 2=count — against REAL notify arrays\n");
+    printf("Actions: 0=query, 1=remove_all, 2=count, against REAL notify arrays\n");
     close_driver();
 }
 
@@ -517,10 +517,10 @@ static void cmd_scan() {
                        ereq.data(), (DWORD)ereq.size(),
                        entity_buf.data(), (DWORD)entity_buf.size(), true);
         } else {
-            printf("[!] Cannot resolve CS2 base — skipping VIRT/ENTITY tests\n");
+            printf("[!] Cannot resolve CS2 base, skipping VIRT/ENTITY tests\n");
         }
     } else {
-        printf("[!] CS2 not running — skipping VIRT/ENTITY tests\n");
+        printf("[!] CS2 not running, skipping VIRT/ENTITY tests\n");
     }
 
     GDRV_PROCESS_SCAN_RESULT scan_result{};
@@ -587,7 +587,7 @@ int main(int argc, char** argv) {
     else if (strcmp(argv[1], "--modules") == 0 && argc > 2)
         cmd_modules(static_cast<uint32_t>(strtoul(argv[2], nullptr, 10)));
     else if (strcmp(argv[1], "--callback") == 0) {
-        int type = (argc > 2) ? atoi(argv[2]) : 0;
+        int type = (argc > 2) ? atoi(argv[2]): 0;
         cmd_callback(type);
     } else {
         printf("Unknown command: %s\n", argv[1]);

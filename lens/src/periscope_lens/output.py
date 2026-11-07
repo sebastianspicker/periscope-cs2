@@ -1,15 +1,15 @@
 """Output paths for the computed assist (ledger L8).
 
-Three ranked paths, decided by feature detection — never assumed:
+Three ranked paths, decided by feature detection, never assumed:
 
-1. ``hid_gadget`` — the phone presents itself as a USB-HID mouse (Android
+1. ``hid_gadget``, the phone presents itself as a USB-HID mouse (Android
    10+ configfs USB gadget, kernel-dependent). No PC software at all; the
    cable carries both the L6 target stream and the HID reports. Feature
    detection is mandatory: support varies per device.
-2. ``pc_agent`` — a small opt-in PC-side receiver translating targets to
+2. ``pc_agent``, a small opt-in PC-side receiver translating targets to
    OS input events. Same actuation class as the audit-excluded presenter
    area: lab-only, never default.
-3. ``targets_only`` — the PC side owns all motion policy; the phone only
+3. ``targets_only``, the PC side owns all motion policy; the phone only
    publishes targets (degraded but always available).
 
 The pure half here: the output-path decision ladder over detected feature
@@ -66,7 +66,7 @@ def select_output_path(features: OutputFeatures) -> OutputPath:
 class HidDeltaShaper:
     """Accumulates desired motion and emits rate-shaped HID reports.
 
-    The phone sends relative mouse deltas (what HID mice are — no absolute
+    The phone sends relative mouse deltas (what HID mice are, no absolute
     positioning assumptions). Reports carry signed bytes per axis, so a
     desired motion beyond one report's range is emitted across several
     reports; ``max_counts_per_report`` additionally rate-shapes so a large
@@ -123,7 +123,7 @@ class HidDeltaShaper:
 def encode_hid_report(dx: int, dy: int, buttons: int = 0) -> bytes:
     """A standard 3-byte relative mouse HID report (button, dx, dy).
 
-    Values must already be in range — the shaper guarantees that; this
+    Values must already be in range, the shaper guarantees that; this
     function refuses anything else so a clamp bug cannot become a wrapped
     axis (a mouse teleporting across the screen).
     """

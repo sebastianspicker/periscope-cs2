@@ -1,4 +1,4 @@
-// uefi_lab.hpp — UEFI laboratory: firmware analysis, DMA bypass, and TXT measurement.
+// uefi_lab.hpp: UEFI laboratory: firmware analysis: DMA bypass, and TXT measurement.
 //
 // Ties together the UEFI subsystem modules for educational demonstrations:
 //   - Firmware table enumeration and analysis

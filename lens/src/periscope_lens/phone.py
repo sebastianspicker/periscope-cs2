@@ -3,19 +3,19 @@
 The smartphone is pointed at the game monitor and acts as the capture
 device. Three transports, in preference order (see `lens/docs/TOPOLOGY.md`):
 
-- ``scrcpy`` — the PC pulls the Android device's camera over ADB/USB
+- ``scrcpy``, the PC pulls the Android device's camera over ADB/USB
   (scrcpy ``--video-source=camera``); no extra phone app, no UVC driver.
   scrcpy is Apache-2.0 and is *invoked*, never linked or bundled.
-- ``uvc`` — the phone runs in its vendor webcam mode; the PC opens it as a
+- ``uvc``, the phone runs in its vendor webcam mode; the PC opens it as a
   standard camera device (OpenCV capture, same as any webcam).
-- ``droidcam`` — user-installed proprietary client; supported as an option,
+- ``droidcam``, user-installed proprietary client; supported as an option,
   never bundled.
 
 The portable half of this module is everything testable without a phone:
 
 - backend validation and the scrcpy command line (pure, unit-tested),
 - the read-loop contract (``(ok, frame, reason)`` with explicit
-  disconnect/reconnect semantics — a live camera never "ends", the A4
+  disconnect/reconnect semantics, a live camera never "ends", the A4
   lesson, and the failure counter resets after a good read, the B8 lesson),
 - latency-probe hooks for L7.
 
@@ -112,13 +112,13 @@ class PhoneCameraSource:
     def read(self, frame_index: int) -> tuple[bool, np.ndarray | None, str]:
         """One read with the shared capture contract.
 
-        Returns ``(True, frame, "")`` on success, ``(False, None, "")`` on a
-        dropped read (failure counter incremented), and
-        ``(False, None, reason)`` only when this source decided to stop
-        (explicit close); reconnect decisions belong to the caller via
+                Returns ``(True, frame, "")`` on success, ``(False, None, "")`` on a
+                dropped read (failure counter incremented), and
+                ``(False, None, reason)`` only when this source decided to stop
+                (explicit close); reconnect decisions belong to the caller via
         :meth:`should_reconnect`. Reasons *returned by the reader* are
-        advisory and dropped here: a live camera has no end-of-stream, so a
-        per-read reason would otherwise terminate the pipeline (A4).
+                advisory and dropped here: a live camera has no end-of-stream, so a
+                per-read reason would otherwise terminate the pipeline (A4).
         """
         if self._closed:
             return (False, None, "phone_source_closed")

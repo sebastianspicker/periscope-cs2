@@ -1,4 +1,4 @@
-// pipe.cpp — Cross-platform named-pipe IPC with framed messages.
+// pipe.cpp: Cross-platform named-pipe IPC with framed messages.
 
 #include "real/net/net_client.hpp"
 #include "real/net/net_internal.hpp"
@@ -67,7 +67,7 @@ Result<void> NamedPipe::wait_for_client(int timeout_ms) {
   HANDLE h = reinterpret_cast<HANDLE>(handle_);
   OVERLAPPED ov{};
   ov.hEvent = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-  BOOL ok = ConnectNamedPipe(h, ov.hEvent ? &ov : nullptr);
+  BOOL ok = ConnectNamedPipe(h, ov.hEvent ? &ov: nullptr);
   if (!ok) {
     const DWORD err = GetLastError();
     if (err == ERROR_PIPE_CONNECTED) {
@@ -76,7 +76,7 @@ Result<void> NamedPipe::wait_for_client(int timeout_ms) {
     }
     if (err == ERROR_IO_PENDING && ov.hEvent) {
       const DWORD wr = WaitForSingleObject(
-          ov.hEvent, timeout_ms < 0 ? INFINITE : static_cast<DWORD>(timeout_ms));
+          ov.hEvent, timeout_ms < 0 ? INFINITE: static_cast<DWORD>(timeout_ms));
       if (wr != WAIT_OBJECT_0) {
         CancelIo(h);
         CloseHandle(ov.hEvent);
@@ -114,7 +114,7 @@ Result<void> NamedPipe::connect_client(const std::string& pipe_name) {
 Result<void> NamedPipe::connect_client(const std::string& pipe_name, int timeout_ms) {
   if (is_open()) close();
 #if LR_PLATFORM_WINDOWS
-  const DWORD deadline = GetTickCount() + static_cast<DWORD>(timeout_ms < 0 ? 60000 : timeout_ms);
+  const DWORD deadline = GetTickCount() + static_cast<DWORD>(timeout_ms < 0 ? 60000: timeout_ms);
   for (;;) {
     HANDLE h = CreateFileA(pipe_name.c_str(), GENERIC_READ | GENERIC_WRITE,
                            0, nullptr, OPEN_EXISTING, 0, nullptr);
@@ -129,7 +129,7 @@ Result<void> NamedPipe::connect_client(const std::string& pipe_name, int timeout
       return os_error("CreateFile pipe");
     const DWORD wait = (timeout_ms < 0)
         ? NMPWAIT_WAIT_FOREVER
-        : (deadline > GetTickCount() ? (deadline - GetTickCount()) : 0);
+: (deadline > GetTickCount() ? (deadline - GetTickCount()): 0);
     if (wait == 0) return Result<void>("connect_client timed out");
     if (!WaitNamedPipeA(pipe_name.c_str(), wait))
       return os_error("WaitNamedPipe");
@@ -227,7 +227,7 @@ void NamedPipe::close() {
     DisconnectNamedPipe(h);
     CloseHandle(h);
 #else
-    ::close(static_cast<int>(handle_));
+::close(static_cast<int>(handle_));
 #endif
     handle_ = -1;
   }

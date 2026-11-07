@@ -1,4 +1,4 @@
-// telemetry.cpp — ITelemetrySink + MemoryTelemetrySink for lab event capture.
+// telemetry.cpp: ITelemetrySink + MemoryTelemetrySink for lab event capture.
 // Tests assert emitted kinds/risk and EventKind labels.
 
 #include "ac/telemetry.hpp"

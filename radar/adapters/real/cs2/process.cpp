@@ -187,7 +187,7 @@ void detach_from_cs2(std::uint64_t handle) {
     if (api.resolved && api.NtClose) {
       api.NtClose(reinterpret_cast<HANDLE>(handle));
     } else {
-      ::CloseHandle(reinterpret_cast<HANDLE>(handle));
+::CloseHandle(reinterpret_cast<HANDLE>(handle));
     }
   }
 #else
@@ -211,7 +211,7 @@ Result<bool> is_cs2_running(std::uint32_t pid) {
   NTSTATUS status =
       api.NtOpenProcess(&handle, PROCESS_QUERY_LIMITED_INFORMATION, &oa, &cid);
   if (status < 0 || handle == nullptr) {
-    // Process gone or inaccessible — treat as not running.
+    // Process gone or inaccessible, treat as not running.
     return Result<bool>(false);
   }
 

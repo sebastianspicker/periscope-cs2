@@ -1,4 +1,4 @@
-; vmcall_msvc.asm — MSVC MASM Hyper-V VMCALL wrapper for x64
+; vmcall_msvc.asm, MSVC MASM Hyper-V VMCALL wrapper for x64
 ;
 ; Executes the VMCALL instruction with the Hyper-V fast-hypercall convention:
 ;   RCX = input value

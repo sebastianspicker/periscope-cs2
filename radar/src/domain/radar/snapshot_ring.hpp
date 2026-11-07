@@ -1,4 +1,4 @@
-// snapshot_ring.hpp — R3: lock-free snapshot publication between workers.
+// snapshot_ring.hpp: R3: lock-free snapshot publication between workers.
 //
 // Adapted from cs2-dma (Apache-2.0, NOTICE recorded): a dual-worker pipeline
 // (data worker + camera worker) exchanges state through a fixed ring of

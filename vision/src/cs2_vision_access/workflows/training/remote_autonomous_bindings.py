@@ -54,7 +54,7 @@ from cs2_vision_access.workflows.training.train_core import auto_train_device, i
 
 try:
     from ultralytics import YOLO
-except ImportError:  # pragma: no cover — optional until deps install
+except ImportError:  # pragma: no cover, optional until deps install
     YOLO = None  # type: ignore[assignment,misc]
 
 __all__ = [

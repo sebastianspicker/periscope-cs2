@@ -1,4 +1,4 @@
-// pcie.hpp — Linux PCIe device enumeration, BAR mmap, config space, port I/O.
+// pcie.hpp: Linux PCIe device enumeration: BAR mmap, config space, port I/O.
 
 #pragma once
 

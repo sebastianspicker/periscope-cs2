@@ -1,4 +1,4 @@
-// module_enum.hpp — Kernel module enumeration via /proc/modules + /sys/module.
+// module_enum.hpp: Kernel module enumeration via /proc/modules + /sys/module.
 //
 // BLUE: detect unexpected modules (aclab, rootkits).
 // RED scar: module is always in /proc/modules unless DKOM-hidden (then other scars).

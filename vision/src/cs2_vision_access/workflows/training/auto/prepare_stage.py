@@ -84,7 +84,7 @@ def stage_prepare_data(
             if session_dir.exists() and any(session_dir.iterdir()):
                 continue
             session_dir.mkdir(parents=True, exist_ok=True)
-            # extract_frames requires empty dir — recreate cleanly
+            # extract_frames requires empty dir, recreate cleanly
             if any(session_dir.iterdir()):
                 shutil.rmtree(session_dir)
                 session_dir.mkdir(parents=True, exist_ok=True)

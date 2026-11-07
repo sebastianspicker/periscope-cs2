@@ -1,4 +1,4 @@
-// schema_layout.hpp — Pure Source-2 runtime-schema resolution planning
+// schema_layout.hpp: Pure Source-2 runtime-schema resolution planning
 // (assessment ledger E13).
 //
 // The runtime snapshot (offsets_snapshot.hpp) is tier 1: fast, deterministic,
@@ -69,10 +69,10 @@ struct ResolvedField {
 
 /// Memo: class+field → offset. Bounded; oldest-insertion eviction is not
 /// needed because the working set (schema classes the radar touches) is
-/// small and stable — the bound exists to catch runaway misresolution.
+/// small and stable, the bound exists to catch runaway misresolution.
 class FieldMemo {
  public:
-  explicit FieldMemo(std::size_t capacity = 512) : capacity_(capacity < 8 ? 8 : capacity) {}
+  explicit FieldMemo(std::size_t capacity = 512): capacity_(capacity < 8 ? 8: capacity) {}
 
   std::optional<std::uint64_t> lookup(const std::string& class_name,
                                       const std::string& field_name) const {
@@ -113,7 +113,7 @@ struct FieldProbe {
 
 /// Plan the probe for one field given the class-info address and the
 /// declared field count. Returns nullopt when the count exceeds the bound
-/// (corrupt or misunderstood table — never walk unbounded).
+/// (corrupt or misunderstood table, never walk unbounded).
 inline std::optional<FieldProbe> plan_field_probe(
     const SchemaLayout& layout,
     std::uint64_t class_info_address,
@@ -132,7 +132,7 @@ inline std::optional<FieldProbe> plan_field_probe(
 /// Does one walked field entry match the wanted hash (read its name pointer
 /// and compare hashes out-of-band)? The walker reads the entry's name
 /// pointer at ``entry + field_name_offset``, dereferences, hashes, and calls
-/// this with the result — keeping the decision logic pure.
+/// this with the result, keeping the decision logic pure.
 inline bool entry_matches(const FieldProbe& probe,
                           std::uint32_t walked_name_hash) {
   return walked_name_hash == probe.name_hash && probe.name_hash != 0;
@@ -144,7 +144,7 @@ inline bool entry_matches(const FieldProbe& probe,
 // ``bool(std::uint64_t address, void* dst, std::size_t size)`` so the walk
 // is host-testable against a synthetic schema image and reusable by any
 // Windows backend. What remains Windows-specific (discovering the
-// SchemaSystem_001 instance and the CSchemaClassInfo addresses — interface
+// SchemaSystem_001 instance and the CSchemaClassInfo addresses, interface
 // resolution / pattern work, cf. strategy pair E22) stays in the adapters;
 // given a class-info address this walk yields the field offset with no
 // hardcoded schema offsets beyond the layout constants above.

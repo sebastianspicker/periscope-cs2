@@ -1,4 +1,4 @@
-// device_watch.cpp — T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
+// device_watch.cpp: T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_blue/device_watch.hpp"
@@ -9,7 +9,7 @@
 namespace t2_blue {
 
 // DeviceWatch::DeviceWatch: Blue watch for suspicious Device nodes.
-DeviceWatch::DeviceWatch(ac::ITelemetrySink& sink) : sink_(sink) {
+DeviceWatch::DeviceWatch(ac::ITelemetrySink& sink): sink_(sink) {
   suspicious_ = {"AcLabMemRw", "MemRw", "VulnCap", "PhysMem", "\\\\.\\"};
 }
 
@@ -28,12 +28,12 @@ void DeviceWatch::on_device_open(const DeviceOpenEvent& ev) {
     return;
   }
   sink_.emit(ac::TelemetryEvent{
-      .kind = ac::EventKind::DeviceOpen,
-      .related_tier = ac::Tier::T2_KernelByovd,
-      .subject_pid = ev.pid,
-      .object_pid = 0,
-      .detail = ev.device_name,
-      .risk_delta = 3.5,
+.kind = ac::EventKind::DeviceOpen,
+.related_tier = ac::Tier::T2_KernelByovd,
+.subject_pid = ev.pid,
+.object_pid = 0,
+.detail = ev.device_name,
+.risk_delta = 3.5,
   });
 }
 

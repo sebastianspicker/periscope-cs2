@@ -1,4 +1,4 @@
-"""Device capability detection — GPU info, VRAM, driver, ORT providers."""
+"""Device capability detection, GPU info, VRAM, driver, ORT providers."""
 
 from __future__ import annotations
 

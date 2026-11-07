@@ -1,4 +1,4 @@
-// gui_widgets.cpp — Immediate-mode widget methods for GuiSystem.
+// gui_widgets.cpp: Immediate-mode widget methods for GuiSystem.
 
 #include "real/gpu/gui_internal.hpp"
 
@@ -6,8 +6,8 @@ namespace real::gpu::gui {
 
 bool GuiSystem::button(const char* label, float w, float h) {
   Impl& i = *impl_;
-  float bw = w > 0.f ? w : i.win.w - 2.f * i.style.pad;
-  float bh = h > 0.f ? h : i.style.row_h;
+  float bw = w > 0.f ? w: i.win.w - 2.f * i.style.pad;
+  float bh = h > 0.f ? h: i.style.row_h;
   Rect r{i.win.x + i.style.pad, i.cursor_y - bh, bw, bh};
   i.cursor_y -= bh + i.style.pad;
   int id = i.next_id++;
@@ -16,7 +16,7 @@ bool GuiSystem::button(const char* label, float w, float h) {
   bool activated = i.click_on(id, r);
   if (i.rp) {
     uint32_t col = pressed ? i.style.button_active
-                  : hover ? i.style.button_hover : i.style.button;
+: hover ? i.style.button_hover: i.style.button;
     i.rp->draw_rect_filled(r.x, r.y, r.w, r.h, col);
     i.rp->draw_rect(r.x, r.y, r.w, r.h, i.style.frame);
     i.draw_text(r, label, i.style.text);
@@ -37,7 +37,7 @@ bool GuiSystem::checkbox(const char* label, bool* value) {
   }
   if (i.rp) {
     Rect box{r.x, r.y, i.style.row_h * 0.7f, i.style.row_h * 0.7f};
-    uint32_t col = *value ? i.style.fill : i.style.track;
+    uint32_t col = *value ? i.style.fill: i.style.track;
     i.rp->draw_rect_filled(box.x, box.y, box.w, box.h, col);
     i.rp->draw_rect(box.x, box.y, box.w, box.h, i.style.frame);
     if (*value) {
@@ -64,7 +64,7 @@ bool GuiSystem::slider_float(const char* label, float* value, float vmin,
 
   float track_h = i.style.row_h * 0.3f;
   Rect track{r.x, r.y - track_h * 0.5f, r.w, track_h};
-  float span = (vmax - vmin) > 1e-6f ? (vmax - vmin) : 1.f;
+  float span = (vmax - vmin) > 1e-6f ? (vmax - vmin): 1.f;
   float t = (*value - vmin) / span;
   t = std::max(0.f, std::min(1.f, t));
   Rect fill{track.x, track.y, track.w * t, track.h};
@@ -106,11 +106,11 @@ bool GuiSystem::slider_float(const char* label, float* value, float vmin,
     i.rp->draw_rect(track.x, track.y, track.w, track.h, i.style.frame);
 
     char value_buf[48];
-    const char* use_fmt = fmt ? fmt : "%.2f";
+    const char* use_fmt = fmt ? fmt: "%.2f";
     std::snprintf(value_buf, sizeof(value_buf), use_fmt, static_cast<double>(*value));
     i.rp->draw_text(r.x + r.w - 0.14f, r.y - r.h * 0.55f, value_buf,
                     i.style.text, i.style.text_size * 0.8f);
-    i.rp->draw_text(r.x, r.y - r.h * 0.55f, label ? label : "", i.style.text_dim,
+    i.rp->draw_text(r.x, r.y - r.h * 0.55f, label ? label: "", i.style.text_dim,
                     i.style.text_size * 0.8f);
   }
   return changed;
@@ -251,10 +251,10 @@ bool GuiSystem::selectable(const char* label, bool selected) {
   i.cursor_y -= i.style.row_h + i.style.pad;
   int id = i.next_id++;
   if (i.rp) {
-    uint32_t col = selected ? i.style.accent : i.style.button;
+    uint32_t col = selected ? i.style.accent: i.style.button;
     i.rp->draw_rect_filled(r.x, r.y, r.w, r.h, col);
     i.rp->draw_rect(r.x, r.y, r.w, r.h, i.style.frame);
-    i.draw_text(r, label, selected ? i.style.text : i.style.text_dim);
+    i.draw_text(r, label, selected ? i.style.text: i.style.text_dim);
   }
   return i.click_on(id, r);
 }
@@ -271,7 +271,7 @@ bool GuiSystem::text_input(const char* label, std::string* value) {
 
   if (active) {
     // Apply typed text.
-    for (char c : i.in.text_input) {
+    for (char c: i.in.text_input) {
       if (c >= 0x20 && c < 0x7F) (*value) += c;
     }
     if (i.in.key_pressed && i.in.key_code == VK_BACK && !value->empty()) {
@@ -298,7 +298,7 @@ bool GuiSystem::text_input(const char* label, std::string* value) {
 
   if (i.rp) {
     i.rp->draw_rect_filled(r.x, r.y, r.w, r.h, i.style.track);
-    uint32_t col = active ? i.style.accent : i.style.frame;
+    uint32_t col = active ? i.style.accent: i.style.frame;
     i.rp->draw_rect(r.x, r.y, r.w, r.h, col);
     std::string shown = *value;
     if (active && shown.size() < 64) shown += "_";
@@ -319,12 +319,12 @@ bool GuiSystem::hotkey(const char* label, int* key) {
 
   if (i.rp) {
     uint32_t col = capturing ? i.style.accent
-                  : i.mouse_in(r) ? i.style.button_hover : i.style.button;
+: i.mouse_in(r) ? i.style.button_hover: i.style.button;
     i.rp->draw_rect_filled(r.x, r.y, r.w, r.h, col);
     i.rp->draw_rect(r.x, r.y, r.w, r.h, i.style.frame);
     char buf[96];
     std::snprintf(buf, sizeof(buf), "%s: %s%s", label, key_name(*key),
-                  capturing ? " ..." : "");
+                  capturing ? "...": "");
     i.draw_text(r, buf, i.style.text, false);
   }
 

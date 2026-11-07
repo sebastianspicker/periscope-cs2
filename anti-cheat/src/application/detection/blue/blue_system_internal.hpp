@@ -1,6 +1,6 @@
 #pragma once
 
-// blue_system_internal.hpp — shared helpers for BlueCoordinator check_* TUs.
+// blue_system_internal.hpp: shared helpers for BlueCoordinator check_* TUs.
 
 #include "blue/blue_system.hpp"
 #include "sim/world.hpp"

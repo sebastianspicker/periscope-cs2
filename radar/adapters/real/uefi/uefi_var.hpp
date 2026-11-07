@@ -1,4 +1,4 @@
-// uefi_var.hpp — UEFI variable enumeration and manipulation.
+// uefi_var.hpp: UEFI variable enumeration and manipulation.
 //
 // UEFI variables control Secure Boot (PK, KEK, db, dbx), platform
 // configuration, and boot options. Variable access goes through
@@ -64,7 +64,7 @@ Result<void> spoof_secure_boot_variable(const std::string& name,
     const std::vector<uint8_t>& forged_data);
 
 /// Map raw Secure Boot variable bytes into SecureBootState (shipped helper
-/// used by inspection paths and unit tests — no fabricated success).
+/// used by inspection paths and unit tests, no fabricated success).
 SecureBootState map_secure_boot_fields(uint8_t secure_boot, uint8_t setup_mode,
                                        uint8_t audit_mode, uint8_t deployed_mode,
                                        std::vector<uint8_t> pk,

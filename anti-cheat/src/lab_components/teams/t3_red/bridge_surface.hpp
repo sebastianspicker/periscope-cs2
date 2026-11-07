@@ -1,7 +1,7 @@
 #pragma once
 
 // Guest-visible HV bridge (primary T3 hunt surface on blue).
-// Thin .sys / shared page / VMCALL-class channel — sim.
+// Thin.sys / shared page / VMCALL-class channel: sim.
 
 #include "ac/types.hpp"
 #include "sim/world.hpp"

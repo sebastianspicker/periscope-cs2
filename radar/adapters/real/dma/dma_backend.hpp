@@ -1,4 +1,4 @@
-// dma_backend.hpp — Real DMA (Direct Memory Access) backends.
+// dma_backend.hpp: Real DMA (Direct Memory Access) backends.
 // Supports physical memory read via PCIe device, Thunderbolt DMA,
 // FPGA-based PCILeech-style operations, and IOMMU bypass.
 //
@@ -138,7 +138,7 @@ Result<std::vector<std::uint8_t>> pcie_peer_read(std::uint64_t phys_addr,
 ///   2. FPGA device (if use_fpga_ or auto-probe paths)
 ///   3. Thunderbolt BAR path
 /// Detach always releases any open FPGA handle and clears state.
-class RealDmaBackend final : public ac::IMemoryBackend {
+class RealDmaBackend final: public ac::IMemoryBackend {
 public:
   explicit RealDmaBackend(bool use_fpga = false);
 
@@ -151,7 +151,7 @@ public:
   ac::ReadResult read(const ac::ReadRequest& request) override;
 
   /// Which transport succeeded on attach (for diagnostics / tests).
-  enum class Transport : std::uint8_t {
+  enum class Transport: std::uint8_t {
     None = 0,
     PhysMem,
     Fpga,

@@ -1,4 +1,4 @@
-// pagemap.hpp — Pure pagemap entry decode + VA→PA helpers.
+// pagemap.hpp: Pure pagemap entry decode + VA→PA helpers.
 //
 // Portable: no OS syscalls. Unit-tested on every host. Used by memory.cpp
 // and page_walk.cpp on Linux for /proc/[pid]/pagemap interpretation.
@@ -13,13 +13,13 @@
 namespace real::linux::pagemap {
 
 // Linux pagemap entry bit layout (64-bit, since kernel 3.0+):
-//   bits 0-54  : PFN if present, or swap type/offset if swapped
-//   bit  55    : soft-dirty
-//   bit  56    : exclusively mapped
-//   bit  57-60 : reserved
-//   bit  61    : file-page or shared-anon
-//   bit  62    : page swapped
-//   bit  63    : page present
+//   bits 0-54: PFN if present, or swap type/offset if swapped
+//   bit  55: soft-dirty
+//   bit  56: exclusively mapped
+//   bit  57-60: reserved
+//   bit  61: file-page or shared-anon
+//   bit  62: page swapped
+//   bit  63: page present
 constexpr uint64_t kPresentBit     = 1ULL << 63;
 constexpr uint64_t kSwappedBit     = 1ULL << 62;
 constexpr uint64_t kFilePageBit    = 1ULL << 61;

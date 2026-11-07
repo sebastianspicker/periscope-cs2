@@ -1,4 +1,4 @@
-// bridge_intel.hpp — T3 blue platform/HV sensor using World.trust posture flags.
+// bridge_intel.hpp: T3 blue platform/HV sensor using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #pragma once

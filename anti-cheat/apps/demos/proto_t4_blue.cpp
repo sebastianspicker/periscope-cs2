@@ -1,4 +1,4 @@
-// T4 BLUE prototype — platform signal + structural fog + behavioral residual.
+// T4 BLUE prototype, platform signal + structural fog + behavioral residual.
 
 #include "ac/proto_log.hpp"
 #include "sim/world.hpp"
@@ -52,6 +52,6 @@ int main() {
 
   const bool ok = detected && mitigated && full.risk > 0;
   std::puts(ok ? "prototype ok (t4 multi-sensor + structural residual)"
-               : "prototype FAIL");
-  return ok ? 0 : 1;
+: "prototype FAIL");
+  return ok ? 0: 1;
 }

@@ -145,10 +145,10 @@ def mask_to_polygon(
     CPU OpenCV ``findContours``.
 
     Args:
-        mask: 2D binary array (H, W) — values > 0 are foreground.
+        mask: 2D binary array (H, W), values > 0 are foreground.
         epsilon: Polyline simplification tolerance (pixels).
-        width: Optional target width — mask is resized if different.
-        height: Optional target height — mask is resized if different.
+        width: Optional target width, mask is resized if different.
+        height: Optional target height, mask is resized if different.
 
     Returns:
         Tuple of (x, y) points forming the outer contour, or ``None`` if no

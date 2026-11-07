@@ -1,4 +1,4 @@
-// port_io.cpp — Cross-platform x86 I/O port access for SMI/CMOS research.
+// port_io.cpp: Cross-platform x86 I/O port access for SMI/CMOS research.
 //
 // TECHNIQUE: outb/inb on 0xB2 (SMI), 0x70/0x71 (CMOS). On Windows x64,
 // ring-3 IN/OUT #GP; lab uses WinRing0 / InpOut / EneIo class drivers.
@@ -38,7 +38,7 @@ struct WinIoPortReq {
   UCHAR reserved[3];
 };
 
-// Direct kernel32 imports — do not use g_Api()->CreateFileA (only filled
+// Direct kernel32 imports, do not use g_Api()->CreateFileA (only filled
 // after ensure_resolved(); null pointer would AV).
 Result<HANDLE> open_io_driver() {
   const char* names[] = {
@@ -49,7 +49,7 @@ Result<HANDLE> open_io_driver() {
       "\\\\.\\WinIo64",
       "\\\\.\\GLCKIo2",
   };
-  for (const char* name : names) {
+  for (const char* name: names) {
     HANDLE h = ::CreateFileA(name, GENERIC_READ | GENERIC_WRITE, 0, nullptr,
                              OPEN_EXISTING, 0, nullptr);
     if (h != INVALID_HANDLE_VALUE) return h;
@@ -85,7 +85,7 @@ Result<void> port_outb(std::uint16_t port, std::uint8_t value) {
   DWORD ret = 0;
   const BOOL ok = ::DeviceIoControl(*dev, kIoctlWriteIoPortByte, &req,
                                     sizeof(req), nullptr, 0, &ret, nullptr);
-  ::CloseHandle(*dev);
+::CloseHandle(*dev);
   if (!ok) return os_error("DeviceIoControl WRITE_IO_PORT_BYTE");
   return Result<void>();
 #else
@@ -128,7 +128,7 @@ Result<std::uint8_t> port_inb(std::uint16_t port) {
   const BOOL ok = ::DeviceIoControl(*dev, kIoctlReadIoPortByte, &req,
                                     sizeof(req), &out, sizeof(out), &ret,
                                     nullptr);
-  ::CloseHandle(*dev);
+::CloseHandle(*dev);
   if (!ok) {
     auto err = os_error("DeviceIoControl READ_IO_PORT_BYTE");
     return Result<std::uint8_t>(0, err.error_msg);

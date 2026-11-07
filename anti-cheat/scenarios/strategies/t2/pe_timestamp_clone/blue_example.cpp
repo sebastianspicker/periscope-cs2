@@ -31,7 +31,7 @@ bool pe_timestamp_clone_blue_detect(sim::World& w, sim::Narrator& n) {
 
   n.say(sim::Side::Blue, "sensor 2: module identity cross-check for cloned timestamps");
   int foreign_with_clone = 0;
-  for (const auto& [pid, process] : w.processes) {
+  for (const auto& [pid, process]: w.processes) {
     for (const auto& module : process.modules) {
       if (!is_foreign_manual_mapped(module)) continue;
       if (module.name == "cheat_core.dll" || module.text_hash != "clean") {
@@ -65,14 +65,14 @@ bool pe_timestamp_clone_blue_detect(sim::World& w, sim::Narrator& n) {
 
   std::printf("[blue:pe_timestamp_clone] foreign=%d snapshot_clone=%d signals=%d "
               "detected=%d\n",
-              foreign_with_clone, snapshot_clone ? 1 : 0, signals, detected ? 1 : 0);
+              foreign_with_clone, snapshot_clone ? 1: 0, signals, detected ? 1: 0);
   for (const auto& r : reasons) {
     std::printf("[blue:pe_timestamp_clone]   %s\n", r.c_str());
   }
 
   if (detected) {
     n.say(sim::Side::Blue,
-          "DETECTED: multi-reason — foreign module borrows legitimate PE timestamp.");
+          "DETECTED: multi-reason, foreign module borrows legitimate PE timestamp.");
   } else {
     n.say(sim::Side::Blue, "no multi-reason cloned-timestamp residual observed");
   }

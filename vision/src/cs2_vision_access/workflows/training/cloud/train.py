@@ -127,7 +127,7 @@ def train(
             f"(looking for {sorted(_IMAGE_EXTENSIONS)} case-insensitively)."
         )
     if n_labels == 0:
-        raise FileNotFoundError(f"No label .txt files found under {labels_dir}.")
+        raise FileNotFoundError(f"No label.txt files found under {labels_dir}.")
     print(f"Dataset: {n_images} images, {n_labels} labels at {data_dir.resolve()}")
 
     yaml_path = _ensure_dataset_yaml(data_dir, classes=classes)
@@ -203,9 +203,9 @@ def train(
             except TypeError:
                 try:
                     progress_callback(epoch, total)
-                except Exception as exc:  # noqa: BLE001 — never break training on UI hooks
+                except Exception as exc:  # noqa: BLE001, never break training on UI hooks
                     print(f"  (progress_callback error: {exc})")
-            except Exception as exc:  # noqa: BLE001 — never break training on UI hooks
+            except Exception as exc:  # noqa: BLE001, never break training on UI hooks
                 print(f"  (progress_callback error: {exc})")
 
     # Register epoch callback when the API is available (Ultralytics YOLO).
@@ -310,13 +310,13 @@ def train(
     onnx_path = best_pt.with_suffix(".onnx")
     if not onnx_path.is_file():
         raise RuntimeError(
-            f"ONNX export failed — expected file at {onnx_path}. "
+            f"ONNX export failed, expected file at {onnx_path}. "
             "Ensure onnx and ultralytics export deps are installed (install_dependencies)."
         )
 
     final_onnx = data_dir / OUTPUT_ONNX_NAME
     shutil.copy2(str(onnx_path), str(final_onnx))
-    print(f"✓ FP32 ONNX: {final_onnx} ({final_onnx.stat().st_size / 1e6:.1f} MB) — CPU inference")
+    print(f"✓ FP32 ONNX: {final_onnx} ({final_onnx.stat().st_size / 1e6:.1f} MB), CPU inference")
 
     # Convert to FP16 for GPU inference (2× faster); sibling path documented for callers.
     final_fp16 = data_dir / OUTPUT_ONNX_FP16_NAME
@@ -330,7 +330,7 @@ def train(
         onnx.checker.check_model(model_fp16, full_check=True)
         onnx.save(model_fp16, str(final_fp16))
         print(
-            f"✓ FP16 ONNX: {final_fp16} ({final_fp16.stat().st_size / 1e6:.1f} MB) — GPU inference"
+            f"✓ FP16 ONNX: {final_fp16} ({final_fp16.stat().st_size / 1e6:.1f} MB), GPU inference"
         )
         print(f"  (train() returns FP32 path; FP16 sibling: {final_fp16.name})")
     except ImportError:

@@ -10,7 +10,7 @@ void Red::apply(sim::World& w) noexcept {
   const auto game = w.game_pid();
   auto* g = w.proc(game);
   if (game == 0 || g == nullptr) {
-    w.note("thread_4kb_signature: precondition failed — game missing");
+    w.note("thread_4kb_signature: precondition failed, game missing");
     return;
   }
 
@@ -57,7 +57,7 @@ void Red::apply(sim::World& w) noexcept {
   w.return_address_chain_clean = false;
   w.thread_return_chain.clear();
   w.thread_return_chain.push_back(0x7ffa10000100ull);  // inside kernel32 facade
-  w.thread_return_chain.push_back(0x100000000000ull);  // red private RWX — no module
+  w.thread_return_chain.push_back(0x100000000000ull);  // red private RWX, no module
   w.thread_return_chain.push_back(0x7ffa10000200ull);
 
   std::printf("[red:thread_4kb_signature] step 6: verify clean buffer + dirty chain\n");

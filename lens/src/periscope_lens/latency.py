@@ -2,17 +2,17 @@
 
 The rule from the ledger: **latency is measured, never assumed.** Every
 compensation value carries its provenance (measured / assumed) so the debug
-surface can show the difference — the ReaSnow forums are full of "feels
+surface can show the difference, the ReaSnow forums are full of "feels
 laggy" because that distinction was never drawn.
 
 Components:
 
-- :class:`RoundTrip` — ping/pong RTT tracker over the L6 transport, bounded,
+- :class:`RoundTrip`, ping/pong RTT tracker over the L6 transport, bounded,
   with a cap on accepted samples and outlier rejection (a single scheduler
   hiccup must not inflate the estimate).
-- :class:`VelocityPredictor` — per-target constant-velocity (alpha-beta)
+- :class:`VelocityPredictor`, per-target constant-velocity (alpha-beta)
   predictor that extrapolates a target by the *measured* end-to-end latency.
-- :class:`LatencyBreakdown` — the honest record: which segments were
+- :class:`LatencyBreakdown`, the honest record: which segments were
   measured (camera→detect from camera timestamps vs detect timestamps,
   transport from RTT/2) and which were assumed.
 """
@@ -86,8 +86,8 @@ class RoundTrip:
 class VelocityPredictor:
     """Alpha-beta filter per target: position + velocity smoothing.
 
-    The predictor extrapolates by ``latency_ms`` — the measured end-to-end
-    delay — so the assist aims at where the target *will be*, not where the
+    The predictor extrapolates by ``latency_ms``, the measured end-to-end
+    delay, so the assist aims at where the target *will be*, not where the
     camera saw it (the ReaSnow failure mode).
     """
 
@@ -144,7 +144,7 @@ class LatencyBreakdown:
     @property
     def compensation_ms(self) -> float:
         """The value the predictor extrapolates by: measured segments when
-        available, the assumed budget for the rest — never zero by omission."""
+        available, the assumed budget for the rest, never zero by omission."""
         measured = 0.0
         if self.capture_to_detect_measured:
             measured += self.capture_to_detect_ms

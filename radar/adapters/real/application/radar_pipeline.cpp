@@ -1,4 +1,4 @@
-// radar_pipeline.cpp — Complete radar frame pipeline implementation.
+// radar_pipeline.cpp: Complete radar frame pipeline implementation.
 //
 // ALL 15+ ac_sim features are integrated here. Previously each was
 // fully implemented but NEVER instantiated or called from any pipeline.

@@ -1,4 +1,4 @@
-// gui_internal.hpp — Shared Impl and helpers for gui*.cpp TUs.
+// gui_internal.hpp: Shared Impl and helpers for gui*.cpp TUs.
 #pragma once
 
 #include "real/gpu/gui.hpp"
@@ -41,10 +41,10 @@ namespace real::gpu::gui {
 
 // Convert a window-relative pixel coordinate to normalized -1..1.
 inline float px_to_nx(float px, int w) {
-  return w > 0 ? (px / static_cast<float>(w)) * 2.0f - 1.0f : 0.f;
+  return w > 0 ? (px / static_cast<float>(w)) * 2.0f - 1.0f: 0.f;
 }
 inline float px_to_ny(float py, int h) {
-  return h > 0 ? 1.0f - (py / static_cast<float>(h)) * 2.0f : 0.f;
+  return h > 0 ? 1.0f - (py / static_cast<float>(h)) * 2.0f: 0.f;
 }
 
 // Convert normalized back to pixels (for hit-testing convenience).

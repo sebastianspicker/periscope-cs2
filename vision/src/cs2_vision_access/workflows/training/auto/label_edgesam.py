@@ -23,10 +23,10 @@ from .state import StageState
 def _resolve_label_assets(label: Any) -> dict[str, Path]:
     """Resolve explicit label.* paths or discover/ensure under artifacts_dir.
 
-    When ``label.download_edgesam`` is True, missing packs may be downloaded via
+        When ``label.download_edgesam`` is True, missing packs may be downloaded via
     :func:`ensure_edgesam_assets`; otherwise offline discover only.
 
-    Returns dict with keys detector, manifest, encoder, decoder.
+        Returns dict with keys detector, manifest, encoder, decoder.
     """
     from cs2_vision_access.workflows.training.prepare_lib import (
         discover_edgesam_assets,
@@ -295,7 +295,7 @@ def _run_edgesam_teacher(
         updates["label_count"] = n_after if n_after else total_labeled
         notes.append(f"edgesam total labeled={total_labeled}; label files under dataset≈{n_after}")
         updates["edgesam_notes"] = list(notes)
-    except Exception as error:  # noqa: BLE001 — soft fail unless required
+    except Exception as error:  # noqa: BLE001, soft fail unless required
         notes.append(f"edgesam failed (soft): {error}")
         append_soft_note(updates, notes[-1])
         updates["edgesam_notes"] = list(notes)

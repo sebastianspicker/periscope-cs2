@@ -38,7 +38,7 @@ def stage_eval(
 
     root = Path(str(dataset_root))
     split = config.eval.split
-    # Flat layouts often lack images/val — fall back to flat/all.
+    # Flat layouts often lack images/val, fall back to flat/all.
     images_val = root / "images" / split
     images_flat = root / "images"
     if not images_val.is_dir():

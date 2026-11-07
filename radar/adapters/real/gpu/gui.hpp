@@ -1,9 +1,9 @@
-// gui.hpp — Immediate-mode GUI widget framework for the real GPU backend.
+// gui.hpp: Immediate-mode GUI widget framework for the real GPU backend.
 //
 // Self-contained header: all public state (style, input, settings) lives in
 // plain structs defined here; the actual widget implementation is hidden
 // behind a PIMPL (`struct Impl`) and lives in gui.cpp. This header therefore
-// only declares the API — the .cpp implementer fills in the Impl.
+// only declares the API, the.cpp implementer fills in the Impl.
 //
 // Coordinate conventions:
 //   * All normalized GUI coordinates (widget rects, draw calls) use the
@@ -155,7 +155,7 @@ public:
   // Must be called inside a window.
   void begin_tab_bar();
   // Begin a tab; returns true only while this tab is the active one, so the
-  // caller wraps its tab content in `if (gui.begin_tab("Label")) { ... }`.
+  // caller wraps its tab content in `if (gui.begin_tab("Label")) {... }`.
   // Tab state persists across frames (stored in the Impl).
   bool begin_tab(const char* label);  // true while this tab is active
   // End the active tab body.

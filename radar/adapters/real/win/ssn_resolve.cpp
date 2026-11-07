@@ -21,8 +21,8 @@ struct ExportEntry {
 
 bool name_eq_ci(const char* a, const char* b) noexcept {
   while (*a && *b) {
-    char ca = *a >= 'A' && *a <= 'Z' ? static_cast<char>(*a + 32) : *a;
-    char cb = *b >= 'A' && *b <= 'Z' ? static_cast<char>(*b + 32) : *b;
+    char ca = *a >= 'A' && *a <= 'Z' ? static_cast<char>(*a + 32): *a;
+    char cb = *b >= 'A' && *b <= 'Z' ? static_cast<char>(*b + 32): *b;
     if (ca != cb) return false;
     ++a;
     ++b;
@@ -147,7 +147,7 @@ bool is_stub_hooked(const std::uint8_t* code, std::size_t max_scan) noexcept {
   if (code[0] == 0xCC) return true;
   // push imm; ret
   if (max_scan >= 6 && code[0] == 0x68 && code[5] == 0xC3) return true;
-  return true;  // unknown prologue — treat as hooked/suspicious
+  return true;  // unknown prologue, treat as hooked/suspicious
 }
 
 int extract_ssn_from_stub(const std::uint8_t* code, std::size_t max_scan) noexcept {
@@ -210,7 +210,7 @@ SsnResult resolve_ssn_robust(const char* nt_name) noexcept {
   if (!addr) addr = find_export(ntdll, alt);
   if (!addr) return result;
 
-  // 1) Hell's Gate — clean stub
+  // 1) Hell's Gate, clean stub
   int ssn = extract_ssn_from_stub(addr, 32);
   if (ssn >= 0 && !is_stub_hooked(addr, 16)) {
     result.number = ssn;
@@ -222,7 +222,7 @@ SsnResult resolve_ssn_robust(const char* nt_name) noexcept {
   const bool hooked = is_stub_hooked(addr, 16);
   result.was_hooked = hooked;
 
-  // 2) Tartarus' Gate — scan past hook into body (up to 64 bytes)
+  // 2) Tartarus' Gate, scan past hook into body (up to 64 bytes)
   ssn = extract_ssn_from_stub(addr, 64);
   if (ssn >= 0) {
     result.number = ssn;
@@ -230,7 +230,7 @@ SsnResult resolve_ssn_robust(const char* nt_name) noexcept {
     return result;
   }
 
-  // 3) Halo's Gate — neighbor walk on sorted Zw* address list
+  // 3) Halo's Gate, neighbor walk on sorted Zw* address list
   static std::vector<ExportEntry> zw_list;
   static bool zw_ready = false;
   if (!zw_ready) {

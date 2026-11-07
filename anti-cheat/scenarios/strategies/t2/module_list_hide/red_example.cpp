@@ -9,7 +9,7 @@ void Red::apply(sim::World& w) noexcept {
   const auto game = w.game_pid();
   auto* g = w.proc(game);
   if (game == 0 || g == nullptr) {
-    w.note("module_list_hide: precondition failed — game missing");
+    w.note("module_list_hide: precondition failed, game missing");
     return;
   }
 

@@ -123,7 +123,7 @@ def select_profile(
 
     ``overrides`` keys are profile field names (``state_reader_hz``,
     ``frame_skip``, ``temporal_min_consecutive``); unknown keys are rejected
-    rather than ignored — a typo must not silently disable an override.
+    rather than ignored, a typo must not silently disable an override.
     """
     profile = classify_renderer(renderer)
     if not overrides:
@@ -146,11 +146,11 @@ def select_profile(
 def describe_active(renderer: str, profile: DeviceProfile) -> str:
     """User-facing description that always names the *actual* renderer.
 
-    The honesty rule: "Device preference is advisory — settings show the
+    The honesty rule: "Device preference is advisory, settings show the
     actual renderer." A profile name is never a substitute for the real
     string.
     """
-    return f"renderer: {renderer!r} (profile {profile.name}, advisory only) — {profile.notes}"
+    return f"renderer: {renderer!r} (profile {profile.name}, advisory only), {profile.notes}"
 
 
 @dataclass
@@ -184,7 +184,7 @@ class LatencyWindow:
 
     def percentile(self, fraction: float) -> float:
         """Linear-interpolation percentile of the recorded deltas (0.0 when
-        empty) — the same estimator the live diagnostics use, so profile
+        empty), the same estimator the live diagnostics use, so profile
         tuning and latency reporting never disagree about "p95"."""
         if not self._deltas_ms:
             return 0.0

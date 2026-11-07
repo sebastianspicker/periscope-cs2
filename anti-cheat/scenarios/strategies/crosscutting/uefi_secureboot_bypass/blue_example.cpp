@@ -51,8 +51,8 @@ BlueResult Blue::detect(const sim::World& w) noexcept {
 
   std::ostringstream oss;
   oss << "uefi_secureboot_bypass blue signals=" << r.signals
-      << " secure_boot_changed=" << (r.secure_boot_status_changed ? 1 : 0)
-      << " unsigned_driver=" << (r.unsigned_driver_detected ? 1 : 0);
+      << " secure_boot_changed=" << (r.secure_boot_status_changed ? 1: 0)
+      << " unsigned_driver=" << (r.unsigned_driver_detected ? 1: 0);
   r.detail = oss.str();
   return r;
 }
@@ -70,7 +70,7 @@ BlueResult Blue::mitigate(sim::World& w) noexcept {
     w.trust.attestation_pcr_ok = true;
     w.ranked_access_denied = true;
     w.note("Blue: re-enabled Secure Boot via firmware callback");
-    w.note("Blue: TPM PCR mismatch logged — attestation re-baselined");
+    w.note("Blue: TPM PCR mismatch logged, attestation re-baselined");
     r.mitigated = true;
     r.detail += " | mitigated";
   }

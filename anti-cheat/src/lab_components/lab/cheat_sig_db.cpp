@@ -30,7 +30,7 @@ void CheatSignatureDb::seed_known_cheats() {
   seeded_ = true;
 
   // Educational prologues: x64 push/mov/sub rsp frames + distinctive immediates.
-  // These are NOT real commercial cheat samples — synthetic lab markers only.
+  // These are NOT real commercial cheat samples, synthetic lab markers only.
   register_cheat(make_sig(
       "lab_external_radar_v1", "1.0.0", "external_radar",
       {0x48, 0x89, 0x5C, 0x24, 0x08, 0x48, 0x89, 0x74, 0x24, 0x10, 0x57, 0x48,
@@ -62,7 +62,7 @@ void CheatSignatureDb::seed_known_cheats() {
        0x48, 0x83, 0xEC, 0x28, 0x48, 0x8B, 0x05, 0xAA, 0xBB, 0xCC, 0xDD, 0xFF,
        0x15, 0x00, 0x00, 0x00, 0x00, 0x48, 0x83, 0xC4, 0x28, 0xC3}));
 
-  // Benign control sample — known_cheat=false so match() ignores it.
+  // Benign control sample, known_cheat=false so match() ignores it.
   register_cheat(make_sig(
       "lab_benign_crt_startup", "msvc", "benign",
       {0x48, 0x83, 0xEC, 0x28, 0xE8, 0x00, 0x00, 0x00, 0x00, 0x48, 0x83, 0xC4,
@@ -152,7 +152,7 @@ double CheatSignatureDb::compute_similarity(
   if (compared == 0) return 0.0;
 
   std::size_t matches = 0;
-  for (std::size_t i = 0; i < compared; ++i) matches += a[i] == b[i] ? 1 : 0;
+  for (std::size_t i = 0; i < compared; ++i) matches += a[i] == b[i] ? 1: 0;
   return static_cast<double>(matches) / static_cast<double>(compared);
 }
 

@@ -1,4 +1,4 @@
-// page_walk.cpp — x86-64 multi-level page-table walk + scatter construction.
+// page_walk.cpp: x86-64 multi-level page-table walk + scatter construction.
 //
 // Reference: Intel SDM Vol 3A Chapter 4 (Paging).
 // Lifted into adapters/real/dma so pure logic is unit-testable without FPGA
@@ -84,7 +84,7 @@ PageWalkResult translate_va(std::uint64_t virt_addr, std::uint64_t cr3,
 std::uint64_t translate_va_or_zero(std::uint64_t virt_addr, std::uint64_t cr3,
                                    PhysReadFn read_fn, void* ctx) {
   const auto r = translate_va(virt_addr, cr3, read_fn, ctx);
-  return r.present ? r.phys_addr : 0;
+  return r.present ? r.phys_addr: 0;
 }
 
 bool read_virtual(std::uint64_t virt_addr, void* buf, std::size_t size,

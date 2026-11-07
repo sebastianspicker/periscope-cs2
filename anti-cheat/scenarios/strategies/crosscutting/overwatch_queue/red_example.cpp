@@ -4,7 +4,7 @@
 
 namespace examples::overwatch_queue {
 
-// RED: mild handle + second weak residual (unique build) — no rage, no invent-in-blue.
+// RED: mild handle + second weak residual (unique build), no rage, no invent-in-blue.
 RedResult apply(sim::World& w) {
   RedResult r;
   int steps = 0;
@@ -48,7 +48,7 @@ RedResult apply(sim::World& w) {
              " steps=" + std::to_string(steps);
   w.note(r.detail);
   std::printf("[overwatch_queue] RED achieved=%s steps=%d\n",
-              r.achieved ? "true" : "false", steps);
+              r.achieved ? "true": "false", steps);
   return r;
 }
 

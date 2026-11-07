@@ -9,7 +9,7 @@ namespace examples::triggerbot_timing {
 RedResult apply(sim::World& w) {
   RedResult r;
   r.actor_pid = w.spawn("triggerbot.exe");
-  // No soft aim wander — pure trigger residual.
+  // No soft aim wander, pure trigger residual.
   float sum = 0.f;
   int n = 0;
   for (int i = 0; i < 8; ++i) {
@@ -23,7 +23,7 @@ RedResult apply(sim::World& w) {
     ++n;
   }
   r.fires = n;
-  r.mean_latency_ms = n ? sum / static_cast<float>(n) : 0.f;
+  r.mean_latency_ms = n ? sum / static_cast<float>(n): 0.f;
   w.triggerbot_active = true;
   w.trigger_on_target_fires = n;
   w.trigger_mean_latency_ms = r.mean_latency_ms;

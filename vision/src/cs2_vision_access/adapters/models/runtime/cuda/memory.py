@@ -1,4 +1,4 @@
-"""GPU memory pool — pre-allocated buffers for zero-allocation inference.
+"""GPU memory pool, pre-allocated buffers for zero-allocation inference.
 
 Repeated ``cp.zeros(...)`` calls cause GPU memory fragmentation and allocation
 overhead.  This module pre-allocates fixed-size buffers for the common tensor

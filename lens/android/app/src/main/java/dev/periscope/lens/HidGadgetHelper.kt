@@ -9,7 +9,7 @@ import java.io.IOException
  * L8 path-1 helper: USB-HID gadget feature detection and report writing
  * (ledger L8). The mechanism is the Android 10+ configfs USB gadget
  * (`/config/usb_gadget`); support varies per device/kernel, so detection is
- * mandatory and failure degrades loudly to targets-only — never silently.
+ * mandatory and failure degrades loudly to targets-only, never silently.
  *
  * Runtime-unverified by house style (no Android test lane in this repo);
  * the pure report-shaping rules live on the PC side in
@@ -45,7 +45,7 @@ object HidGadgetHelper {
 
     /**
      * Encodes the standard 3-byte relative mouse report: buttons, dx, dy.
-     * Values must already be in range — [dev.periscope.lens.PolicyShaper]
+     * Values must already be in range, [dev.periscope.lens.PolicyShaper]
      * guarantees that upstream; this function refuses anything else so a
      * clamp bug cannot become a wrapped axis (a cursor teleport).
      */

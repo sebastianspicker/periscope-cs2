@@ -1,4 +1,4 @@
-// gui_radar_panel.cpp — Radar control panel and INI config persistence.
+// gui_radar_panel.cpp: Radar control panel and INI config persistence.
 
 #include "real/gpu/gui_internal.hpp"
 
@@ -14,7 +14,7 @@ bool radar_panel(GuiSystem& gui, RadarPanelSettings& s) {
   bool any = false;
   bool open = true;
   if (!gui.begin_window("Radar Control", -0.98f, 0.97f, 0.62f, 1.92f, &open)) {
-    // Close (X) pressed — hide the panel for good until INSERT re-opens it.
+    // Close (X) pressed, hide the panel for good until INSERT re-opens it.
     gui.set_open(false);
     gui.end_window();
     return false;
@@ -103,7 +103,7 @@ std::string default_config_path(const char* exe_name) {
     std::string path(buf);
     auto slash = path.find_last_of("\\/");
     if (slash != std::string::npos) {
-      std::string base = exe_name && exe_name[0] ? exe_name : "radar";
+      std::string base = exe_name && exe_name[0] ? exe_name: "radar";
       return path.substr(0, slash + 1) + base + ".ini";
     }
   }
@@ -116,14 +116,14 @@ static void trim(std::string& s) {
   auto not_space = [](char c) { return c != ' ' && c != '\t' && c != '\r'; };
   auto b = std::find_if(s.begin(), s.end(), not_space);
   auto e = std::find_if(s.rbegin(), s.rend(), not_space).base();
-  s = (b < e) ? std::string(b, e) : std::string();
+  s = (b < e) ? std::string(b, e): std::string();
 }
 
 bool save_radar_config(const char* path, const RadarPanelSettings& s) {
   std::ofstream out(path, std::ios::trunc);
   if (!out) return false;
   auto wr = [&](const char* k, const std::string& v) { out << k << " = " << v << "\n"; };
-  auto wrb = [&](const char* k, bool b) { wr(k, b ? "1" : "0"); };
+  auto wrb = [&](const char* k, bool b) { wr(k, b ? "1": "0"); };
   auto wri = [&](const char* k, int v) { wr(k, std::to_string(v)); };
   auto wrf = [&](const char* k, float v) {
     char buf[48];

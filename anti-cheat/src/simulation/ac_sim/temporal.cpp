@@ -6,7 +6,7 @@
 namespace sim {
 namespace {
 
-// Phase periods (ticks) with overlapping ranges — no prime-number tells.
+// Phase periods (ticks) with overlapping ranges, no prime-number tells.
 constexpr std::uint64_t kPhasePeriodMin[4] = {180, 200, 220, 240};
 constexpr std::uint64_t kPhasePeriodMax[4] = {260, 290, 320, 350};
 
@@ -17,7 +17,7 @@ constexpr float kPhaseStdUs[4]  = {25.f,  40.f,  70.f,  50.f};
 } // namespace
 
 void TemporalEngine::initialize(std::uint64_t seed) noexcept {
-    m_seed = seed ? seed : 0xC0FFEEULL;
+    m_seed = seed ? seed: 0xC0FFEEULL;
     m_rng = m_seed;
     m_tick = 0;
     m_phase = TemporalPhase::Alpha;
@@ -29,7 +29,7 @@ void TemporalEngine::initialize(std::uint64_t seed) noexcept {
 std::uint64_t TemporalEngine::next_u64() noexcept {
     if (XorShiftPool::seeded()) {
         // Mix phase into the temporal stream without permanently mutating pool order
-        // beyond normal consumption — temporal is the designated consumer.
+        // beyond normal consumption, temporal is the designated consumer.
         return XorShiftPool::instance(XorShiftInstance::Temporal).next() ^
                (static_cast<std::uint64_t>(m_phase) << 48) ^ m_tick;
     }
@@ -56,7 +56,7 @@ void TemporalEngine::pick_phase_duration() noexcept {
     const int idx = static_cast<int>(m_phase);
     const std::uint64_t range = kPhasePeriodMax[idx] - kPhasePeriodMin[idx];
     const std::uint64_t base =
-        kPhasePeriodMin[idx] + (range > 0 ? next_u64() % (range + 1) : 0);
+        kPhasePeriodMin[idx] + (range > 0 ? next_u64() % (range + 1): 0);
 
     // ±10% jitter on duration.
     const int jitterPct = static_cast<int>(next_u64() % 21) - 10;
@@ -121,7 +121,7 @@ std::uint32_t TemporalEngine::next_delay_us() noexcept {
         // Alternating burst / quiet (confuses fixed-period detectors).
         delay = (m_tick & 1)
                     ? normal_random(280.f, 60.f)
-                    : normal_random(40.f, 12.f);
+: normal_random(40.f, 12.f);
         break;
     case TemporalPhase::Delta:
         // Wide dispersion phase.

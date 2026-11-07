@@ -114,7 +114,7 @@ struct HttpRequestOptions {
   int max_redirects = 5;
   /// Optional SHA-256 hex of peer cert (pin). Empty = no pin.
   std::string cert_pin_sha256_hex;
-  /// Force insecure (skip cert validation) — lab only.
+  /// Force insecure (skip cert validation), lab only.
   bool insecure_skip_verify = false;
   /// Optional proxy URL host:port.
   std::string proxy;
@@ -146,7 +146,7 @@ Result<HttpResponse> https_post_ex(const std::string& url,
 // ── C2 Protocol ────────────────────────────────────────────────────
 
 /// C2 message types.
-enum class C2MessageType : std::uint8_t {
+enum class C2MessageType: std::uint8_t {
   Heartbeat = 0,
   OffsetRequest = 1,
   OffsetResponse = 2,
@@ -160,7 +160,7 @@ enum class C2MessageType : std::uint8_t {
 };
 
 /// Wire frame flags.
-enum class C2Flags : std::uint8_t {
+enum class C2Flags: std::uint8_t {
   None = 0,
   Encrypted = 1 << 0,
   HasMac = 1 << 1,
@@ -265,7 +265,7 @@ private:
 
 // ── Beacon scheduler ───────────────────────────────────────────────
 
-/// Stateful beacon timer with jitter (no threads — call poll()).
+/// Stateful beacon timer with jitter (no threads, call poll()).
 class BeaconScheduler {
 public:
   explicit BeaconScheduler(int interval_ms = 30000, int jitter_percent = 25);
@@ -340,7 +340,7 @@ private:
 // ── DNS Tunneling / Out-of-Band C2 ─────────────────────────────────
 
 /// DNS record types.
-enum class DnsType : std::uint16_t {
+enum class DnsType: std::uint16_t {
   A = 1,
   NS = 2,
   CNAME = 5,

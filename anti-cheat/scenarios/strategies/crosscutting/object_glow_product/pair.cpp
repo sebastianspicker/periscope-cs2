@@ -12,7 +12,7 @@ StrategyResult run(sim::World& w, sim::Narrator& n) {
   fps::Scenario sc(fps::Map::make_dusty_yard(), cfg);
   sc.start_default_round();
   n.move(sim::Side::Red, "object_glow_product",
-         "Dropped bomb / kit / hostage glow — not fuse timer.");
+         "Dropped bomb / kit / hostage glow, not fuse timer.");
   auto red = examples::object_glow_product::apply_from_scenario(sc, w);
   n.say(sim::Side::Red, red.detail);
   n.counter(sim::Side::Blue, "object-class strip",

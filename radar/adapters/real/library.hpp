@@ -1,4 +1,4 @@
-// library.hpp — Cross-platform dynamic library loading abstraction.
+// library.hpp: Cross-platform dynamic library loading abstraction.
 // Used for runtime ntdll resolution, driver loading, GPU API loading, etc.
 
 #pragma once

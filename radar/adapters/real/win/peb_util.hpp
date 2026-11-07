@@ -4,7 +4,7 @@
 #include <cstring>
 
 // Single canonical PEB structures for the entire project.
-// All PEB walks must go through this header — no more duplicate definitions.
+// All PEB walks must go through this header, no more duplicate definitions.
 
 #include "real/platform.hpp"
 
@@ -56,7 +56,7 @@ inline uintptr_t find_module(const char* target_name) noexcept {
     auto* entry = list_head->Flink;
 
     while (entry != list_head) {
-        // InLoadOrderLinks is the first field — entry points at the module itself.
+        // InLoadOrderLinks is the first field, entry points at the module itself.
         auto* module = reinterpret_cast<LdrDataTableEntry*>(entry);
 
         if (module->DllBase && module->BaseDllName.Buffer && module->BaseDllName.Length >= 2) {

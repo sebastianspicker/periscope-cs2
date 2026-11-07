@@ -1,4 +1,4 @@
-"""Shared model operations — ONNX export, manifest creation, COCO classes.
+"""Shared model operations, ONNX export, manifest creation, COCO classes.
 
 These were extracted from ``download_model.py`` so that ``setup.py`` (and
 other callers) can import them without depending on the download CLI handler.
@@ -19,7 +19,7 @@ class ModelOperationError(RuntimeError):
 
 
 def export_onnx(pt_path: Path, onnx_path: Path, *, image_size: int, device: str) -> None:
-    """Load a .pt checkpoint and export to ONNX."""
+    """Load a.pt checkpoint and export to ONNX."""
     try:
         from ultralytics import YOLO
     except ImportError as error:
@@ -58,10 +58,10 @@ def create_manifest(
 ) -> None:
     """Write a SHA-256 manifest JSON for the exported ONNX model.
 
-    CLI-friendly wrapper around
+        CLI-friendly wrapper around
     :func:`cs2_vision_access.application.model_assets.manifest.create_manifest`. Preserves origin
-    enrichment (``download-model {model_name}``) used by download-model / setup.
-    ``model_info`` and ``image_size`` are accepted for call-site compatibility.
+        enrichment (``download-model {model_name}``) used by download-model / setup.
+        ``model_info`` and ``image_size`` are accepted for call-site compatibility.
     """
     del model_info, image_size  # API compatibility only
 

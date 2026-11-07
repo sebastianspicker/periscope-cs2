@@ -248,7 +248,7 @@ sequenceDiagram
 
 Explicit flags beat the config file (step 2). Segmenters that require a
 manifest check the model file's SHA-256 against it when they load (step 3). The
-temporal policy (step 9) drops detections that do not persist across frames
+temporal policy (step 7) drops detections that do not persist across frames
 and can hold the last seen outline for a few frames across a dropout. It never
 invents an outline the model did not produce. The same loop serves screen capture,
 an HDMI capture card, a desktop window, a transparent overlay
@@ -325,7 +325,7 @@ Read in this order:
 | [anti-cheat/scenarios/strategies/](../anti-cheat/scenarios/strategies/) | `strategy_lab` and every red/blue pair, by tier |
 | [anti-cheat/src/lab_components/teams/](../anti-cheat/src/lab_components/teams/) | Per-tier team libraries used by `duel_tN` and `proto_tN_*` |
 | [radar/README.md](../radar/README.md), [radar/docs/INDEX.md](../radar/docs/INDEX.md) | Radar product overview, docs and build |
-| [radar/src/domain/radar/](../radar/src/domain/radar/) | Radar product modules: snapshot, sampling, projection, scatter, mini-radar |
+| [radar/src/domain/radar/](../radar/src/domain/radar/) | Radar product modules: snapshot, sampling, projection, scatter, LOS, mini-radar |
 | [radar/src/application/radar/](../radar/src/application/radar/) | Web radar service and tri_loader |
 | [radar/apps/demos/](../radar/apps/demos/) | Runnable executables (composition roots) |
 | [radar/adapters/real/](../radar/adapters/real/) | Opt-in platform backends, see [radar/SECURITY.md](../radar/SECURITY.md) |

@@ -7,7 +7,7 @@ the A6 incident class (an unverified model running as if it were verified).
 
 The explicit ``sam_*_path`` / ``CS2_SAM_*`` override path is a deliberate
 custom export (A6 judgement call): it must
-exist and is logged as unpinned — this gate covers the *registry*, which is
+exist and is logged as unpinned, this gate covers the *registry*, which is
 the default trust path.
 """
 
@@ -43,7 +43,7 @@ def test_registry_license_notes_match_notice() -> None:
     """Ultralytics-family entries are AGPL; Vombit weights are CC-BY-NC-ND.
 
     If a license tag changes here, vision/NOTICE.md and
-    vision/docs/MODEL-GOVERNANCE.md must change in the same commit — the
+    vision/docs/MODEL-GOVERNANCE.md must change in the same commit, the
     governance doc is the human-readable half of this gate.
     """
     licenses = {entry.get("license") for entry in MODEL_REGISTRY.values()}

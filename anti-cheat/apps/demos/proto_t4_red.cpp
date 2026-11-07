@@ -1,4 +1,4 @@
-// T4 RED prototype — off-box DMA residual.
+// T4 RED prototype, off-box DMA residual.
 
 #include "ac/proto_log.hpp"
 #include "sim/world.hpp"
@@ -44,6 +44,6 @@ int main() {
   const bool ok = rep.hardware_enabled && rep.offbox_read_ok &&
                   rep.process_list_clean && rep.entity_count >= 1;
   std::puts(ok ? "prototype ok (full T4 pure DMA path, clean process list)"
-               : "prototype FAIL");
-  return ok ? 0 : 1;
+: "prototype FAIL");
+  return ok ? 0: 1;
 }

@@ -1,4 +1,4 @@
-// bsecure_allowed_evade — multi-step stomp path; multi-reason BSecureAllowed sensors.
+// bsecure_allowed_evade, multi-step stomp path; multi-reason BSecureAllowed sensors.
 
 #include "strategies/framework.hpp"
 

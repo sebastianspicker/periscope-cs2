@@ -1,4 +1,4 @@
-// offset_fetch.cpp — Remote offset/CDN blob fetching with integrity checks.
+// offset_fetch.cpp: Remote offset/CDN blob fetching with integrity checks.
 
 #include "real/net/net_client.hpp"
 #include "real/net/net_internal.hpp"
@@ -31,7 +31,7 @@ std::vector<std::uint8_t> build_offset_blob(
   // XOR wrap: first byte is key, rest xor'd with key
   std::vector<std::uint8_t> out(plain.size());
   // Store key as first body byte by xoring entire plain with key, then
-  // fetch_offsets uses encrypted[0] as key — so body[0] must equal key after
+  // fetch_offsets uses encrypted[0] as key, so body[0] must equal key after
   // XOR with key => plain[0] ^ key == key => plain[0] == 0. That conflicts.
   // Existing fetch_offsets: key_byte = encrypted[0]; decrypted[i] = encrypted[i] ^ key_byte
   // So decrypted[0] is always 0. Version is read from decrypted[0..3] which would be wrong.
@@ -44,15 +44,15 @@ std::vector<std::uint8_t> build_offset_blob(
   // unless plain[0]==0. The original design has this quirk.
   //
   // Fix for correctness of shipped fetch_offsets: prepend key byte, then
-  // encrypted[i+1] = plain[i] ^ key, and update fetch_offsets to skip first byte...
+  // encrypted[i+1] = plain[i] ^ key, and update fetch_offsets to skip first byte, ...
   // To keep fetch_offsets working as written originally, use key such that
   // we store: out[i] = plain[i] ^ xor_key for all i, AND out[0] must equal xor_key,
   // which requires plain[0] ^ xor_key == xor_key => plain[0] == 0.
   // So force version low byte structure: we change fetch path to:
-  // key = body[0]; decrypt body[1:] only — cleaner SOTA. Update both sides.
+  // key = body[0]; decrypt body[1:] only, cleaner SOTA. Update both sides.
 
   out.resize(1 + plain.size());
-  out[0] = xor_key ? xor_key : 0x5A;
+  out[0] = xor_key ? xor_key: 0x5A;
   for (std::size_t i = 0; i < plain.size(); ++i)
     out[i + 1] = static_cast<std::uint8_t>(plain[i] ^ out[0]);
   return out;
@@ -68,7 +68,7 @@ std::optional<OffsetData> fetch_offsets(const char* endpoint) {
   if (encrypted.size() < 13)
     return std::nullopt;
 
-  // Layout: [key:1][xor'd plain...]
+  // Layout: [key:1][xor'd plain, ...]
   const std::uint8_t key_byte = encrypted[0];
   std::vector<std::uint8_t> decrypted(encrypted.size() - 1);
   for (std::size_t i = 0; i < decrypted.size(); ++i)
@@ -110,7 +110,7 @@ std::optional<OffsetData> fetch_offsets(const char* endpoint) {
   if (!read_u64(offsets.dwPlayerResource)) return std::nullopt;
 
   // Hold a secure copy so sensitive offsets do not linger only in stack plaintext
-  // longer than needed — material still returned by value for callers.
+  // longer than needed, material still returned by value for callers.
   SecureBuffer secure(reinterpret_cast<const std::uint8_t*>(&offsets), sizeof(offsets));
   (void)secure;
   return offsets;

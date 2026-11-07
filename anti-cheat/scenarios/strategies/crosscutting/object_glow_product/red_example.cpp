@@ -1,5 +1,5 @@
 // RED: multi-class outline-glow product (bomb/kit/hostage/grenade/weapon/ticking).
-// One coherent product residual — not one catalog ID per Osiris entity type.
+// One coherent product residual, not one catalog ID per Osiris entity type.
 
 #include "red_example.hpp"
 #include "fps/lab_bridge.hpp"
@@ -30,17 +30,17 @@ RedResult apply_from_scenario(fps::Scenario& sc, sim::World& w) {
   r.actor_pid = w.spawn("object-glow.exe");
   (void)w.open_process(r.actor_pid, w.game_pid(), sim::AccessMask::VmRead, false);
 
-  r.dropped_bomb = sc.bomb().planted ? 0 : 1;
+  r.dropped_bomb = sc.bomb().planted ? 0: 1;
   int kits = 0;
   for (const auto& p : sc.players()) {
     if (p.team == fps::Team::Defender && p.has_defuse_kit) ++kits;
   }
-  r.defuse_kit = kits > 0 ? kits : 1;
+  r.defuse_kit = kits > 0 ? kits: 1;
   r.hostage = 2;
   // Additional Osiris-class object categories in the same product residual.
   r.grenade_projectile = 3;  // HE/smoke/flash class product
   r.weapon = 2;              // dropped weapon outline class
-  r.ticking_bomb = sc.bomb().planted ? 1 : 0;
+  r.ticking_bomb = sc.bomb().planted ? 1: 0;
   if (r.ticking_bomb == 0 && sc.bomb().planted == false) {
     // Still advertise projectile/weapon multi-class without fuse timer product.
   }

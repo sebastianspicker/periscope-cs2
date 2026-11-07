@@ -1,13 +1,13 @@
-"""Ledger regression harness (V8) — one test per incident it guards.
+"""Ledger regression harness (V8), one test per incident it guards.
 
 Every test here is named after the failure class it keeps dead:
-- ``test_ring_*``  — A3 (shared-ring torn/stale reads) and V1 (versioned
+- ``test_ring_*``, A3 (shared-ring torn/stale reads) and V1 (versioned
   wire contract, clean rejection, canonical JSON mirror).
-- ``test_file_read_*`` — A4 (video EOF looping).
-- ``test_temporal_*`` — A5 (frame-index gaps starving the temporal filter).
+- ``test_file_read_*``, A4 (video EOF looping).
+- ``test_temporal_*``, A5 (frame-index gaps starving the temporal filter).
 
 The suite is tracked (not gitignored) and runs in the portable Vision CI
-lane on every PR — the B12 lesson: tests that do not run on PRs do not
+lane on every PR, the B12 lesson: tests that do not run on PRs do not
 guard anything.
 """
 
@@ -48,7 +48,7 @@ def _unlink(name: str) -> None:
 @pytest.mark.parametrize("frames", [1, 2, 3, 7])
 def test_ring_newest_frame_wins_after_burst(frames: int) -> None:
     """A3: after N publishes with no reader in between, the read returns the
-    newest frame — never a stale slot and never a torn one."""
+    newest frame, never a stale slot and never a torn one."""
     name = _ring_name()
     sink = SharedFrameSink(name, 8, 4, slots=3)
     try:
@@ -73,7 +73,7 @@ def test_ring_protocol_negotiation_rejects_unknown_version() -> None:
 
 def test_ring_reader_rejects_future_writer_version_cleanly() -> None:
     """V1: a producer speaking a newer protocol must be rejected with the
-    typed error — never decoded as garbage bytes."""
+    typed error, never decoded as garbage bytes."""
     name = _ring_name()
     sink = SharedFrameSink(name, 8, 4, slots=2)
     try:

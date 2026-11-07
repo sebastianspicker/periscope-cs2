@@ -1,7 +1,7 @@
 #pragma once
 
 // Dummy FPS map for the anti-cheat lab example.
-// Simple named areas + bomb sites — not a full 3D engine map.
+// Simple named areas + bomb sites, not a full 3D engine map.
 
 #include "ac/types.hpp"
 
@@ -12,7 +12,7 @@
 
 namespace fps {
 
-enum class AreaId : std::uint8_t {
+enum class AreaId: std::uint8_t {
   TSpawn = 0,
   CTSpawn,
   Mid,

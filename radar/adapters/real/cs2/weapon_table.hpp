@@ -1,4 +1,4 @@
-// weapon_table.hpp — CS2 item-definition index to display name (E51).
+// weapon_table.hpp: CS2 item-definition index to display name (E51).
 //
 // A def index is the only stable weapon identity in memory; the display name
 // is a local lookup. The table is intentionally small: the common primary,

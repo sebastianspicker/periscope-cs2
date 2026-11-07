@@ -1,4 +1,4 @@
-// radar_sampling_test.cpp — R2: player-sample hygiene policies.
+// radar_sampling_test.cpp: R2: player-sample hygiene policies.
 //
 // Table-driven tests per policy branch: torn read bridge, dormant freeze,
 // dead freeze, same-handle respawn reset, zero-origin scene init, Steam-ID

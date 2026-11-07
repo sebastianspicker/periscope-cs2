@@ -91,17 +91,17 @@ BlueResult fog_from_entities(sim::World& w,
   }
 
   std::ostringstream oss;
-  oss << "cs_round_radar blue handle=" << (r.foreign_vm_read ? 1 : 0)
+  oss << "cs_round_radar blue handle=" << (r.foreign_vm_read ? 1: 0)
       << " culled=" << r.enemies_culled << " truth=" << r.truth_alive
       << " rep=" << r.replicated
       << " fidelity=" << w.client_entity_fidelity
       << " signals=" << r.signals
-      << " detected=" << (r.detected ? 1 : 0)
+      << " detected=" << (r.detected ? 1: 0)
       << " " << st.detail;
   r.detail = oss.str();
   w.note(r.detail);
   std::printf("[cs_round_radar] BLUE signals=%d detected=%s fog=%s\n", r.signals,
-              r.detected ? "true" : "false", r.fog ? "true" : "false");
+              r.detected ? "true": "false", r.fog ? "true": "false");
   for (const auto& reason : r.reasons) {
     std::printf("[cs_round_radar]   %s\n", reason.c_str());
   }
@@ -119,10 +119,10 @@ BlueResult detect_with_scenario(sim::World& w, const fps::Scenario& sc) {
     truth.push_back(server::WorldEntity{
         p.id, p.origin, static_cast<std::uint8_t>(p.team), p.alive});
   }
-  // CT observer at CT spawn — T-spawn enemies are far → cull (CS fog lesson).
+  // CT observer at CT spawn, T-spawn enemies are far → cull (CS fog lesson).
   const auto* ct = sc.map().find_area(fps::AreaId::CTSpawn);
   server::Observer obs{};
-  obs.origin = ct ? ct->center : ac::Vec3{0.f, 0.f, 80.f};
+  obs.origin = ct ? ct->center: ac::Vec3{0.f, 0.f, 80.f};
   return fog_from_entities(w, truth, obs, /*observer_team=*/1);
 }
 

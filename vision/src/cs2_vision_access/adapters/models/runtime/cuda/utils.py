@@ -7,14 +7,14 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Module-level flag — computed once on first import.
+# Module-level flag, computed once on first import.
 _CUDA_AVAILABLE: bool | None = None
 
 
 def cuda_available() -> bool:
     """Check whether CuPy + a CUDA-capable GPU are available.
 
-    This is a cached check — the first call probes the system, subsequent
+    This is a cached check, the first call probes the system, subsequent
     calls return the cached result.
     """
     global _CUDA_AVAILABLE  # noqa: PLW0603
@@ -36,10 +36,10 @@ def cuda_available() -> bool:
                 device["totalGlobalMem"] // (1024 * 1024),
             )
         else:
-            logger.warning("CUDA device compute capability %d < 5.0 — GPU kernels disabled", major)
+            logger.warning("CUDA device compute capability %d < 5.0, GPU kernels disabled", major)
     except Exception:
         _CUDA_AVAILABLE = False
-        logger.info("CUDA not available — using CPU fallback")
+        logger.info("CUDA not available, using CPU fallback")
 
     return _CUDA_AVAILABLE
 

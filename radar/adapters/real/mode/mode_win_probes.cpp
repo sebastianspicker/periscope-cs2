@@ -1,4 +1,4 @@
-// mode_win_probes.cpp — Windows device/registry/SetupAPI tier probes.
+// mode_win_probes.cpp: Windows device/registry/SetupAPI tier probes.
 
 #include "real/mode/mode_internal.hpp"
 
@@ -148,7 +148,7 @@ bool win_hwid_is_thunderbolt_or_usb4(const char* hwid, const char* desc) {
       "VEN_8086&DEV_466D",  // Alder Lake
       "VEN_8086&DEV_7E7D",  // Meteor Lake
   };
-  for (const char* id : kIds) {
+  for (const char* id: kIds) {
     if (contains_ci(hwid, id)) return true;
   }
   return false;
@@ -173,7 +173,7 @@ bool win_hwid_is_fpga_dma_vendor(const char* hwid, const char* desc) {
       "VEN_0403",  // FTDI (common FPGA bridge)
       "VEN_1B36",  // Red Hat / QEMU vfio research
   };
-  for (const char* v : kVendors) {
+  for (const char* v: kVendors) {
     if (contains_ci(hwid, v)) return true;
   }
   return false;
@@ -207,19 +207,19 @@ bool win_setupapi_dma_signals(std::string& reason) {
     if (contains_ci(hwid, "CC_0580") || contains_ci(hwid, "CC_0880")) {
       found = true;
       std::snprintf(matched, sizeof(matched), "PCI class DMA peripheral (%s)",
-                    hwid[0] ? hwid : desc);
+                    hwid[0] ? hwid: desc);
       break;
     }
     if (win_hwid_is_thunderbolt_or_usb4(hwid, desc)) {
       found = true;
       std::snprintf(matched, sizeof(matched), "Thunderbolt/USB4 PCI device (%s)",
-                    desc[0] ? desc : hwid);
+                    desc[0] ? desc: hwid);
       break;
     }
     if (win_hwid_is_fpga_dma_vendor(hwid, desc)) {
       found = true;
       std::snprintf(matched, sizeof(matched), "FPGA/DMA-class PCI device (%s)",
-                    desc[0] ? desc : hwid);
+                    desc[0] ? desc: hwid);
       break;
     }
   }

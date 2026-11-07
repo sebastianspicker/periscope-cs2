@@ -1,4 +1,4 @@
-// radar_ring_test.cpp — R3: snapshot ring, scene watermark, freshness gate.
+// radar_ring_test.cpp: R3: snapshot ring: scene watermark, freshness gate.
 
 #include "radar/snapshot_ring.hpp"
 

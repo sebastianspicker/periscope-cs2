@@ -42,7 +42,7 @@ RadarBlipLayout blip_from_entity(float x, float y, float z, uint8_t team,
     blip.screen_y = y;
     (void)z;
     blip.team = team;
-    blip.health = alive ? 100 : 0;
+    blip.health = alive ? 100: 0;
     blip.armor = 0;
     blip.is_alive = alive;
     blip.is_local = false;
@@ -75,26 +75,26 @@ Result<RenderPipeline*> create_render_pipeline(const OverlayStyle& style,
     // Seed style before initialize so window creation uses alpha/topmost.
     (void)d3d11->apply_overlay_style(style);
     const Result<void> d3d_result =
-        d3d11->initialize(style.width > 0 ? style.width : 320,
-                          style.height > 0 ? style.height : 320, title);
+        d3d11->initialize(style.width > 0 ? style.width: 320,
+                          style.height > 0 ? style.height: 320, title);
     if (d3d_result.ok) {
       (void)d3d11->apply_overlay_style(style);
       return d3d11;
     }
     // Honest failure surface: never claim D3D11 when the device path failed.
-    std::printf("[gpu] D3D11 unavailable (%s) — falling back to Null pipeline\n",
+    std::printf("[gpu] D3D11 unavailable (%s), falling back to Null pipeline\n",
                 d3d_result.error_msg.c_str());
     delete d3d11;
   }
 #else
-  std::printf("[gpu] non-Windows platform — using Null pipeline\n");
+  std::printf("[gpu] non-Windows platform, using Null pipeline\n");
 #endif
   // Null backend: api()==None, name()=="null_gpu". Callers must not treat this
   // as a successful D3D11 device; draw helpers no-op but lifecycle is valid.
   auto* null_pipeline = new NullRenderPipeline();
   const Result<void> null_result =
-      null_pipeline->initialize(style.width > 0 ? style.width : 320,
-                                style.height > 0 ? style.height : 320, title);
+      null_pipeline->initialize(style.width > 0 ? style.width: 320,
+                                style.height > 0 ? style.height: 320, title);
   if (null_result.ok) {
     (void)null_pipeline->apply_overlay_style(style);
     return null_pipeline;

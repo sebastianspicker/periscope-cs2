@@ -1,10 +1,10 @@
-// scatter_batch.hpp — R10: DMA scatter-read discipline (portable policies).
+// scatter_batch.hpp: R10: DMA scatter-read discipline (portable policies).
 //
 // Adapted from the research ledger (R10): oasis batch sizing ("reads beyond
 // what the FPGA can keep in flight stall for several milliseconds") and
 // cs2-dma recovery policies (pointer-cache revalidation, eviction, recovery
-// windows). This is the pure half — batching, revalidation, and latency
-// modeling — with no hardware access. The live DMA adapter consumes these
+// windows). This is the pure half, batching, revalidation, and latency
+// modeling, with no hardware access. The live DMA adapter consumes these
 // policies under the existing opt-in lab flags.
 //
 // The pointer-cache rule (oasis): cache each entity-slot's resolved pointer
@@ -36,7 +36,7 @@ struct PointerRevalidation {
 };
 
 // Outcome classes for a revalidated entry (cs2-dma policy vocabulary).
-enum class RevalidationOutcome : std::uint8_t {
+enum class RevalidationOutcome: std::uint8_t {
   Unchanged = 0,   // pointer and generation stable: payload may be used
   Moved = 1,       // pointer changed: evict and re-resolve next frame
   GenerationGap = 2,  // slot generation moved: treat as respawn/reset

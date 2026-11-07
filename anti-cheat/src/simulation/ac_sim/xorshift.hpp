@@ -12,7 +12,7 @@
 
 namespace sim {
 
-enum class XorShiftInstance : std::uint8_t {
+enum class XorShiftInstance: std::uint8_t {
     Temporal = 0,
     Batch    = 1,
     Render   = 2,
@@ -21,7 +21,7 @@ enum class XorShiftInstance : std::uint8_t {
     Count    = 5
 };
 
-/// XorShift128+ generator — period 2^128 − 1, full 64-bit output.
+/// XorShift128+ generator, period 2^128 − 1, full 64-bit output.
 class XorShift128 {
 public:
     void seed(std::uint64_t s0, std::uint64_t s1) noexcept;

@@ -45,7 +45,7 @@ struct KernelRadarReport {
   std::string detail;
 };
 
-// Multi-step educational red client `KernelRadar` — plants lab scars on World only.
+// Multi-step educational red client `KernelRadar`, plants lab scars on World only.
 class KernelRadar {
  public:
   explicit KernelRadar(sim::World& world, std::string ui_name = "ud-radar.exe");

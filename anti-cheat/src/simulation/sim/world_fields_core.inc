@@ -1,4 +1,4 @@
-// world_fields_core.inc — core sim::World data members (included inside struct World).
+// world_fields_core.inc: core sim::World data members (included inside struct World).
   std::uint32_t next_pid = 1000;
   std::unordered_map<std::uint32_t, Process> processes;
   std::vector<Handle> handles;
@@ -42,7 +42,7 @@
   bool ranked_access_denied = false;  // blue session deny (BYOVD/policy mitigate)
   bool byovd_policy_block = false;    // deny known-bad driver IOCTL after block
 
-  // Object callbacks (handle create) — distinct from process notify
+  // Object callbacks (handle create), distinct from process notify
   std::size_t object_callbacks = 3;
   bool object_callbacks_present = true;
   std::size_t object_callbacks_true = 3;
@@ -147,7 +147,7 @@
   std::uint32_t spectator_target_controller = 0;
   int spectator_count = 0;
 
-  // Wave 7 scars — catalog pairs 33–39 (Simulated educational residuals).
+  // Wave 7 scars, catalog pairs 33–39 (Simulated educational residuals).
   // 33: handle owned by reputable proxy process; cheat consumes without own handle.
   bool handle_proxy_active = false;
   std::uint32_t handle_proxy_owner_pid = 0;
@@ -168,10 +168,10 @@
   // 38: sound ESP / movement-without-LOS residual.
   bool sound_esp_active = false;
   int sound_inferred_without_los = 0;
-  // 39: stream-proof presentation — capture path misses game-present overlays.
+  // 39: stream-proof presentation, capture path misses game-present overlays.
   bool capture_sees_overlays = true;
 
-  // Wave 8 scars — P0/P1 archive gaps (schema product + feature residuals).
+  // Wave 8 scars, P0/P1 archive gaps (schema product + feature residuals).
   // Schema/offset product pipeline (deepens 29 + 14 pedagogy).
   bool schema_cache_active = false;
   std::string schema_cache_version;   // versioned layout token (build/gen)
@@ -218,7 +218,7 @@
   int watchdog_heartbeat_ticks = 0;
   bool watchdog_payload_hidden = false;
 
-  // Wave 9 scars — P2 secondary archive residuals (presentation / capture / depth).
+  // Wave 9 scars, P2 secondary archive residuals (presentation / capture / depth).
   // 46: FOV / viewmodel presentation mod
   bool fov_mod_active = false;
   float client_fov_override = 0.f;      // 0 = default; >0 cheat FOV
@@ -270,7 +270,7 @@
 
   // ── Wave 10: Advanced red team evasion scars (red team depth) ──
 
-  // T0: Windowless swapchain hijack — hooks game present path WITHOUT
+  // T0: Windowless swapchain hijack, hooks game present path WITHOUT
   // creating a visible overlay window. Harder for blue to detect than
   // external overlay because there's no independent HWND/WNDCLASS.
   bool windowless_swapchain_hijack = false;
@@ -278,7 +278,7 @@
   // OverlayWindow is registered. Blue must detect via module hook scar.
   bool swapchain_hijacked_no_window = false;
 
-  // T0: Scattered entity read — red reads entity table entries in random
+  // T0: Scattered entity read, red reads entity table entries in random
   // order with random offsets and timing jitter. Defeats blue pattern
   // detection that relies on sequential offset access.
   bool scattered_read_pattern = false;
@@ -287,7 +287,7 @@
   // Whether timing jitter was applied between reads.
   bool read_timing_jitter = false;
 
-  // T0: Multi-process IPC split — red splits the cheat into 3 processes:
+  // T0: Multi-process IPC split, red splits the cheat into 3 processes:
   // (1) handle-holder (legitimate name), (2) reader (no handle, gets data
   // via IPC shared section), (3) overlay/UI (no handle, no read). Harder
   // for blue to correlate because no single process has both handle+UI.
@@ -299,19 +299,19 @@
   // PID of the UI/overlay process.
   std::uint32_t split_ui_pid = 0;
 
-  // T1: Heaven's Gate syscall — 32-bit process transitions to 64-bit
+  // T1: Heaven's Gate syscall, 32-bit process transitions to 64-bit
   // mode via the wow64 CPU switch and executes a syscall directly,
   // bypassing the native 64-bit ntdll entirely. Leaves no via_syscall_path
   // handle because the open uses a different code path.
   bool heavens_gate_transition = false;
   // The 32-bit stub PID that performed the Heaven's Gate transition.
   std::uint32_t heavens_gate_stub_pid = 0;
-  // T1: Enhanced stack spoof — full call stack forgery with multiple
+  // T1: Enhanced stack spoof, full call stack forgery with multiple
   // spoofed return addresses. Depth tracks how many frames were forged.
   bool enhanced_stack_spoof = false;
   int spoofed_call_depth = 0;
 
-  // T1: Dynamic SSN resolution — red resolves syscall numbers from disk
+  // T1: Dynamic SSN resolution, red resolves syscall numbers from disk
   // (ntdll.dll) at runtime instead of using hardcoded tables. Defeats
   // blue SSN fingerprinting because the resolved numbers match the exact
   // build of Windows on the target machine.
@@ -319,7 +319,7 @@
   // The Windows build number from which SSNs were resolved.
   int resolved_ssn_windows_build = 0;
 
-  // T1: NTDLL hook detection and evasion — red checks if ntdll functions
+  // T1: NTDLL hook detection and evasion, red checks if ntdll functions
   // are hooked before calling them. If hooked, red either syscalls directly
   // or copies a clean ntdll from disk. Defeats usermode API hooking.
   bool ntdll_hooks_detected = false;
@@ -328,14 +328,14 @@
   // Whether red used a clean mapped copy of ntdll instead.
   bool used_clean_ntdll_copy = false;
 
-  // T2: \\.\PhysicalMemory direct mapping — opens and maps physical
+  // T2: \\.\PhysicalMemory direct mapping, opens and maps physical
   // memory device directly, bypassing IOCTL interface. No driver needed
   // when DSE is off or via vulnerable driver.
   bool physmem_direct_mapped = false;
   // Physical offset of the game's memory pages for direct read.
   std::uint64_t physmem_game_pfn = 0;
 
-  // T2: DKOM token steal — red steals a SYSTEM-equivalent token from
+  // T2: DKOM token steal, red steals a SYSTEM-equivalent token from
   // another process via DKOM and uses it to open the game with full
   // privileges, bypassing handle access checks.
   bool dkom_token_stolen = false;
@@ -344,7 +344,7 @@
   // Whether the stolen token grants bypass of handle ACL checks.
   bool token_bypasses_handle_acls = false;
 
-  // T2: ACPI PM timer memory read — red triggers an SMI via the ACPI
+  // T2: ACPI PM timer memory read, red triggers an SMI via the ACPI
   // Power Management timer (PM_TMR) to read physical memory through an
   // SMM handler. Bypasses all kernel callbacks because SMM runs below
   // the kernel. No driver needed when ACPI methods can trigger SMIs.
@@ -352,7 +352,7 @@
   // Number of SMIs triggered for memory read.
   int acpi_smi_trigger_count = 0;
 
-  // T2: Hypercall memory read — red uses hypercalls (via existing
+  // T2: Hypercall memory read, red uses hypercalls (via existing
   // platform hypervisor like Hyper-V) to read physical memory. Even
   // without a personal HV, red can use the platform hypervisor's
   // hypercall interface if VBS is disabled or vulnerable hypercalls
@@ -360,4 +360,3 @@
   bool hypercall_read_active = false;
   // Which hypervisor was used: "hyperv", "vmware", "native_intel".
   std::string hypercall_vendor;
-

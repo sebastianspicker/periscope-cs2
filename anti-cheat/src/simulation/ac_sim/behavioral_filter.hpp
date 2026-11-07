@@ -1,6 +1,6 @@
 #pragma once
 
-// Behavioral filter — ResearchSafe profile for VACnet camouflage.
+// Behavioral filter, ResearchSafe profile for VACnet camouflage.
 // Delay 200–400 ms (Gamma reaction-time), probabilistic omission (~3.5%/s
 // base, distance-tiered), screen-space Gaussian fuzz, first-seen reaction model.
 //
@@ -29,7 +29,7 @@ struct GaussianNoise {
     std::uint64_t state{1};
 
     explicit GaussianNoise(std::uint64_t seed) noexcept
-        : state(seed ? seed : 1) {}
+: state(seed ? seed: 1) {}
 
     float sample(float mean, float stddev) noexcept;
     float uniform() noexcept;

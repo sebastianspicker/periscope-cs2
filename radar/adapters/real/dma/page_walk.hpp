@@ -1,4 +1,4 @@
-// page_walk.hpp — Pure x86-64 page-table walk + scatter-gather helpers.
+// page_walk.hpp: Pure x86-64 page-table walk + scatter-gather helpers.
 //
 // These units are deliberately free of OS I/O so they can be unit-tested
 // against synthetic physical memory (injected PhysReadFn). Platform DMA

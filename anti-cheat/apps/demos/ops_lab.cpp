@@ -20,7 +20,7 @@
 int main() {
   sim::Narrator n;
   n.say(sim::Side::Lesson,
-        "Ops lab — multi-step red ops scars vs multi-reason blue on sim::World.");
+        "Ops lab, multi-step red ops scars vs multi-reason blue on sim::World.");
 
   int blue_hits = 0;
   int rounds = 0;
@@ -34,7 +34,7 @@ int main() {
     auto rr = examples::account_graph::apply(w);
     n.say(sim::Side::Red, rr.detail);
     std::printf("[account] accounts=%zu vpn=%d achieved=%d\n", w.accounts.size(),
-                w.vpn_proxy_active ? 1 : 0, rr.achieved ? 1 : 0);
+                w.vpn_proxy_active ? 1: 0, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "seller fusion",
               "Link HWID/payment pairs; fuse VPN + C2 + reports.");
     auto br = examples::account_graph::detect(w);
@@ -51,7 +51,7 @@ int main() {
     auto rr = examples::report_velocity::apply(w);
     n.say(sim::Side::Red, rr.detail);
     std::printf("[report] accounts=%d report_sum=%d achieved=%d\n",
-                rr.achieved, rr.achieved, rr.achieved ? 1 : 0);
+                rr.achieved, rr.achieved, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "payment cluster",
               "Per-account threshold or payment-cluster report sum.");
     auto br = examples::report_velocity::detect(w);
@@ -67,8 +67,8 @@ int main() {
            "VPN active + clustered accounts on same vpn_* ip_class.");
     auto rr = examples::vpn_proxy_graph::apply(w);
     n.say(sim::Side::Red, rr.detail);
-    std::printf("[vpn] vpn=%d clustered=%d achieved=%d\n", rr.achieved ? 1 : 0,
-                rr.achieved, rr.achieved ? 1 : 0);
+    std::printf("[vpn] vpn=%d clustered=%d achieved=%d\n", rr.achieved ? 1: 0,
+                rr.achieved, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "vpn + ip_cluster",
               "vpn_proxy_active and/or multi-account vpn_* class.");
     auto br = examples::vpn_proxy_graph::detect(w);
@@ -85,7 +85,7 @@ int main() {
     auto rr = examples::network_c2_intel::apply(w);
     n.say(sim::Side::Red, rr.detail);
     std::printf("[c2] loader=%u net=%zu achieved=%d\n", rr.achieved,
-                w.net.size(), rr.achieved ? 1 : 0);
+                w.net.size(), rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "domain intel",
               "Flag offset_c2 / radar_saas flows (pair with client scars).");
     auto br = examples::network_c2_intel::detect(w);
@@ -102,7 +102,7 @@ int main() {
     auto rr = examples::ac_self_integrity::apply(w);
     n.say(sim::Side::Red, rr.detail);
     std::printf("[ac_int] ac_pid=%u achieved=%d\n", rr.achieved,
-                rr.achieved ? 1 : 0);
+                rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "dirty modules",
               "Any AC module with text_hash != clean.");
     auto br = examples::ac_self_integrity::detect(w);
@@ -118,7 +118,7 @@ int main() {
            "Mild handle + VPN + unique build; hope score stays delayed.");
     auto rr = examples::overwatch_multisignal::apply(w);
     n.say(sim::Side::Red, rr.detail);
-    std::printf("[ow_ms] achieved=%d\n", rr.achieved ? 1 : 0);
+    std::printf("[ow_ms] achieved=%d\n", rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "multi-signal score",
               "Aggregate handle+vpn+poly; queue when score >= 2.");
     auto br = examples::overwatch_multisignal::detect(w);
@@ -128,7 +128,7 @@ int main() {
 
   const bool all = blue_hits == rounds;
   n.result(all, all ? "All blue multi-reason detectors fired."
-                    : "Some blue detectors missed (lesson bug).");
+: "Some blue detectors missed (lesson bug).");
   std::printf("ops_lab: blue_hits=%d/%d\n", blue_hits, rounds);
-  return all ? 0 : 1;
+  return all ? 0: 1;
 }

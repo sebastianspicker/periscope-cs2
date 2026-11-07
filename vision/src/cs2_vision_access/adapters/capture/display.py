@@ -1,4 +1,4 @@
-"""Display management for the live pipeline — window, overlay, diagnostics, hotkeys.
+"""Display management for the live pipeline, window, overlay, diagnostics, hotkeys.
 
 Encapsulates all OpenCV window and overlay-window concerns so the main
 pipeline loop focuses on capture → infer → render.

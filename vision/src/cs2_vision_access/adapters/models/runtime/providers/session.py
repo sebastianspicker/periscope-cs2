@@ -1,4 +1,4 @@
-"""ONNX Runtime session creation — SessionOptions tuning and session factory."""
+"""ONNX Runtime session creation, SessionOptions tuning and session factory."""
 
 from __future__ import annotations
 

@@ -3,9 +3,9 @@
 This module is a thin facade over ``_overlay_backends.py`` which contains the
 three platform-specific implementations:
 
-- **Windows**: Win32 layered window via ``ctypes`` — per-pixel alpha,
+- **Windows**: Win32 layered window via ``ctypes``, per-pixel alpha,
   click-through, always-on-top.
-- **macOS**: Cocoa NSWindow via PyObjC — per-pixel alpha, click-through,
+- **macOS**: Cocoa NSWindow via PyObjC, per-pixel alpha, click-through,
   Retina-aware, all-Spaces.
 - **Other / fallback**: tkinter borderless window with best-effort transparency.
 """
@@ -69,7 +69,7 @@ class OverlayWindow:
         self._x = x
         self._y = y
         if self._backend is not None:
-            # open() is idempotent per backend — callers may call it multiple times
+            # open() is idempotent per backend, callers may call it multiple times
             self._backend.open(width, height, self._title, x, y)
 
     def move(self, x: int, y: int) -> None:

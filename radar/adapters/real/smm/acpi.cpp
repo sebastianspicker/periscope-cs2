@@ -1,4 +1,4 @@
-// acpi.cpp — ACPI table operations backend (RSDP, table read, DSDT override).
+// acpi.cpp: ACPI table operations backend (RSDP: table read, DSDT override).
 //
 // TECHNIQUE: RSDP → RSDT/XSDT walk; OS firmware table APIs; optional
 // physical overwrite of DSDT for firmware-persistence research.
@@ -131,7 +131,7 @@ Result<std::vector<std::uint8_t>> read_acpi_table(const char* signature) {
   }
 
   // SSDT and multi-instance tables live under /sys/firmware/acpi/tables/data
-  // or as SSDT1, SSDT2 — try data path for exact name.
+  // or as SSDT1, SSDT2, try data path for exact name.
   std::snprintf(sysfs_path, sizeof(sysfs_path),
                 "/sys/firmware/acpi/tables/data/%.4s", signature);
   table = read_file(sysfs_path);
@@ -158,7 +158,7 @@ Result<std::vector<std::uint8_t>> read_acpi_table(const char* signature) {
     return Result<std::vector<std::uint8_t>>({}, "invalid RSDP");
   }
   const bool is_xsdt = addrs.revision >= 2 && addrs.xsdt != 0;
-  const std::uint64_t root_address = is_xsdt ? addrs.xsdt : addrs.rsdt;
+  const std::uint64_t root_address = is_xsdt ? addrs.xsdt: addrs.rsdt;
   if (!root_address) {
     close(fd);
     return Result<std::vector<std::uint8_t>>({}, "No RSDT/XSDT");
@@ -171,7 +171,7 @@ Result<std::vector<std::uint8_t>> read_acpi_table(const char* signature) {
   }
   std::uint32_t root_length = 0;
   std::memcpy(&root_length, root_header + 4, sizeof(root_length));
-  const std::size_t entry_size = is_xsdt ? sizeof(std::uint64_t) : sizeof(std::uint32_t);
+  const std::size_t entry_size = is_xsdt ? sizeof(std::uint64_t): sizeof(std::uint32_t);
   if (root_length < sizeof(root_header)) {
     close(fd);
     return Result<std::vector<std::uint8_t>>({}, "invalid RSDT/XSDT length");
@@ -268,7 +268,7 @@ Result<std::vector<std::string>> list_acpi_tables() {
   static const char* kCommon[] = {"FACP", "DSDT", "SSDT", "APIC", "MCFG",
                                   "HPET", "BGRT", "TPM2", "DMAR", "WAET",
                                   "SLIT", "SRAT", "FACS", "BERT", "HEST"};
-  for (const char* sig : kCommon) {
+  for (const char* sig: kCommon) {
     auto t = read_acpi_table(sig);
     if (t) names.emplace_back(sig);
   }
@@ -333,14 +333,14 @@ Result<void> override_acpi_dsdt(const std::vector<std::uint8_t>& new_dsdt) {
   if (!dsdt_phys_addr) {
     // Fallback: scan root table entries for "DSDT" signature.
     const bool is_xsdt = addrs.revision >= 2 && addrs.xsdt != 0;
-    const std::uint64_t rsdt_addr = is_xsdt ? addrs.xsdt : addrs.rsdt;
+    const std::uint64_t rsdt_addr = is_xsdt ? addrs.xsdt: addrs.rsdt;
     std::uint8_t rsdt_header[36] = {};
     pread(fd, rsdt_header, 36, static_cast<off_t>(rsdt_addr));
     std::uint32_t length = 0;
     std::memcpy(&length, rsdt_header + 4, 4);
-    const int entry_size = is_xsdt ? 8 : 4;
+    const int entry_size = is_xsdt ? 8: 4;
     const int entry_count =
-        length > 36 ? static_cast<int>((length - 36) / entry_size) : 0;
+        length > 36 ? static_cast<int>((length - 36) / entry_size): 0;
     for (int i = 0; i < entry_count; ++i) {
       std::uint64_t entry_addr = 0;
       if (is_xsdt) {

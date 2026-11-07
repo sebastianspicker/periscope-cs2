@@ -1,4 +1,4 @@
-// diagnostic.hpp — Real CS2 diagnostic system reader.
+// diagnostic.hpp: Real CS2 diagnostic system reader.
 //
 // LESSON: CS2 has a built-in diagnostic system that collects data about
 // the runtime environment: loaded modules, threads, VMT integrity,

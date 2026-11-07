@@ -1,4 +1,4 @@
-// hv_probe.cpp — T3 blue platform/HV sensor using World.trust posture flags.
+// hv_probe.cpp: T3 blue platform/HV sensor using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #include "t3_blue/hv_probe.hpp"
@@ -8,7 +8,7 @@
 
 namespace t3_blue {
 
-HvProbe::HvProbe(ac::ITelemetrySink& sink) : sink_(sink) {}
+HvProbe::HvProbe(ac::ITelemetrySink& sink): sink_(sink) {}
 
 // HvProbe::analyze: Analyze host/HV signals into a probe result.
 void HvProbe::analyze(const HvProbeSample& sample) {
@@ -30,10 +30,10 @@ void HvProbe::analyze(const HvProbeSample& sample) {
     return;
   }
   sink_.emit(ac::TelemetryEvent{
-      .kind = ac::EventKind::HvProbeAnomaly,
-      .related_tier = ac::Tier::T3_Hypervisor,
-      .detail = sample.vendor,
-      .risk_delta = 4.0,
+.kind = ac::EventKind::HvProbeAnomaly,
+.related_tier = ac::Tier::T3_Hypervisor,
+.detail = sample.vendor,
+.risk_delta = 4.0,
   });
 }
 
@@ -79,10 +79,10 @@ HvProbeResult HvProbe::analyze_world(const sim::World& w) {
 
   r.anomaly = last_anomaly_ || r.personal_hv || r.timing_spoof || r.latency_hit;
   std::ostringstream oss;
-  oss << "hv_probe anomaly=" << (r.anomaly ? 1 : 0)
-      << " personal=" << (r.personal_hv ? 1 : 0)
-      << " timing=" << (r.timing_spoof ? 1 : 0)
-      << " lat=" << (r.latency_hit ? 1 : 0) << " risk=" << r.risk;
+  oss << "hv_probe anomaly=" << (r.anomaly ? 1: 0)
+      << " personal=" << (r.personal_hv ? 1: 0)
+      << " timing=" << (r.timing_spoof ? 1: 0)
+      << " lat=" << (r.latency_hit ? 1: 0) << " risk=" << r.risk;
   r.detail = oss.str();
   return r;
 }

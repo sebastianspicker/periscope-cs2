@@ -1,4 +1,4 @@
-// periscope_radar.hpp — Radar coordinate math engine.
+// periscope_radar.hpp: Radar coordinate math engine.
 //
 // Converts world coordinates to screen radar coordinates using
 // the HUD snapshot. Implements Periscope's PolarMapPlayerToRadar()
@@ -37,7 +37,7 @@ Vector2 polar_map_player_to_radar(
 ///   overlay_y =  polar.x / edge
 inline void polar_to_overlay_blip(float polar_x, float polar_y, float edge,
                                   float& out_screen_x, float& out_screen_y) noexcept {
-    const float e = (edge > 1e-6f) ? edge : 1.f;
+    const float e = (edge > 1e-6f) ? edge: 1.f;
     out_screen_x = -polar_y / e;
     out_screen_y =  polar_x / e;
 }

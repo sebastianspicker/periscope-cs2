@@ -1,4 +1,4 @@
-// process_finder.cpp — CS2 process discovery implementation.
+// process_finder.cpp: CS2 process discovery implementation.
 //
 // All calls go through g_Api (PEB+EAT resolved API table).
 // CS2 is opened with PROCESS_QUERY_LIMITED_INFORMATION only.
@@ -70,7 +70,7 @@ std::string basename_from_wide(const wchar_t* raw, size_t chars) noexcept {
     std::string out;
     out.reserve(chars);
     for (const wchar_t* it = nameStart; it < raw + chars; ++it) {
-        out.push_back(*it < 128 ? static_cast<char>(*it) : '?');
+        out.push_back(*it < 128 ? static_cast<char>(*it): '?');
     }
     return out;
 }
@@ -97,7 +97,7 @@ std::optional<Cs2ProcessInfo> find_cs2() noexcept {
 // handle via OpenProcess, which is detectable by EDR/anti-cheat at T0.
 // Use HijackReader::setup() instead for stealth handle duplication.
 #if defined(LR_ENABLE_EDUCATIONAL_OPENPROCESS)
-#pragma message("open_cs2_limited() compiled — this uses OpenProcess and is detectable. Prefer HijackReader::setup().")
+#pragma message("open_cs2_limited() compiled, this uses OpenProcess and is detectable. Prefer HijackReader::setup().")
 #endif
 
 std::optional<Cs2ProcessInfo> open_cs2_limited(uint32_t pid) noexcept {
@@ -107,11 +107,11 @@ std::optional<Cs2ProcessInfo> open_cs2_limited(uint32_t pid) noexcept {
     //
     // DEPRECATED: Use HijackReader::setup() instead.
 #if LR_PLATFORM_WINDOWS && defined(LR_ENABLE_EDUCATIONAL_OPENPROCESS)
-    // WARNING: This function opens CS2 directly — a major detection risk.
+    // WARNING: This function opens CS2 directly, a major detection risk.
     // This must NEVER be compiled into production/release builds.
     // Only use in educational/diagnostic contexts with LR_ENABLE_EDUCATIONAL_OPENPROCESS.
     // In the T0 model, all CS2 handles come from HijackReader via handle duplication.
-#warning "open_cs2_limited opens CS2 directly — do NOT use in production builds (HijackReader provides the safe alternative)"
+#warning "open_cs2_limited opens CS2 directly, do NOT use in production builds (HijackReader provides the safe alternative)"
     auto& api = real::win::g_Api();
     if (!api.resolved) return std::nullopt;
 
@@ -122,7 +122,7 @@ std::optional<Cs2ProcessInfo> open_cs2_limited(uint32_t pid) noexcept {
 #endif
 
     // NOTE: api.OpenProcess is the PEB+EAT-resolved OpenProcess (kernel32).
-    // This call MUST remain gated behind LR_ENABLE_EDUCATIONAL_OPENPROCESS —
+    // This call MUST remain gated behind LR_ENABLE_EDUCATIONAL_OPENPROCESS -
     // it creates a detectable handle-table entry for CS2. Production builds
     // must use HijackReader (handle duplication) instead.
     HANDLE hProc = api.OpenProcess(
@@ -143,7 +143,7 @@ std::vector<Cs2ModuleInfo> enumerate_modules(
     //   Strategy 1 (preferred): EnumProcessModulesEx (LIST_MODULES_ALL) +
     //     GetModuleInformation + GetModuleBaseNameA, with correct_image_size()
     //     for the real SizeOfImage. Requires PROCESS_QUERY_INFORMATION plus
-    //     PROCESS_VM_READ — the hijack reader handle provides VM_READ.
+    //     PROCESS_VM_READ, the hijack reader handle provides VM_READ.
     //   Strategy 2 (fallback): walk the VAS with NtQueryVirtualMemory, dedupe
     //     distinct MEM_IMAGE allocations, parse the remote PE headers directly
     //     for SizeOfImage, and name modules from mapped filenames.
@@ -224,7 +224,7 @@ std::vector<Cs2ModuleInfo> enumerate_modules(
 
     std::vector<Cs2ModuleInfo> result;
     result.reserve(bases.size());
-    for (const uint64_t base : bases) {
+    for (const uint64_t base: bases) {
       const size_t imageSize = pe_image_size(handle, base);
       if (imageSize == 0) continue;
 

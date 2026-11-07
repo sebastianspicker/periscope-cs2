@@ -1,4 +1,4 @@
-// handle_sanity.hpp — Source-2 handle sentinel validation (E63 / S4).
+// handle_sanity.hpp: Source-2 handle sentinel validation (E63 / S4).
 //
 // A torn or stale read can resolve `0xffffffff`, `0xffffffffffffffff`, or a
 // tiny value that is not a mapped address. Resolving those produces

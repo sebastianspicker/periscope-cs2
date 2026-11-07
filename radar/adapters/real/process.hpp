@@ -1,4 +1,4 @@
-// process.hpp — Cross-platform process enumeration and handle operations.
+// process.hpp: Cross-platform process enumeration and handle operations.
 
 #pragma once
 

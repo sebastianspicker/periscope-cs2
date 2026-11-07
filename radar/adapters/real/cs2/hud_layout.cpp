@@ -29,7 +29,7 @@ struct Section {
   std::size_t size = 0;
 };
 
-// Collect PE sections that typically hold strings / ConVar data (skip .text).
+// Collect PE sections that typically hold strings / ConVar data (skip.text).
 std::vector<Section> pe_data_sections(Cs2MemoryReader& reader,
                                       std::uint64_t base,
                                       std::size_t module_size) {
@@ -67,7 +67,7 @@ std::vector<Section> pe_data_sections(Cs2MemoryReader& reader,
     std::memcpy(&vsize, sh + 8, 4);
     std::memcpy(&vrva, sh + 12, 4);
     std::memcpy(&chars, sh + 36, 4);
-    // IMAGE_SCN_MEM_EXECUTE = 0x20000000 — skip code.
+    // IMAGE_SCN_MEM_EXECUTE = 0x20000000, skip code.
     if (chars & 0x20000000u) continue;
     if (vsize < 0x100 || vrva == 0) continue;
     if (static_cast<std::size_t>(vrva) >= module_size) continue;
@@ -144,9 +144,9 @@ void resolve_cvars_batch(Cs2MemoryReader& reader, std::uint64_t base,
 
         CvarTarget& tgt = targets[it->second];
         const std::uint64_t ptr_addr = sec.start + off + i;
-        for (int slot : {0, 8, 16, 24}) {
+        for (int slot: {0, 8, 16, 24}) {
           const std::uint64_t obj = ptr_addr - static_cast<std::uint64_t>(slot);
-          for (int vo : kValueOffs) {
+          for (int vo: kValueOffs) {
             float v = 0.f;
             if (!read_bytes(reader, obj + static_cast<std::uint64_t>(vo), &v,
                             sizeof(v)))

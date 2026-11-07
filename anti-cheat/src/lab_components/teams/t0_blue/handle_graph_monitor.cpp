@@ -1,4 +1,4 @@
-// handle_graph_monitor.cpp — blue sensor: foreign VmRead handles into the game process.
+// handle_graph_monitor.cpp: blue sensor: foreign VmRead handles into the game process.
 // Core T0 residual that weak evasion does not erase.
 
 #include "t0_blue/handle_graph_monitor.hpp"
@@ -31,7 +31,7 @@ ProcessAccess to_access(sim::AccessMask m) {
 
 }  // namespace
 
-HandleGraphMonitor::HandleGraphMonitor(ac::ITelemetrySink& sink) : sink_(sink) {}
+HandleGraphMonitor::HandleGraphMonitor(ac::ITelemetrySink& sink): sink_(sink) {}
 
 // HandleGraphMonitor::ingest_edges: Ingest handle-graph edges (owner→game VmRead) for this tick.
 void HandleGraphMonitor::ingest_edges(std::uint32_t game_pid,
@@ -56,12 +56,12 @@ void HandleGraphMonitor::ingest_edges(std::uint32_t game_pid,
       ++last_.hidden_edges;
     }
     sink_.emit(ac::TelemetryEvent{
-        .kind = ac::EventKind::HandleToGame,
-        .related_tier = ac::Tier::T0_UsermodeRpm,
-        .subject_pid = e.source_pid,
-        .object_pid = e.target_pid,
-        .detail = e.source_name,
-        .risk_delta = 3.0,
+.kind = ac::EventKind::HandleToGame,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = e.source_pid,
+.object_pid = e.target_pid,
+.detail = e.source_name,
+.risk_delta = 3.0,
     });
   }
   last_.suspicious = suspicious_;
@@ -124,12 +124,12 @@ HandleSampleResult HandleGraphMonitor::scan_world(const sim::World& w,
       e.brief_reopen = h.brief_reopen;
       suspicious_.push_back(e);
       sink_.emit(ac::TelemetryEvent{
-          .kind = ac::EventKind::HandleToGame,
-          .related_tier = ac::Tier::T0_UsermodeRpm,
-          .subject_pid = h.owner_pid,
-          .object_pid = game_pid,
-          .detail = p->name + (h.hidden_during_enum ? "#hidden" : ""),
-          .risk_delta = h.hidden_during_enum ? 3.5 : 3.0,
+.kind = ac::EventKind::HandleToGame,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = h.owner_pid,
+.object_pid = game_pid,
+.detail = p->name + (h.hidden_during_enum ? "#hidden": ""),
+.risk_delta = h.hidden_during_enum ? 3.5: 3.0,
       });
     }
   }
@@ -143,7 +143,7 @@ HandleSampleResult HandleGraphMonitor::scan_world(const sim::World& w,
       << " truth=" << last_.truth_foreign_vm_read
       << " hidden=" << last_.hidden_edges
       << " brief=" << last_.brief_reopen
-      << " race=" << (last_.race_suspected ? 1 : 0)
+      << " race=" << (last_.race_suspected ? 1: 0)
       << " susp=" << suspicious_.size();
   last_.detail = oss.str();
   return last_;
@@ -152,7 +152,7 @@ HandleSampleResult HandleGraphMonitor::scan_world(const sim::World& w,
 // HandleGraphMonitor::multi_sample: Multi-sample handle edges across ticks for confidence.
 HandleSampleResult HandleGraphMonitor::multi_sample(const sim::World& w,
                                                     std::uint32_t game_pid) {
-  // First: naive single sample (visible only) — may miss hide-on-enum.
+  // First: naive single sample (visible only), may miss hide-on-enum.
   auto naive = scan_world(w, game_pid, /*include_hidden=*/false);
   const int naive_vis = naive.visible_foreign_vm_read;
   // Second: continuous truth.

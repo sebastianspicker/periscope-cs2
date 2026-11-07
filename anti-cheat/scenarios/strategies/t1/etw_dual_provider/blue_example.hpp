@@ -21,7 +21,7 @@ class Blue {
   BlueResult detect(const sim::World& w) noexcept;
   BlueResult mitigate(sim::World& w) noexcept;
   static constexpr const char* kDescription =
-      "Maintain redundant ETW providers — secondary catches events when TI is blinded";
+      "Maintain redundant ETW providers, secondary catches events when TI is blinded";
 };
 
 }  // namespace strategy::t1_etw_dual_provider

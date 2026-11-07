@@ -1,9 +1,9 @@
-# Makefile — WDK driver build + MSVC usermode/host tests
+# Makefile, WDK driver build + MSVC usermode/host tests
 #
 # Usage:
 #   make test          # usermode client only (no WDK)
 #   make host_tests    # host ABI unit tests
-#   make driver        # kernel .sys (requires WDK km + WDM env)
+#   make driver        # kernel.sys (requires WDK km + WDM env)
 #   make all           # test + host_tests (+ driver if WDK present)
 #
 # WDK: set WDM or WDK_ROOT to the Windows Kits\10 root.

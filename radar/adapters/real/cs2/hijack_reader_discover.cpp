@@ -1,4 +1,4 @@
-// Split from hijack_reader.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from hijack_reader.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/hijack_reader.hpp"
 #include "real/cs2/hijack_reader_internal.hpp"
 #include "real/cs2/process_cache.hpp"
@@ -24,7 +24,7 @@ CachedDonorInfo g_cachedDonor{};
 int g_ntqsi40_call_count = 0;
 uint64_t g_reeenumCooldownTicks = 0;
 
-// Preferred donor basenames — discovered via process list (Toolhelp/NtQSI
+// Preferred donor basenames, discovered via process list (Toolhelp/NtQSI
 // cache), NOT per-handle OpenProcess+QueryFullProcessImageName. That keeps
 // donor discovery handle-free for naming and avoids open_fail storms.
 bool is_preferred_donor_basename(const char* base) noexcept {
@@ -38,7 +38,7 @@ bool is_preferred_donor_basename(const char* base) noexcept {
         "nvcontainer.exe", "obs64.exe", "obs.exe",
         "EpicGamesLauncher.exe", "Origin.exe", "EADesktop.exe",
     };
-    for (const char* pref : kPref) {
+    for (const char* pref: kPref) {
         if (_stricmp(base, pref) == 0) return true;
     }
     // Substring match for Steam family (steamwebhelper, etc.)
@@ -47,7 +47,7 @@ bool is_preferred_donor_basename(const char* base) noexcept {
     return false;
 }
 
-// Build preferred donor PID set from process cache / Toolhelp — no OpenProcess.
+// Build preferred donor PID set from process cache / Toolhelp, no OpenProcess.
 std::vector<uint32_t> collect_preferred_donor_pids(uint32_t cs2Pid) noexcept {
     std::vector<uint32_t> pids;
     pids.reserve(32);
@@ -84,7 +84,7 @@ std::vector<uint32_t> collect_preferred_donor_pids(uint32_t cs2Pid) noexcept {
                 } while (api.Process32NextW(snap, &pe));
             }
             if (api.CloseHandle) api.CloseHandle(snap);
-            else ::CloseHandle(snap);
+            else::CloseHandle(snap);
         }
     }
     return pids;
@@ -95,7 +95,7 @@ bool pid_in_set(const std::vector<uint32_t>& pids, uint32_t pid) noexcept {
 }
 
 // Open a donor for handle duplication. Prefer DUP_HANDLE only; fall back to
-// DUP|QUERY. Does NOT open CS2 — only the donor process (handle-free CS2 path).
+// DUP|QUERY. Does NOT open CS2, only the donor process (handle-free CS2 path).
 HANDLE open_donor_for_dup(uint32_t donorPid) noexcept {
     auto& api = real::win::g_Api();
     if (!api.resolved || !api.OpenProcess) return nullptr;
@@ -187,14 +187,14 @@ NTSTATUS duplicate_cs2_handle(HANDLE donorProc, HANDLE sourceHandle, HANDLE* out
         if (!dupe) return false;
         if (!handle_has_vm_read(dupe)) {
             if (api.resolved && api.CloseHandle) api.CloseHandle(dupe);
-            else ::CloseHandle(dupe);
+            else::CloseHandle(dupe);
             return false;
         }
         *outDupe = dupe;
         return true;
     };
 
-    // Prefer explicit VM_READ — SAME_ACCESS first often yields QUERY-only
+    // Prefer explicit VM_READ, SAME_ACCESS first often yields QUERY-only
     // Steam handles that pass GetProcessId but cannot RPM.
     NTSTATUS st = real::win::syscall_direct_NtDuplicateObject(
         donorProc, sourceHandle, ::GetCurrentProcess(), outDupe,
@@ -245,7 +245,7 @@ NTSTATUS duplicate_cs2_handle(HANDLE donorProc, HANDLE sourceHandle, HANDLE* out
         try_keep(dupe)) {
         return 0;
     }
-    return st < 0 ? st : static_cast<NTSTATUS>(0xC0000001L);
+    return st < 0 ? st: static_cast<NTSTATUS>(0xC0000001L);
 }
 
 } // namespace detail
@@ -282,7 +282,7 @@ bool HijackReader::find_and_duplicate() noexcept {
         }
     }
 
-    // A full NtQSI(0x40) has already run this session — reuse the cached
+    // A full NtQSI(0x40) has already run this session, reuse the cached
     // donor instead of re-enumerating.
     if (g_ntqsi40_call_count >= 1) {
         if (g_cachedDonor.valid) {
@@ -298,7 +298,7 @@ bool HijackReader::find_and_duplicate() noexcept {
                         donorProc, reinterpret_cast<HANDLE>(m_donorHandleValue),
                         &dupe);
                     if (dupResult >= 0 && dupe) {
-                        DWORD dupePid = api.GetProcessId ? api.GetProcessId(dupe) : 0;
+                        DWORD dupePid = api.GetProcessId ? api.GetProcessId(dupe): 0;
                         if (dupePid == 0) dupePid = ::GetProcessId(dupe);
                         if (dupePid == m_cs2Pid) {
                             m_donorProcHandle = reinterpret_cast<uint64_t>(donorProc);
@@ -374,10 +374,10 @@ bool HijackReader::find_and_duplicate() noexcept {
     // without re-enumerating (see ensure_handle).
     //
     // Use NtQSI with ExtendedHandleInformation (0x40) only.
-    // Windows 8+ supports extended handles exclusively — legacy 0x10
+    // Windows 8+ supports extended handles exclusively, legacy 0x10
     // path removed to avoid detectable API call pattern.
     ++g_ntqsi40_call_count;
-    // Handle table can be tens of MB on busy systems — grow until STATUS_SUCCESS.
+    // Handle table can be tens of MB on busy systems, grow until STATUS_SUCCESS.
     ULONG bufSize = 1u << 20;  // 1 MB start
     std::vector<uint8_t> buffer(bufSize);
 
@@ -398,7 +398,7 @@ bool HijackReader::find_and_duplicate() noexcept {
         return false;
     }
 
-    // Preferred donors by name (Toolhelp/process cache — no OpenProcess).
+    // Preferred donors by name (Toolhelp/process cache, no OpenProcess).
     const std::vector<uint32_t> preferredPids =
         collect_preferred_donor_pids(m_cs2Pid);
     m_preferredSeen = static_cast<uint32_t>(preferredPids.size());
@@ -414,7 +414,7 @@ bool HijackReader::find_and_duplicate() noexcept {
     if (m_bootstrapHandle) {
         const DWORD selfPid = api.GetCurrentProcessId
                                   ? api.GetCurrentProcessId()
-                                  : ::GetCurrentProcessId();
+: ::GetCurrentProcessId();
         const uint64_t bootVal =
             static_cast<uint64_t>(reinterpret_cast<uintptr_t>(m_bootstrapHandle));
         for (uint64_t i = 0; i < numHandles; ++i) {
@@ -432,7 +432,7 @@ bool HijackReader::find_and_duplicate() noexcept {
     // Helper: open a donor process and try to duplicate a handle value
     auto try_duplicate_from_donor = [&](uint32_t donorPid,
                                          uint64_t handleValue) -> bool {
-        // Open DONOR only (never CS2) — handle-free CS2 OpenProcess path.
+        // Open DONOR only (never CS2), handle-free CS2 OpenProcess path.
         HANDLE donorProc = open_donor_for_dup(donorPid);
         if (!donorProc) {
             ++m_openFail;
@@ -450,7 +450,7 @@ bool HijackReader::find_and_duplicate() noexcept {
         }
 
         // Verify: the duplicated handle should point to our CS2 PID.
-        DWORD dupePid = api.GetProcessId ? api.GetProcessId(dupe) : 0;
+        DWORD dupePid = api.GetProcessId ? api.GetProcessId(dupe): 0;
         if (dupePid == 0) dupePid = ::GetProcessId(dupe);
         if (dupePid == 0 && api.NtQueryInformationProcess) {
             struct {
@@ -546,7 +546,7 @@ bool HijackReader::find_and_duplicate() noexcept {
         } else if (others.size() < 256) {
             others.push_back(c);
         }
-        // Cap preferred Process handles high — verification is the filter.
+        // Cap preferred Process handles high, verification is the filter.
         if (objectHits.size() + preferred.size() >= 4096) break;
     }
     m_candidatesSeen = static_cast<uint32_t>(
@@ -557,7 +557,7 @@ bool HijackReader::find_and_duplicate() noexcept {
         g_reeenumCooldownTicks = kReenumCooldownTicks;
         set_error(m_cs2Object
                       ? "zero system handles reference CS2 Object (no donor)"
-                      : "zero handle candidates on system (no donor process)");
+: "zero handle candidates on system (no donor process)");
         return false;
     }
 
@@ -583,7 +583,7 @@ bool HijackReader::find_and_duplicate() noexcept {
     const size_t nPref = preferred.size();
     const size_t n = ordered.size();
     const size_t startIdx =
-        nPref > 0 ? static_cast<size_t>(rng % nPref) : static_cast<size_t>(rng % n);
+        nPref > 0 ? static_cast<size_t>(rng % nPref): static_cast<size_t>(rng % n);
 
     for (size_t attempt = 0; attempt < n; ++attempt) {
         const auto& c = ordered[(startIdx + attempt) % n];
@@ -610,4 +610,3 @@ bool HijackReader::find_and_duplicate() noexcept {
 }
 
 }  // namespace real::cs2::hijack
-

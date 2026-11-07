@@ -1,4 +1,4 @@
-// module_hide.hpp — Unlink the current (or target) module from PEB LDR lists.
+// module_hide.hpp: Unlink the current (or target) module from PEB LDR lists.
 //
 // Removes the LDR_DATA_TABLE_ENTRY from:
 //   - InLoadOrderModuleList
@@ -6,7 +6,7 @@
 //   - InInitializationOrderModuleList
 //
 // Module remains mapped; VAC/AC that walk PEB module lists miss it.
-// VAS walk / VAD still sees the region — pair with pe_hide for headers.
+// VAS walk / VAD still sees the region, pair with pe_hide for headers.
 
 #pragma once
 

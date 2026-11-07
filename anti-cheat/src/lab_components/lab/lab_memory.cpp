@@ -1,4 +1,4 @@
-// lab_memory.cpp — lab fixture process / memory backend for isolated unit tests.
+// lab_memory.cpp: lab fixture process / memory backend for isolated unit tests.
 // Provides attachable target_id.
 
 #include "lab/lab_memory.hpp"
@@ -28,7 +28,7 @@ std::vector<std::uint8_t> materialize_pattern_bytes(std::string_view hex) {
     const auto hex_value = [](char c) -> int {
       if (c >= '0' && c <= '9') return c - '0';
       c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));
-      return c >= 'A' && c <= 'F' ? c - 'A' + 10 : -1;
+      return c >= 'A' && c <= 'F' ? c - 'A' + 10: -1;
     };
     if (pos + 1 >= hex.size()) return {};
     const int high = hex_value(hex[pos++]);
@@ -53,12 +53,12 @@ void plant_cs2_pattern_markers(std::vector<std::uint8_t>& memory,
   constexpr std::size_t kMarkerStart = 0x4E0000;
   constexpr std::size_t kMarkerGap = 16;
   std::size_t offset = kMarkerStart;
-  for (const auto name : kNames) {
+  for (const auto name: kNames) {
     const auto* pattern = db.find(name);
     if (!pattern) continue;
     const auto bytes = materialize_pattern_bytes(pattern->bytes_hex);
     if (bytes.empty()) continue;
-    if (bytes.size() > std::numeric_limits<std::size_t>::max() - offset) {
+    if (bytes.size() > std::numeric_limits<std::size_t> ::max() - offset) {
       return;
     }
     const auto end = offset + bytes.size();
@@ -68,7 +68,7 @@ void plant_cs2_pattern_markers(std::vector<std::uint8_t>& memory,
     std::copy(bytes.begin(), bytes.end(),
               memory.begin() + static_cast<std::ptrdiff_t>(offset));
     if (bytes.size() + kMarkerGap >
-        std::numeric_limits<std::size_t>::max() - offset) {
+        std::numeric_limits<std::size_t> ::max() - offset) {
       return;
     }
     offset += bytes.size() + kMarkerGap;
@@ -108,7 +108,7 @@ ac::ReadResult LabMemoryBackend::read(const ac::ReadRequest& req) {
   if (out.status == ac::Status::Ok) {
     if (out.bytes.size() != req.size ||
         stats_.read_bytes >
-            std::numeric_limits<std::uint64_t>::max() - out.bytes.size()) {
+            std::numeric_limits<std::uint64_t> ::max() - out.bytes.size()) {
       return {ac::Status::InvalidArgument, {}};
     }
     ++stats_.read_ops;
@@ -119,7 +119,7 @@ ac::ReadResult LabMemoryBackend::read(const ac::ReadRequest& req) {
     if (have_last_read_) {
       const auto delta = req.address > last_read_addr_
                              ? req.address - last_read_addr_
-                             : last_read_addr_ - req.address;
+: last_read_addr_ - req.address;
       if (delta <= 0x1000ull && stats_.read_ops >= 4) {
         stats_.sequential_burst = true;
       }

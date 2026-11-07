@@ -8,7 +8,7 @@ void Red::apply(sim::World& w) noexcept {
   std::printf("[red:etw_dual_provider] step 1: validate game arena\n");
   const auto game = w.game_pid();
   if (game == 0 || w.proc(game) == nullptr) {
-    w.note("etw_dual_provider: precondition failed — game missing");
+    w.note("etw_dual_provider: precondition failed, game missing");
     return;
   }
 
@@ -56,7 +56,7 @@ void Red::apply(sim::World& w) noexcept {
 
   w.note("etw_dual_provider: primary ETW TI blinded; open/read completed (secondary unknown to red)");
   std::printf("[red:etw_dual_provider] achieved: etw_ti_blind=1 secondary_active=%d handle=1\n",
-              w.etw_secondary_active ? 1 : 0);
+              w.etw_secondary_active ? 1: 0);
 }
 
 }  // namespace strategy::t1_etw_dual_provider

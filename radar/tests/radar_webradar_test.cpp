@@ -1,4 +1,4 @@
-// radar_webradar_test.cpp — R5: web-radar service core with fake clients.
+// radar_webradar_test.cpp: R5: web-radar service core with fake clients.
 //
 // Drives broadcast, interval gating, latest-frame coalescing, slow-client
 // accounting, fallback payload, origin allowlist and stats without any

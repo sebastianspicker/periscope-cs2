@@ -1,4 +1,4 @@
-// periscope_hud.hpp — Periscope-level HUD radar snapshot reader.
+// periscope_hud.hpp: Periscope-level HUD radar snapshot reader.
 //
 // Navigates CS2's HUD binary search tree to find "CCSGO_HudRadar",
 // then reads 8+ snapshot fields needed for coordinate math.

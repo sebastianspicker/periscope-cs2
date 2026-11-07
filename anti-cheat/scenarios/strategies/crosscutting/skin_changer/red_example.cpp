@@ -11,7 +11,7 @@ RedResult apply(sim::World& w) {
   w.diagnostic_state.pe_timestamp_client_dll =
       w.diagnostic_state.expected_pe_timestamp_client_dll ^ 0x1800A000u;
   ++steps;
-  // Phase 3: second inventory surface — mode2 CRC also diverges (econ attrs).
+  // Phase 3: second inventory surface, mode2 CRC also diverges (econ attrs).
   w.diagnostic_state.convar_crc_mode2 =
       w.diagnostic_state.expected_convar_crc_mode2 ^ 0x55AAu;
   if (w.diagnostic_state.expected_convar_crc_mode2 == 0) {

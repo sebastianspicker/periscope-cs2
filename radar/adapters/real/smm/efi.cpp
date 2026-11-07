@@ -1,4 +1,4 @@
-// efi.cpp — EFI runtime-services and variable backend.
+// efi.cpp: EFI runtime-services and variable backend.
 //
 // TECHNIQUE: Locate EFI system/runtime tables; Get/SetVariable (often SMI).
 //
@@ -160,7 +160,7 @@ Result<void> efi_set_variable(const char* name, const std::vector<std::uint8_t>&
   HMODULE k32 = GetModuleHandleA("kernel32.dll");
   auto set_ex = k32 ? reinterpret_cast<SetVarEx>(
                           GetProcAddress(k32, "SetFirmwareEnvironmentVariableExA"))
-                    : nullptr;
+: nullptr;
   if (set_ex) {
     if (!set_ex(name, guid_str, attributes, const_cast<std::uint8_t*>(data.data()),
                 static_cast<DWORD>(data.size()))) {
@@ -266,7 +266,7 @@ Result<std::vector<std::string>> efi_list_variables() {
   // EFI Global Variable GUID
   constexpr std::uint64_t kGlobalHi = 0x8BE4DF61ULL << 32 | 0x93CA11d2ULL;
   constexpr std::uint64_t kGlobalLo = 0xAA0D00E098032B8CULL;
-  for (const char* n : kProbe) {
+  for (const char* n: kProbe) {
     auto v = efi_get_variable(n, kGlobalHi, kGlobalLo);
     if (v) names.emplace_back(n);
   }

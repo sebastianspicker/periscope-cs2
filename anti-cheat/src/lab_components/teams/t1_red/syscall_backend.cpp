@@ -1,4 +1,4 @@
-// syscall_backend.cpp — T1 red syscall-soft path (indirect/stub) over lab World.
+// syscall_backend.cpp: T1 red syscall-soft path (indirect/stub) over lab World.
 // Plants educational residuals.
 
 #include "t1_red/syscall_backend.hpp"

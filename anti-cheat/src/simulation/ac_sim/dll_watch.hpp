@@ -1,6 +1,6 @@
 #pragma once
 
-// DLL load monitor (blue-team surface) — replay-injected notifications are
+// DLL load monitor (blue-team surface), replay-injected notifications are
 // matched against known module-name patterns. Host enumeration belongs to a
 // real adapter.
 //

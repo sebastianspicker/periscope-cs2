@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""resolve_dumper_ref.py — pick the newest trusted a2x/cs2-dumper output ref.
+"""resolve_dumper_ref.py: pick the newest trusted a2x/cs2-dumper output ref.
 
 R8 research item, adapted from the cs2-dma release offset-sync
 workflow (Apache-2.0, NOTICE recorded). Hardening preserved:

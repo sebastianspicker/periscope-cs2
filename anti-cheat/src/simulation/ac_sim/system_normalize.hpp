@@ -1,6 +1,6 @@
 #pragma once
 
-// System normalization — deterministic WER, handle-count, and power-request
+// System normalization, deterministic WER, handle-count, and power-request
 // simulation signals. It never changes host policy or process state.
 //
 // CC-ledger CC.12
@@ -21,7 +21,7 @@ struct NormalizeResult {
 struct NormalizeConfig {
     bool suppressGpfBox{true};
     bool sampleHandleCount{true};
-    bool acquirePowerRequest{false}; // off by default — detection surface
+    bool acquirePowerRequest{false}; // off by default, detection surface
     int minReportedHandles{0};       // informational only
 };
 

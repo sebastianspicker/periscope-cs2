@@ -1,9 +1,9 @@
-/* aclab_ioctl.h — Shared ABI between aclab_module.ko and userspace clients.
+/* aclab_ioctl.h: Shared ABI between aclab_module.ko and userspace clients.
  *
  * Educational T2/T3 kernel lab interface. Every IOCTL leaves forensic scars
  * in dmesg, audit logs, and /proc/modules. Used for anti-cheat research only.
  *
- * C ABI — safe for both kernel module and C++ userspace.
+ * C ABI, safe for both kernel module and C++ userspace.
  */
 #ifndef REAL_LINUX_ACLAB_IOCTL_H
 #define REAL_LINUX_ACLAB_IOCTL_H

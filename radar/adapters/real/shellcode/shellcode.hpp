@@ -47,7 +47,7 @@ public:
                             std::size_t outCap) noexcept;
 
     /// Patch the syscall site in a materialized plaintext buffer to the real
-    /// opcode pair. Split-written; lab-only — not called by default paths.
+    /// opcode pair. Split-written; lab-only, not called by default paths.
     static bool ArmSyscall(std::uint8_t* plain, std::size_t size) noexcept;
 
     /// Validate a *plaintext* (materialized) blob (armed or unarmed).

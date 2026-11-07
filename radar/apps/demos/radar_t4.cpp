@@ -1,4 +1,4 @@
-/// radar_t4.cpp — T4: PCIe FPGA DMA radar (theoretical live mode).
+/// radar_t4.cpp: T4: PCIe FPGA DMA radar (theoretical live mode).
 #include "demos/radar_shared.hpp"
 #if LR_HAS_REAL_PLATFORM && LR_PLATFORM_WINDOWS
 #include "real/win/api_table.hpp"
@@ -12,12 +12,12 @@
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 #endif
 
-#define TIER_NAME "T4 — PCIe FPGA DMA"
-#define TIER_TECH "FPGA reads physical memory via PCIe read TLP — zero OS involvement"
-#define TIER_SCAR "PCIe read TLP on the bus — visible to IOMMU only"
+#define TIER_NAME "T4, PCIe FPGA DMA"
+#define TIER_TECH "FPGA reads physical memory via PCIe read TLP, zero OS involvement"
+#define TIER_SCAR "PCIe read TLP on the bus, visible to IOMMU only"
 #define TIER_DET  "VT-d/AMD-Vi DMA remapping blocks DMA to unmapped pages"
 #define TIER_MIT  "Enable VT-d/AMD-Vi with DMA remapping in firmware + IOMMU driver in OS"
-#define TIER_CODE "adapters/real/dma/{core,fpga,backend}.cpp :: RealDmaBackend::read()"
+#define TIER_CODE "adapters/real/dma/{core,fpga,backend}.cpp:: RealDmaBackend::read()"
 
 using Clock = std::chrono::steady_clock;
 
@@ -43,9 +43,9 @@ int main() {
     // Show PCIe and IOMMU state (requires -DLR_ENABLE_REAL_DMA=ON)
 #if defined(LR_HAS_REAL_DMA)
     auto pcie_devs = real::dma::enum_pci_devices();
-    std::printf("  PCIe devices: %zu found\n", pcie_devs ? pcie_devs->size() : 0);
+    std::printf("  PCIe devices: %zu found\n", pcie_devs ? pcie_devs->size(): 0);
     auto iommu = real::dma::iommu_enabled();
-    std::printf("  IOMMU: %s\n", iommu ? "ACTIVE (DMA blocked)" : "OFF (DMA possible)");
+    std::printf("  IOMMU: %s\n", iommu ? "ACTIVE (DMA blocked)": "OFF (DMA possible)");
 #else
     std::printf("  DMA backend not built (enable -DLR_ENABLE_REAL_DMA=ON)\n");
     std::printf("  IOMMU: (unknown without DMA backend)\n");
@@ -55,7 +55,7 @@ int main() {
 #if LR_HAS_REAL_PLATFORM
     auto attach = real::cs2::attach_to_cs2();
     bool live = attach.attached;
-    std::printf("[%s]\n", live ? "CS2 FOUND — would use DMA path" : "SIMULATION");
+    std::printf("[%s]\n", live ? "CS2 FOUND, would use DMA path": "SIMULATION");
 
     real::cs2::Cs2MemoryReader reader;
     real::cs2::Cs2Offsets offsets{};
@@ -129,7 +129,7 @@ int main() {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - report_started).count();
         if (elapsed >= 1000) {
             std::printf("\r[T4] FPS: %.1f | entities: %d | %s   ",
-                        window_frames / (elapsed / 1000.0), last_ents, live ? "LIVE" : "SIM");
+                        window_frames / (elapsed / 1000.0), last_ents, live ? "LIVE": "SIM");
             fflush(stdout); window_frames = 0; report_started = Clock::now();
         }
 } while (0);

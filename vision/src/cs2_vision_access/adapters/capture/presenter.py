@@ -7,8 +7,8 @@ shown fullscreen. This module wraps that presentation surface.
 ``Win32FullscreenPresenter`` is the real backend: borderless popup window,
 per-pixel alpha via ``UpdateLayeredWindow``, topmost, non-activating, optional
 capture exclusion (streamproof). It never touches the cursor; Windows keeps
-drawing its own pointer over the window. The pure geometry checks —
-native-resolution blitting, capture/present size agreement — live in
+drawing its own pointer over the window. The pure geometry checks -
+native-resolution blitting, capture/present size agreement, live in
 ``resolve_present_size`` so they can be tested without a display.
 """
 
@@ -155,7 +155,7 @@ class Win32FullscreenPresenter:
 
         Ledger E10 fallback ladder: prefer ``WDA_EXCLUDEFROMCAPTURE`` (Win10
         2004+, window invisible to captures but visible on the desktop); when
-        the call fails — older Windows, RDP sessions, some drivers — retry
+        the call fails, older Windows, RDP sessions, some drivers, retry
         with ``WDA_MONITOR`` (window captures as black on device 2 instead of
         being excluded). The applied affinity is recorded in
         ``streamproof_mode`` so operators can see which tier engaged; a total

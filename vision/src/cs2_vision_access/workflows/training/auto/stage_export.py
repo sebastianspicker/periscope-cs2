@@ -141,7 +141,7 @@ def stage_export(
                     updates["smoke_inference"] = "ok"
                     updates["smoke_ok"] = True
                     updates["smoke_source"] = str(smoke_source)
-            except Exception as error:  # noqa: BLE001 — soft fail unless required
+            except Exception as error:  # noqa: BLE001, soft fail unless required
                 updates["smoke_inference"] = "failed"
                 updates["smoke_ok"] = False
                 append_soft_note(updates, f"smoke inference failed: {error}")

@@ -1,4 +1,4 @@
-// T3 BLUE prototype — PlatformAc on World scarred by HvRadar + residual server.
+// T3 BLUE prototype, PlatformAc on World scarred by HvRadar + residual server.
 
 #include "ac/proto_log.hpp"
 #include "ac/risk_score.hpp"
@@ -89,9 +89,9 @@ int main() {
   ac::proto_kv("info_advantage", ia.result().score);
   ac::proto_line("ban_action",
                  decision.action == server::BanAction::None            ? "none"
-                 : decision.action == server::BanAction::FlagOverwatch ? "overwatch"
-                 : decision.action == server::BanAction::SoftRestrict  ? "soft_restrict"
-                                                                       : "delayed_ban");
+: decision.action == server::BanAction::FlagOverwatch ? "overwatch"
+: decision.action == server::BanAction::SoftRestrict  ? "soft_restrict"
+: "delayed_ban");
   ac::proto_line("ban_reason", decision.reason);
 
   const bool detected = !full.ranked_allowed || full.policy_fail ||
@@ -101,6 +101,6 @@ int main() {
                         !ranked.allow_ranked || risk.state().score > 0;
   ac::proto_kv("T3_DETECTED", detected);
   std::puts(detected ? "prototype ok (t3 surface constrained/caught)"
-                     : "prototype FAIL");
-  return detected ? 0 : 1;
+: "prototype FAIL");
+  return detected ? 0: 1;
 }

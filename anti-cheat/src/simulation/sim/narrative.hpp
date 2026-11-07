@@ -1,4 +1,4 @@
-// narrative.hpp — terminal Narrator for red/blue lesson text (not the World model).
+// narrative.hpp: terminal Narrator for red/blue lesson text (not the World model).
 // Side tags + move/counter/result helpers for strategy_lab and demos.
 
 #pragma once
@@ -50,7 +50,7 @@ class Narrator {
   // Print BLUE/RED outcome banner + detail.
   void result(bool blue_wins, std::string_view detail) {
     std::printf("\n══ RESULT: %s ══\n    %.*s\n\n",
-                blue_wins ? "BLUE detects / constrains" : "RED slips past this layer",
+                blue_wins ? "BLUE detects / constrains": "RED slips past this layer",
                 static_cast<int>(detail.size()), detail.data());
   }
 };

@@ -39,10 +39,10 @@ HookKind classify_prologue(const std::uint8_t* code, std::size_t len) noexcept {
   // (not when appearing later as part of a normal function body).
   if (code[0] == 0xE9) return HookKind::InlineJmp;
   if (len >= 6 && code[0] == 0xFF && code[1] == 0x25) return HookKind::InlineJmp;
-  // FF 15 is call [rip+disp] — common in delay-load stubs; only flag if
+  // FF 15 is call [rip+disp], common in delay-load stubs; only flag if
   // it is the absolute first instruction and not preceded by a real body.
   if (len >= 6 && code[0] == 0xFF && code[1] == 0x15) return HookKind::InlineCall;
-  // E8 call rel32 alone is extremely common in normal code — do NOT flag.
+  // E8 call rel32 alone is extremely common in normal code, do NOT flag.
   if (len >= 6 && code[0] == 0x68 && code[5] == 0xC3) return HookKind::PushRet;
   if (len >= 12 && code[0] == 0x48 && code[1] == 0xB8 && code[10] == 0xFF &&
       code[11] == 0xE0)
@@ -54,8 +54,8 @@ HookKind classify_prologue(const std::uint8_t* code, std::size_t len) noexcept {
 IntegrityFinding verify_pointer(const char* module, const char* function,
                                 void* resolved) noexcept {
   IntegrityFinding f{};
-  f.module = module ? module : "";
-  f.function = function ? function : "";
+  f.module = module ? module: "";
+  f.function = function ? function: "";
   f.address = reinterpret_cast<std::uint64_t>(resolved);
   if (!resolved) {
     f.ok = false;

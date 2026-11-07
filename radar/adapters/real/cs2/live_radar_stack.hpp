@@ -1,4 +1,4 @@
-// live_radar_stack.hpp — Attach ladder, L2 pure IPC, scattered throttle,
+// live_radar_stack.hpp: Attach ladder: L2 pure IPC, scattered throttle,
 // streamproof, blue dual scoring, forensic exit (educational).
 
 #pragma once
@@ -21,7 +21,7 @@ namespace real::cs2::stack {
 using RemoteReadFn = bool (*)(std::uint64_t addr, void* buf, std::size_t size);
 
 // ── Read throttle + priority ─────────────────────────────────────
-enum class EntityPriority : int {
+enum class EntityPriority: int {
   Local = 0,
   SpottedNear = 1,
   AliveFar = 2,
@@ -71,7 +71,7 @@ struct EntityWalkOptions {
 };
 
 // ── Attach ladder ────────────────────────────────────────────────
-enum class AttachStage : int {
+enum class AttachStage: int {
   None = 0,
   HijackVerified = 1,
   DonorWorkerIpc = 2,
@@ -166,7 +166,7 @@ std::uint32_t spawn_donor_worker() noexcept;
 /// Wipe IPC objects (forensic_cleanup_exit).
 void forensic_cleanup_ipc() noexcept;
 
-/// Best-effort process disguise (console title / window) — educational.
+/// Best-effort process disguise (console title / window), educational.
 void apply_process_disguise(const char* role) noexcept;
 
 // ── Streamproof ──────────────────────────────────────────────────
@@ -240,7 +240,7 @@ BlueDualScore score_blue_dual(const BlueDualConfig& cfg) noexcept;
 // ── Intel exposure + stealth shaping (Nov-2026 posture) ──────────
 // The policy itself lives in real/cs2/posture.hpp so it stays pure and
 // host-testable: IntelMode, IntelPolicy, BehaviorShaper, DegradeLadder and the
-// apply_posture composition. Ordering is load-bearing — the event shaper raises
+// apply_posture composition. Ordering is load-bearing, the event shaper raises
 // the floor and the degrade ladder caps it afterwards, otherwise the per-frame
 // shaper would wipe out any degrade on the next frame.
 using IntelMode = real::cs2::stack::IntelMode;

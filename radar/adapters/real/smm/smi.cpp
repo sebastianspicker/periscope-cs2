@@ -1,4 +1,4 @@
-// smi.cpp — SMI trigger, CMOS bank access, SMM communicate, SMI telemetry.
+// smi.cpp: SMI trigger: CMOS bank access, SMM communicate, SMI telemetry.
 //
 // LESSON: SMM is the most privileged x86 mode. SMM code is invisible to the
 // OS and hypervisor. Operations leave detectable artifacts (SMI count MSR,
@@ -170,7 +170,7 @@ Result<std::uint64_t> read_smi_count() {
   // Prefer CPU0 MSR device.
   const char* paths[] = {"/dev/cpu/0/msr", "/dev/msr0"};
   int fd = -1;
-  for (const char* p : paths) {
+  for (const char* p: paths) {
     fd = open(p, O_RDONLY);
     if (fd >= 0) break;
   }
@@ -193,7 +193,7 @@ Result<std::uint64_t> read_smi_count() {
   // OpenLibSys WinRing0: IOCTL_OLS_READ_MSR variants differ by fork.
   const char* names[] = {"\\\\.\\WinRing0_1_2_0", "\\\\.\\WinRing0"};
   HANDLE h = INVALID_HANDLE_VALUE;
-  for (const char* n : names) {
+  for (const char* n: names) {
     h = ::CreateFileA(n, GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING,
                       0, nullptr);
     if (h != INVALID_HANDLE_VALUE) break;
@@ -214,7 +214,7 @@ Result<std::uint64_t> read_smi_count() {
     ok = ::DeviceIoControl(h, ioctl_read_msr, &in_req, sizeof(in_req), &value,
                            sizeof(value), &ret, nullptr);
   }
-  ::CloseHandle(h);
+::CloseHandle(h);
   if (!ok) {
     auto err = os_error("DeviceIoControl READ_MSR");
     return Result<std::uint64_t>(0, err.error_msg);
@@ -236,8 +236,8 @@ Result<std::uint64_t> measure_smi_latency_us(std::uint8_t smi_command) {
   std::printf("[smm] SMI latency: %lld us class=%d\n",
               static_cast<long long>(us),
               static_cast<int>(classify_smi_latency_us(
-                  static_cast<std::uint64_t>(us < 0 ? 0 : us))));
-  return static_cast<std::uint64_t>(us < 0 ? 0 : us);
+                  static_cast<std::uint64_t>(us < 0 ? 0: us))));
+  return static_cast<std::uint64_t>(us < 0 ? 0: us);
 }
 
 }  // namespace real::smm

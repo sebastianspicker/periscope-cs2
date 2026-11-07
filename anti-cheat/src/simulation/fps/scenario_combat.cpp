@@ -32,7 +32,7 @@ ActionResult Scenario::damage(std::uint32_t victim_id, std::uint32_t attacker_id
     return {false, "friendly_fire_off"};
   }
   const float dmg =
-      raw_damage > 0.f ? raw_damage : weapon_damage_(a->weapon);
+      raw_damage > 0.f ? raw_damage: weapon_damage_(a->weapon);
   v->health -= dmg;
   if (v->health <= 0.f) {
     return kill(victim_id, attacker_id);
@@ -163,7 +163,7 @@ void Scenario::resolve_elimination_() {
   const int atk = alive_count(Team::Attacker);
   const int def = alive_count(Team::Defender);
   // Planted-fuse exception: all attackers dead with bomb planted does NOT
-  // grant defender eliminate — fuse still decides explode vs defuse.
+  // grant defender eliminate, fuse still decides explode vs defuse.
   if (atk == 0 && bomb_.planted && !bomb_.defused && !bomb_.exploded &&
       phase_ == RoundPhase::BombPlanted) {
     return;
@@ -176,7 +176,7 @@ void Scenario::resolve_elimination_() {
     finish_(RoundOutcome::DefendersWinEliminate);
     return;
   }
-  // Both teams wiped without a planted bomb: no legitimate CS win path —
+  // Both teams wiped without a planted bomb: no legitimate CS win path -
   // treat as defender time/stalemate only if still Live with no plant.
   if (atk == 0 && def == 0 && !bomb_.planted) {
     finish_(RoundOutcome::DefendersWinEliminate);

@@ -120,14 +120,14 @@ bool map_known_dll_ntdll(void** out_view, SIZE_T* out_size) {
                                 OPEN_EXISTING, 0, nullptr);
     if (file == INVALID_HANDLE_VALUE) return false;
     section = ::CreateFileMappingW(file, nullptr, PAGE_READONLY | SEC_IMAGE, 0, 0, nullptr);
-    ::CloseHandle(file);
+::CloseHandle(file);
     if (!section) return false;
 
     void* view = ::MapViewOfFile(section, FILE_MAP_READ, 0, 0, 0);
-    ::CloseHandle(section);
+::CloseHandle(section);
     if (!view) return false;
     *out_view = view;
-    *out_size = 0;  // SEC_IMAGE — size from PE
+    *out_size = 0;  // SEC_IMAGE, size from PE
     return true;
   }
 
@@ -148,7 +148,7 @@ bool map_known_dll_ntdll(void** out_view, SIZE_T* out_size) {
 void unmap_view(void* view, bool used_mapview) {
   if (!view) return;
   if (used_mapview) {
-    ::UnmapViewOfFile(view);
+::UnmapViewOfFile(view);
     return;
   }
   auto& api = g_Api();
@@ -177,7 +177,7 @@ std::size_t count_ntdll_hooks() noexcept {
   std::size_t hooks = 0;
   uintptr_t ntdll = peb::find_module("ntdll");
   if (!ntdll) return 0;
-  for (const char* name : kCritical) {
+  for (const char* name: kCritical) {
     // resolve via EAT
     auto* dos = reinterpret_cast<const IMAGE_DOS_HEADER*>(ntdll);
     auto* nt = reinterpret_cast<const IMAGE_NT_HEADERS64*>(ntdll + dos->e_lfanew);
@@ -242,7 +242,7 @@ NtdllRestoreReport restore_ntdll_text() noexcept {
   if (clean_sec->Misc.VirtualSize < size) size = clean_sec->Misc.VirtualSize;
   if (size == 0) {
     unmap_view(clean_view, used_mapview);
-    rep.detail = "empty .text";
+    rep.detail = "empty.text";
     return rep;
   }
 
@@ -262,7 +262,7 @@ NtdllRestoreReport restore_ntdll_text() noexcept {
   }
   if (st < 0) {
     DWORD op = 0;
-    if (!::VirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &op)) {
+    if (! ::VirtualProtect(dst, size, PAGE_EXECUTE_READWRITE, &op)) {
       unmap_view(clean_view, used_mapview);
       rep.detail = "VirtualProtect failed";
       return rep;
@@ -270,7 +270,7 @@ NtdllRestoreReport restore_ntdll_text() noexcept {
     old_prot = op;
   }
 
-  // Only copy bytes that differ — minimize page dirty footprint
+  // Only copy bytes that differ, minimize page dirty footprint
   std::size_t patched = 0;
   for (std::size_t i = 0; i < size; ++i) {
     if (dst[i] != src[i]) {
@@ -288,11 +288,11 @@ NtdllRestoreReport restore_ntdll_text() noexcept {
     api.NtProtectVirtualMemory(self, &base, &region, old_prot, &tmp);
   } else {
     DWORD tmp = 0;
-    ::VirtualProtect(dst, size, old_prot, &tmp);
+::VirtualProtect(dst, size, old_prot, &tmp);
   }
 
   // Flush instruction cache so CPU sees restored bytes
-  ::FlushInstructionCache(::GetCurrentProcess(), dst, size);
+::FlushInstructionCache(::GetCurrentProcess(), dst, size);
 
   unmap_view(clean_view, used_mapview);
 
@@ -300,7 +300,7 @@ NtdllRestoreReport restore_ntdll_text() noexcept {
   rep.bytes_patched = patched;
   rep.hooks_cleared = hooks_before > count_ntdll_hooks()
                           ? hooks_before - count_ntdll_hooks()
-                          : (patched > 0 ? hooks_before : 0);
+: (patched > 0 ? hooks_before: 0);
   rep.detail = "ok";
   return rep;
 }

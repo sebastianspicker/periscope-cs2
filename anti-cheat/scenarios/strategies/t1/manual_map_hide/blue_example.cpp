@@ -25,7 +25,7 @@ BlueResult detect(sim::World& w) {
   for (const auto& m : g->modules) {
     if (!m.linked_in_peb) {
       ++unlinked;
-      // Would a PEB walk still see it? No — only linked entries.
+      // Would a PEB walk still see it? No, only linked entries.
     } else if (m.name == "lab-map.dll" || m.text_hash == "foreign") {
       peb_sees_hidden = true;
     }
@@ -65,8 +65,8 @@ BlueResult detect(sim::World& w) {
   // Multi-reason: one residual alone is insufficient (not single-OR deep_hit).
   r.detected = deep_hit && r.signals >= 2;
   r.mitigated = peb_blind && r.detected;
-  r.detail = "deep_hit=" + std::to_string(deep_hit ? 1 : 0) +
-             " peb_blind=" + std::to_string(peb_blind ? 1 : 0) +
+  r.detail = "deep_hit=" + std::to_string(deep_hit ? 1: 0) +
+             " peb_blind=" + std::to_string(peb_blind ? 1: 0) +
              " unlinked=" + std::to_string(unlinked) +
              " risk=" + std::to_string(r.risk);
 

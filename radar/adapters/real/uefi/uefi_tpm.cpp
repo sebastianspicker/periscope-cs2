@@ -1,4 +1,4 @@
-// uefi_tpm.cpp — Intel TXT and TPM event log access implementation.
+// uefi_tpm.cpp: Intel TXT and TPM event log access implementation.
 
 #include "real/uefi/uefi_tpm.hpp"
 #include "real/uefi/uefi_fw.hpp"
@@ -42,8 +42,8 @@ void cpuid_leaf1(int out[4]) {
     __cpuidex(out, 1, 0);
 #elif defined(__GNUC__) || defined(__clang__)
     __asm__ volatile("cpuid"
-                     : "=a"(out[0]), "=b"(out[1]), "=c"(out[2]), "=d"(out[3])
-                     : "a"(1), "c"(0));
+: "=a"(out[0]), "=b"(out[1]), "=c"(out[2]), "=d"(out[3])
+: "a"(1), "c"(0));
 #endif
 }
 
@@ -97,7 +97,7 @@ Result<std::vector<TpmEventLogEntry>> parse_tpm_event_log(const uint8_t* data,
 
     // Detect Crypto Agile (TCG_PCR_EVENT2) vs legacy SHA-1 log.
     // Spec ID event: first record is often TCG_PCR_EVENT with EventType EV_NO_ACTION
-    // and "Spec ID Event03" in event data — after that, EVENT2 format follows.
+    // and "Spec ID Event03" in event data, after that, EVENT2 format follows.
     bool crypto_agile = false;
 
     // Heuristic: if bytes at offset 8 look like a SHA-1 digest region of 20
@@ -197,7 +197,7 @@ Result<std::vector<TpmEventLogEntry>> parse_tpm_event_log(const uint8_t* data,
 
     while (pos < size) {
         size_t before = pos;
-        bool ok = crypto_agile ? parse_event2(pos) : parse_legacy(pos);
+        bool ok = crypto_agile ? parse_event2(pos): parse_legacy(pos);
         if (!ok) {
             // Try alternate format once
             if (!crypto_agile) {
@@ -231,7 +231,7 @@ Result<IntelTxtData> parse_txt_heap(const uint8_t* data, size_t size) {
     uint64_t walked = 0;
     // Prefer entry_count if sane; else walk by entry.size
     const uint64_t max_entries = (heap.entry_count > 0 && heap.entry_count < 1024)
-                                     ? heap.entry_count : 1024;
+                                     ? heap.entry_count: 1024;
     while (pos + sizeof(IntelTxtHeapEntry) <= end && walked < max_entries) {
         IntelTxtHeapEntry ent{};
         std::memcpy(&ent, data + pos, sizeof(ent));
@@ -266,7 +266,7 @@ Result<std::vector<TpmEventLogEntry>> read_tpm_event_log() {
             "/sys/kernel/security/tpm0/binary_bios_measurements",
             "/sys/kernel/security/tpm0/binary_bios_measurements",
         };
-        for (const char* path : paths) {
+        for (const char* path: paths) {
             auto bytes = read_file_bytes(path);
             if (bytes.size() >= 32) {
                 auto parsed = parse_tpm_event_log(bytes.data(), bytes.size());
@@ -277,7 +277,7 @@ Result<std::vector<TpmEventLogEntry>> read_tpm_event_log() {
                 }
             }
         }
-        // ASCII ascii_bios_measurements as last resort — not binary, skip
+        // ASCII ascii_bios_measurements as last resort, not binary, skip
     }
 #endif
 
@@ -286,7 +286,7 @@ Result<std::vector<TpmEventLogEntry>> read_tpm_event_log() {
         auto tpm2 = read_acpi_table_bytes("TPM2");
         if (tpm2 && tpm2->size() >= 52) {
             // ACPI TPM2: header(36) + platform_class(2) + reserved(2) +
-            // address_of_control_area(8) + start_method(4) + ...
+            // address_of_control_area(8) + start_method(4) +...
             // Event log may be in separate TCPA table.
         }
         auto tcpa = read_acpi_table_bytes("TCPA");

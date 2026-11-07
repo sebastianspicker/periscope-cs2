@@ -1,4 +1,4 @@
-// syscall_helper.hpp — Direct syscall invocation for x64 Windows.
+// syscall_helper.hpp: Direct syscall invocation for x64 Windows.
 // Dynamically resolves SSNs from ntdll at runtime to build syscall stubs.
 // Only available on x64 Windows.
 

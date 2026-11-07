@@ -2,7 +2,7 @@
 
 // Info-advantage behavioral residual scorer for the educational lab.
 // Detects pre-aim / track without vision or sound across demo frames.
-// Simulated educational residual — not a production overwatch model.
+// Simulated educational residual, not a production overwatch model.
 
 #include "ac/types.hpp"
 

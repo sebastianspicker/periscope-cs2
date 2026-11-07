@@ -1,4 +1,4 @@
-// module_enum.cpp — /proc/modules enumeration.
+// module_enum.cpp: /proc/modules enumeration.
 
 #include "real/linux/module_enum.hpp"
 #include "real/platform.hpp"

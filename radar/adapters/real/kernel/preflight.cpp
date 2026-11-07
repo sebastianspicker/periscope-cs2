@@ -1,4 +1,4 @@
-// preflight.cpp — best-effort Windows probes for the pre-attach report (E61).
+// preflight.cpp: best-effort Windows probes for the pre-attach report (E61).
 
 #include "real/kernel/preflight.hpp"
 #include "real/platform.hpp"

@@ -1,4 +1,4 @@
-// evasion_weak.cpp — weak T0 evasion kit that does NOT defeat handle-graph sensors.
+// evasion_weak.cpp: weak T0 evasion kit that does NOT defeat handle-graph sensors.
 // apply_common_stack leaves VmRead handles visible for blue lessons.
 
 #include "t0_red/evasion_weak.hpp"

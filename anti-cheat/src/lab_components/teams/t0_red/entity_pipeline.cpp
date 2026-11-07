@@ -1,4 +1,4 @@
-// entity_pipeline.cpp — parse lab entity table via IMemoryBackend into EntitySnapshots.
+// entity_pipeline.cpp: parse lab entity table via IMemoryBackend into EntitySnapshots.
 // refresh() reads count + per-entity raw; living() filters alive (T0 radar path).
 
 #include "t0_red/entity_pipeline.hpp"
@@ -11,7 +11,7 @@
 
 namespace t0_red {
 
-EntityPipeline::EntityPipeline(ac::IMemoryBackend& backend) : backend_(backend) {}
+EntityPipeline::EntityPipeline(ac::IMemoryBackend& backend): backend_(backend) {}
 
 // EntityPipeline::refresh: Re-read entity table from backend at image_base; fill snapshots + stats.
 ac::Status EntityPipeline::refresh(std::uint64_t image_base) {
@@ -57,7 +57,7 @@ ac::Status EntityPipeline::refresh(std::uint64_t image_base) {
     }
   }
 
-  for (const auto i : read_order) {
+  for (const auto i: read_order) {
     // educational: entity table base at +0x10, each entry stride == sizeof(EntRaw) == 16
     const auto addr =
         image_base + 0x10 + static_cast<std::uint64_t>(i) * sizeof(EntRaw);
@@ -85,9 +85,9 @@ ac::Status EntityPipeline::refresh(std::uint64_t image_base) {
   oss << "entities=" << entities_.size() << " alive=" << stats_.last_alive
       << " strategy=" << (read_strategy_ == ReadStrategy::Sequential
                                   ? "sequential"
-                                  : read_strategy_ == ReadStrategy::Scattered
+: read_strategy_ == ReadStrategy::Scattered
                                         ? "scattered"
-                                        : "random_offset");
+: "random_offset");
   stats_.detail = oss.str();
   return ac::Status::Ok;
 }

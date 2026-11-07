@@ -1,4 +1,4 @@
-// bpf_probe.hpp — eBPF / bpffs availability probes (BLUE visibility).
+// bpf_probe.hpp: eBPF / bpffs availability probes (BLUE visibility).
 //
 // Anti-cheat and EDR increasingly use eBPF. Lab code probes whether
 // bpffs is mounted and whether CAP_BPF-style operations are plausible.

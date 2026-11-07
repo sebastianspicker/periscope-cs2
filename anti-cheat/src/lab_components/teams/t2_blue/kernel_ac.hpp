@@ -33,7 +33,7 @@ struct KernelDetection {
   std::string summary;
 };
 
-// Multi-sensor educational blue agent `KernelAc` — reasons/risk on World scars.
+// Multi-sensor educational blue agent `KernelAc`, reasons/risk on World scars.
 class KernelAc {
  public:
   explicit KernelAc(sim::World& world, ac::ITelemetrySink& sink);

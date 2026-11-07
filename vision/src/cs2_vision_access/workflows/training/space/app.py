@@ -53,7 +53,7 @@ _TRUSTED_NVIDIA_SMI_ENV = _gpu_security.TRUSTED_NVIDIA_SMI_ENV
 _PLATFORM_NVIDIA_SMI_PATHS = _gpu_security.PLATFORM_NVIDIA_SMI_PATHS
 
 # ---------------------------------------------------------------------------
-# Shared cloud helpers (package / sibling / vendored cloud only — no
+# Shared cloud helpers (package / sibling / vendored cloud only, no
 # second full YOLO train pipeline is maintained in this file)
 # ---------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ _ManifestFn = Callable[..., Path]
 _CLOUD_REQUIRED_MSG = (
     "Training helpers unavailable: could not import "
     "cs2_vision_access.workflows.training.cloud or load cloud package/module. "
-    "Vendor training/cloud/ next to app.py (or as ../cloud), or install "
+    "Vendor training/cloud/ next to app.py (or as../cloud), or install "
     "the cs2_vision_access package."
 )
 
@@ -293,7 +293,7 @@ def _train_job(
     """Run fine-tuning and return status + downloadable artifact paths."""
     zip_path = _resolve_upload_path(dataset_zip)
     if not zip_path:
-        return _empty_outputs("Error: No dataset uploaded. Please upload a .zip file.")
+        return _empty_outputs("Error: No dataset uploaded. Please upload a.zip file.")
     if not Path(zip_path).is_file():
         return _empty_outputs(f"Error: Uploaded file not found: {zip_path}")
 
@@ -323,7 +323,7 @@ def _train_job(
 
         label_files = list(labels_dir.glob("*.txt"))
         if not label_files:
-            return _empty_outputs("Error: no .txt label files found under labels/.")
+            return _empty_outputs("Error: no.txt label files found under labels/.")
 
         try:
             _canonicalize_space_dataset(data_dir)
@@ -413,7 +413,7 @@ def _train(
     """Validate a request and run one isolated training job if capacity permits."""
     zip_path = _resolve_upload_path(dataset_zip)
     if not zip_path:
-        return _empty_outputs("Error: No dataset uploaded. Please upload a .zip file.")
+        return _empty_outputs("Error: No dataset uploaded. Please upload a.zip file.")
     upload_path = Path(zip_path)
     if not upload_path.is_file():
         return _empty_outputs("Error: uploaded file is unavailable.")
@@ -467,15 +467,15 @@ def _build_ui() -> gr.Blocks:
     gpu_name = _gpu_info()
     has_gpu = _has_cuda()
     gpu_badge = (
-        f"**GPU:** `{gpu_name}` — ready for training"
+        f"**GPU:** `{gpu_name}`, ready for training"
         if has_gpu
-        else f"**GPU:** `{gpu_name}` — CPU only (slow; use a T4 Space for real training)"
+        else f"**GPU:** `{gpu_name}`, CPU only (slow; use a T4 Space for real training)"
     )
     helpers_ok = _cloud_train is not None
     helpers = (
         "shared `cloud` helpers"
         if helpers_ok
-        else "unavailable — vendor `cloud/` next to app.py or install package"
+        else "unavailable, vendor `cloud/` next to app.py or install package"
     )
     helpers_hint = (
         ""
@@ -559,7 +559,7 @@ def _build_ui() -> gr.Blocks:
             "its `dataset.yaml`, if present, is replaced with the Space's fixed "
             "local manifest).\n"
             "3. **Configure** epochs, batch size, image size, etc.\n"
-            "4. **Train** — progress updates in Status.\n"
+            "4. **Train**, progress updates in Status.\n"
             "5. **Download** FP32 ONNX (CPU), FP16 ONNX (GPU), and the manifest.\n\n"
             "**Hardware:** Prefer a **T4 GPU** Space (~$0.40/hr) or better. "
             "About 150 epochs on ~500 frames is roughly 30–60 minutes on a T4. "

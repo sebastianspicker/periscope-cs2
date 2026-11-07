@@ -1,4 +1,4 @@
-// T2 BLUE prototype — catch no-handle red via driver/BYOVD/device signals.
+// T2 BLUE prototype, catch no-handle red via driver/BYOVD/device signals.
 
 #include "ac/proto_log.hpp"
 #include "ac/risk_score.hpp"
@@ -27,10 +27,10 @@ int main() {
 
   t2_blue::DriverGuard drivers(sink);
   drivers.on_image_load({
-      .path = "C:\\Windows\\Temp\\LabVulnDrv.sys",
-      .sha256_hex = "lab_byovd_hash_001",
-      .signer = "Contoso-Test",
-      .boot_start = false,
+.path = "C:\\Windows\\Temp\\LabVulnDrv.sys",
+.sha256_hex = "lab_byovd_hash_001",
+.signer = "Contoso-Test",
+.boot_start = false,
   });
 
   t2_blue::ByovdBlocklist blocklist(sink);
@@ -57,6 +57,6 @@ int main() {
   const bool detected = byovd_hit || risk.state().score >= 3.0;
   ac::proto_kv("T2_DETECTED", detected);
   std::puts(detected ? "prototype ok (t2 surface caught without handles)"
-                     : "prototype FAIL");
-  return detected ? 0 : 1;
+: "prototype FAIL");
+  return detected ? 0: 1;
 }

@@ -1,4 +1,4 @@
-// netlink_audit.cpp — audit subsystem probes.
+// netlink_audit.cpp: audit subsystem probes.
 
 #include "real/linux/netlink_audit.hpp"
 #include "real/platform.hpp"

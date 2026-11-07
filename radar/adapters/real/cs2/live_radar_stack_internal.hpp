@@ -1,4 +1,4 @@
-// live_radar_stack_internal.hpp — shared helpers for live_radar_stack*.cpp TUs.
+// live_radar_stack_internal.hpp: shared helpers for live_radar_stack*.cpp TUs.
 #pragma once
 
 #include "real/cs2/live_radar_stack.hpp"

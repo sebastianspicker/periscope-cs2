@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * T2 driver ABI — documentation of the detection surface only.
+ * T2 driver ABI, documentation of the detection surface only.
  * Not a loadable driver. No implementation of kernel R/W.
  */
 
@@ -23,7 +23,7 @@ extern "C" {
 #define T2_IOCTL_ENC(v)  ((v) ^ T2_IOCTL_XOR_KEY)
 #define T2_IOCTL_DEC(v)  ((v) ^ T2_IOCTL_XOR_KEY)
 
-/* Lab IOCTL codes (fictional) — stored encrypted at rest. */
+/* Lab IOCTL codes (fictional), stored encrypted at rest. */
 #define T2_IOCTL_PING_ENC       T2_IOCTL_ENC(CTL_CODE_LAB(0x01))
 #define T2_IOCTL_READ_VA_ENC    T2_IOCTL_ENC(CTL_CODE_LAB(0x02))
 #define T2_IOCTL_FIND_PROC_ENC  T2_IOCTL_ENC(CTL_CODE_LAB(0x03))
@@ -38,7 +38,7 @@ typedef struct T2_READ_VA_REQ {
 typedef struct T2_READ_VA_RSP {
   uint32_t status;
   uint32_t size_returned;
-  /* bytes follow in real protocols — omitted on purpose */
+  /* bytes follow in real protocols, omitted on purpose */
 } T2_READ_VA_RSP;
 
 #ifdef __cplusplus

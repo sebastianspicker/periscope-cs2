@@ -1,4 +1,4 @@
-// json_shape.hpp — bounded shape scanner for the runtime offsets snapshot
+// json_shape.hpp: bounded shape scanner for the runtime offsets snapshot
 // (E66 / S3).
 //
 // The loader used to accept `"key": value` anywhere in the text, so a key
@@ -55,7 +55,7 @@ inline std::vector<KeyLocation> key_locations(const std::string& text,
         if (next < text.size() && text[next] == ':' && current_key == needle) {
           found.push_back(
               {i - needle.size(), depth,
-               stack.empty() ? std::string{} : stack.back()});
+               stack.empty() ? std::string{}: stack.back()});
         }
       }
       continue;
@@ -85,7 +85,7 @@ inline std::vector<KeyLocation> key_locations(const std::string& text,
 }
 
 inline bool is_object(const std::string& text) {
-  for (const char c : text) {
+  for (const char c: text) {
     if (!std::isspace(static_cast<unsigned char>(c))) return c == '{';
   }
   return false;

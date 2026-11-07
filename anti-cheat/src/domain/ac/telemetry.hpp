@@ -1,4 +1,4 @@
-// telemetry.hpp — ITelemetrySink + MemoryTelemetrySink for lab event capture.
+// telemetry.hpp: ITelemetrySink + MemoryTelemetrySink for lab event capture.
 // Tests assert emitted kinds/risk.
 
 #pragma once
@@ -12,7 +12,7 @@
 namespace ac {
 
 // EventKind: lab telemetry categories consumed by RiskAggregator / blue agents.
-enum class EventKind : std::uint8_t {
+enum class EventKind: std::uint8_t {
   HandleToGame,
   ProcessCoRun,
   DriverLoad,
@@ -46,7 +46,7 @@ class ITelemetrySink {
 };
 
 /// In-memory sink for tests and local agents.
-class MemoryTelemetrySink final : public ITelemetrySink {
+class MemoryTelemetrySink final: public ITelemetrySink {
  public:
   void emit(const TelemetryEvent& ev) override;
   const std::vector<TelemetryEvent>& events() const { return events_; }

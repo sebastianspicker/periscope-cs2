@@ -1,4 +1,4 @@
-// Split from periscope_overlay.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_overlay.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/gpu/periscope_overlay.hpp"
 #include "real/win/peb_util.hpp"
 #include "real/win/timing.hpp"
@@ -26,7 +26,7 @@ namespace real::gpu::periscope {
 
 #if LR_PLATFORM_WINDOWS
 // ====================================================================
-// D3D11 XOR surface scramble — PIMPL state (D3D11 types stay in .cpp)
+// D3D11 XOR surface scramble, PIMPL state (D3D11 types stay in.cpp)
 // ====================================================================
 
 namespace {
@@ -83,7 +83,7 @@ void scramble_fill_noise(uint8_t* out, uint64_t key) noexcept {
             p[0] = static_cast<uint8_t>(v);
             p[1] = static_cast<uint8_t>(v >> 8);
             p[2] = static_cast<uint8_t>(v >> 16);
-            p[3] = 0xFF;  // Opaque — the scramble must cover the surface
+            p[3] = 0xFF;  // Opaque, the scramble must cover the surface
         }
     }
 }
@@ -117,8 +117,8 @@ bool scramble_create_pipeline(ScrambleState* state) noexcept {
     if (!state || !state->device) return false;
 
     static constexpr const char* scramble_vs_src = R"(
-      struct VSIn { float2 pos : POSITION; float2 uv : TEXCOORD; };
-      struct VSOut { float4 pos : SV_Position; float2 uv : TEXCOORD; };
+      struct VSIn { float2 pos: POSITION; float2 uv: TEXCOORD; };
+      struct VSOut { float4 pos: SV_Position; float2 uv: TEXCOORD; };
       VSOut main(VSIn input) {
         VSOut output;
         output.pos = float4(input.pos, 0.0f, 1.0f);
@@ -127,10 +127,10 @@ bool scramble_create_pipeline(ScrambleState* state) noexcept {
       }
     )";
     static constexpr const char* scramble_ps_src = R"(
-      Texture2D scramble_tex : register(t0);
-      SamplerState scramble_sampler : register(s0);
-      struct PSIn { float4 pos : SV_Position; float2 uv : TEXCOORD; };
-      float4 main(PSIn input) : SV_Target {
+      Texture2D scramble_tex: register(t0);
+      SamplerState scramble_sampler: register(s0);
+      struct PSIn { float4 pos: SV_Position; float2 uv: TEXCOORD; };
+      float4 main(PSIn input): SV_Target {
         return scramble_tex.Sample(scramble_sampler, input.uv);
       }
     )";
@@ -401,4 +401,3 @@ void StealthOverlay::scramble_release() noexcept {
 }
 
 } // namespace real::gpu::periscope
-

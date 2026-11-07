@@ -145,7 +145,7 @@ def evaluate_comfort(
 ) -> ComfortEvaluationResult:
     """Compute clutter fraction and local outer-stroke contrast pass rate.
 
-    Proxies only — not a substitute for low-vision user ratings. No acceptance
+    Proxies only, not a substitute for low-vision user ratings. No acceptance
     threshold is asserted beyond the reported ``contrast_threshold`` used for
     the ``local_stroke_contrast_ge_3_fraction`` numerator (default 3.0, WCAG
     non-text engineering target documented in RESEARCH).
@@ -207,7 +207,7 @@ def load_comfort_predictions_json(
     if candidate.is_symlink() or not candidate.is_file():
         raise EvaluationError("predictions path must be a regular local file")
     if candidate.suffix.lower() != ".json":
-        raise EvaluationError("predictions path must end with .json")
+        raise EvaluationError("predictions path must end with.json")
     try:
         payload = json.loads(candidate.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:

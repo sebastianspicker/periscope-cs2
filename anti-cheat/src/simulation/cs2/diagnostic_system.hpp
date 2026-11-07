@@ -1,4 +1,4 @@
-// diagnostic_system.hpp — Realistic model of CS2's CDllVerificationMonitor.
+// diagnostic_system.hpp: Realistic model of CS2's CDllVerificationMonitor.
 //
 // Based on public reverse-engineering of CS2's built-in anti-tamper:
 //   - Message 159 (DllStatusResponse): 40+ diagnostic fields

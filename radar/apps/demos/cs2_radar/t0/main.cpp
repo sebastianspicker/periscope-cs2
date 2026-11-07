@@ -1,4 +1,4 @@
-// cs2_radar/t0/main.cpp — T0 Demo Live Radar Overlay (Periscope startup flow).
+// cs2_radar/t0/main.cpp: T0 Demo Live Radar Overlay (Periscope startup flow).
 //
 // Startup flow:
 //   1. Resolve API table (PEB+EAT)
@@ -11,7 +11,7 @@
 //
 // Educational: every step documents the OS artifact it creates.
 // Build: cmake -S . -B build -DLR_ENABLE_REAL_RPM=ON -DLR_ENABLE_REAL_SYSCALL=ON
-// Run:   ./build/cs2_radar_t0 (requires cs2.exe running)
+// Run: ./build/cs2_radar_t0 (requires cs2.exe running)
 
 #include "cs2_radar.hpp"
 #include "cs2/simulator.hpp"
@@ -54,7 +54,7 @@ static int run_sim_adaptive(bool full_intel = false) {
     return 1;
   }
   radar.render_radar_console(full_intel ? ::cs2::IntelMode::Full
-                                        : ::cs2::IntelMode::HudEcho);
+: ::cs2::IntelMode::HudEcho);
   const auto report = radar.adaptive_red_loop();
   std::printf("T0 adaptive verdict: survived=%d detected=%d\n",
               report.survived, report.detected_count);
@@ -63,7 +63,7 @@ static int run_sim_adaptive(bool full_intel = false) {
   for (const auto& reason : blue.reasons) std::printf("  - %s\n", reason.c_str());
   auto st = radar.status();
   std::printf("status: attached=%d entities=%d enemies=%d\n",
-              st.attached ? 1 : 0, st.entity_count, st.enemies);
+              st.attached ? 1: 0, st.entity_count, st.enemies);
   return 0;
 }
 
@@ -87,7 +87,7 @@ int main(int argc, char** argv) {
   std::printf("[2/7] Finding CS2 process...\n");
   auto cs2 = real::cs2::find_cs2();
   if (!cs2.has_value()) {
-    std::printf("  CS2 not found — falling back to SIMULATION path\n");
+    std::printf("  CS2 not found, falling back to SIMULATION path\n");
     return run_sim_adaptive(full_intel);
   }
   std::printf("  OK: cs2.exe PID=%u\n", cs2->pid);
@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
   bool read_fn_ready = real::cs2::hijack::g_Hijack().is_ready();
 
   // Define read function pointer
-  auto read_fn = read_fn_ready ? hijack_read_fn : nullptr;
+  auto read_fn = read_fn_ready ? hijack_read_fn: nullptr;
 
   real::cs2::periscope::PeriscopeOffsets offsets;
   if (client_base && read_fn_ready) {
@@ -150,7 +150,7 @@ int main(int argc, char** argv) {
     std::printf("  Patterns scanned: %zu\n", results.size());
     for (const auto& r : results) {
       std::printf("    %s: %s (0x%llx)\n",
-                  r.name.c_str(), r.found ? "FOUND" : "MISS",
+                  r.name.c_str(), r.found ? "FOUND": "MISS",
                   (unsigned long long)r.address);
     }
   } else {
@@ -277,7 +277,7 @@ int main(int argc, char** argv) {
     }
 
     // ── Jittered sleep (16ms base, but TemporalEngine determines actual jitter) ──
-    auto delayed_us = pipeline.run_frame() ? 0 : 16000; // pipeline handles timing
+    auto delayed_us = pipeline.run_frame() ? 0: 16000; // pipeline handles timing
     int sleep_ms = 16;
     if (delayed_us > 0 && delayed_us < 16000) {
       sleep_ms = delayed_us / 1000;

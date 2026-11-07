@@ -1,4 +1,4 @@
-// offset_overrides.hpp — R9: runtime offsets fallback (pure parser/merger).
+// offset_overrides.hpp: R9: runtime offsets fallback (pure parser/merger).
 //
 // Adapted from the research ledger (R9): staromodny/miata reads a plain
 // `offsets.txt` at runtime (`offsets.client.dwEntityList=30500696` lines) so
@@ -18,7 +18,7 @@
 
 namespace radar_domain {
 
-enum class OffsetSource : std::uint8_t {
+enum class OffsetSource: std::uint8_t {
   Builtin = 0,
   File = 1,
   Cli = 2,

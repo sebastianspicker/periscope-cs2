@@ -1,4 +1,4 @@
-// page_walk.hpp — Software x86-64 4-level page-table walk via physical reads.
+// page_walk.hpp: Software x86-64 4-level page-table walk via physical reads.
 //
 // Requires a physical-memory backend ( /dev/mem or /dev/aclab ). Used when
 // pagemap is unavailable (foreign process without CAP_SYS_ADMIN, kernel VA).

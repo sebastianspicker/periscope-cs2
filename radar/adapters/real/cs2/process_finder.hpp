@@ -1,7 +1,7 @@
-// process_finder.hpp — Enhanced CS2 process & module discovery.
+// process_finder.hpp: Enhanced CS2 process & module discovery.
 //
 // Uses API table (PEB+EAT resolved) for all operations. Opens CS2
-// with PROCESS_QUERY_LIMITED_INFORMATION only — NOT VM_READ.
+// with PROCESS_QUERY_LIMITED_INFORMATION only, NOT VM_READ.
 // VM_READ comes from the hijack reader (T0.4), not from here.
 //
 // Always prefer EnumProcessModulesEx with LIST_MODULES_ALL,
@@ -23,7 +23,7 @@
 namespace real::cs2 {
 
 /// Minimal process info for CS2.
-/// No VM_READ handle — only QUERY_LIMITED_INFORMATION.
+/// No VM_READ handle, only QUERY_LIMITED_INFORMATION.
 struct Cs2ProcessInfo {
     uint32_t pid{};
     uint64_t hProc{};     // PROCESS_QUERY_LIMITED_INFORMATION only

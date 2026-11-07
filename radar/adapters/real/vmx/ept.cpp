@@ -44,7 +44,7 @@ struct EptRegistry {
   std::mutex mu;
   std::unordered_map<uint64_t, uint64_t> phys_to_virt;
   std::unordered_map<uint64_t, uint64_t> virt_to_phys;
-  // High research PA space — distinct from low real PAs when mixed.
+  // High research PA space, distinct from low real PAs when mixed.
   uint64_t next_synth_pa = 0x0000001000000000ULL;
 };
 
@@ -131,7 +131,7 @@ void free_subtree_from_pml4(uint64_t* pml4) {
       if (pd == nullptr) continue;
       for (size_t k = 0; k < 512; ++k) {
         if ((pd[k] & 1) == 0) continue;
-        if ((pd[k] & kEptLarge) != 0) continue;  // 2 MiB leaf — no PT
+        if ((pd[k] & kEptLarge) != 0) continue;  // 2 MiB leaf, no PT
         const uint64_t pt_phys = pd[k] & kPageMask;
         uint64_t pt_virt = virt_of_phys(pt_phys);
         if (pt_virt != 0) free_ept_page(EptPage{pt_virt, pt_phys});
@@ -170,7 +170,7 @@ uint64_t ept_entry_get_phys_addr(uint64_t entry) {
 }
 
 void ept_entry_set_access(uint64_t& entry, bool read, bool write, bool execute) {
-  entry = (entry & ~0x7ULL) | (read ? 1ULL : 0) | (write ? 2ULL : 0) | (execute ? 4ULL : 0);
+  entry = (entry & ~0x7ULL) | (read ? 1ULL: 0) | (write ? 2ULL: 0) | (execute ? 4ULL: 0);
 }
 
 void ept_entry_get_access(uint64_t entry, bool& read, bool& write, bool& execute) {
@@ -201,7 +201,7 @@ Result<EptPointer> build_ept_hierarchy_ex(uint64_t guest_phys_base, size_t size,
   }
   const uint64_t mapping_size =
       (static_cast<uint64_t>(size) + kPageSize - 1) & ~(kPageSize - 1);
-  const uint8_t mem_type = opts.write_back ? 6 : 0;
+  const uint8_t mem_type = opts.write_back ? 6: 0;
 
   EptPage pml4_page = allocate_ept_page();
   if (pml4_page.virt == 0) return Result<EptPointer>({}, "EPT PML4 allocation failed");
@@ -300,7 +300,7 @@ Result<uint64_t> ept_translate_gpa(const EptPointer& eptp, uint64_t gpa) {
   }
   uint64_t* pml4 = eptp.pml4_virtual
                        ? reinterpret_cast<uint64_t*>(const_cast<void*>(eptp.pml4_virtual))
-                       : table_at_phys(eptp.pml4());
+: table_at_phys(eptp.pml4());
   if (pml4 == nullptr) return Result<uint64_t>(0, "EPT: PML4 not mapped in registry");
 
   const size_t pml4_index = (gpa >> 39) & 0x1ff;
@@ -332,7 +332,7 @@ Result<uint64_t> ept_translate_gpa(const EptPointer& eptp, uint64_t gpa) {
 }
 
 Result<void> destroy_ept_hierarchy(const EptPointer& eptp, const void* pml4_virtual) {
-  const void* pml4_v = pml4_virtual != nullptr ? pml4_virtual : eptp.pml4_virtual;
+  const void* pml4_v = pml4_virtual != nullptr ? pml4_virtual: eptp.pml4_virtual;
   if (pml4_v == nullptr) return Result<void>();
 
   auto* pml4 = const_cast<uint64_t*>(reinterpret_cast<const uint64_t*>(pml4_v));

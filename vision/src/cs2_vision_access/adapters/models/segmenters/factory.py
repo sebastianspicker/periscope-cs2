@@ -1,4 +1,4 @@
-"""Segmenter factory — constructs a segmenter for the named backend.
+"""Segmenter factory, constructs a segmenter for the named backend.
 
 Separated from ``protocol.py`` so that adapter imports do not create cycles:
 the factory imports adapters; adapters import types from ``protocol`` only.
@@ -73,24 +73,24 @@ def create_segmenter(
 ) -> Segmenter:
     """Construct a Segmenter for the named backend.
 
-    The default backend is ``ultralytics-onnx`` (the built-in
+        The default backend is ``ultralytics-onnx`` (the built-in
     :class:`~cs2_vision_access.adapters.models.segmenters.ultralytics.UltralyticsOnnxSegmenter`).
-    Backend names are matched after ``strip()`` and ``casefold()``.
+        Backend names are matched after ``strip()`` and ``casefold()``.
 
-    Optional backends (require extra dependencies):
-    - ``rfdetr`` (alias ``rf-detr``) — requires ``pip install 'cs2-vision-access[rfdetr]'``
-    - ``ultralytics-detect`` (alias ``yolo-detect``) — box rectangles only, bootstrap path
-    - ``yolov10`` (aliases ``yolov10n``, ``yolov10-nano``) — YOLOv10 NMS-free ONNX
-      from ``onnx-community/yolov10n`` on Hugging Face. Detection only, uses ONNX
-      Runtime directly (no Ultralytics dependency).
-    - ``nanodet`` (aliases ``nanodet-plus``, ``nanodet-plus-m``) — NanoDet-Plus
-      ultra-lightweight ONNX exported from the RangiLyu/nanodet repo. Detection
-      only, uses ONNX Runtime directly.
-    - ``cs2-sam`` (aliases ``cs2_sam``, ``cs2sam``, ``vombit-sam``, ``cs2-edge-sam``) —
-      Two-stage hybrid: Vombit YOLOv10n CS2 player detection + EdgeSAM mask
-      refinement. Produces team-aware player-shaped masks from a single pipeline.
-      Requires downloading the EdgeSAM encoder/decoder ONNX models from
-      ``chongzhou/EdgeSAM`` on Hugging Face.
+        Optional backends (require extra dependencies):
+        - ``rfdetr`` (alias ``rf-detr``), requires ``pip install 'cs2-vision-access[rfdetr]'``
+        - ``ultralytics-detect`` (alias ``yolo-detect``), box rectangles only, bootstrap path
+        - ``yolov10`` (aliases ``yolov10n``, ``yolov10-nano``), YOLOv10 NMS-free ONNX
+          from ``onnx-community/yolov10n`` on Hugging Face. Detection only, uses ONNX
+          Runtime directly (no Ultralytics dependency).
+        - ``nanodet`` (aliases ``nanodet-plus``, ``nanodet-plus-m``), NanoDet-Plus
+          ultra-lightweight ONNX exported from the RangiLyu/nanodet repo. Detection
+          only, uses ONNX Runtime directly.
+        - ``cs2-sam`` (aliases ``cs2_sam``, ``cs2sam``, ``vombit-sam``, ``cs2-edge-sam``) -
+          Two-stage hybrid: Vombit YOLOv10n CS2 player detection + EdgeSAM mask
+          refinement. Produces team-aware player-shaped masks from a single pipeline.
+          Requires downloading the EdgeSAM encoder/decoder ONNX models from
+          ``chongzhou/EdgeSAM`` on Hugging Face.
     """
     normalized = normalize_segmenter_backend(backend)
     if normalized not in SUPPORTED_SEGMENTER_BACKENDS:

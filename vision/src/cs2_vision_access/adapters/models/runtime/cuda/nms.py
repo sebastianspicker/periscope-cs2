@@ -1,4 +1,4 @@
-"""Non-Maximum Suppression — greedy NumPy implementation.
+"""Non-Maximum Suppression, greedy NumPy implementation.
 
 Greedy NMS is sequential (each kept box suppresses later ones), so it runs on
 the host.  CuPy inputs are copied to the host once; the input is already
@@ -62,7 +62,7 @@ def _nms_cpu(
 
 
 # ---------------------------------------------------------------------------
-# Public API — auto-dispatch
+# Public API, auto-dispatch
 # ---------------------------------------------------------------------------
 
 

@@ -31,7 +31,7 @@ def append_event(run_dir: str | Path, event: str, **fields: Any) -> Path | None:
         with destination.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(record, sort_keys=True, default=str) + "\n")
         return destination
-    except Exception:  # noqa: BLE001 — best-effort only
+    except Exception:  # noqa: BLE001, best-effort only
         return None
 
 

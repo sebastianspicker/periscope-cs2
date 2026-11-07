@@ -1,4 +1,4 @@
-/// radar_t1.cpp — T1: Direct syscall NtReadVirtualMemory live radar.
+/// radar_t1.cpp: T1: Direct syscall NtReadVirtualMemory live radar.
 #include "demos/radar_shared.hpp"
 #if LR_HAS_REAL_PLATFORM && LR_PLATFORM_WINDOWS
 #include "real/win/api_table.hpp"
@@ -12,12 +12,12 @@
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 #endif
 
-#define TIER_NAME OBF("T1 — Direct Syscall")
+#define TIER_NAME OBF("T1, Direct Syscall")
 #define TIER_TECH OBF("NtReadVirtualMemory via syscall instruction")
 #define TIER_SCAR OBF("VM_READ handle + syscall instruction")
 #define TIER_DET  OBF("Handle enumeration + ETW TI syscall monitoring")
 #define TIER_MIT  OBF("ETW TI, kernel callbacks")
-#define TIER_CODE OBF("adapters/real/win/syscall_helper.cpp :: syscall_4()")
+#define TIER_CODE OBF("adapters/real/win/syscall_helper.cpp:: syscall_4()")
 
 using Clock = std::chrono::steady_clock;
 
@@ -31,7 +31,7 @@ int main() {
 #if LR_HAS_REAL_PLATFORM
     auto attach = real::cs2::attach_to_cs2();
     bool live = attach.attached;
-    std::printf("[%s]\n", live ? "REAL CS2 FOUND (T1 syscall path)" : "SIMULATION (start cs2.exe for live)");
+    std::printf("[%s]\n", live ? "REAL CS2 FOUND (T1 syscall path)": "SIMULATION (start cs2.exe for live)");
 
     real::cs2::Cs2MemoryReader reader;
     real::cs2::Cs2Offsets offsets{};
@@ -111,7 +111,7 @@ int main() {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - report_started).count();
         if (elapsed >= 1000) {
             std::printf("\r[T1] FPS: %.1f | entities: %d | %s   ", window_frames / (elapsed / 1000.0),
-                        last_ents, live ? "LIVE (direct syscall)" : "SIM");
+                        last_ents, live ? "LIVE (direct syscall)": "SIM");
             fflush(stdout); window_frames = 0; report_started = Clock::now();
         }
 } while (0);

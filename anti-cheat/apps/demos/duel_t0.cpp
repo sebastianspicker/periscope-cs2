@@ -12,7 +12,7 @@
 int main() {
   sim::Narrator n;
   n.say(sim::Side::Lesson,
-        "T0 duel — usermode VM_READ external radar vs handle-graph AC.");
+        "T0 duel, usermode VM_READ external radar vs handle-graph AC.");
 
   auto w = sim::make_arena("lab-game.exe");
   // Ensure AC process exists for self-skip in scans.
@@ -54,9 +54,9 @@ int main() {
            blue_wins
                ? "T0 closed by handle graph / multi-sensor agent. Red must leave "
                  "usermode handles → escalate T2/T3."
-               : "Unexpected: blue missed VM_READ scar (lesson bug).");
+: "Unexpected: blue missed VM_READ scar (lesson bug).");
 
   n.say(sim::Side::Lesson,
-        "Next: T1 syscalls dodge API hooks — handles remain. Run duel_t1.");
-  return blue_wins ? 0 : 1;
+        "Next: T1 syscalls dodge API hooks, handles remain. Run duel_t1.");
+  return blue_wins ? 0: 1;
 }

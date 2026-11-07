@@ -1,16 +1,16 @@
-// memory.hpp — Linux physical/virtual memory access (SOTA research backend).
+// memory.hpp: Linux physical/virtual memory access (SOTA research backend).
 //
 // Channels:
-//   /dev/mem, /dev/crash     — physical memory
-//   /proc/self|pid/pagemap   — VA → PA
-//   process_vm_readv/writev  — cross-process virtual R/W
-//   /proc/[pid]/mem         — procfs virtual R/W
-//   ptrace PEEK/POKE         — debugger-style virtual R/W
-//   /proc/kcore              — kernel virtual
-//   /dev/aclab               — lab kernel module (T2)
-//   finit_module/delete_module — kmod load/unload
+//   /dev/mem, /dev/crash, physical memory
+//   /proc/self|pid/pagemap, VA → PA
+//   process_vm_readv/writev, cross-process virtual R/W
+//   /proc/[pid]/mem, procfs virtual R/W
+//   ptrace PEEK/POKE, debugger-style virtual R/W
+//   /proc/kcore, kernel virtual
+//   /dev/aclab, lab kernel module (T2)
+//   finit_module/delete_module, kmod load/unload
 //
-// Every path documents SCAR / BLUE / MITIGATION in the .cpp.
+// Every path documents SCAR / BLUE / MITIGATION in the.cpp.
 
 #pragma once
 

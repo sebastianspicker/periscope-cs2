@@ -1,7 +1,7 @@
 """Optical preflight for camera-vs-monitor capture (ledger L4).
 
 The three named failure modes of pointing a camera at a gaming monitor
-(MIRAGE, arXiv:2602.01559 — see `lens/docs/TOPOLOGY.md`): PWM flicker-banding
+(MIRAGE, arXiv:2602.01559, see `lens/docs/TOPOLOGY.md`): PWM flicker-banding
 under rolling shutter, moiré between pixel and sensor grids, and soft focus
 (autofocus hunting). This module measures all three on a captured frame and
 gates the pipeline on the measurements.
@@ -95,7 +95,7 @@ def banding_score(frame: np.ndarray) -> float:
     total = float(spectrum.sum())
     if total <= 0.0:
         return 0.0
-    # "High frequency": anything above one quarter of the row count — a
+    # "High frequency": anything above one quarter of the row count, a
     # banding period shorter than four pixel rows is never panel content.
     cutoff = max(4, len(spectrum) // 4)
     band = float(spectrum[cutoff:].sum())
@@ -159,7 +159,7 @@ def run_preflight(
     thresholds: PreflightThresholds | None = None,
     refresh_hz: int | None = None,
 ) -> PreflightReport:
-    """Measure, gate, and advise — one call, deterministic."""
+    """Measure, gate, and advise, one call, deterministic."""
     limits = thresholds or PreflightThresholds()
     image = _validate_frame(frame)
     banding = banding_score(image)

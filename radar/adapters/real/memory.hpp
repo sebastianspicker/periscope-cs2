@@ -1,4 +1,4 @@
-// memory.hpp — Cross-platform memory mapping abstraction.
+// memory.hpp: Cross-platform memory mapping abstraction.
 // Used by DMA backends, physical-memory readers, and SMM buffers.
 
 #pragma once

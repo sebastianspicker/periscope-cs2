@@ -1,4 +1,4 @@
-// crypto_offsets.cpp — implements crypto_offsets (T1 red).
+// crypto_offsets.cpp: implements crypto_offsets (T1 red).
 // Key methods: seal, open, get.
 
 #include "t1_red/crypto_offsets.hpp"
@@ -9,9 +9,9 @@ namespace t1_red {
 std::vector<std::uint8_t> CryptoOffsets::seal(
     const std::unordered_map<std::string, std::uint64_t>& map, std::uint8_t key) {
   std::vector<std::uint8_t> plain;
-  for (const auto& [k, v] : map) {
+  for (const auto& [k, v]: map) {
     plain.push_back(static_cast<std::uint8_t>(k.size()));
-    for (char c : k) {
+    for (char c: k) {
       plain.push_back(static_cast<std::uint8_t>(c));
     }
     for (int b = 0; b < 8; ++b) {
@@ -46,13 +46,13 @@ ac::Status CryptoOffsets::open(const std::vector<std::uint8_t>& sealed,
     }
     map_[name] = v;
   }
-  return map_.empty() ? ac::Status::InvalidArgument : ac::Status::Ok;
+  return map_.empty() ? ac::Status::InvalidArgument: ac::Status::Ok;
 }
 
 // CryptoOffsets::get: Lookup a named offset/value from the loaded blob.
 std::uint64_t CryptoOffsets::get(const std::string& k, std::uint64_t def) const {
   auto it = map_.find(k);
-  return it == map_.end() ? def : it->second;
+  return it == map_.end() ? def: it->second;
 }
 
 }  // namespace t1_red

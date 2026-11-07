@@ -1,6 +1,6 @@
 """Segmentation backend protocol and shared constants.
 
-No adapter implementations here — only the contract, error type, backend-name
+No adapter implementations here, only the contract, error type, backend-name
 normalisation, and class-id resolution helpers that every adapter needs.
 """
 

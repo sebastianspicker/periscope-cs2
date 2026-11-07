@@ -2,13 +2,13 @@
 
 Converts a local YOLO-det tree into ``data/staging/<session_id>/`` with
 ``images/``, ``labels/`` (detection ``class x_c y_c w h``), and ``session.json``
-ready for ``boxes-to-masks``. No network download — operators supply a local path.
+ready for ``boxes-to-masks``. No network download, operators supply a local path.
 
 Supported layouts:
 
-1. ``yolo`` — Ultralytics-ish ``images/{split}/`` + ``labels/{split}/``
-2. ``flat`` — ``images/`` + ``labels/`` side by side (no split subdirs required)
-3. ``pairs`` (auto only) — single directory of same-stem image + ``.txt`` pairs
+1. ``yolo``, Ultralytics-ish ``images/{split}/`` + ``labels/{split}/``
+2. ``flat``, ``images/`` + ``labels/`` side by side (no split subdirs required)
+3. ``pairs`` (auto only), single directory of same-stem image + ``.txt`` pairs
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ from cs2_vision_access.workflows.dataset.types import SPLIT_NAMES
 
 IMPORT_RIGHTS_NOTE = "imported external box labels; audit license"
 
-# Re-export layout symbols for ``from cs2_vision_access.workflows.dataset.import_boxes import ...``.
+# Re-export layout symbols for ``from cs2_vision_access.workflows.dataset.import_boxes import...``.
 __all__ = [
     "DEFAULT_SPLIT",
     "IMPORT_RIGHTS_NOTE",

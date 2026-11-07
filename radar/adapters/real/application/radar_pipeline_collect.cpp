@@ -1,4 +1,4 @@
-// radar_pipeline.cpp — Complete radar frame pipeline implementation.
+// radar_pipeline.cpp: Complete radar frame pipeline implementation.
 //
 // ALL 15+ ac_sim features are integrated here. Previously each was
 // fully implemented but NEVER instantiated or called from any pipeline.
@@ -60,7 +60,7 @@ bool FramePipeline::collect_frame() noexcept {
         lab[3] = ac::EntitySnapshot(4, {90.f, 20.f, 0.f}, 3, true);
         lab[3].health = 50;
         const ac::Vec3 localOrigin{0.f, 0.f, 0.f};
-        // Filter in place — applyDelay already false from init_behavioral.
+        // Filter in place, applyDelay already false from init_behavioral.
         m_behavioral.filter_entities(lab, 4, localOrigin, /*speed=*/0.f,
                                      /*occluded=*/false, /*yaw_h=*/0.f,
                                      /*yaw_v=*/0.f);
@@ -75,7 +75,7 @@ bool FramePipeline::collect_frame() noexcept {
         m_lastEntityCount = 4;
         m_lastRemoteEntityCount = remote;
         m_lastFilteredEntityCount = alive;
-        m_chunkCount = alive >= 2 ? 2 : (alive > 0 ? 1 : 0);
+        m_chunkCount = alive >= 2 ? 2: (alive > 0 ? 1: 0);
         m_chunkRatio = alive / 4.f;
         ++m_entitySampleFrames;
         if (alive <= 1) ++m_emptyEntityFrames;
@@ -83,8 +83,8 @@ bool FramePipeline::collect_frame() noexcept {
             m_entitySampleFrames
                 ? static_cast<float>(m_emptyEntityFrames) /
                       static_cast<float>(m_entitySampleFrames)
-                : 1.f;
-        // Offline lab has no real cvar/overlay/band — keep honest zeros.
+: 1.f;
+        // Offline lab has no real cvar/overlay/band, keep honest zeros.
         m_cvarWalkOk = false;
         m_bandEnforced = false;
         m_overlayMinPx = 0;
@@ -97,12 +97,12 @@ bool FramePipeline::collect_frame() noexcept {
         return true;
     }
 
-    // V5-B2: Gate reads on game window focus — skip entity reads
+    // V5-B2: Gate reads on game window focus, skip entity reads
     // when the game window is not in the foreground.
     // Uses direct Win32 calls since this is a UI process with user32 loaded.
     static HWND s_cachedGameHwnd = nullptr;
-    if (s_cachedGameHwnd && !::IsWindow(s_cachedGameHwnd)) {
-        // The game window is gone (restart/quit) — the cached handle is
+    if (s_cachedGameHwnd && ! ::IsWindow(s_cachedGameHwnd)) {
+        // The game window is gone (restart/quit), the cached handle is
         // stale and would gate reads forever. Drop and re-query.
         s_cachedGameHwnd = nullptr;
     }
@@ -110,14 +110,14 @@ bool FramePipeline::collect_frame() noexcept {
         s_cachedGameHwnd = ::FindWindowA("Valve001", nullptr);
     }
     if (s_cachedGameHwnd && ::GetForegroundWindow() != s_cachedGameHwnd) {
-        // Game not focused — skip entity reads to avoid focus correlation detection
-        m_warmupFrame = 0;  // V7-I1: Reset ramp — will restart from 5Hz on re-focus
+        // Game not focused, skip entity reads to avoid focus correlation detection
+        m_warmupFrame = 0;  // V7-I1: Reset ramp, will restart from 5Hz on re-focus
         ETL_RECORD(sim::EtlEventType::EvasionTick, "frame skipped: game not focused");
         m_health.reset_bad_frames();
         return true;
     }
 
-    // V5-B5: Temporal timing gate — never read faster than game tick rate
+    // V5-B5: Temporal timing gate, never read faster than game tick rate
     static uint64_t s_nextReadTick = 0;
     uint64_t now = __rdtsc();
     if (now < s_nextReadTick) {
@@ -134,7 +134,7 @@ bool FramePipeline::collect_frame() noexcept {
     // V5-B1/V7-I3: Local player alive state is checked after entity collect
     // (health is only known once offsets are resolved). Skip nothing here.
 
-    // V6-B1/V7-I1: Read ramp-up — exponential warmup from 5Hz to full rate.
+    // V6-B1/V7-I1: Read ramp-up, exponential warmup from 5Hz to full rate.
     // Resets on death or unfocus (reset above). Reaching here means active.
     ++m_warmupFrame;
     if (m_warmupFrame < 5) {
@@ -163,7 +163,7 @@ bool FramePipeline::collect_frame() noexcept {
     // in 64KB chunks and are far too expensive to run per frame, so the
     // results are cached here. If CS2 is not attached (no hijack handle)
     // the cache stays empty and this frame keeps the same defaults (0) as
-    // before — resolution simply retries at a low cadence, never crashes.
+    // before, resolution simply retries at a low cadence, never crashes.
     static uint64_t s_clientBase = 0;
     static size_t   s_clientSize = 0;
     static uint64_t s_engine2Base = 0;
@@ -249,13 +249,13 @@ bool FramePipeline::collect_frame() noexcept {
         readFn(s_localPawnSlot, &localPawnAddr, sizeof(localPawnAddr));
     }
     uint64_t viewAnglesAddr = clientBase
-        ? clientBase + real::cs2::periscope::PeriscopeOffsets::kDwViewAngles : 0;
+        ? clientBase + real::cs2::periscope::PeriscopeOffsets::kDwViewAngles: 0;
     uint64_t csgoInputAddr = clientBase
-        ? clientBase + real::cs2::periscope::PeriscopeOffsets::kDwCSGOInput : 0;
+        ? clientBase + real::cs2::periscope::PeriscopeOffsets::kDwCSGOInput: 0;
     m_entityCollector.set_local_player(localPawnAddr, viewAnglesAddr,
                                        csgoInputAddr, readFn);
     uint64_t bombSlot = clientBase
-        ? clientBase + real::cs2::periscope::PeriscopeOffsets::kDwPlantedC4 : 0;
+        ? clientBase + real::cs2::periscope::PeriscopeOffsets::kDwPlantedC4: 0;
     uint64_t bombAddr = 0;
     if (bombSlot) {
         readFn(bombSlot, &bombAddr, sizeof(bombAddr));
@@ -269,7 +269,7 @@ bool FramePipeline::collect_frame() noexcept {
     const int cvarPath = m_cvarMgr.values().resolutionPath;
     m_cvarWalkOk = cvarPath > 0;
     if (m_cvarWalkOk && m_cvarFirstOkFrame == 0) {
-        m_cvarFirstOkFrame = m_frameLoop.frame_index ? m_frameLoop.frame_index : 1;
+        m_cvarFirstOkFrame = m_frameLoop.frame_index ? m_frameLoop.frame_index: 1;
     }
     if (m_cvarFirstOkFrame > 0) {
         // ~60 fps estimate for gate timing condition.
@@ -294,7 +294,7 @@ bool FramePipeline::collect_frame() noexcept {
         // Stealth overlay reports capture exclusion as "band" enforcement proxy.
         m_bandEnforced = m_bandEnforced && true;
         const int dim = (std::min)(m_overlay.width(), m_overlay.height());
-        m_overlayMinPx = dim > 0 ? dim : 0;
+        m_overlayMinPx = dim > 0 ? dim: 0;
     }
 
     // 5. Convert periscope players → EntitySnapshot, run BehavioralFilter,
@@ -319,18 +319,18 @@ bool FramePipeline::collect_frame() noexcept {
     }
 
     const ac::Vec3 localOrigin{
-        local.valid ? local.player.origin.x : 0.f,
-        local.valid ? local.player.origin.y : 0.f,
-        local.valid ? local.player.origin.z : 0.f};
+        local.valid ? local.player.origin.x: 0.f,
+        local.valid ? local.player.origin.y: 0.f,
+        local.valid ? local.player.origin.z: 0.f};
     const float speed = local.valid
         ? std::sqrt(local.player.velocity.x * local.player.velocity.x +
                     local.player.velocity.y * local.player.velocity.y)
-        : 0.f;
+: 0.f;
     // applyDelay is false from init_behavioral; filter mutates in place.
     if (!snaps.empty()) {
         m_behavioral.filter_entities(
             snaps.data(), snaps.size(), localOrigin, speed,
-            /*is_occluded=*/false, local.valid ? local.yaw : 0.f, 0.f);
+            /*is_occluded=*/false, local.valid ? local.yaw: 0.f, 0.f);
     }
 
     int remote = 0;
@@ -344,10 +344,10 @@ bool FramePipeline::collect_frame() noexcept {
     m_lastEntityCount = static_cast<int>(snaps.size());
     m_lastRemoteEntityCount = remote;
     m_lastFilteredEntityCount = filteredAlive;
-    m_chunkCount = filteredAlive >= 2 ? 2 : (filteredAlive > 0 ? 1 : 0);
+    m_chunkCount = filteredAlive >= 2 ? 2: (filteredAlive > 0 ? 1: 0);
     m_chunkRatio =
         snaps.empty() ? 0.f
-                      : static_cast<float>(filteredAlive) /
+: static_cast<float>(filteredAlive) /
                             static_cast<float>(snaps.size());
     ++m_entitySampleFrames;
     if (filteredAlive <= 1) ++m_emptyEntityFrames;
@@ -355,27 +355,27 @@ bool FramePipeline::collect_frame() noexcept {
         m_entitySampleFrames
             ? static_cast<float>(m_emptyEntityFrames) /
                   static_cast<float>(m_entitySampleFrames)
-            : 1.f;
+: 1.f;
 
     real::cs2::RadarSnapshot radarSnap;
-    radarSnap.map_origin_x = (!m_hudReader.snapshot().valid ? 0.0f :
+    radarSnap.map_origin_x = (!m_hudReader.snapshot().valid ? 0.0f:
         m_hudReader.snapshot().mapTexturePosition.x);
-    radarSnap.map_origin_y = (!m_hudReader.snapshot().valid ? 0.0f :
+    radarSnap.map_origin_y = (!m_hudReader.snapshot().valid ? 0.0f:
         m_hudReader.snapshot().mapTexturePosition.y);
     radarSnap.map_scale = m_cvarMgr.values().clRadarScale;
     radarSnap.map_size = (m_hudReader.snapshot().valid &&
         m_hudReader.snapshot().maxVisibilitySquared > 0.0f)
         ? static_cast<int>(std::sqrt(m_hudReader.snapshot().maxVisibilitySquared))
-        : 0;
+: 0;
 
-    const float yawDeg = local.valid ? local.yaw : 0.0f;
+    const float yawDeg = local.valid ? local.yaw: 0.0f;
     const float yawRad = yawDeg * (3.14159265f / 180.0f);
-    const float edge = (radarSnap.map_scale > 0.2f) ? radarSnap.map_scale : 0.7f;
+    const float edge = (radarSnap.map_scale > 0.2f) ? radarSnap.map_scale: 0.7f;
     const float cosYaw = std::cos(yawRad);
     const float sinYaw = std::sin(yawRad);
     radarSnap.blips.reserve(snaps.size());
     for (const auto& e : snaps) {
-        // Omitted entities are marked dormant/!alive by the filter — skip them.
+        // Omitted entities are marked dormant/!alive by the filter, skip them.
         if (!e.alive || e.dormant) continue;
         real::cs2::RadarBlip blip{};
         const float dx = e.origin.x - localOrigin.x;
@@ -420,13 +420,13 @@ bool FramePipeline::collect_frame() noexcept {
             if (e.alive && !e.dormant) ++m_lastFilteredEntityCount;
         }
         m_lastRemoteEntityCount =
-            m_lastFilteredEntityCount > 0 ? m_lastFilteredEntityCount - 1 : 0;
-        m_chunkCount = m_lastFilteredEntityCount >= 2 ? 2 : 0;
+            m_lastFilteredEntityCount > 0 ? m_lastFilteredEntityCount - 1: 0;
+        m_chunkCount = m_lastFilteredEntityCount >= 2 ? 2: 0;
         m_chunkRatio = m_lastFilteredEntityCount / 4.f;
         m_cvarWalkOk = false;
         m_bandEnforced = false;
         m_overlayMinPx = 0;
-        m_zeroPushRatio = m_lastFilteredEntityCount <= 1 ? 1.f : 0.f;
+        m_zeroPushRatio = m_lastFilteredEntityCount <= 1 ? 1.f: 0.f;
     }
     m_health.reset_bad_frames();
 #endif
@@ -435,7 +435,7 @@ bool FramePipeline::collect_frame() noexcept {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  post_frame()  —  health evaluation, accept gate, decoy, heartbeat
+//  post_frame(),  health evaluation, accept gate, decoy, heartbeat
 // ══════════════════════════════════════════════════════════════════════
 
 } // namespace radar::real_adapter

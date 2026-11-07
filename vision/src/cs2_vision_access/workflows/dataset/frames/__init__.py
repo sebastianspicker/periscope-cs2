@@ -1,4 +1,4 @@
-"""Deterministic frame extraction for local annotation — data models and extractor.
+"""Deterministic frame extraction for local annotation, data models and extractor.
 
 Split from the original ``frames.py`` monolith: data models live in
 ``frames.models`` and extraction logic in ``frames.extract``.

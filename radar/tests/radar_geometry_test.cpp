@@ -1,4 +1,4 @@
-// radar_geometry_test.cpp — R4 + R12 + R7: projection, mini-radar, cadences.
+// radar_geometry_test.cpp: R4 + R12 + R7: projection: mini-radar, cadences.
 
 #include "radar/intervals.hpp"
 #include "radar/mini_radar.hpp"
@@ -135,7 +135,7 @@ void test_mini_radar_center_and_clamp() {
                      config, x, y, clamped);
   const float radius_b = (x - 75.0f) * (x - 75.0f) + (y - 75.0f) * (y - 75.0f);
   const float diff = radius_a > radius_b ? radius_a - radius_b
-                                         : radius_b - radius_a;
+: radius_b - radius_a;
   check(diff < 1.0f, "yaw rotation preserves radius");
 
   // Degenerate config: zero/NaN scale falls back to 1, inverted margins swap.

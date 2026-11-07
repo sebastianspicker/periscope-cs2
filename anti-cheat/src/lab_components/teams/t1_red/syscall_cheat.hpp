@@ -54,7 +54,7 @@ struct SyscallCheatReport {
   std::string detail;
 };
 
-// Multi-step educational red client `SyscallCheat` — plants lab scars on World only.
+// Multi-step educational red client `SyscallCheat`, plants lab scars on World only.
 class SyscallCheat {
  public:
   explicit SyscallCheat(sim::World& world,

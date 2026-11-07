@@ -1,4 +1,4 @@
-// api_integrity.cpp — Simulation API integrity verification.
+// api_integrity.cpp: Simulation API integrity verification.
 //
 // Reads function prologue bytes and compares against known-good patterns
 // to detect inline hooks (jmp rel32, jmp [rip+off], call rel32, etc.).
@@ -85,7 +85,7 @@ static void decode_pattern(const uint8_t* encoded, uint8_t* decoded,
         data[10] == pat[10] && data[11] == pat[11])
         return true;
 
-    // int3 patch (VAC style): CC CC CC... (any sequence of >8 int3s)
+    // int3 patch (VAC style): CC CC CC, ... (any sequence of >8 int3s)
     int ccCount = 0;
     for (size_t i = 0; i < dataLen; ++i) {
         if (data[i] == 0xCC) ++ccCount;
@@ -102,8 +102,8 @@ ApiIntegrityResult ApiIntegrityChecker::verify(const char* moduleName,
                                                 const char* funcName,
                                                 uint64_t resolvedAddr) noexcept {
     ApiIntegrityResult result;
-    result.moduleName = moduleName ? moduleName : "";
-    result.functionName = funcName ? funcName : "";
+    result.moduleName = moduleName ? moduleName: "";
+    result.functionName = funcName ? funcName: "";
     result.resolvedAddress = resolvedAddr;
 
     if (!resolvedAddr) {
@@ -163,7 +163,7 @@ void ApiIntegrityChecker::set_known_good(const char* moduleName,
                                           uint64_t baseAddr,
                                           uint64_t size) noexcept {
     m_knownModules.push_back({
-        moduleName ? moduleName : "",
+        moduleName ? moduleName: "",
         baseAddr,
         size
     });

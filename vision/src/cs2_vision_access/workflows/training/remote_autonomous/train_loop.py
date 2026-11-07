@@ -126,7 +126,7 @@ def _phase_train_self_train_loop(
         print(f"\n{'=' * 60}\nShape training iteration {it}/{iterations}\n{'=' * 60}")
         labeled_before = _labeled_count(train_labels_dir)
         run_name = f"iter_{it}"
-        # Snapshot prior best before this iter may promote a new best — used as
+        # Snapshot prior best before this iter may promote a new best, used as
         # teacher for self-train (must not be the current student weights).
         prior_best_onnx = best_onnx_path
         prior_best_manifest = best_manifest_path
@@ -370,7 +370,7 @@ def _phase_train_self_train_loop(
                 else deps.count_images(images_dir),
             )
             print(f"  Progress report: {progress_report_md}")
-        except Exception as exc:  # noqa: BLE001 — never break the loop on plots
+        except Exception as exc:  # noqa: BLE001, never break the loop on plots
             print(f"  (progress report skipped: {exc})")
             notes.append(f"iter {it}: progress report error: {exc}")
 

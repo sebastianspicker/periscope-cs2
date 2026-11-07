@@ -1,4 +1,4 @@
-// world.cpp — sim::World implementation: processes, handles, drivers, net scars.
+// world.cpp: sim::World implementation: processes: handles, drivers, net scars.
 // make_arena() seeds the educational OS/game snapshot used by all pairs.
 
 #include "sim/world.hpp"
@@ -12,7 +12,7 @@ namespace sim {
 namespace {
 
 bool checked_add(std::size_t left, std::size_t right, std::size_t& out) {
-  if (right > std::numeric_limits<std::size_t>::max() - left) {
+  if (right > std::numeric_limits<std::size_t> ::max() - left) {
     return false;
   }
   out = left + right;
@@ -25,7 +25,7 @@ bool address_offset(std::uint64_t address, std::uint64_t base,
     return false;
   }
   const auto difference = address - base;
-  if (difference > std::numeric_limits<std::size_t>::max()) {
+  if (difference > std::numeric_limits<std::size_t> ::max()) {
     return false;
   }
   offset = static_cast<std::size_t>(difference);
@@ -86,18 +86,18 @@ std::uint32_t World::spawn(std::string name, bool game, bool ac,
 // World::proc: Lookup Process by pid (const/mutable overloads).
 Process* World::proc(std::uint32_t pid) {
   auto it = processes.find(pid);
-  return it == processes.end() ? nullptr : &it->second;
+  return it == processes.end() ? nullptr: &it->second;
 }
 
 // World::proc: Lookup Process by pid (const/mutable overloads).
 const Process* World::proc(std::uint32_t pid) const {
   auto it = processes.find(pid);
-  return it == processes.end() ? nullptr : &it->second;
+  return it == processes.end() ? nullptr: &it->second;
 }
 
 // World::game_pid: Pid of the seeded game process in this arena.
 std::uint32_t World::game_pid() const {
-  for (const auto& [id, p] : processes) {
+  for (const auto& [id, p]: processes) {
     if (p.is_game) {
       return id;
     }
@@ -107,7 +107,7 @@ std::uint32_t World::game_pid() const {
 
 // World::ac_pid: Pid of the seeded anti-cheat process in this arena.
 std::uint32_t World::ac_pid() const {
-  for (const auto& [id, p] : processes) {
+  for (const auto& [id, p]: processes) {
     if (p.is_ac) {
       return id;
     }
@@ -122,12 +122,12 @@ bool World::open_process(std::uint32_t owner, std::uint32_t target,
   }
   handles.push_back(Handle{owner, target, access, syscall_path, false});
   const auto acq = syscall_path ? ac::HandleAcquisitionModel::DirectSyscall
-                                : ac::HandleAcquisitionModel::DirectOpenProcess;
+: ac::HandleAcquisitionModel::DirectOpenProcess;
   record_handle_table(owner, target, static_cast<std::uint32_t>(access), acq,
                       /*ephemeral=*/false, /*via_proxy=*/false);
   note(std::string("open_process owner=") + std::to_string(owner) +
        " target=" + std::to_string(target) +
-       (syscall_path ? " path=syscall" : " path=winapi"));
+       (syscall_path ? " path=syscall": " path=winapi"));
   return true;
 }
 
@@ -152,7 +152,7 @@ void World::record_handle_table(std::uint32_t owner, std::uint32_t target,
                     via_proxy, hidden_during_enum);
 }
 
-// World::write_mem: Lab mutator — write bytes into process image memory.
+// World::write_mem: Lab mutator, write bytes into process image memory.
 bool World::write_mem(std::uint32_t target_pid, std::uint64_t addr,
                       const void* data, std::size_t size) {
   auto* t = proc(target_pid);
@@ -284,7 +284,7 @@ bool World::inject_module(std::uint32_t into_pid, Module m, bool manual_map) {
   }
   p->modules.push_back(std::move(m));
   note("inject into " + std::to_string(into_pid) +
-       (manual_map ? " manual_map" : " loadlibrary"));
+       (manual_map ? " manual_map": " loadlibrary"));
   return true;
 }
 
@@ -360,7 +360,7 @@ void World::add_section(SharedSection s) {
 // World::list_processes: Return process table snapshot for blue enum sensors.
 std::vector<Process> World::list_processes(bool weak_enum) const {
   std::vector<Process> out;
-  for (const auto& [_, p] : processes) {
+  for (const auto& [_, p]: processes) {
     if (weak_enum && p.hidden_from_weak_enum) {
       continue;
     }
@@ -433,7 +433,7 @@ void World::advance_match_tick(double weak_delta) {
   }
   note("advance_match_tick t=" + std::to_string(lab_match_tick) +
        " conf=" + std::to_string(lab_confidence) +
-       " ban_ready=" + std::to_string(lab_delayed_ban_ready ? 1 : 0));
+       " ban_ready=" + std::to_string(lab_delayed_ban_ready ? 1: 0));
 }
 
 // World::apply_client_fidelity_budget: Fog+ starve full enemy origins on client path.

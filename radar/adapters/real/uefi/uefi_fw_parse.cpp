@@ -1,4 +1,4 @@
-// uefi_fw_parse.cpp — Pure ACPI/EFI table parsers (no physical I/O).
+// uefi_fw_parse.cpp: Pure ACPI/EFI table parsers (no physical I/O).
 
 #include "real/uefi/uefi_fw.hpp"
 #include "real/uefi/uefi_phys.hpp"
@@ -51,7 +51,7 @@ Result<std::vector<uint64_t>> parse_sdt_entry_addresses(const uint8_t* sdt,
     if (!acpi_checksum_valid(sdt, hdr.length))
         return Result<std::vector<uint64_t>>({}, "SDT checksum invalid");
 
-    const size_t entry_size = is_xsdt ? 8u : 4u;
+    const size_t entry_size = is_xsdt ? 8u: 4u;
     const size_t payload = hdr.length - sizeof(AcpiSdtHeader);
     if (payload % entry_size != 0)
         return Result<std::vector<uint64_t>>({}, "SDT entry array misaligned");
@@ -90,7 +90,7 @@ Result<DmarInfo> parse_dmar_table(const uint8_t* data, size_t size) {
     DmarInfo info;
     info.host_address_width = dmar.host_address_width;
     // Flags bit0: INTR_REMAP; DMA remapping is present when DRHD structures exist.
-    // Platforms may leave remapping disabled in hardware — we report table presence
+    // Platforms may leave remapping disabled in hardware, we report table presence
     // and DRHD coverage; dma_remap_active true when at least one DRHD is present.
     info.dma_remap_active = false;
 
@@ -122,7 +122,7 @@ Result<DmarInfo> parse_dmar_table(const uint8_t* data, size_t size) {
     oss << "DMAR width=" << static_cast<int>(info.host_address_width)
         << " DRHD=" << info.drhd_count
         << " RMRR=" << info.rmrr_count
-        << " INCLUDE_ALL=" << (info.include_all_pci ? "yes" : "no")
+        << " INCLUDE_ALL=" << (info.include_all_pci ? "yes": "no")
         << " base=0x" << std::hex << info.base_address;
     info.detail = oss.str();
     return Result<DmarInfo>(std::move(info));
@@ -249,4 +249,3 @@ Result<std::vector<MemoryRegion>> parse_efi_memory_map(const uint8_t* data,
 }
 
 } // namespace real::uefi
-

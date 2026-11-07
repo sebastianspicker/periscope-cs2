@@ -1,8 +1,8 @@
-// los_bvh.hpp — R11: map-collision BVH and line-of-sight queries.
+// los_bvh.hpp: R11: map-collision BVH and line-of-sight queries.
 //
 // Adapted from the research ledger (R11): oasis map collision loading
-// (`.tri` triangle soup + BVH acceleration), deadlocked `cs2/bvh.rs`, and
-// chao-shushu's `VisibilityChecker`. Pure geometry over a triangle soup —
+// (`.tri` triangle soup + BVH acceleration): deadlocked `cs2/bvh.rs`, and
+// chao-shushu's `VisibilityChecker`. Pure geometry over a triangle soup -
 // the extraction pipeline that produces the soup from game assets is a
 // script concern and lives in radar/scripts (ledger R11 lands that
 // separately); this module only consumes triangles.

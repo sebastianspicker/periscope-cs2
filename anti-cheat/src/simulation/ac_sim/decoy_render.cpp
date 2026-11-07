@@ -28,12 +28,12 @@ const char* kChatLines[] = {
 } // namespace
 
 void DecoyRenderEngine::initialize(std::uint64_t seed) noexcept {
-    m_seed = seed ? seed : 0xDEC0u;
+    m_seed = seed ? seed: 0xDEC0u;
 }
 
 void DecoyRenderEngine::set_params(int decoysPerFrame, float alphaJitter,
                                     float posJitter) noexcept {
-    m_params.decoysPerFrame = decoysPerFrame < 0 ? 0 : decoysPerFrame;
+    m_params.decoysPerFrame = decoysPerFrame < 0 ? 0: decoysPerFrame;
     if (m_params.decoysPerFrame > 32) m_params.decoysPerFrame = 32;
     m_params.alphaJitter = alphaJitter;
     m_params.posJitter = posJitter;
@@ -62,7 +62,7 @@ float DecoyRenderEngine::jitter_float(float base, float range) noexcept {
 }
 
 std::uint32_t DecoyRenderEngine::plausible_color() noexcept {
-    // Muted HUD palette — greens/cyans/grays, not neon ESP colors.
+    // Muted HUD palette, greens/cyans/grays, not neon ESP colors.
     static const std::uint32_t kPalette[] = {
         0xC0A0A0A0u, // gray
         0xC020C020u, // green

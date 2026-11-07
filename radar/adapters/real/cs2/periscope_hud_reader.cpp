@@ -1,4 +1,4 @@
-// Split from periscope_hud.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_hud.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/periscope_hud.hpp"
 #include "real/cs2/periscope_scanner.hpp"
 
@@ -61,15 +61,15 @@ int HudRadarReader::find_hud_tree_index(uint64_t treeBase, const char* targetNam
         while (targetName[pos] && elemName[pos]) {
             char a = static_cast<char>(std::tolower(static_cast<unsigned char>(targetName[pos])));
             char b = static_cast<char>(std::tolower(static_cast<unsigned char>(elemName[pos])));
-            if (a != b) { cmp = (a < b) ? -1 : 1; break; }
+            if (a != b) { cmp = (a < b) ? -1: 1; break; }
             ++pos;
         }
         if (cmp == 0) {
             if (targetName[pos] == '\0' && elemName[pos] == '\0') {
-                // Exact match — return element address
+                // Exact match, return element address
                 return currentIndex;
             }
-            cmp = (targetName[pos] == '\0') ? -1 : 1;
+            cmp = (targetName[pos] == '\0') ? -1: 1;
         }
 
         if (cmp < 0) {
@@ -157,9 +157,9 @@ uint64_t HudRadarReader::find_hud_element_by_string_scan(
             uint64_t ptrVal = 0;
             std::memcpy(&ptrVal, chunk.data() + i, sizeof(ptrVal));
 
-            for (auto strAddr : stringAddrs) {
+            for (auto strAddr: stringAddrs) {
                 if (ptrVal == strAddr) {
-                    // Found a pointer to the string — this might be a HudElement
+                    // Found a pointer to the string, this might be a HudElement
                     // Check if this looks like a HudElement (has left/right indices)
                     uint64_t candidateAddr = clientBase + offset + i;
 
@@ -252,7 +252,7 @@ bool HudRadarReader::update_snapshot(uint64_t cHudAddr,
     uint64_t elementAddr = find_hud_element(cHudAddr, "CCSGO_HudRadar", readFn);
 
     if (!elementAddr && stringScanFallback) {
-        // Full-module string scan (slow) — optional for offline tooling only.
+        // Full-module string scan (slow), optional for offline tooling only.
         elementAddr = find_hud_element_by_string_scan(clientBase, clientSize,
                                                        "CCSGO_HudRadar", readFn);
     }
@@ -306,13 +306,13 @@ bool HudRadarReader::update_snapshot(uint64_t cHudAddr,
         // World-space edge: k / cl_radar_scale (k=750 @ scale 1.0).
         float cl = (std::isfinite(rscale) && rscale > 0.2f && rscale <= 1.05f)
                        ? rscale
-                       : 0.7f;
+: 0.7f;
         const float edge = 750.0f / cl;
         m_snapshot.maxVisibilitySquared = edge * edge;
     }
 
     m_snapshot.radarScale =
-        (std::isfinite(rscale) && rscale > 0.f) ? rscale : probe_radar_scale(elementBase, readFn);
+        (std::isfinite(rscale) && rscale > 0.f) ? rscale: probe_radar_scale(elementBase, readFn);
 
     // Soft validate: require map center + positive edge.
     m_snapshot.valid =
@@ -338,7 +338,7 @@ float HudRadarReader::probe_radar_scale(uint64_t elementBase,
     float prevScale = m_snapshot.radarScale;
     if (prevScale <= 0.0f) prevScale = 0.7f;
 
-    for (auto candidateOffset : kCandidates) {
+    for (auto candidateOffset: kCandidates) {
         uint64_t addr = elementBase + HudRadarOffsets::kRadarScaleOffset +
                         candidateOffset;
         float value = 0.0f;
@@ -360,4 +360,3 @@ float HudRadarReader::probe_radar_scale(uint64_t elementBase,
 }
 
 } // namespace real::cs2::periscope
-

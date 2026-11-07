@@ -1,4 +1,4 @@
-// radar_ui.cpp — trivial radar view model over EntitySnapshot list (T0 demo).
+// radar_ui.cpp: trivial radar view model over EntitySnapshot list (T0 demo).
 // Formats enemy positions for narrated labs; no overlay/GPU work.
 // Platform rendering is deliberately composed outside this lab component.
 
@@ -66,7 +66,7 @@ void RadarUi::update(const std::vector<ac::EntitySnapshot>& entities,
       continue;
     }
     const bool enemy = (local_team_ == 0) ? (e.team != 0 && e.team != 1)
-                                          : (e.team != local_team_);
+: (e.team != local_team_);
     // When local_team is 0, treat team 2 as enemy of team 1 style lab data.
     bool is_enemy = e.team != local_team_;
     if (local_team_ == 0) {

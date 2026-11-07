@@ -1,4 +1,4 @@
-// Split from periscope_hud.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_hud.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/periscope_hud.hpp"
 #include "real/cs2/periscope_scanner.hpp"
 
@@ -16,7 +16,7 @@ bool CvarManager::try_hud_mem_path(uint64_t cHudAddr,
 {
     // Path 3: Read CVar values from the CCSGO_HudRadar element's
     // known field offsets. This is the same approach as
-    // HudRadarReader::update_snapshot() — we reuse the existing
+    // HudRadarReader::update_snapshot(), we reuse the existing
     // radar snapshot fields that correspond to CVar values.
     //
     // Known CVar-to-field mappings in CCSGO_HudRadar:
@@ -44,7 +44,7 @@ bool CvarManager::try_hud_mem_path(uint64_t cHudAddr,
     float visibilitySize = 1.0f;
     float visibilitySizeMax = 1.0f;
 
-    // Contiguous panel table (stride 0x20) — same as HudRadarReader.
+    // Contiguous panel table (stride 0x20), same as HudRadarReader.
     if (elementData && elementCount > 0) {
         for (uint32_t i = 0; i < std::min(elementCount, 128u); ++i) {
             const uint64_t entry =
@@ -74,12 +74,12 @@ bool CvarManager::try_hud_mem_path(uint64_t cHudAddr,
             m_values.clRadarScale = radarScaleVal;
         } else if (visibilitySizeMax > 0.0f && visibilitySize > 0.0f) {
             float ratio = visibilitySize / visibilitySizeMax;
-            // 150/300=0.5 is a UI ratio — only use if in cl_radar range.
+            // 150/300=0.5 is a UI ratio, only use if in cl_radar range.
             if (ratio >= 0.25f && ratio <= 1.05f) {
                 m_values.clRadarScale = ratio;
             }
         }
-        // cl_hud_radar_scale (panel size) is not reliably on this object — leave default 1.
+        // cl_hud_radar_scale (panel size) is not reliably on this object, leave default 1.
         if (m_values.clHudRadarScale <= 0.f) m_values.clHudRadarScale = 1.0f;
     }
 
@@ -255,4 +255,3 @@ bool CvarManager::try_xref_path(uint64_t clientBase, size_t clientSize,
 }
 
 } // namespace real::cs2::periscope
-

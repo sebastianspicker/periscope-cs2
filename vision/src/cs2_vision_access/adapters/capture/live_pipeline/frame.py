@@ -128,7 +128,7 @@ def run_frame(
     inference_elapsed = (time.perf_counter() - inference_start) * 1000.0
     diag.inference_ms.append(inference_elapsed)
 
-    # Ledger E31: a scene cut invalidates every association — reset the
+    # Ledger E31: a scene cut invalidates every association, reset the
     # temporal history and the track table before they carry stale state
     # across the cut.
     if scene_detector is not None and scene_detector.update(frame):

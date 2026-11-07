@@ -1,4 +1,4 @@
-// hijack_reader_internal.hpp — shared state/helpers for hijack_reader*.cpp TUs.
+// hijack_reader_internal.hpp: shared state/helpers for hijack_reader*.cpp TUs.
 #pragma once
 
 #include "real/cs2/hijack_reader.hpp"

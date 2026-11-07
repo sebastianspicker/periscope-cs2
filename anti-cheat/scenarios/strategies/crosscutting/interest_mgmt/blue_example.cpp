@@ -42,7 +42,7 @@ BlueResult detect(sim::World& w) {
   server::Observer obs{{0, 0, 0}, 0};
   std::vector<server::WorldEntity> all = {
       {1, {5, 0, 5}, 1, true},
-      {2, {200, 0, 200}, 2, true},  // far enemy — should cull
+      {2, {200, 0, 200}, 2, true},  // far enemy, should cull
       {3, {8, 0, 8}, 1, true},
   };
   server::InterestFilterStats st{};
@@ -79,12 +79,12 @@ BlueResult detect(sim::World& w) {
   r.detail = "interest_mgmt blue fog+ culled=" + std::to_string(st.enemies_culled) +
              " fidelity=" + std::to_string(w.client_entity_fidelity) +
              " signals=" + std::to_string(r.signals) +
-             " detected=" + std::to_string(r.detected ? 1 : 0) +
+             " detected=" + std::to_string(r.detected ? 1: 0) +
              " " + st.detail;
   w.note(r.detail);
   std::printf("[interest_mgmt] BLUE signals=%d detected=%s mitigated=%s\n",
-              r.signals, r.detected ? "true" : "false",
-              r.mitigated ? "true" : "false");
+              r.signals, r.detected ? "true": "false",
+              r.mitigated ? "true": "false");
   for (const auto& reason : r.reasons) {
     std::printf("[interest_mgmt]   %s\n", reason.c_str());
   }

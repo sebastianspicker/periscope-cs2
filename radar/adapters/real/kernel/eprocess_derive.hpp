@@ -1,10 +1,10 @@
-// eprocess_derive.hpp — Runtime derivation of _EPROCESS field offsets from
+// eprocess_derive.hpp: Runtime derivation of _EPROCESS field offsets from
 // self-validating invariants (assessment ledger E16).
 //
 // Hardcoded EPROCESS offsets (UniqueProcessId 0x440, ActiveProcessLinks
 // 0x448, ...) rot with every Windows build. The derivation strategy instead
 // treats the layout as unknown and *derives* it from invariants that any
-// correct layout must satisfy — each candidate offset is accepted only when
+// correct layout must satisfy, each candidate offset is accepted only when
 // the whole structure stays self-consistent:
 //
 //   ImageFileName       scanning the System EPROCESS for "System\0" at an
@@ -25,7 +25,7 @@
 // so the cost is visible, not hidden.
 //
 // The derivation is parameterized by a read functor
-// ``bool(std::uint64_t address, void* dst, std::size_t size)`` — on Windows
+// ``bool(std::uint64_t address, void* dst, std::size_t size)``, on Windows
 // this reads kernel/physical memory through the tier backend; in the host
 // test it reads a synthetic memory image. Nothing here touches a platform
 // header.
@@ -135,7 +135,7 @@ bool probe_image_file_name(ReadFn read, std::uint64_t eprocess,
   return std::memcmp(name, "System\0", 7) == 0 && name[7] == '\0';
 }
 
-/// Predicate: candidate LIST_ENTRY closes a cycle — Flink->Blink points back
+/// Predicate: candidate LIST_ENTRY closes a cycle, Flink->Blink points back
 /// at the entry itself. Requires two bounded dereferences per candidate.
 template <typename ReadFn>
 bool probe_active_process_links(ReadFn read, std::uint64_t eprocess,
@@ -181,7 +181,7 @@ bool probe_unique_process_id(ReadFn read, std::uint64_t eprocess,
 
 /// Predicate: candidate DTB is within the physical cap and its page tables
 /// translate ``image_virtual_base`` to a page whose first bytes are 'MZ'
-/// (a mapped PE image). Low CR3 control bits (PCID/PCD/PWT) are tolerated —
+/// (a mapped PE image). Low CR3 control bits (PCID/PCD/PWT) are tolerated -
 /// the translation masks them; the MZ probe carries the real weight.
 template <typename ReadFn>
 bool probe_directory_table_base(ReadFn read, std::uint64_t candidate_dtb,
@@ -273,10 +273,10 @@ Derivation derive_layout(ReadFn read,
 }
 
 /// Walk the ActiveProcessLinks list from the System EPROCESS, invoking
-/// ``visit(pid, eprocess)`` for every entry — starting with the System
+/// ``visit(pid, eprocess)`` for every entry, starting with the System
 /// process itself (the list head), then following Flink until the walk
 /// returns to the head (circular list) or the guard fires. Stops early when
-/// ``visit`` returns false. This is the consumer of the derived layout —
+/// ``visit`` returns false. This is the consumer of the derived layout -
 /// the whole point is that no hardcoded offsets remain.
 template <typename ReadFn, typename Visit>
 int walk_process_list(ReadFn read,

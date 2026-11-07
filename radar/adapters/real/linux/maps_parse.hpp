@@ -1,4 +1,4 @@
-// maps_parse.hpp — Pure /proc/[pid]/maps line parser.
+// maps_parse.hpp: Pure /proc/[pid]/maps line parser.
 // Portable: no OS syscalls. Unit-tested on every host.
 
 #pragma once
@@ -31,7 +31,7 @@ inline bool parse_line(const char* line, Mapping& out) noexcept {
     unsigned long long start = 0, end = 0, off = 0, inode = 0;
     unsigned dev_maj = 0, dev_min = 0;
     char perms[8] = {};
-    // pathname may be empty (anonymous) or contain spaces (rare) — capture rest.
+    // pathname may be empty (anonymous) or contain spaces (rare), capture rest.
     int n = std::sscanf(line, "%llx-%llx %7s %llx %x:%x %llu",
                         &start, &end, perms, &off, &dev_maj, &dev_min, &inode);
     if (n < 7) return false;
@@ -63,7 +63,7 @@ inline bool parse_line(const char* line, Mapping& out) noexcept {
         } else {
             in = false;
             if (fields >= 6) {
-                // at end of inode field area — continue to skip remaining of inode
+                // at end of inode field area, continue to skip remaining of inode
             }
         }
         if (fields >= 6 && (*p == ' ' || *p == '\t')) {
@@ -95,7 +95,7 @@ inline bool parse_line(const std::string& line, Mapping& out) noexcept {
 
 /// Size of a mapping in bytes.
 inline uint64_t size_bytes(const Mapping& m) noexcept {
-    return m.end >= m.start ? (m.end - m.start) : 0;
+    return m.end >= m.start ? (m.end - m.start): 0;
 }
 
 /// First mapping whose pathname contains `needle` (case-sensitive).

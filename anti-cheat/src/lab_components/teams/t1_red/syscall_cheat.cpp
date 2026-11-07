@@ -1,4 +1,4 @@
-// syscall_cheat.cpp — T1 red syscall-soft path (indirect/stub) over lab World.
+// syscall_cheat.cpp: T1 red syscall-soft path (indirect/stub) over lab World.
 // Plants educational residuals.
 
 #include "t1_red/syscall_cheat.hpp"
@@ -13,7 +13,7 @@ namespace t1_red {
 
 // SyscallCheat::SyscallCheat: T1 red client using syscall-soft attach path.
 SyscallCheat::SyscallCheat(sim::World& world, std::string name)
-    : world_(world), name_(std::move(name)) {
+: world_(world), name_(std::move(name)) {
   pid_ = world_.spawn(name_);
 }
 
@@ -77,7 +77,7 @@ bool SyscallCheat::attach_via_syscall() {
   last_.via_syscall = attached_;
   last_.syscall_handles = count_syscall_handles_();
   last_.reader_pid = pid_;
-  last_.detail = attached_ ? "attached_syscall_vm_read" : "attach_failed";
+  last_.detail = attached_ ? "attached_syscall_vm_read": "attach_failed";
   return attached_;
 }
 
@@ -180,7 +180,7 @@ bool SyscallCheat::resolve_dynamic_ssns(int windows_build) {
 // in-memory-versus-disk ntdll comparison performed by the simulated client.
 bool SyscallCheat::detect_and_evade_ntdll_hooks() {
   int hooks_found = 0;
-  for (const auto& [unused_pid, process] : world_.processes) {
+  for (const auto& [unused_pid, process]: world_.processes) {
     (void)unused_pid;
     if (!process.is_ac) {
       continue;
@@ -317,8 +317,8 @@ SyscallCheatReport SyscallCheat::run_full_loop(bool with_staging,
   oss << "full_loop entities=" << last_.entity_count
       << " syscall_handles=" << last_.syscall_handles
       << " reads=" << last_.read_ops << " bytes=" << last_.bytes_read
-      << " private_rx=" << (last_.private_rx ? 1 : 0)
-      << " staged=" << (last_.staged ? 1 : 0);
+      << " private_rx=" << (last_.private_rx ? 1: 0)
+      << " staged=" << (last_.staged ? 1: 0);
   last_.detail = oss.str();
   world_.note("t1 SyscallCheat " + last_.detail);
   return last_;
@@ -348,12 +348,12 @@ SyscallCheatReport SyscallCheat::run_full_stealth_loop() {
   }
   last_.reader_pid = pid_;
   std::ostringstream oss;
-  oss << "full_stealth_loop match_active=" << (world_.match_active ? 1 : 0)
+  oss << "full_stealth_loop match_active=" << (world_.match_active ? 1: 0)
       << " gate_stub=" << last_.heavens_gate_stub_pid
       << " stack_depth=" << last_.spoofed_call_depth
       << " ssn_build=" << last_.resolved_ssn_windows_build
       << " hooks_evaded=" << last_.hooks_evaded_count
-      << " etw_blind=" << (last_.etw_blind ? 1 : 0);
+      << " etw_blind=" << (last_.etw_blind ? 1: 0);
   last_.detail = oss.str();
   world_.note("t1 SyscallCheat " + last_.detail);
   return last_;

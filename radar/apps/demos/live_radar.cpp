@@ -1,8 +1,8 @@
-/// live_radar.cpp — Full live CS2 radar overlay prototype.
+/// live_radar.cpp: Full live CS2 radar overlay prototype.
 /// Educational anti-cheat lab: T0 external RPM + D3D11 overlay on in-game minimap.
 ///
 /// Build: cmake -S . -B build -DLR_ENABLE_REAL_RPM=ON
-/// Run:   ./build/Release/live_radar.exe  (requires cs2.exe running)
+/// Run: ./build/Release/live_radar.exe  (requires cs2.exe running)
 ///        optional: donor_worker.exe first so UI never OpenProcess(CS2)
 /// Keys:  END=quit  F=filter  R=refresh layout  D=debug ring  B=blue score
 ///
@@ -60,8 +60,8 @@ int main(int argc, char** argv) {
   logf("Intel policy: %s (default auto → hud-echo; --full pins all-entity)\n\n",
        real::cs2::stack::intel_policy_name(
            full_intel ? real::cs2::stack::IntelPolicy::Full
-                      : (strict_intel ? real::cs2::stack::IntelPolicy::HudEcho
-                                      : real::cs2::stack::IntelPolicy::Auto)));
+: (strict_intel ? real::cs2::stack::IntelPolicy::HudEcho
+: real::cs2::stack::IntelPolicy::Auto)));
 
 #if LR_PLATFORM_WINDOWS
   real::cs2::stack::apply_process_disguise("ui");
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
          real::kernel::preflight::describe(status).c_str());
     if (real::kernel::preflight::classify(status) ==
         real::kernel::preflight::Verdict::Blocked) {
-      logf("[preflight] not elevated — RPM may still work for a same-user game\n");
+      logf("[preflight] not elevated, RPM may still work for a same-user game\n");
     }
   }
 #endif
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
 
   logf("  L2 try existing donor_worker...\n");
   if (!try_l2("L2")) {
-    logf("  miss L2 — try spawn then L1/L3\n");
+    logf("  miss L2, try spawn then L1/L3\n");
     logf("  L2b spawn donor_worker (disguised)...\n");
     const auto wpid = real::cs2::stack::spawn_donor_worker();
     if (wpid) {
@@ -180,8 +180,8 @@ int main(int argc, char** argv) {
     engine_size = mods.engine2_size;
     tier0_base = mods.tier0_base;
     tier0_size = mods.tier0_size;
-    main_base = mods.cs2_base ? mods.cs2_base : mods.client_base;
-    main_size = mods.cs2_image_size ? mods.cs2_image_size : mods.client_size;
+    main_base = mods.cs2_base ? mods.cs2_base: mods.client_base;
+    main_size = mods.cs2_image_size ? mods.cs2_image_size: mods.client_size;
     logf("[step 1b] L2 modules from worker (no UI OpenProcess)\n");
   } else if (attach.attached) {
     real::cs2::find_client_module(attach.pid, attach.handle, client_base, client_size);
@@ -196,17 +196,17 @@ int main(int argc, char** argv) {
   {
     const std::uint64_t ph =
         (ladder.stage == real::cs2::stack::AttachStage::DonorWorkerIpc) ? 0
-                                                                        : attach.handle;
+: attach.handle;
     const std::uint64_t base_for_resolve =
-        (ph == 0) ? client_base : main_base;
+        (ph == 0) ? client_base: main_base;
     auto ur = real::cs2::stack::auto_update_offsets(
         ladder.cs2_pid, ph, base_for_resolve, main_size, offsets, ph != 0);
     if (client_base && offsets.entity_list < 0x100000)
       offsets = real::cs2::stack::offsets_from_client_base(client_base);
     else if (client_base && offsets.entity_list < client_base)
       offsets = real::cs2::offsets_from_snapshot(client_base);
-    logf("  snapshot=%d complete=%d wrote=%d detail=%s\n", ur.snapshot_loaded ? 1 : 0,
-         offsets.is_complete() ? 1 : 0, ur.wrote_snapshot ? 1 : 0, ur.detail.c_str());
+    logf("  snapshot=%d complete=%d wrote=%d detail=%s\n", ur.snapshot_loaded ? 1: 0,
+         offsets.is_complete() ? 1: 0, ur.wrote_snapshot ? 1: 0, ur.detail.c_str());
   }
 
   logf("[step 3] Memory backend...\n");
@@ -224,10 +224,10 @@ int main(int argc, char** argv) {
   }
   logf("  backend=%s ladder=%s hijack=%d worker=%d ui_detached=%d\n\n",
        g_prefer_worker ? "donor_ipc"
-                       : (g_reader ? reader.active_backend_name() : "none"),
+: (g_reader ? reader.active_backend_name(): "none"),
        real::cs2::stack::AttachLadder::stage_name(ladder.stage),
-       g_prefer_hijack ? 1 : 0, g_prefer_worker ? 1 : 0,
-       ladder.ui_detached ? 1 : 0);
+       g_prefer_hijack ? 1: 0, g_prefer_worker ? 1: 0,
+       ladder.ui_detached ? 1: 0);
 
   logf("[step 3b] modules client=0x%llx engine2=0x%llx tier0=0x%llx\n",
        (unsigned long long)client_base, (unsigned long long)engine_base,
@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
 
   logf("[step 3c] Resolving CHud + HudRadar + cvars...\n");
   std::uint64_t c_hud = resolve_c_hud(client_base, client_size);
-  logf("  c_hud=%s 0x%llx\n", c_hud ? "OK" : "MISS", (unsigned long long)c_hud);
+  logf("  c_hud=%s 0x%llx\n", c_hud ? "OK": "MISS", (unsigned long long)c_hud);
 
   real::cs2::periscope::HudRadarReader hud_reader;
   real::cs2::periscope::CvarManager cvars;
@@ -244,19 +244,19 @@ int main(int argc, char** argv) {
     logf("  updating HudRadar snapshot (no full-module string scan)...\n");
     hud_ok = hud_reader.update_snapshot(c_hud, client_base, client_size, live_read,
                                         /*stringScanFallback=*/false);
-    logf("  HudRadar valid=%d\n", hud_ok ? 1 : 0);
+    logf("  HudRadar valid=%d\n", hud_ok ? 1: 0);
     logf("  initializing cvars (ICVar CreateInterface + HUD)...\n");
     cvars.initialize(engine_base, engine_size, tier0_base, tier0_size, client_base,
                      client_size, c_hud, live_read);
     {
       const int path = cvars.values().resolutionPath;
       const char* path_name =
-          path == 1 ? "warm_cache" :
-          path == 2 ? "icvar_list_walk" :
-          path == 3 ? "hud_mem" :
-          path == 4 ? "xref_pe_scan" : "defaults";
+          path == 1 ? "warm_cache":
+          path == 2 ? "icvar_list_walk":
+          path == 3 ? "hud_mem":
+          path == 4 ? "xref_pe_scan": "defaults";
       logf("  cvars path=%d (%s) allValid=%d\n", path, path_name,
-           cvars.values().allValid ? 1 : 0);
+           cvars.values().allValid ? 1: 0);
     }
     logf("  cvars: hud_scaling=%.3f cl_hud_radar=%.3f cl_radar=%.3f safe=(%.2f,%.2f)\n",
          cvars.values().hudScaling, cvars.values().clHudRadarScale,
@@ -266,7 +266,7 @@ int main(int argc, char** argv) {
       const auto& s = hud_reader.snapshot();
       logf("  HudRadar: vis=%.1f/%.1f mapTexScale=%.6f maxVisSq=%.1f radarScale=%.3f round=%d\n",
            s.visibilitySize, s.visibilitySizeMax, s.mapTextureScale,
-           s.maxVisibilitySquared, s.radarScale, s.isRound ? 1 : 0);
+           s.maxVisibilitySquared, s.radarScale, s.isRound ? 1: 0);
     }
   }
 
@@ -338,7 +338,7 @@ int main(int argc, char** argv) {
     auto audit =
         real::cs2::stack::apply_and_audit_streamproof(hwnd, /*only_if_streaming=*/false);
     logf("  streamproof: hwnd=%p applied=%d affinity=0x%x %s\n\n", hwnd,
-         audit.wda_exclude_applied ? 1 : 0, audit.affinity_value, audit.detail);
+         audit.wda_exclude_applied ? 1: 0, audit.affinity_value, audit.detail);
   }
 
   real::gpu::gui::GuiSystem gui;
@@ -356,8 +356,8 @@ int main(int argc, char** argv) {
     hud_settings.cl_radar_scale = settings.radar_scale;
     (void)renderer->apply_overlay_style(stl);
     logf("  gui: config=%s panel=hidden alpha=%d topmost=%d click=%d scale=%.2f\n",
-         cfg_loaded ? "loaded" : "defaults", settings.overlay_alpha,
-         settings.overlay_topmost ? 1 : 0, settings.overlay_clickthrough ? 1 : 0,
+         cfg_loaded ? "loaded": "defaults", settings.overlay_alpha,
+         settings.overlay_topmost ? 1: 0, settings.overlay_clickthrough ? 1: 0,
          settings.radar_scale);
   }
 

@@ -32,15 +32,15 @@ def create_manifest(
 ) -> Path:
     """Create a model manifest JSON next to the ONNX file.
 
-    Thin notebook-friendly wrapper around
+        Thin notebook-friendly wrapper around
     :func:`cs2_vision_access.application.model_assets.manifest.create_manifest`.
 
-    Args:
-        onnx_path: Path to the ONNX weights file.
-        data_dir: Directory where the manifest JSON is written.
-        classes: Optional class map override. Defaults to :data:`DEFAULT_CLASSES`.
-        origin: Free-text provenance for the manifest ``origin`` field.
-        license_name: SPDX-style license string for the manifest ``license`` field.
+        Args:
+            onnx_path: Path to the ONNX weights file.
+            data_dir: Directory where the manifest JSON is written.
+            classes: Optional class map override. Defaults to :data:`DEFAULT_CLASSES`.
+            origin: Free-text provenance for the manifest ``origin`` field.
+            license_name: SPDX-style license string for the manifest ``license`` field.
     """
     onnx_path = Path(onnx_path)
     if not onnx_path.is_file():
@@ -94,7 +94,7 @@ def run_pipeline(
     (stable Ultralytics run dir under ``data_dir/runs/<run_name>`` by default).
 
     Returns:
-        (onnx_path, manifest_path) — FP32 ONNX and manifest. FP16 sibling is
+        (onnx_path, manifest_path), FP32 ONNX and manifest. FP16 sibling is
         written beside the ONNX when conversion succeeds.
     """
     install_dependencies()
@@ -123,7 +123,7 @@ def run_pipeline(
         bundle_zip = Path(data_dir) / "cs2-yolo11n-seg-bundle.zip"
         try:
             package_outputs(onnx_path, manifest_path, bundle_zip)
-        except Exception as exc:  # noqa: BLE001 — packaging must not fail the run
+        except Exception as exc:  # noqa: BLE001, packaging must not fail the run
             print(f"(package_outputs skipped: {exc})")
 
     print(f"\n{'=' * 60}")

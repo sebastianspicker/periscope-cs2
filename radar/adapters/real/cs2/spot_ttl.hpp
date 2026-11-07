@@ -1,4 +1,4 @@
-// spot_ttl.hpp — Recently-spotted TTL for the hud-echo intel gate (E49).
+// spot_ttl.hpp: Recently-spotted TTL for the hud-echo intel gate (E49).
 //
 // `m_bSpotted` is not a stable boolean: the game pulses it, and a raw read
 // makes blips flicker. A flickering blip is worse for a low-vision user than
@@ -6,8 +6,8 @@
 // for a short window instead of drawing the raw flag.
 //
 // Two modes are deliberately supported:
-//   - ttl_ms > 0 : recently-spotted memory (default 1000 ms)
-//   - ttl_ms == 0: strict, no memory — unknown/current-false hides
+//   - ttl_ms > 0: recently-spotted memory (default 1000 ms)
+//   - ttl_ms == 0: strict, no memory, unknown/current-false hides
 //
 // `known == false` (the read failed) is never the same as "spotted"; strict
 // intel hides on unknown so a failed read cannot leak an unspotted enemy.
@@ -23,7 +23,7 @@ namespace real::cs2::spot {
 
 class SpotTtl {
  public:
-  explicit SpotTtl(std::uint64_t ttl_ms = 1000) : ttl_ms_(ttl_ms) {}
+  explicit SpotTtl(std::uint64_t ttl_ms = 1000): ttl_ms_(ttl_ms) {}
 
   void set_ttl_ms(std::uint64_t ttl_ms) { ttl_ms_ = ttl_ms; }
   std::uint64_t ttl_ms() const { return ttl_ms_; }
@@ -35,9 +35,9 @@ class SpotTtl {
     if (known && spotted) {
       last_true_[handle] = now_ms;
     } else if (known) {
-      // Explicit false: keep the window (recently-spotted semantics) but
-      // remember that the handle is known so strict mode can distinguish it
-      // from an unreadable handle.
+      // Explicit false: keep any existing window, but ensure the handle has an
+      // entry so prune/size reflect it. Strict mode uses the caller's `known`
+      // argument, not map presence.
       last_true_.try_emplace(handle, 0);
     }
   }

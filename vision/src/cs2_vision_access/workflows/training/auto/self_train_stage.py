@@ -299,7 +299,7 @@ def stage_self_train(
                 student_manifest,
                 **st_kwargs,
             )
-        except Exception as error:  # noqa: BLE001 — soft fail unless required
+        except Exception as error:  # noqa: BLE001, soft fail unless required
             msg = f"self_train failed (iter {it}): {error}"
             updates["self_train_status"] = "failed"
             updates["self_train_error"] = str(error)
@@ -414,7 +414,7 @@ def stage_self_train(
                 apply_merged_soft_notes(updates, progress_bits)
             except Exception as progress_err:  # noqa: BLE001
                 notes.append(f"iter{it}: progress refresh skipped: {progress_err}")
-        except Exception as error:  # noqa: BLE001 — soft unless required
+        except Exception as error:  # noqa: BLE001, soft unless required
             msg = f"self_train retrain failed (iter {it}): {error}"
             cycle["retrain_status"] = "failed"
             cycle["retrain_error"] = str(error)

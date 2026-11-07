@@ -1,4 +1,4 @@
-// RED: remote offset/schema C2 product — versioned layout fetch.
+// RED: remote offset/schema C2 product, versioned layout fetch.
 // Distinct residual: net looks_like_offset_c2 + schema_remote_update pipeline.
 
 #include "red_example.hpp"

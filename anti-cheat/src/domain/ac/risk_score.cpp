@@ -1,4 +1,4 @@
-// risk_score.cpp — multi-signal RiskAggregator / risk scoring for blue events.
+// risk_score.cpp: multi-signal RiskAggregator / risk scoring for blue events.
 // ingest() folds EventKind deltas; state() surfaces lab risk for ban correlators.
 
 #include "ac/risk_score.hpp"

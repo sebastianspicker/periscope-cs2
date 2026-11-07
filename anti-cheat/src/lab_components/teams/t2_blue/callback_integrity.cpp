@@ -1,4 +1,4 @@
-// callback_integrity.cpp — T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
+// callback_integrity.cpp: T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_blue/callback_integrity.hpp"
@@ -8,7 +8,7 @@
 namespace t2_blue {
 
 // CallbackIntegrity::CallbackIntegrity: Blue auditor for process/thread/image callbacks.
-CallbackIntegrity::CallbackIntegrity(ac::ITelemetrySink& sink) : sink_(sink) {
+CallbackIntegrity::CallbackIntegrity(ac::ITelemetrySink& sink): sink_(sink) {
   // Default healthy baseline.
   baseline_ = {4, 3, true, 3, true, 2, true};
   has_baseline_ = true;
@@ -38,12 +38,12 @@ void CallbackIntegrity::audit(const CallbackSnapshot& now) {
     return;
   }
   sink_.emit(ac::TelemetryEvent{
-      .kind = ac::EventKind::Generic,
-      .related_tier = ac::Tier::T2_KernelByovd,
-      .subject_pid = 0,
-      .object_pid = 0,
-      .detail = "callback_integrity_degraded",
-      .risk_delta = 4.0,
+.kind = ac::EventKind::Generic,
+.related_tier = ac::Tier::T2_KernelByovd,
+.subject_pid = 0,
+.object_pid = 0,
+.detail = "callback_integrity_degraded",
+.risk_delta = 4.0,
   });
 }
 
@@ -71,7 +71,7 @@ CallbackAuditResult CallbackIntegrity::audit_world(const sim::World& w) {
   audit(now);
   r.degraded = last_degraded_;
   r.shadow_active = w.callback_shadow_active;
-  r.risk = r.degraded ? 4.0 : 0.0;
+  r.risk = r.degraded ? 4.0: 0.0;
   if (r.shadow_active) {
     r.risk += 1.5;
     // Shadow is itself a scar even if probe lists look restored.
@@ -79,9 +79,9 @@ CallbackAuditResult CallbackIntegrity::audit_world(const sim::World& w) {
   std::ostringstream oss;
   oss << "callbacks pn=" << now.process_notify_count
       << " in=" << now.image_notify_count
-      << " ac=" << (now.expected_ac_callback_present ? 1 : 0)
-      << " degraded=" << (r.degraded ? 1 : 0)
-      << " shadow=" << (r.shadow_active ? 1 : 0);
+      << " ac=" << (now.expected_ac_callback_present ? 1: 0)
+      << " degraded=" << (r.degraded ? 1: 0)
+      << " shadow=" << (r.shadow_active ? 1: 0);
   r.detail = oss.str();
   if (r.shadow_active && !r.degraded) {
     sink_.emit({ac::EventKind::Generic, ac::Tier::T2_KernelByovd, 0, 0,

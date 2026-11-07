@@ -1,6 +1,6 @@
 #pragma once
 
-// ACCEPT readiness gate — 7 independent conditions must all pass before the
+// ACCEPT readiness gate, 7 independent conditions must all pass before the
 // radar is considered "live" (ready for overlay push / ranked eligibility).
 //
 // ac1 multi-chunk with remotes   (chunkRatioOk / multiChunkRemotes)

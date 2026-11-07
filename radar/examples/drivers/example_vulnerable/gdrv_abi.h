@@ -1,4 +1,4 @@
-// gdrv_abi.h — Shared IOCTL ABI for the educational gdrv.sys BYOVD stack.
+// gdrv_abi.h: Shared IOCTL ABI for the educational gdrv.sys BYOVD stack.
 //
 // Consumed by:
 //   - vuln_driver.c     (kernel, WDK)

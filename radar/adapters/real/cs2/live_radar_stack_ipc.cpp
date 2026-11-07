@@ -1,4 +1,4 @@
-// Split from live_radar_stack.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from live_radar_stack.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/live_radar_stack.hpp"
 #include "real/cs2/live_radar_stack_internal.hpp"
 #include "real/cs2/offsets_snapshot.hpp"
@@ -73,10 +73,10 @@ void DonorIpcClient::disconnect() noexcept {
 }
 
 std::uint32_t DonorIpcClient::worker_pid() const noexcept {
-  return mapped_ ? reinterpret_cast<const DonorIpcHeader*>(mapped_)->worker_pid : 0;
+  return mapped_ ? reinterpret_cast<const DonorIpcHeader*>(mapped_)->worker_pid: 0;
 }
 std::uint32_t DonorIpcClient::cs2_pid() const noexcept {
-  return mapped_ ? reinterpret_cast<const DonorIpcHeader*>(mapped_)->cs2_pid : 0;
+  return mapped_ ? reinterpret_cast<const DonorIpcHeader*>(mapped_)->cs2_pid: 0;
 }
 
 DonorModules DonorIpcClient::modules() const noexcept {
@@ -135,7 +135,7 @@ std::uint32_t spawn_donor_worker() noexcept {
   if (!GetModuleFileNameA(nullptr, path, MAX_PATH)) return 0;
   std::string p(path);
   const auto slash = p.find_last_of("\\/");
-  std::string dir = (slash == std::string::npos) ? "." : p.substr(0, slash);
+  std::string dir = (slash == std::string::npos) ? ".": p.substr(0, slash);
   // Disguise: spawn as MpsSvcHost.exe copy if present, else donor_worker.exe
   std::string worker = dir + "\\donor_worker.exe";
   std::string disguise = dir + "\\MpsSvcHost.exe";
@@ -143,7 +143,7 @@ std::uint32_t spawn_donor_worker() noexcept {
   CopyFileA(worker.c_str(), disguise.c_str(), FALSE);
   const char* exe = GetFileAttributesA(disguise.c_str()) != INVALID_FILE_ATTRIBUTES
                        ? disguise.c_str()
-                       : worker.c_str();
+: worker.c_str();
   STARTUPINFOA si{};
   si.cb = sizeof(si);
   PROCESS_INFORMATION pi{};
@@ -181,7 +181,7 @@ void forensic_cleanup_ipc() noexcept {
 void apply_process_disguise(const char* role) noexcept {
   // Educational: console/window title only (no PEB rewrite).
   char title[128]{};
-  std::snprintf(title, sizeof(title), "MpsSvc_%s_%u", role ? role : "svc",
+  std::snprintf(title, sizeof(title), "MpsSvc_%s_%u", role ? role: "svc",
                 GetCurrentProcessId());
   SetConsoleTitleA(title);
 }
@@ -200,4 +200,3 @@ void apply_process_disguise(const char*) noexcept {}
 #endif
 
 }  // namespace real::cs2::stack
-

@@ -1,4 +1,4 @@
-// radar_los_test.cpp — R11: BVH line-of-sight parity against brute force on
+// radar_los_test.cpp: R11: BVH line-of-sight parity against brute force on
 // synthetic scenes (no game assets required).
 
 #include "radar/los_bvh.hpp"

@@ -1,16 +1,16 @@
-"""Aim-assist policy (ledger L9) — the decision layer between targets and
+"""Aim-assist policy (ledger L9), the decision layer between targets and
 motion deltas. **Pure**: it computes numbers; it never moves a cursor. The
 L8 output paths consume these deltas under lab-only opt-in flags.
 
 Parameter space (in priority order, per the ledger):
 
-1. FOV gate — radius around the current aim inside which targets are
+1. FOV gate, radius around the current aim inside which targets are
    eligible (targets outside the gate are invisible to the assist).
-2. Target priority — angular/screen distance to the crosshair, with sticky
+2. Target priority, angular/screen distance to the crosshair, with sticky
    target hysteresis so the assist does not flicker between two enemies.
-3. Smoothing — exponential response to the *compensated* error (L7's
+3. Smoothing, exponential response to the *compensated* error (L7's
    predictor output, not raw error), capped per-step velocity, dead-zone.
-4. Engagement conditions — only-while-held is the caller's concern; the
+4. Engagement conditions, only-while-held is the caller's concern; the
    policy adds a cooldown after large corrections so a single frame glitch
    cannot produce a snap.
 

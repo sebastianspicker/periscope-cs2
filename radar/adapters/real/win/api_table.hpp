@@ -1,12 +1,12 @@
-// api_table.hpp — Full API table with PEB+EAT resolution (IAT proxy pattern).
+// api_table.hpp: Full API table with PEB+EAT resolution (IAT proxy pattern).
 //
 // THIS is the single API resolution mechanism for the project. The legacy
-// ntapi.hpp/cpp (NtApiTable) has been removed — all NT, kernel32, user32,
+// ntapi.hpp/cpp (NtApiTable) has been removed: all NT: kernel32, user32,
 // D3D11/DXGI, PSAPI, and Advapi32 functions are resolved through ApiTable
 // via PEB LdrWalk + manual EAT traversal.
 //
 // All ~80+ Windows/NT/DXGI API function pointers are resolved via pure
-// PEB LdrWalk + manual Export Address Table (EAT) traversal — NO static
+// PEB LdrWalk + manual Export Address Table (EAT) traversal, NO static
 // IAT entries, NO GetModuleHandle, NO GetProcAddress in the release path.
 //
 // This defeats IAT-scanning detection and eliminates static import
@@ -61,7 +61,7 @@ namespace real::win {
 /// Module and function names passed through OBF() compile-time XOR obfuscation.
 struct ApiTable {
     // ====================================================================
-    // NT API (ntdll.dll) — 22 functions
+    // NT API (ntdll.dll), 22 functions
     // ====================================================================
     NTSTATUS (NTAPI* NtOpenProcess)(PHANDLE, ACCESS_MASK, POBJECT_ATTRIBUTES, PCLIENT_ID);
     NTSTATUS (NTAPI* NtReadVirtualMemory)(HANDLE, PVOID, PVOID, SIZE_T, PSIZE_T);
@@ -88,16 +88,16 @@ struct ApiTable {
     NTSTATUS (NTAPI* RtlAdjustPrivilege)(ULONG, BOOL, BOOL, PBOOL);
 
     // ====================================================================
-    // Kernel32 — 30 functions
+    // Kernel32, 30 functions
     // ====================================================================
-    // DEPRECATED — Educational use ONLY. Never use in production builds.
+    // DEPRECATED, Educational use ONLY. Never use in production builds.
     // OpenProcess creates an immediately-detectable handle in the system
     // handle table. All target process handles must come through HijackReader
     // (handle duplication from a donor process). This slot exists solely for
     // educational/demonstration code paths.
     HANDLE  (WINAPI* OpenProcess)(DWORD, BOOL, DWORD);
     BOOL    (WINAPI* CloseHandle)(HANDLE);
-    // DEPRECATED — Educational use ONLY. Never use in production builds.
+    // DEPRECATED, Educational use ONLY. Never use in production builds.
     // ReadProcessMemory is detectable via API call monitoring and handle
     // table enumeration. For self-read operations, use NtReadVirtualMemory
     // with NtCurrentProcess() pseudo-handle instead.
@@ -146,7 +146,7 @@ struct ApiTable {
     ULONG   (WINAPI* RemoveVectoredExceptionHandler)(PVOID);
 
     // ====================================================================
-    // User32 — 12 functions
+    // User32, 12 functions
     // ====================================================================
     WORD    (WINAPI* RegisterClassExA)(const void*);
     HWND    (WINAPI* CreateWindowExA)(DWORD, LPCSTR, LPCSTR, DWORD, int, int, int, int, HWND, void*, HANDLE, LPVOID);
@@ -163,7 +163,7 @@ struct ApiTable {
     BOOL    (WINAPI* UpdateWindow)(HWND);
 
     // ====================================================================
-    // D3D11 / DXGI — 6 functions
+    // D3D11 / DXGI, 6 functions
     // ====================================================================
     HRESULT (WINAPI* D3D11CreateDevice)(void*, DWORD, void*, UINT, void*, UINT, DWORD, void*, void*, void*);
     HRESULT (WINAPI* D3D11CreateDeviceAndSwapChain)(void*, DWORD, void*, UINT, void*, UINT, DWORD, void*, void*, void*, void*);
@@ -172,14 +172,14 @@ struct ApiTable {
     HRESULT (WINAPI* CreateDXGIFactory2)(UINT, void*, void*);
 
     // ====================================================================
-    // PSAPI — 3 functions
+    // PSAPI, 3 functions
     // ====================================================================
     BOOL    (WINAPI* EnumProcessModules)(HANDLE, HMODULE*, DWORD, PDWORD);
     BOOL    (WINAPI* EnumProcessModulesEx)(HANDLE, HMODULE*, DWORD, PDWORD, DWORD);
     BOOL    (WINAPI* GetModuleInformation)(HANDLE, HMODULE, void*, DWORD);
 
     // ====================================================================
-    // Advapi32 — 8 functions
+    // Advapi32, 8 functions
     // ====================================================================
     LONG    (WINAPI* RegOpenKeyExW)(HKEY, LPCWSTR, DWORD, ACCESS_MASK, PHKEY);
     LONG    (WINAPI* RegQueryValueExW)(HKEY, LPCWSTR, PDWORD, PDWORD, BYTE*, PDWORD);
@@ -201,7 +201,7 @@ struct ApiTable {
     NTSTATUS(NTAPI* LdrRegisterDllNotification)(ULONG Flags, PVOID NotificationFunction, PVOID Context, PVOID* Cookie);
     NTSTATUS(NTAPI* LdrUnregisterDllNotification)(PVOID Cookie);
 
-    // PLDR_DLL_NOTIFICATION_FUNCTION — callback type for LdrRegisterDllNotification
+    // PLDR_DLL_NOTIFICATION_FUNCTION, callback type for LdrRegisterDllNotification
     // Use void (not VOID) so this is valid even if Windows macros are stripped.
     using PLDR_DLL_NOTIFICATION_FUNCTION = void (NTAPI*)(ULONG NotificationReason, PCLDR_DLL_NOTIFICATION_DATA NotificationData, PVOID Context);
 
@@ -249,4 +249,3 @@ ApiTable& g_Api() noexcept;
 } // namespace real::win
 
 #endif // LR_PLATFORM_WINDOWS
-

@@ -1,4 +1,4 @@
-# CMakeLists.txt — Build vuln_driver.sys, user_test.exe, gdrv_host_tests.exe
+# CMakeLists.txt: Build vuln_driver.sys: user_test.exe, gdrv_host_tests.exe
 #
 # Usermode (always works with MSVC / Windows SDK):
 #   cmake -S . -B build -DBUILD_DRIVER=OFF

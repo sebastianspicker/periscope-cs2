@@ -65,7 +65,7 @@ RedResult apply(sim::World& w) {
   const auto row0_addr = game->base + w.lab_entity_table_rel + kRowsOffset;
   const auto row1_addr = row0_addr + kRowSize;
 
-  // Record 1: alive/team from generation 0...
+  // Record 1: alive/team from generation 0, ...
   auto alive_team = w.read_mem(actor, game_pid, row0_addr + 12, 2, true);
   if (alive_team.status != ac::Status::Ok || alive_team.bytes.size() != 2) {
     return {false, steps, "field read (alive/team) failed"};
@@ -75,10 +75,10 @@ RedResult apply(sim::World& w) {
   record1.alive = alive_team.bytes[1] != 0;
   ++w.torn_read_transactions;
 
-  // ...the game updates row 0 (origin zeroed, team 1->2, alive 0)...
+  // ... the game updates row 0 (origin zeroed, team 1->2, alive 0), ...
   game_updates_row(w, game_pid, 0, row_bytes(0.f, 0.f, 0.f, 2, 0));
 
-  // ...then origin/team are read from the new generation.
+  // ... then origin/team are read from the new generation.
   auto origin = w.read_mem(actor, game_pid, row0_addr, 12, true);
   if (origin.status != ac::Status::Ok || origin.bytes.size() != 12) {
     return {false, steps, "field read (origin) failed"};

@@ -28,7 +28,7 @@ def _phase_resolve_data(
     cs2_10k_holdout_video_fraction: float,
     notes: list[str],
 ) -> _ResolvedData:
-    """Zip / CS2-10k / existing images — materialize a local data_dir with frames."""
+    """Zip / CS2-10k / existing images, materialize a local data_dir with frames."""
     zip_path: Path | None = Path(dataset_zip) if dataset_zip else None
     if zip_path is not None and not zip_path.is_file():
         zip_path = None
@@ -54,7 +54,7 @@ def _phase_resolve_data(
 
     # --- Auto-load CS2-10k when no local frames -----------------------------
     if n_images == 0 and use_cs2_10k:
-        print(f"No local images — downloading a small slice of RekaAI/CS2-10k ({_CS2_10K_SOURCE})…")
+        print(f"No local images, downloading a small slice of RekaAI/CS2-10k ({_CS2_10K_SOURCE})…")
         try:
             from cs2_vision_access.workflows.training.cs2_10k import materialize_cs2_10k_dataset
 

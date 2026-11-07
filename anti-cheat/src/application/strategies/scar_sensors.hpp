@@ -1,7 +1,7 @@
 #pragma once
 
 // Tier-aware scar inventory: pure scanners over sim::World used by blue
-// multi-reason detectors. Every function inspects live World state — no stubs.
+// multi-reason detectors. Every function inspects live World state, no stubs.
 
 #include "sim/world.hpp"
 #include "strategies/strategy_types.hpp"
@@ -112,7 +112,7 @@ int count_input_scars(const sim::World& w);
 /// Capture / clone / desktop-dup / printwindow residuals.
 int count_capture_scars(const sim::World& w);
 
-/// Full inventory pass — populates ScarInventory and total_scars.
+/// Full inventory pass, populates ScarInventory and total_scars.
 ScarInventory inventory(const sim::World& w);
 
 /// Convert inventory into BlueOutcome signals (one reason per scar family).

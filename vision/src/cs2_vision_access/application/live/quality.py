@@ -2,7 +2,7 @@
 
 Principle: **degrade to "don't draw" instead of drawing garbage.** Before
 detections reach the temporal filter, the track animator, or any renderer,
-each prediction must pass sanity gates — confidence floor, polygon area
+each prediction must pass sanity gates, confidence floor, polygon area
 bounds, optional class allow-list, and finite coordinates. A prediction that
 fails a gate is dropped with a counted reason; a dropped prediction is never
 rendered.
@@ -29,13 +29,13 @@ class PredictionGateConfig:
 
     ``enabled`` defaults to false (identity passthrough). When enabled:
 
-    - ``min_confidence`` — drop detections below this detector confidence.
-    - ``min_area_px`` — drop detections whose bounding box area (px²) is
+    - ``min_confidence``, drop detections below this detector confidence.
+    - ``min_area_px``, drop detections whose bounding box area (px²) is
       below this; sub-detection specks are worse than nothing.
-    - ``max_area_fraction`` — drop detections whose bounding box covers more
+    - ``max_area_fraction``, drop detections whose bounding box covers more
       than this fraction of the frame; a "detection" covering the whole frame
       is a degraded read, not a player.
-    - ``allowed_class_ids`` / ``allowed_class_names`` — optional allow-lists
+    - ``allowed_class_ids`` / ``allowed_class_names``, optional allow-lists
       (``None`` disables the check). An empty tuple allow-list allows nothing.
     """
 

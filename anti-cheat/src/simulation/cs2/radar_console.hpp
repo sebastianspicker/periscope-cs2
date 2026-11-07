@@ -53,7 +53,7 @@ inline void render_radar_console(const char* title,
       const bool teammate = player.team == local->team;
       if (!show_all && !teammate) {
         // HudEcho: an enemy blip only appears while the game's own spotting
-        // mask covers the local player — identical to the official radar.
+        // mask covers the local player, identical to the official radar.
         if (!enemy_is_spotted_by(player.spotted_mask, local->pawn_index)) continue;
       }
       const RadarLayout layout = compute_layout(hud, local->eye_angles.yaw);
@@ -69,25 +69,25 @@ inline void render_radar_console(const char* title,
           point.position.x / range * center_col));
       row = std::clamp(row, 0, kRows - 1);
       col = std::clamp(col, 0, kCols - 1);
-      grid[row][col] = teammate ? 'C' : 'T';
+      grid[row][col] = teammate ? 'C': 'T';
     }
   }
 
   std::printf("\n[CS2 HUD Radar] %s (intel=%s)\n",
-              title, mode == IntelMode::Full ? "full" : "hud-echo");
+              title, mode == IntelMode::Full ? "full": "hud-echo");
   for (const auto& row : grid) std::printf("  %s\n", row);
   std::printf("  L=local yaw=%.1f  C=CT (blue)  T=T (yellow/red)\n",
-              local ? local->eye_angles.yaw : 0.0f);
+              local ? local->eye_angles.yaw: 0.0f);
   for (const auto& player : players) {
     std::printf("  %-8s %s hp=%3d pos=(%.0f,%.0f)%s\n", player.name.c_str(),
-                player.team == Team_CT ? "CT" : "T ", player.health,
+                player.team == Team_CT ? "CT": "T ", player.health,
                 player.origin.x, player.origin.y,
-                (show_all || player.team == (local ? local->team : 0) ||
-                 player.pawn_index == (local ? local->pawn_index : 0) ||
+                (show_all || player.team == (local ? local->team: 0) ||
+                 player.pawn_index == (local ? local->pawn_index: 0) ||
                  enemy_is_spotted_by(player.spotted_mask,
-                                     local ? local->pawn_index : 0))
+                                     local ? local->pawn_index: 0))
                     ? ""
-                    : " (hidden: unspotted)");
+: " (hidden: unspotted)");
   }
 }
 

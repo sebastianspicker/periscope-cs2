@@ -1,4 +1,4 @@
-// uefi_tpm.hpp — Intel TXT and UEFI TPM configuration table access.
+// uefi_tpm.hpp: Intel TXT and UEFI TPM configuration table access.
 //
 // Intel TXT (Trusted Execution Technology) provides measured launch
 // and verified boot. The TPM configuration table in UEFI provides

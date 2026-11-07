@@ -1,4 +1,4 @@
-// attestation_gate.cpp — T3 blue multi-reason ranked admission gate.
+// attestation_gate.cpp: T3 blue multi-reason ranked admission gate.
 // check_world maps World.trust into quote fields then evaluate_quote.
 
 #include "t3_blue/attestation_gate.hpp"
@@ -7,7 +7,7 @@
 
 namespace t3_blue {
 
-AttestationGate::AttestationGate(TrustPolicy& policy) : policy_(policy) {}
+AttestationGate::AttestationGate(TrustPolicy& policy): policy_(policy) {}
 
 // AttestationGate::evaluate_quote: Multi-reason gate on signature/PCR/host/residuals.
 AttestationGateReport AttestationGate::evaluate_quote(const AttestationQuote& quote) {
@@ -49,7 +49,7 @@ AttestationGateReport AttestationGate::evaluate_quote(const AttestationQuote& qu
   auto host_pol = policy_.evaluate_ranked(quote.host);
   if (!host_pol.allow_ranked) {
     last_.allow_ranked = false;
-    last_.risk += host_pol.risk > 0 ? host_pol.risk : 3.0;
+    last_.risk += host_pol.risk > 0 ? host_pol.risk: 3.0;
     last_.reasons.emplace_back(std::string("host_policy:") + host_pol.reason);
   }
 
@@ -60,14 +60,14 @@ AttestationGateReport AttestationGate::evaluate_quote(const AttestationQuote& qu
   }
 
   std::ostringstream oss;
-  oss << "attest allow=" << (last_.allow_ranked ? 1 : 0)
+  oss << "attest allow=" << (last_.allow_ranked ? 1: 0)
       << " risk=" << last_.risk << " reasons=" << last_.reasons.size();
   for (const auto& r : last_.reasons) {
     oss << " |" << r;
   }
   last_.detail = oss.str();
 
-  // PolicyResult::reason is const char* — keep a durable member copy and also
+  // PolicyResult::reason is const char*, keep a durable member copy and also
   // prefer long-lived literals for the common deny paths.
   if (last_.allow_ranked) {
     reason_storage_ = "ok";

@@ -1,4 +1,4 @@
-// vuln_driver.c — DriverEntry, IRP dispatch, entity/process/module IOCTLs.
+// vuln_driver.c: DriverEntry: IRP dispatch, entity/process/module IOCTLs.
 
 #include "vuln_driver.h"
 
@@ -250,7 +250,7 @@ NTSTATUS GdrvModuleList(PVOID user_buffer, ULONG in_len, ULONG out_len) {
         (out_len > sizeof(GDRV_MODULE_LIST_REQ))
             ? (ULONG)((out_len - sizeof(GDRV_MODULE_LIST_REQ)) /
                       sizeof(GDRV_MODULE_ENTRY))
-            : 0;
+: 0;
     if (maxByOut == 0) return STATUS_BUFFER_TOO_SMALL;
     if (req.max_modules > maxByOut) req.max_modules = maxByOut;
 
@@ -358,35 +358,35 @@ NTSTATUS DriverDeviceControl(PDEVICE_OBJECT dev_obj, PIRP irp) {
     switch (code) {
     case IOCTL_GDRV_PHYS_READ:
         status = GdrvPhysRead(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? out_len : 0;
+        info = NT_SUCCESS(status) ? out_len: 0;
         break;
     case IOCTL_GDRV_PHYS_WRITE:
         status = GdrvPhysWrite(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? in_len : 0;
+        info = NT_SUCCESS(status) ? in_len: 0;
         break;
     case IOCTL_GDRV_VIRT_READ:
         status = GdrvVirtRead(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? out_len : 0;
+        info = NT_SUCCESS(status) ? out_len: 0;
         break;
     case IOCTL_GDRV_VIRT_WRITE:
         status = GdrvVirtWrite(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? in_len : 0;
+        info = NT_SUCCESS(status) ? in_len: 0;
         break;
     case IOCTL_GDRV_ENTITY_WALK:
         status = GdrvEntityWalk(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? out_len : 0;
+        info = NT_SUCCESS(status) ? out_len: 0;
         break;
     case IOCTL_GDRV_PROCESS_SCAN:
         status = GdrvProcessScan(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? sizeof(GDRV_PROCESS_SCAN_RESULT) : 0;
+        info = NT_SUCCESS(status) ? sizeof(GDRV_PROCESS_SCAN_RESULT): 0;
         break;
     case IOCTL_GDRV_CALLBACK_STRIP:
         status = GdrvCallbackStrip(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? sizeof(GDRV_CALLBACK_STRIP_REQ) : 0;
+        info = NT_SUCCESS(status) ? sizeof(GDRV_CALLBACK_STRIP_REQ): 0;
         break;
     case IOCTL_GDRV_MODULE_LIST:
         status = GdrvModuleList(buffer, in_len, out_len);
-        info = NT_SUCCESS(status) ? out_len : 0;
+        info = NT_SUCCESS(status) ? out_len: 0;
         break;
     default:
         break;
@@ -407,7 +407,7 @@ NTSTATUS DriverCreateClose(PDEVICE_OBJECT dev, PIRP irp) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// DriverEntry / Unload — fixed device name matching usermode path
+// DriverEntry / Unload, fixed device name matching usermode path
 // ═══════════════════════════════════════════════════════════════════════
 
 NTSTATUS DriverEntry(PDRIVER_OBJECT driver, PUNICODE_STRING reg_path) {

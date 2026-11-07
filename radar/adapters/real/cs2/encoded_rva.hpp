@@ -1,4 +1,4 @@
-// encoded_rva.hpp — compile-time encoded RVA table (E59).
+// encoded_rva.hpp: compile-time encoded RVA table (E59).
 //
 // The pinned snapshot's globals are stored XOR-encoded so the plaintext RVAs
 // are not the obvious static constants a signature tool greps for. The key is
@@ -6,7 +6,7 @@
 // to the same value at compile time.
 //
 // Strings and AOB patterns were already obfuscated (`win/xorstr.hpp`); this
-// closes the remaining plaintext surface. Field *offsets* stay plaintext —
+// closes the remaining plaintext surface. Field *offsets* stay plaintext -
 // they are small numbers and carry no address meaning on their own.
 
 #pragma once

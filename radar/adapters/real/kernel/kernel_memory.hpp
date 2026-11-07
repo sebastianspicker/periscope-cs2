@@ -1,11 +1,11 @@
-// kernel_memory.hpp — Physical / CR3 / page-walk / DKOM kernel-memory ops.
+// kernel_memory.hpp: Physical / CR3 / page-walk / DKOM kernel-memory ops.
 //
 // LESSON: Physical or kernel-memory reads and DKOM leave driver, IOCTL, and
 // integrity scars. HVCI, vulnerable-driver blocklists, callbacks, and pool
 // scanning are the corresponding anti-cheat mitigations.
 //
 // All APIs are operational logic paths. They may fail with explicit OS /
-// privilege errors when hardware or driver rights are missing — never as
+// privilege errors when hardware or driver rights are missing, never as
 // empty deferred placeholders that pretend the operation ran.
 
 #pragma once

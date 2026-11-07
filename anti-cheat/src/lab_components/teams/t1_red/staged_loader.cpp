@@ -1,4 +1,4 @@
-// staged_loader.cpp — implements staged_loader (T1 red).
+// staged_loader.cpp: implements staged_loader (T1 red).
 // Key methods: authenticate_lab, map_payload_lab, run_on_world, to_string, to_string.
 
 #include "t1_red/staged_loader.hpp"
@@ -65,7 +65,7 @@ StageReport StagedLoader::run_on_world(sim::World& w, const char* token,
   sim::Module m;
   m.name = "payload.bin";
   m.base = 0x70000000ull;
-  m.size = payload.size() < 0x1000 ? 0x1000 : payload.size();
+  m.size = payload.size() < 0x1000 ? 0x1000: payload.size();
   m.linked_in_peb = false;
   m.headers_erased = true;
   m.text_hash = "staged";

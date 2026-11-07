@@ -4,7 +4,7 @@
 namespace real::win {
 
 // Single centralized delay function for the entire project.
-// All timing goes through here — NO direct NtDelayExecution calls elsewhere.
+// All timing goes through here, NO direct NtDelayExecution calls elsewhere.
 // base_ms: base delay in milliseconds
 // jitter_pct: ±percentage jitter (default ±20%)
 void fuzzed_sleep(int32_t base_ms, int32_t jitter_pct = 20) noexcept;

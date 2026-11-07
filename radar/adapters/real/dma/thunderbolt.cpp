@@ -28,7 +28,7 @@ static Result<uint64_t> read_sysfs_hex(const std::string& path) {
   const bool parsed = fscanf(file, "%llx", &value) == 1;
   fclose(file);
   return parsed ? Result<uint64_t>(static_cast<uint64_t>(value))
-                : Result<uint64_t>(0, "Parse error in " + path);
+: Result<uint64_t>(0, "Parse error in " + path);
 }
 
 static Result<std::string> read_sysfs_string(const std::string& path) {
@@ -145,7 +145,7 @@ Result<std::vector<uint8_t>> thunderbolt_dma_read(uint64_t phys_addr,
   if (!available || !*available) {
     return Result<std::vector<uint8_t>>(
         {}, available ? available.error_msg.c_str()
-                      : "Thunderbolt not available");
+: "Thunderbolt not available");
   }
 
   auto devices = enum_pci_devices();
@@ -173,7 +173,7 @@ Result<std::vector<uint8_t>> thunderbolt_dma_read(uint64_t phys_addr,
     }
   }
 
-  // No programmable TB controller BAR path — fall back to physmem which is
+  // No programmable TB controller BAR path, fall back to physmem which is
   // what an unsecured Thunderbolt DMA master would ultimately expose.
   auto pm = physmem_read(phys_addr, size);
   if (pm) return pm;

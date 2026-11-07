@@ -1,4 +1,4 @@
-// mode.hpp — Runtime execution mode and tier availability.
+// mode.hpp: Runtime execution mode and tier availability.
 //
 // Every strategy has two paths: REAL (live CS2 via OS/hardware backends)
 // and SIM (sim::World, deterministic, always works). Hybrid mode tries
@@ -21,7 +21,7 @@
 namespace real::mode {
 
 /// Execution mode for a strategy pair.
-enum class Mode : std::uint8_t {
+enum class Mode: std::uint8_t {
   Real = 0,   ///< Operate on live CS2 via OS/hardware backends.
   Sim = 1,    ///< Operate on sim::World (deterministic, no external deps).
   Hybrid = 2, ///< Try Real first; fall back to Sim seamlessly.
@@ -29,7 +29,7 @@ enum class Mode : std::uint8_t {
 
 /// Anti-cheat evasion / memory access tiers.
 /// Maps to the tiered strategy curriculum.
-enum class Tier : std::uint8_t {
+enum class Tier: std::uint8_t {
   T0_UsermodeRpm = 0,   ///< OpenProcess + ReadProcessMemory
   T1_Syscall = 1,       ///< Direct syscalls bypassing usermode hooks
   T2_BYOVD = 2,         ///< Bring Your Own Vulnerable Driver (kernel)

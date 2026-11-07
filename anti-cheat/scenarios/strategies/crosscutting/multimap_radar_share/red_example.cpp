@@ -10,7 +10,7 @@ RedResult apply(sim::World& w) {
   w.radar_maps_shared = 3;  // dust2, mirage, inferno class residual
   w.radar_share_ux_active = true;
   w.radar_share_token = "share-tok-lab-9f3a";
-  // No local overlay — phone/browser multi-map share is the UI.
+  // No local overlay, phone/browser multi-map share is the UI.
   r.achieved = w.multimap_radar_share && w.radar_maps_shared >= 2 &&
                w.radar_share_ux_active && !w.radar_share_token.empty();
   std::ostringstream oss;

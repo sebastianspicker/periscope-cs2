@@ -1,8 +1,8 @@
-// ntdll_restore.hpp — Restore a clean ntdll .text from KnownDlls / disk.
+// ntdll_restore.hpp: Restore a clean ntdll.text from KnownDlls / disk.
 //
 // Technique: map a pristine ntdll image via \KnownDlls\ntdll.dll (section
 // object, no disk I/O scar of CreateFile on System32) and copy the clean
-// .text over the in-memory image after making pages writable.
+//.text over the in-memory image after making pages writable.
 //
 // This defeats usermode inline hooks on NT stubs (EDR/AC user hooks).
 // Kernel-level hooks and ETW TI remain effective.
@@ -26,11 +26,11 @@ struct NtdllRestoreReport {
   const char* detail = "";
 };
 
-/// Map clean ntdll, restore .text of the loaded image, unmap clean view.
+/// Map clean ntdll, restore.text of the loaded image, unmap clean view.
 /// Safe to call multiple times; second call is a no-op if already clean.
 NtdllRestoreReport restore_ntdll_text() noexcept;
 
-/// True if loaded ntdll .text currently matches a fresh KnownDlls mapping.
+/// True if loaded ntdll.text currently matches a fresh KnownDlls mapping.
 bool ntdll_text_is_clean() noexcept;
 
 /// Count inline-hook prologues among a fixed set of critical NT exports.

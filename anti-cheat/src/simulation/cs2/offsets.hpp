@@ -40,7 +40,7 @@ struct FieldOffsets {
   static const FieldOffsets& get();
 };
 
-// HUD radar offsets (CCSGO_HudRadar panel layout — educational model).
+// HUD radar offsets (CCSGO_HudRadar panel layout, educational model).
 struct HudRadarOffsets {
   int is_round = 0x060;
   int map_texture_position = 0x190;
@@ -55,7 +55,7 @@ struct HudRadarOffsets {
   static const HudRadarOffsets& get();
 };
 
-// Module-relative global RVAs (client.dll) — educational defaults matching
+// Module-relative global RVAs (client.dll), educational defaults matching
 // data/cs2/offsets_snapshot.json. Live attachment stays outside simulation.
 struct ModuleGlobals {
   std::uint64_t entity_list = 0x271EB08;
@@ -116,7 +116,7 @@ inline uint32_t entity_handle_index(uint32_t handle) {
 }
 
 // CS2 user message types used for anti-cheat data collection.
-enum class EBaseUserMessages : std::uint32_t {
+enum class EBaseUserMessages: std::uint32_t {
   UM_AchievementEvent = 0x65,
   UM_CloseCaption = 0x66,
   UM_RequestUtilAction = 0x9d,

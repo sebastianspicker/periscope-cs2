@@ -17,10 +17,10 @@ BlueResult detect(sim::World& w) {
     if (w.veh_handlers > 2 || !w.veh_chain_clean) {
         result.reasons.emplace_back("unexpected VEH handler count=" +
             std::to_string(w.veh_handlers) +
-            (w.veh_chain_clean ? "" : " (chain dirty)"));
+            (w.veh_chain_clean ? "": " (chain dirty)"));
     }
 
-    // Check for modules with erased headers — strong VAS-walk evasion scar.
+    // Check for modules with erased headers, strong VAS-walk evasion scar.
     int erasedHeaders = 0;
     for (const auto& mod : game->modules) {
         if (mod.headers_erased) erasedHeaders++;
@@ -33,7 +33,7 @@ BlueResult detect(sim::World& w) {
     result.signals = static_cast<int>(result.reasons.size());
     // Multi-reason: require VEH residual and header-erasure residual (or >=2 reasons).
     result.detected = result.signals >= 2;
-    result.risk = result.detected ? 0.7 + 0.1 * result.signals : 0.0;
+    result.risk = result.detected ? 0.7 + 0.1 * result.signals: 0.0;
 
     // Mitigate: strip extra VEH handlers and restore module headers.
     if (result.detected) {
@@ -51,8 +51,8 @@ BlueResult detect(sim::World& w) {
     }
 
     std::printf("[T1 vas_walk_evade] BLUE signals=%d detected=%s mitigated=%s\n",
-        result.signals, result.detected ? "true" : "false",
-        result.mitigated ? "true" : "false");
+        result.signals, result.detected ? "true": "false",
+        result.mitigated ? "true": "false");
     for (const auto& r : result.reasons) {
         std::printf("[T1 vas_walk_evade]   %s\n", r.c_str());
     }

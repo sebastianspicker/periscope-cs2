@@ -1,4 +1,4 @@
-// residual_research.cpp — depth analytics: multi-sample / fusion scoring for blue.
+// residual_research.cpp: depth analytics: multi-sample / fusion scoring for blue.
 // Educational scorers over World residuals.
 
 #include "depth/residual_research.hpp"
@@ -35,8 +35,8 @@ ResidualExampleResult run_vmx_research_example(sim::World& w,
     read_ok = w.hv_read(bridge, game, w.proc(game)->base, 4, buf);
   }
   r.red_achieved = hv && read_ok;
-  r.red_detail = std::string("personal_hv=") + (hv ? "1" : "0") +
-                 " hv_read=" + (read_ok ? "1" : "0") + " bridge=hvcomm";
+  r.red_detail = std::string("personal_hv=") + (hv ? "1": "0") +
+                 " hv_read=" + (read_ok ? "1": "0") + " bridge=hvcomm";
 
   // Blue: trust aggregate + bridge hunt + ranked/session policy enforce.
   TrustAggregator agg;
@@ -68,8 +68,8 @@ ResidualExampleResult run_vmx_research_example(sim::World& w,
     }
   }
   r.blue_mitigated = !ar.allow_ranked && w.ranked_access_denied;
-  r.blue_detail = ar.detail + " bridge=" + (bridge_hit ? "1" : "0") +
-                  " ranked_denied=" + (w.ranked_access_denied ? "1" : "0");
+  r.blue_detail = ar.detail + " bridge=" + (bridge_hit ? "1": "0") +
+                  " ranked_denied=" + (w.ranked_access_denied ? "1": "0");
   if (n) {
     n->say(sim::Side::Blue, r.blue_detail);
   }
@@ -105,8 +105,8 @@ ResidualExampleResult run_byovd_research_example(sim::World& w,
     }
   }
   r.red_achieved = ioctl_ok && no_handle;
-  r.red_detail = std::string("ioctl=") + (ioctl_ok ? "1" : "0") +
-                 " no_game_handle=" + (no_handle ? "1" : "0") +
+  r.red_detail = std::string("ioctl=") + (ioctl_ok ? "1": "0") +
+                 " no_game_handle=" + (no_handle ? "1": "0") +
                  " byovd_driver=vuln-cap.sys";
 
   // Blue: driver blocklist + device watch (multi-step).
@@ -125,7 +125,7 @@ ResidualExampleResult run_byovd_research_example(sim::World& w,
   r.blue_detected = byovd_load || device_open;
 
   // Real mitigate: enforce BYOVD policy (IOCTL denied) + ranked session deny.
-  // Not a no-op flag — post-mitigate device_ioctl_read must fail.
+  // Not a no-op flag, post-mitigate device_ioctl_read must fail.
   if (r.blue_detected) {
     w.byovd_policy_block = true;
     w.ranked_access_denied = true;
@@ -150,10 +150,10 @@ ResidualExampleResult run_byovd_research_example(sim::World& w,
     }
     r.blue_mitigated =
         !ioctl_after && w.byovd_policy_block && w.ranked_access_denied;
-    r.blue_detail = std::string("byovd_load=") + (byovd_load ? "1" : "0") +
-                    " mem_rw_device=" + (device_open ? "1" : "0") +
-                    " ioctl_after_block=" + (ioctl_after ? "1" : "0") +
-                    " ranked_denied=" + (w.ranked_access_denied ? "1" : "0");
+    r.blue_detail = std::string("byovd_load=") + (byovd_load ? "1": "0") +
+                    " mem_rw_device=" + (device_open ? "1": "0") +
+                    " ioctl_after_block=" + (ioctl_after ? "1": "0") +
+                    " ranked_denied=" + (w.ranked_access_denied ? "1": "0");
   } else {
     r.blue_detail = "byovd_load=0 mem_rw_device=0";
   }
@@ -182,7 +182,7 @@ ResidualExampleResult run_dma_research_example(sim::World& w,
     dma_ok = w.dma_read(game, w.proc(game)->base, 4, buf);
   }
   r.red_achieved = dma_ok;
-  r.red_detail = std::string("dma_read=") + (dma_ok ? "1" : "0") +
+  r.red_detail = std::string("dma_read=") + (dma_ok ? "1": "0") +
                  " iommu_off=1 device_present=1";
 
   // Detect on device presence / successful off-box read while IOMMU was off.
@@ -215,9 +215,9 @@ ResidualExampleResult run_dma_research_example(sim::World& w,
   r.blue_mitigated = dma_blocked && ls.structural_kill && w.trust.iommu_on &&
                      !w.server_sends_full_enemy_origin;
   r.blue_detail = std::string("iommu_on=1 dma_blocked=") +
-                  (dma_blocked ? "1" : "0") + " fog_kill=" +
-                  (ls.structural_kill ? "1" : "0") +
-                  " ranked_denied=" + (w.ranked_access_denied ? "1" : "0");
+                  (dma_blocked ? "1": "0") + " fog_kill=" +
+                  (ls.structural_kill ? "1": "0") +
+                  " ranked_denied=" + (w.ranked_access_denied ? "1": "0");
   if (n) {
     n->say(sim::Side::Blue, r.blue_detail);
   }
@@ -235,7 +235,7 @@ ResidualExampleResult run_smm_research_example(sim::World& w,
   }
 
   // Educational residual: SMM-class implant leaves host trust timeline dirty.
-  // 
+  //
   w.smm_residual = true;
   w.trust.attestation_valid = false;
   w.trust.attestation_pcr_ok = false;
@@ -269,7 +269,7 @@ ResidualExampleResult run_smm_research_example(sim::World& w,
   }
   r.blue_mitigated = !ar.allow_ranked && w.ranked_access_denied;
   r.blue_detail = ar.detail + " smm=1 ranked_denied=" +
-                  (w.ranked_access_denied ? "1" : "0");
+                  (w.ranked_access_denied ? "1": "0");
   if (n) {
     n->say(sim::Side::Blue, r.blue_detail);
   }

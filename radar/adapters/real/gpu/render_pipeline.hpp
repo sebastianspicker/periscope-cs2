@@ -71,7 +71,7 @@ struct OverlayStyle {
   /// Blip / stroke opacity 0–255 applied via layered window (non-keyed pixels).
   /// Black pixels are color-keyed fully transparent (no black box).
   std::uint8_t window_alpha = 255;
-  /// When true (default for InGameRadar), skip filled radar disc — only blips.
+  /// When true (default for InGameRadar), skip filled radar disc, only blips.
   bool draw_background = false;
   /// When true, draw a faint border ring (usually off for in-game snap).
   bool draw_border = false;
@@ -95,7 +95,7 @@ struct OverlayStyle {
   float hud_scaling = 1.0f;
   /// Matches CS2 `cl_hud_radar_scale` (0.8–1.3, default 1.0).
   float cl_hud_radar_scale = 1.0f;
-  /// Matches CS2 `cl_radar_scale` (0.25–1.0, default 0.7) — map zoom, not panel size.
+  /// Matches CS2 `cl_radar_scale` (0.25–1.0, default 0.7), map zoom, not panel size.
   float cl_radar_scale = 0.7f;
   /// Matches CS2 `safezonex` / `safezoney` (0–1, default 1 = flush edges).
   float safezonex = 1.0f;
@@ -241,7 +241,7 @@ void set_overlay_bounds(void* hwnd, int x, int y, int w, int h, bool topmost);
 // Educational / opt-in DXGI Output Duplication (desktop_dup_overlay demo).
 // Real Windows path: CreateDXGIFactory1 → EnumAdapters/Outputs → IDXGIOutput1,
 // then DuplicateOutput + AcquireNextFrame + staging-texture BGRA readback.
-// Opt-in only — not forced into the live radar stealth path. Non-Windows
+// Opt-in only, not forced into the live radar stealth path. Non-Windows
 // builds return a controlled platform failure so demos still link.
 Result<bool> desktop_duplication_supported();
 Result<std::vector<std::uint8_t>> capture_desktop_frame(int& width, int& height);

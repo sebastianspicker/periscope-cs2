@@ -1,7 +1,7 @@
 #pragma once
 
 /*
- * T3 hypercall ABI — detection surface documentation only.
+ * T3 hypercall ABI, detection surface documentation only.
  * No VMX/SVM implementation, no EPT, no guest memory walk.
  */
 

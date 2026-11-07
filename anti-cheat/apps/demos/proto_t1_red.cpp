@@ -1,4 +1,4 @@
-// T1 RED prototype — full staged loader + offsets + World syscall RPM.
+// T1 RED prototype, full staged loader + offsets + World syscall RPM.
 
 #include "ac/proto_log.hpp"
 #include "lab/fixture_process.hpp"
@@ -87,7 +87,7 @@ int main() {
                   rep.syscall_handles >= 1;
   ac::proto_kv("T1_RED_SCAR_OK", ok);
   std::puts(ok ? "prototype ok (full T1 syscall scar + staging + entities)"
-               : "prototype FAIL");
+: "prototype FAIL");
   std::puts("\n[blue should counter] T1Agent / HandleTruthMonitor (not ntdll hooks)");
-  return ok ? 0 : 1;
+  return ok ? 0: 1;
 }

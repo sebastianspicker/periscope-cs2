@@ -1,4 +1,4 @@
-// kmod_client.cpp — Userspace library for /dev/aclab IOCTLs.
+// kmod_client.cpp: Userspace library for /dev/aclab IOCTLs.
 
 #include "real/linux/kmod_client.hpp"
 #include "real/platform.hpp"
@@ -18,7 +18,7 @@ namespace real::linux::kmod {
 
 Client::~Client() { close(); }
 
-Client::Client(Client&& other) noexcept : fd_(other.fd_) { other.fd_ = -1; }
+Client::Client(Client&& other) noexcept: fd_(other.fd_) { other.fd_ = -1; }
 
 Client& Client::operator=(Client&& other) noexcept {
     if (this != &other) {
@@ -47,7 +47,7 @@ Result<void> Client::open(const std::string& path) noexcept {
 void Client::close() noexcept {
 #if LR_PLATFORM_LINUX
     if (fd_ >= 0) {
-        ::close(fd_);
+::close(fd_);
         fd_ = -1;
     }
 #else
@@ -191,7 +191,7 @@ Result<ModuleInfo> Client::info() noexcept {
     if (fd_ < 0) return Result<ModuleInfo>({}, "device not open");
     aclab_mod_info mi {};
     if (::ioctl(fd_, ACLAB_IOCTL_MOD_INFO, &mi) < 0) {
-        // Older modules may lack MOD_INFO — soft-fail with defaults.
+        // Older modules may lack MOD_INFO, soft-fail with defaults.
         ModuleInfo fallback;
         fallback.abi_version = 0;
         fallback.build_tag = "unknown";
@@ -213,7 +213,7 @@ Result<bool> device_available(const std::string& path) noexcept {
 #if LR_PLATFORM_LINUX
     int fd = ::open(path.c_str(), O_RDWR);
     if (fd < 0) return Result<bool>(false, "device not openable");
-    ::close(fd);
+::close(fd);
     return true;
 #else
     (void)path;

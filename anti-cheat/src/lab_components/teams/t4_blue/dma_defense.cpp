@@ -1,4 +1,4 @@
-// dma_defense.cpp — T4 blue DMA/IOMMU residual defense on World.trust.dma_* and structural fog.
+// dma_defense.cpp: T4 blue DMA/IOMMU residual defense on World.trust.dma_* and structural fog.
 // Simulated PCIe/DMA hardware residuals.
 
 #include "t4_blue/dma_defense.hpp"
@@ -12,7 +12,7 @@ namespace t4_blue {
 
 // Educational T4 residual defense on sim::World: platform + residuals + fog.
 
-DmaDefense::DmaDefense(sim::World& world) : world_(world) {}
+DmaDefense::DmaDefense(sim::World& world): world_(world) {}
 
 // DmaDefense::detect_platform_signal: Detect DMA/platform residual signals on World.
 bool DmaDefense::detect_platform_signal() const {
@@ -42,10 +42,10 @@ BlueResult DmaDefense::detect() {
   r.detected = detect_platform_signal() || world_.trust.dma_device_present;
   apply_interest_mgmt();
   r.mitigated = !world_.server_sends_full_enemy_origin && world_.trust.iommu_on;
-  r.detail = "dma_device=" + std::string(r.dma_device ? "yes" : "no") +
-             " iommu=" + (world_.trust.iommu_on ? "on" : "off") +
-             " signal=" + (r.detected ? "yes" : "no") +
-             " fog=" + (r.mitigated ? "on" : "off");
+  r.detail = "dma_device=" + std::string(r.dma_device ? "yes": "no") +
+             " iommu=" + (world_.trust.iommu_on ? "on": "off") +
+             " signal=" + (r.detected ? "yes": "no") +
+             " fog=" + (r.mitigated ? "on": "off");
   return r;
 }
 
@@ -83,8 +83,8 @@ PlatformScan DmaDefense::scan_platform() const {
     s.reasons.push_back("thunderbolt_dma_with_security_bypass");
   }
 
-  s.detail = "platform dma=" + std::string(s.dma_device ? "1" : "0") +
-             " iommu_off=" + (s.iommu_off ? "1" : "0");
+  s.detail = "platform dma=" + std::string(s.dma_device ? "1": "0") +
+             " iommu_off=" + (s.iommu_off ? "1": "0");
   return s;
 }
 
@@ -157,7 +157,7 @@ PlatformScan DmaDefense::full() {
 
   PlatformScan out;
   out.dma_device = plat.dma_device;
-  out.iommu_off = !world_.trust.iommu_on ? false : plat.iommu_off;
+  out.iommu_off = !world_.trust.iommu_on ? false: plat.iommu_off;
   out.platform_signal = plat.platform_signal;
   out.capture_card = res.capture_card;
   out.desktop_dup = res.desktop_dup;
@@ -183,7 +183,7 @@ PlatformScan DmaDefense::full() {
   }
   std::ostringstream oss;
   oss << "full risk=" << out.risk << " reasons=" << out.reasons.size()
-      << " fog=" << (out.fog_applied ? 1 : 0);
+      << " fog=" << (out.fog_applied ? 1: 0);
   out.detail = oss.str();
   return out;
 }

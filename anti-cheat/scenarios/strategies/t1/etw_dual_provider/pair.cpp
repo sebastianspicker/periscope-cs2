@@ -1,4 +1,4 @@
-// etw_dual_provider — multi-step red blinds TI; multi-reason blue keeps secondary.
+// etw_dual_provider, multi-step red blinds TI; multi-reason blue keeps secondary.
 
 #include "strategies/framework.hpp"
 

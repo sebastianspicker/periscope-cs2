@@ -1,6 +1,6 @@
 #pragma once
 
-// Blue team diagnostic sensors — simulated CS2 built-in anti-cheat checks.
+// Blue team diagnostic sensors, simulated CS2 built-in anti-cheat checks.
 // Each sensor mirrors one of the real CS2 data collection mechanisms.
 // All are sim-only, operating on World struct fields.
 

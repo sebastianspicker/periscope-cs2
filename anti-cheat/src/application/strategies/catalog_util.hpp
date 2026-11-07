@@ -1,7 +1,7 @@
 #pragma once
 
 // Pure catalog query helpers. Operate on StrategyEntry collections without
-// re-implementing the registry — callers pass strategies::catalog() or a
+// re-implementing the registry, callers pass strategies::catalog() or a
 // custom subset. Fully functional; no deferred paths.
 
 #include "strategies/framework.hpp"

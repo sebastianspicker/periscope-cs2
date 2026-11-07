@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# verify_features.sh — Verify T0.12, T0.13, T0.14 build system changes.
+# verify_features.sh: Verify T0.12: T0.13, T0.14 build system changes.
 # Full T0 radar enhancement surface: API table, hijack reader, entity/HUD,
 # overlay, team red/blue APIs, demo wiring, CMake options/keys.
 # Continues through all checks; exits non-zero if any miss (no silent ignore).
@@ -47,7 +47,7 @@ check_grep() {
 }
 
 echo ""
-echo "=== Verification: T0.12 — T0 Red Team Radar Enhancement ==="
+echo "=== Verification: T0.12, T0 Red Team Radar Enhancement ==="
 echo "root=$ROOT"
 echo ""
 
@@ -107,7 +107,7 @@ echo "--- T0.13 Blue Team enhancements ---"
 echo ""
 echo "--- T0.14 Demo ---"
 check_file "$RADAR_ROOT/apps/demos/cs2_radar/t0/main.cpp"
-# Demo uses g_Api() and checks .resolved (table auto-resolves on first access).
+# Demo uses g_Api() and checks.resolved (table auto-resolves on first access).
 check_grep "$RADAR_ROOT/apps/demos/cs2_radar/t0/main.cpp" "g_Api\\(" "API table g_Api()"
 check_grep "$RADAR_ROOT/apps/demos/cs2_radar/t0/main.cpp" "\\.resolved" "API table resolved flag"
 check_grep "$RADAR_ROOT/apps/demos/cs2_radar/t0/main.cpp" "find_cs2" "find_cs2 call"

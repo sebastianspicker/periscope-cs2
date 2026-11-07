@@ -67,7 +67,7 @@ Result<FpgaDmaDevice> fpga_dma_open(const std::string& device_path) {
 
 #elif LR_PLATFORM_WINDOWS
   HANDLE handle =
-      ::CreateFileA(device_path.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
+::CreateFileA(device_path.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr,
                     OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (handle == INVALID_HANDLE_VALUE) {
     return Result<FpgaDmaDevice>({}, "CreateFile FPGA failed");
@@ -99,7 +99,7 @@ Result<std::vector<uint8_t>> fpga_scatter_read(FpgaDmaDevice& device,
     return Result<std::vector<uint8_t>>({}, "fpga_scatter_read: size exceeds 16 MiB");
   }
 
-  // Pure descriptor construction — same unit tested independently.
+  // Pure descriptor construction, same unit tested independently.
   constexpr size_t kPageSize = 4096;
   auto descs = build_scatter_list(phys_addr, size, kPageSize);
   if (descs.empty()) {
@@ -170,7 +170,7 @@ Result<std::vector<uint8_t>> fpga_scatter_read(FpgaDmaDevice& device,
     ULONG desc_count;
   } req{};
   req.phys = phys_addr;
-  req.length = static_cast<ULONG>(size > 0xFFFFFFFFULL ? 0xFFFFFFFFUL : size);
+  req.length = static_cast<ULONG>(size > 0xFFFFFFFFULL ? 0xFFFFFFFFUL: size);
   req.desc_count = static_cast<ULONG>(descs.size());
 
   std::vector<uint8_t> result(size);
@@ -259,7 +259,7 @@ Result<void> fpga_dma_close(FpgaDmaDevice& device) {
 #if LR_PLATFORM_LINUX
     close(device.fd);
 #elif LR_PLATFORM_WINDOWS
-    ::CloseHandle(reinterpret_cast<HANDLE>(static_cast<intptr_t>(device.fd)));
+::CloseHandle(reinterpret_cast<HANDLE>(static_cast<intptr_t>(device.fd)));
 #endif
     device.fd = -1;
   }

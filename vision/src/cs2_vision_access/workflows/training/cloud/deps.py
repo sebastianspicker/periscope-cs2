@@ -111,7 +111,7 @@ def install_dependencies(gpu: bool = True) -> None:
             )
         else:
             print(
-                "  Tip: running on CPU — training will be slow. "
+                "  Tip: running on CPU, training will be slow. "
                 "On Colab: Runtime → Change runtime type → GPU. "
                 "On Kaggle: enable GPU accelerator in notebook settings."
             )

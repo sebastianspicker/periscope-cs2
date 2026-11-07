@@ -1,4 +1,4 @@
-/// desktop_dup_overlay.cpp — Desktop duplication prototype (educational).
+/// desktop_dup_overlay.cpp: Desktop duplication prototype (educational).
 /// Closure for Gap 12: provides a functional desktop duplication demo.
 ///
 /// Uses DXGI Output Duplication to capture the desktop.
@@ -39,7 +39,7 @@ int main() {
   // Check if desktop duplication is supported
   auto supported = real::gpu::desktop_duplication_supported();
   if (supported) {
-    std::printf("Desktop duplication: %s\n", *supported ? "supported" : "not supported");
+    std::printf("Desktop duplication: %s\n", *supported ? "supported": "not supported");
   } else {
     std::printf("Desktop duplication check: %s\n", supported.error_msg.c_str());
   }
@@ -62,7 +62,7 @@ int main() {
   std::printf("\nCapture succeeded: %dx%d pixels, %zu bytes (BGRA)\n",
               w, h, frame->size());
   std::printf("\nSCAR: DXGI Output Duplication is visible to the game via\n");
-  std::printf("IDXGIAdapter::EnumOutputs — anti-cheats check for active\n");
+  std::printf("IDXGIAdapter::EnumOutputs, anti-cheats check for active\n");
   std::printf("duplication sessions on their output adapter.\n");
   return 0;
 }

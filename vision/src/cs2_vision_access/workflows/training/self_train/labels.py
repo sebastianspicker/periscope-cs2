@@ -95,7 +95,7 @@ def instances_to_yolo_seg_lines(
 ) -> list[str]:
     """Convert pixel-space InstanceMasks to YOLO-seg label lines.
 
-    Format: ``class_id x1 y1 x2 y2 ... xn yn`` with coordinates normalized to
+    Format: ``class_id x1 y1 x2 y2, ... xn yn`` with coordinates normalized to
     ``[0, 1]`` relative to ``image_width`` / ``image_height``.
     """
     if image_width <= 0 or image_height <= 0:
@@ -230,7 +230,7 @@ def write_label_if_absent(label_path: Path, lines: Sequence[str]) -> bool:
     """Atomically write a YOLO label if the path does not already exist.
 
     Returns True when a new file was written; False when skipped because the
-    destination already exists (careful merge — never overwrite).
+    destination already exists (careful merge, never overwrite).
     """
     return write_label(label_path, lines, policy="if_absent")
 
@@ -305,7 +305,7 @@ def qc_yolo_seg_lines(
             cleaned.append(f"{class_id} {coord_str}")
             continue
 
-        # YOLO-seg: class + x1 y1 x2 y2 ...
+        # YOLO-seg: class + x1 y1 x2 y2, ...
         coords = parts[1:]
         if len(coords) % 2 != 0:
             continue

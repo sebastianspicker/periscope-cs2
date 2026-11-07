@@ -1,4 +1,4 @@
-// page_walk.hpp — Guest page-table walk and zero-run finder (E67).
+// page_walk.hpp: Guest page-table walk and zero-run finder (E67).
 //
 // The VMX lane can build EPTs but could not walk the guest's own tables.
 // This is the pure half: it reads 4 KiB tables through a caller-supplied
@@ -25,8 +25,6 @@
 namespace real::vmx::pt {
 
 inline constexpr std::uint64_t kPageSize = 0x1000;
-inline constexpr std::uint64_t kLargePageSize = 0x200000;
-inline constexpr std::uint64_t kHugePageSize = 0x40000000;
 inline constexpr std::uint64_t kMaxPhysical = 0x40'0000'0000ull;
 
 constexpr std::uint64_t kPresent = 1ull << 0;
@@ -132,7 +130,7 @@ template <typename ReadFn>
 bool page_is_zero(ReadFn& read, std::uint64_t pa) {
   std::array<std::uint8_t, kPageSize> raw{};
   if (!read(pa, raw.data(), raw.size())) return false;
-  for (const std::uint8_t byte : raw) {
+  for (const std::uint8_t byte: raw) {
     if (byte != 0) return false;
   }
   return true;

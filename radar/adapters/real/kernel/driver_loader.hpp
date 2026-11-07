@@ -1,4 +1,4 @@
-// driver_loader.hpp — SCM driver load/unload and kernel-module inventory.
+// driver_loader.hpp: SCM driver load/unload and kernel-module inventory.
 //
 // LESSON: A driver service and loaded module leave durable SCM, registry, disk,
 // object-manager, and audit artifacts. Blue anti-cheats scan all of these.

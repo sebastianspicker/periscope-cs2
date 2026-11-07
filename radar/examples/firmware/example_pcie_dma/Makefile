@@ -1,4 +1,4 @@
-# Makefile — T4 PCIe DMA firmware example
+# Makefile, T4 PCIe DMA firmware example
 #
 # Targets:
 #   all          Build host_sim

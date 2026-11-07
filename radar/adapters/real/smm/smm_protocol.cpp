@@ -1,4 +1,4 @@
-// smm_protocol.cpp — Pure SMM/ACPI/TPM protocol implementation.
+// smm_protocol.cpp: Pure SMM/ACPI/TPM protocol implementation.
 // No OS I/O. Safe to unit-test with synthetic buffers.
 
 #include "real/smm/smm_protocol.hpp"
@@ -134,7 +134,7 @@ std::uint8_t acpi_fix_checksum(std::vector<std::uint8_t>& table,
   if (table.empty() || checksum_offset >= table.size()) return 0;
   table[checksum_offset] = 0;
   std::uint8_t sum = 0;
-  for (std::uint8_t b : table) sum = static_cast<std::uint8_t>(sum + b);
+  for (std::uint8_t b: table) sum = static_cast<std::uint8_t>(sum + b);
   table[checksum_offset] = static_cast<std::uint8_t>((0x100u - sum) & 0xFFu);
   return table[checksum_offset];
 }
@@ -333,7 +333,7 @@ bool smi_count_delta_plausible(std::uint64_t before, std::uint64_t after,
                                std::uint64_t slack) {
   if (after < before) return false;  // counter should be monotonic
   const std::uint64_t delta = after - before;
-  const std::uint64_t lo = expected_triggers > slack ? expected_triggers - slack : 0;
+  const std::uint64_t lo = expected_triggers > slack ? expected_triggers - slack: 0;
   const std::uint64_t hi = expected_triggers + slack;
   return delta >= lo && delta <= hi;
 }

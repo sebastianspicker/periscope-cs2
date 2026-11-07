@@ -1,4 +1,4 @@
-// offset_overrides.cpp — R9 runtime offsets fallback. See offset_overrides.hpp.
+// offset_overrides.cpp: R9 runtime offsets fallback. See offset_overrides.hpp.
 
 #include "radar/offset_overrides.hpp"
 
@@ -30,7 +30,7 @@ const char* source_name(OffsetSource source) {
 
 void apply_map(const std::map<std::string, std::int64_t>& values,
                OffsetSource source, OffsetResolutionReport& report) {
-  for (const auto& [key, value] : values) {
+  for (const auto& [key, value]: values) {
     auto it = report.resolved.find(key);
     if (it == report.resolved.end()) {
       report.resolved.emplace(key, ResolvedOffset{value, source});

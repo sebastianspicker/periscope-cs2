@@ -50,9 +50,9 @@ bool AcceptGate::finalize(GateConditions c) noexcept {
     // 1 bandEnforced
     // 2 cvarInit
     // 3 overlaySizeOk
-    // 4 zeroPushRatioOk  — note: original ordered zeroPush before cvarInitTime
+    // 4 zeroPushRatioOk, note: original ordered zeroPush before cvarInitTime
     // 5 cvarInitTimeOk
-    // 6 multiChunkRemotes OR second ratio check — keep 7 slots:
+    // 6 multiChunkRemotes OR second ratio check, keep 7 slots:
     //
     // Original boolean API counted exactly these seven fields:
     //   chunkRatioOk, bandEnforced, cvarInit, overlaySizeOk,

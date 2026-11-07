@@ -1,4 +1,4 @@
-// types.hpp — core AC lab types: Tier, Status, EntitySnapshot, ReadRequest/Result.
+// types.hpp: core AC lab types: Tier: Status, EntitySnapshot, ReadRequest/Result.
 // Shared by red backends and blue telemetry; Simulated educational enums/structs.
 
 #pragma once
@@ -11,7 +11,7 @@
 namespace ac {
 
 // Delivery depth T0–T3 (T4 residual lives beside DMA paths).
-enum class Tier : std::uint8_t {
+enum class Tier: std::uint8_t {
   T0_UsermodeRpm = 0,
   T1_SyscallSoft = 1,
   T2_KernelByovd = 2,
@@ -19,7 +19,7 @@ enum class Tier : std::uint8_t {
 };
 
 // Result codes for attach/read and lab-only paths.
-enum class Status : std::uint8_t {
+enum class Status: std::uint8_t {
   Ok = 0,
   NotImplemented,
   Denied,
@@ -58,7 +58,7 @@ struct EntitySnapshot {
   constexpr EntitySnapshot() = default;
   constexpr EntitySnapshot(std::uint32_t entity_id, Vec3 position,
                            std::uint8_t entity_team, bool is_alive)
-      : id(entity_id), origin(position), team(entity_team), alive(is_alive) {}
+: id(entity_id), origin(position), team(entity_team), alive(is_alive) {}
 };
 
 // ReadRequest: address+size for IMemoryBackend::read.
@@ -81,7 +81,7 @@ std::string_view to_string(Status s);
 /// How red acquired the handle (or avoided acquiring one) to the game process.
 /// Handle visibility in the system handle table is the single point of failure
 /// for memory read approaches 1-4. No amount of usermode masking hides a handle.
-enum class HandleAcquisitionModel : std::uint8_t {
+enum class HandleAcquisitionModel: std::uint8_t {
   None,              // No handle acquisition
   DirectOpenProcess, // OpenProcess(PROCESS_VM_READ) - instant detection via handle table
   NtOpenProcess,     // NtOpenProcess - handle still visible, no IAT entry
@@ -94,7 +94,7 @@ enum class HandleAcquisitionModel : std::uint8_t {
 
 /// Which mechanism red uses to read game memory.
 /// Maps to lab tiers but is independent (e.g., T0 can use HijackProxy).
-enum class MemoryAcquisitionModel : std::uint8_t {
+enum class MemoryAcquisitionModel: std::uint8_t {
   DirectRpm,   // ReadProcessMemory / NtReadVirtualMemory
   Syscall,     // Direct syscall instruction
   KernelIoctl, // Kernel driver IOCTL interface
@@ -105,7 +105,7 @@ enum class MemoryAcquisitionModel : std::uint8_t {
 
 /// Legitimate software profile that red disguises itself as.
 /// VAC must tolerate these tools (RTSS, Discord, Steam, etc.).
-enum class DisguiseProfile : std::uint8_t {
+enum class DisguiseProfile: std::uint8_t {
   None,
   SteamOverlay,     // GameOverlayRenderer64.dll pattern - first-party
   DiscordOverlay,   // Discord overlay - third-party gaming accessory
@@ -117,7 +117,7 @@ enum class DisguiseProfile : std::uint8_t {
 
 /// Defense-in-depth layer. Red strategies specify which layers they use.
 /// Blue scoring evaluates which layers are penetrated.
-enum class DefenseLayer : std::uint8_t {
+enum class DefenseLayer: std::uint8_t {
   ProcessIsolation,        // External radar, no game injection
   ProxyMemoryAccess,       // Hijack/proxy reader - no direct handle
   HardwareMonitorDisguise, // GPU monitoring tool mimicry
@@ -129,7 +129,7 @@ enum class DefenseLayer : std::uint8_t {
 
 /// Independent observation views that anti-cheat uses to detect cheats.
 /// Blue requires anomalies in 2+ views for actionable detection.
-enum class ObservationView : std::uint8_t {
+enum class ObservationView: std::uint8_t {
   HandleTable,   // System-wide handle enumeration (VAC external)
   ModuleList,    // VAS walk - loaded modules in game process
   MemoryPattern, // RPM volume/target/pattern analysis
@@ -148,7 +148,7 @@ struct ObservationVerdict {
 
 /// Handle access-rights used by sim handle-table strategies.
 /// Bit layout mirrors sim::AccessMask so it can drive sim::has().
-enum class HandleAccess : std::uint32_t {
+enum class HandleAccess: std::uint32_t {
   None = 0,
   Query = 1u << 0,
   Read = 1u << 1,   // PROCESS_VM_READ equivalent

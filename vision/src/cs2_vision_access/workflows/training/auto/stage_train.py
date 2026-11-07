@@ -103,7 +103,7 @@ def _write_train_progress(
         )
         updates["progress_report_md"] = str(report_md.resolve())
         updates["progress_dir"] = str(progress_dir.resolve())
-    except Exception as error:  # noqa: BLE001 — progress must not fail train
+    except Exception as error:  # noqa: BLE001, progress must not fail train
         append_soft_note(updates, f"progress report skipped: {error}")
     return updates
 

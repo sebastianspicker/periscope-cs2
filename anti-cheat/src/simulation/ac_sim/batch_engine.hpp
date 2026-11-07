@@ -1,6 +1,6 @@
 #pragma once
 
-// Batch read engine — aggregates up to 16 memory reads, Fisher-Yates shuffles
+// Batch read engine, aggregates up to 16 memory reads, Fisher-Yates shuffles
 // order, injects decoy reads, and enforces an adaptive RPS cap with micro-delays.
 //
 // CC-ledger CC.2  |  Reference: Periscope MemoryAccessObfuscator
@@ -47,7 +47,7 @@ public:
     void set_jitter_params(float baseMs, float varianceMs) noexcept;
     void set_decoy_ratio(float ratio) noexcept;
     void set_drop_enabled(bool enabled) noexcept { m_dropEnabled = enabled; }
-    void set_seed(std::uint64_t seed) noexcept { m_rng = seed ? seed : 1; }
+    void set_seed(std::uint64_t seed) noexcept { m_rng = seed ? seed: 1; }
 
     void clear() noexcept;
     std::size_t pending() const noexcept { return m_count; }

@@ -1,4 +1,4 @@
-// win_stack.hpp — Single entry point for the T1 Windows usermode stack.
+// win_stack.hpp: Single entry point for the T1 Windows usermode stack.
 //
 // Initializes and composes:
 //   ApiTable PEB+EAT resolution, SSN table, hook detection, anti-debug,
@@ -36,8 +36,8 @@ struct WinStackOptions {
   bool clear_debug = true;
   bool register_veh = true;
   bool init_hook_detect = true;
-  bool apply_etw_blind = false;  // off by default — visible .text scar
-  bool hide_module = false;     // off by default — hard to reverse if misused
+  bool apply_etw_blind = false;  // off by default, visible.text scar
+  bool hide_module = false;     // off by default, hard to reverse if misused
 };
 
 /// Initialize the full Windows T1 stack. Idempotent.

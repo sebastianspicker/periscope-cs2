@@ -43,7 +43,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/cmake/Options.cmake")
 
 # Lab libraries (domain, simulation, scenarios) and lab applications. The
 # DomainTargets radar-side block stays skipped here (RADAR_SOURCE_DIR is
-# deliberately undefined in this project); RealTargets is not included — the
+# deliberately undefined in this project); RealTargets is not included, the
 # lab has no real backends.
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/DomainTargets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/SimulationTargets.cmake")

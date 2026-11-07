@@ -14,14 +14,14 @@ import java.net.ServerSocket
 /**
  * Lens topology-B entry point (ledger L5).
  *
- * What is actually wired here: the capability report (honesty rule — the
+ * What is actually wired here: the capability report (honesty rule, the
  * user sees what was detected, never what was configured) and the L6
  * transport listener lifecycle. The Camera2 capture loop, the ORT session
  * and the per-frame IPC into the transport are seams: the pipeline shape is
  * fixed by the surrounding modules, but this activity does not yet drive
  * frames (see `lens/android/README.md`'s gaps list).
  */
-class MainActivity : Activity() {
+class MainActivity: Activity() {
 
     private lateinit var status: TextView
     private var transportThread: Thread? = null
@@ -55,7 +55,7 @@ class MainActivity : Activity() {
     }
 
     /**
-     * Capability report shown at startup — the honesty rule from V3/L8:
+     * Capability report shown at startup, the honesty rule from V3/L8:
      * the user sees what was actually detected, never what was configured.
      */
     private fun describeCapabilities(): String {
@@ -80,7 +80,7 @@ class MainActivity : Activity() {
 
     /**
      * The assist-path transport listener: one socket, latest-frame semantics
-     * per connection (the L6 receiver rule — never queue). Runs only while
+     * per connection (the L6 receiver rule, never queue). Runs only while
      * the activity is foreground; the camera loop feeds [TransportHub].
      */
     private fun startTransport(): Thread {

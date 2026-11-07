@@ -13,7 +13,7 @@
 
 namespace lab {
 
-enum class ApiName : std::uint16_t {
+enum class ApiName: std::uint16_t {
   NtOpenProcess,
   NtReadVirtualMemory,
   NtClose,
@@ -37,10 +37,10 @@ enum class ApiName : std::uint16_t {
   GetCurrentProcessId,
 };
 
-enum class ApiResolvePath : std::uint8_t {
+enum class ApiResolvePath: std::uint8_t {
   Unresolved = 0,
-  ImportAddressTable,  // static IAT — visible to import scanners
-  PebEatWalk,          // runtime PEB+EAT — preferred stealth path
+  ImportAddressTable,  // static IAT, visible to import scanners
+  PebEatWalk,          // runtime PEB+EAT, preferred stealth path
 };
 
 struct ApiEntry {

@@ -1,4 +1,4 @@
-// net_crypto.hpp — Self-contained cryptographic primitives for the net stack.
+// net_crypto.hpp: Self-contained cryptographic primitives for the net stack.
 // No OpenSSL / third-party deps. SHA-256, HMAC-SHA256, ChaCha20, HKDF-like
 // expand, CRC32, Base64/Base32/Hex, secure zeroing, and SecureBuffer.
 
@@ -116,7 +116,7 @@ inline std::string to_base64(const std::vector<std::uint8_t>& v) {
 }
 Result<std::vector<std::uint8_t>> from_base64(const std::string& b64);
 
-/// RFC 4648 base32 (A-Z2-7) without padding — DNS-label safe.
+/// RFC 4648 base32 (A-Z2-7) without padding, DNS-label safe.
 std::string to_base32(const std::uint8_t* data, std::size_t len);
 inline std::string to_base32(const std::vector<std::uint8_t>& v) {
   return to_base32(v.data(), v.size());

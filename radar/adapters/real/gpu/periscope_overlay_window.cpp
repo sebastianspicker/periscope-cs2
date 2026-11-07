@@ -1,4 +1,4 @@
-// Split from periscope_overlay.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_overlay.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/gpu/periscope_overlay.hpp"
 #include "real/win/peb_util.hpp"
 #include "real/win/timing.hpp"
@@ -126,7 +126,7 @@ void StealthOverlay::shutdown() noexcept {
     // V6-O2: Unregister window class ATOM to prevent class name enumeration
     if (m_classAtom) {
         auto* peb = real::win::peb::get_peb();
-        HMODULE hInst = peb ? reinterpret_cast<HMODULE>(peb->ImageBaseAddress) : nullptr;
+        HMODULE hInst = peb ? reinterpret_cast<HMODULE>(peb->ImageBaseAddress): nullptr;
         if (hInst) {
             UnregisterClassA(reinterpret_cast<LPCSTR>(static_cast<uintptr_t>(m_classAtom)), hInst);
         }
@@ -143,8 +143,8 @@ bool StealthOverlay::register_window_class() noexcept {
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = overlay_wnd_proc;
     auto* peb = real::win::peb::get_peb();
-    wc.hInstance = peb ? reinterpret_cast<HMODULE>(peb->ImageBaseAddress) : nullptr;
-    wc.hCursor = nullptr;  // V6-O1: No cursor — prevents cursor-change detection
+    wc.hInstance = peb ? reinterpret_cast<HMODULE>(peb->ImageBaseAddress): nullptr;
+    wc.hCursor = nullptr;  // V6-O1: No cursor, prevents cursor-change detection
     wc.hbrBackground = nullptr;
     wc.lpszClassName = m_config.className.c_str();
 
@@ -177,12 +177,12 @@ bool StealthOverlay::create_window() noexcept {
         m_config.className.c_str(),
         m_config.windowName.c_str(),
         WS_POPUP,
-        0, 0,  // position — set later by follow_window
+        0, 0,  // position, set later by follow_window
         m_config.width,
         m_config.height,
         nullptr,
         nullptr,
-        []() -> HMODULE { auto* p = real::win::peb::get_peb(); return p ? reinterpret_cast<HMODULE>(p->ImageBaseAddress) : nullptr; }(),
+        []() -> HMODULE { auto* p = real::win::peb::get_peb(); return p ? reinterpret_cast<HMODULE>(p->ImageBaseAddress): nullptr; }(),
         nullptr
     );
 
@@ -229,7 +229,7 @@ bool StealthOverlay::ensure_capture_exclusion() noexcept {
         if (api.GetWindowDisplayAffinity(reinterpret_cast<HWND>(m_hwnd), &currentFlags) &&
             currentFlags == wdaFlags) {
             wda_applied = true;
-            // WDA already hides the window from capture — no scramble needed.
+            // WDA already hides the window from capture, no scramble needed.
             m_scramble_armed = false;
             m_scramble_active = false;
             uint64_t tsc_freq = 2500000000ULL;
@@ -245,7 +245,7 @@ bool StealthOverlay::ensure_capture_exclusion() noexcept {
             reinterpret_cast<HWND>(m_hwnd), wdaFlags);
         if (result) {
             wda_applied = true;
-            // WDA hides the window from capture — the scramble is not needed.
+            // WDA hides the window from capture, the scramble is not needed.
             m_scramble_armed = false;
             m_scramble_active = false;
             uint64_t tsc_freq = 2500000000ULL;
@@ -253,7 +253,7 @@ bool StealthOverlay::ensure_capture_exclusion() noexcept {
             uint64_t jitter = (__rdtscp(&aux) % 61) * tsc_freq;
             next_check_tsc = __rdtscp(&aux) + (60ULL * tsc_freq) + jitter;
         } else {
-            // WDA failed — the XOR scramble is the fallback defense.
+            // WDA failed, the XOR scramble is the fallback defense.
             m_scramble_armed = true;
             (void)scramble_surface();
         }
@@ -264,7 +264,7 @@ bool StealthOverlay::ensure_capture_exclusion() noexcept {
         reinterpret_cast<HWND>(m_hwnd), wdaFlags);
     if (result) {
         wda_applied = true;
-        // WDA hides the window from capture — the scramble is not needed.
+        // WDA hides the window from capture, the scramble is not needed.
         m_scramble_armed = false;
         m_scramble_active = false;
         uint64_t tsc_freq = 2500000000ULL;
@@ -272,7 +272,7 @@ bool StealthOverlay::ensure_capture_exclusion() noexcept {
         uint64_t jitter = (__rdtscp(&aux) % 61) * tsc_freq;
         next_check_tsc = __rdtscp(&aux) + (60ULL * tsc_freq) + jitter;
     } else {
-        // WDA failed — the XOR scramble is the fallback defense.
+        // WDA failed, the XOR scramble is the fallback defense.
         m_scramble_armed = true;
         (void)scramble_surface();
     }
@@ -358,4 +358,3 @@ bool StealthOverlay::process_messages() noexcept {
 }
 
 } // namespace real::gpu::periscope
-

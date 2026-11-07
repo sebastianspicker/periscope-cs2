@@ -1,4 +1,4 @@
-// scenario.cpp — CS-inspired bomb-defuse round FSM.
+// scenario.cpp: CS-inspired bomb-defuse round FSM.
 // Plant/defuse/drop/pickup, freeze economy, kit, multi win-path tick.
 
 #include "fps/scenario.hpp"
@@ -20,7 +20,7 @@ float dist3(const ac::Vec3& a, const ac::Vec3& b) {
 }  // namespace
 
 const char* to_string(Team t) {
-  return t == Team::Attacker ? "attacker" : "defender";
+  return t == Team::Attacker ? "attacker": "defender";
 }
 
 const char* to_string(RoundPhase p) {
@@ -70,7 +70,7 @@ const char* to_string(WeaponClass w) {
 }
 
 Scenario::Scenario(Map map, RoundConfig cfg)
-    : map_(std::move(map)), cfg_(cfg) {}
+: map_(std::move(map)), cfg_(cfg) {}
 
 Player* Scenario::player(std::uint32_t id) {
   for (auto& p : players_) {
@@ -94,8 +94,8 @@ void Scenario::start_default_round() {
   std::vector<Player> roster;
   const auto* tspawn = map_.find_area(AreaId::TSpawn);
   const auto* ctspawn = map_.find_area(AreaId::CTSpawn);
-  const ac::Vec3 t0 = tspawn ? tspawn->center : ac::Vec3{0, 0, 0};
-  const ac::Vec3 ct0 = ctspawn ? ctspawn->center : ac::Vec3{0, 0, 80};
+  const ac::Vec3 t0 = tspawn ? tspawn->center: ac::Vec3{0, 0, 0};
+  const ac::Vec3 ct0 = ctspawn ? ctspawn->center: ac::Vec3{0, 0, 80};
 
   roster.push_back(
       Player{0, "T1", Team::Attacker, t0, true, true, 100.f, cfg_.start_money,
@@ -117,7 +117,7 @@ void Scenario::start_round(std::vector<Player> roster, bool skip_freeze) {
   bomb_ = {};
   outcome_ = RoundOutcome::None;
   plant_bonus_paid_ = false;
-  for (auto p : roster) {
+  for (auto p: roster) {
     p.id = next_id_++;
     if (!p.alive) {
       p.health = 0.f;
@@ -467,17 +467,17 @@ std::string Scenario::describe() const {
       << " outcome=" << to_string(outcome_)
       << " score=T" << score_.attacker_wins << "-CT" << score_.defender_wins
       << "\n";
-  oss << "  bomb: planted=" << (bomb_.planted ? 1 : 0)
-      << " site=" << (bomb_.site_name.empty() ? "-" : bomb_.site_name)
+  oss << "  bomb: planted=" << (bomb_.planted ? 1: 0)
+      << " site=" << (bomb_.site_name.empty() ? "-": bomb_.site_name)
       << " fuse=" << bomb_.fuse_remaining
-      << " ground=" << (bomb_.ground.present ? 1 : 0)
+      << " ground=" << (bomb_.ground.present ? 1: 0)
       << " carrier=" << bomb_carrier_id()
-      << " defused=" << (bomb_.defused ? 1 : 0)
-      << " exploded=" << (bomb_.exploded ? 1 : 0) << "\n";
+      << " defused=" << (bomb_.defused ? 1: 0)
+      << " exploded=" << (bomb_.exploded ? 1: 0) << "\n";
   for (const auto& p : players_) {
     oss << "  [" << p.id << "] " << p.name << " " << to_string(p.team)
-        << " alive=" << (p.alive ? 1 : 0) << " bomb=" << (p.carries_bomb ? 1 : 0)
-        << " $=" << p.money << " kit=" << (p.has_defuse_kit ? 1 : 0)
+        << " alive=" << (p.alive ? 1: 0) << " bomb=" << (p.carries_bomb ? 1: 0)
+        << " $=" << p.money << " kit=" << (p.has_defuse_kit ? 1: 0)
         << " weap=" << to_string(p.weapon) << " hp=" << p.health
         << " pos=(" << p.origin.x << "," << p.origin.y << "," << p.origin.z
         << ")\n";

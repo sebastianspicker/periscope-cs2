@@ -1,4 +1,4 @@
-// c2_client.cpp — Full C2 protocol: framed ACL2 messages, ChaCha20 + HMAC,
+// c2_client.cpp: Full C2 protocol: framed ACL2 messages: ChaCha20 + HMAC,
 // TCP and HTTPS transports, auth handshake, beacon, failover reconnect.
 
 #include "real/net/net_client.hpp"
@@ -93,7 +93,7 @@ Result<C2Message> c2_unpack_frame(
   msg.seq = read_u32_le(data + 6);
   const std::uint32_t plen = read_u32_le(data + 10);
   const bool has_mac = (msg.flags & static_cast<std::uint8_t>(C2Flags::HasMac)) != 0;
-  const std::size_t total = 14 + plen + (has_mac ? 32u : 0u);
+  const std::size_t total = 14 + plen + (has_mac ? 32u: 0u);
   if (len < total)
     return Result<C2Message>({}, "Incomplete C2 frame");
 
@@ -121,7 +121,7 @@ Result<C2Message> c2_unpack_frame(
 // ── C2Client ───────────────────────────────────────────────────────
 
 C2Client::C2Client(const std::string& endpoint, const std::string& auth_token)
-    : endpoint_(endpoint), auth_token_(auth_token) {
+: endpoint_(endpoint), auth_token_(auth_token) {
   config_.endpoint = endpoint;
   config_.auth_token = auth_token;
   auto p = parse_url(endpoint);
@@ -132,7 +132,7 @@ C2Client::C2Client(const std::string& endpoint, const std::string& auth_token)
 }
 
 C2Client::C2Client(const C2Config& config)
-    : config_(config),
+: config_(config),
       endpoint_(config.endpoint),
       auth_token_(config.auth_token) {}
 
@@ -140,7 +140,7 @@ C2Client::~C2Client() { disconnect(); }
 
 Result<void> C2Client::perform_auth_handshake() {
   if (auth_token_.empty() && config_.auth_token.empty()) {
-    const std::string endpoint = active_endpoint_.empty() ? endpoint_ : active_endpoint_;
+    const std::string endpoint = active_endpoint_.empty() ? endpoint_: active_endpoint_;
     if (!config_.allow_loopback_test_without_auth || !is_loopback_endpoint(endpoint)) {
       return Result<void>("C2 authentication token is required for non-test endpoints");
     }
@@ -149,7 +149,7 @@ Result<void> C2Client::perform_auth_handshake() {
     session_key_ = derive_session_key("loopback-test:" + endpoint, "ac-lab-c2-loopback");
     return Result<void>();
   }
-  const std::string token = auth_token_.empty() ? config_.auth_token : auth_token_;
+  const std::string token = auth_token_.empty() ? config_.auth_token: auth_token_;
   session_key_ = derive_session_key(token, "ac-lab-c2");
 
   C2Message auth;
@@ -162,7 +162,7 @@ Result<void> C2Client::perform_auth_handshake() {
                            std::vector<std::uint8_t>(token.begin(), token.end()));
   auth.payload = proof;
 
-  // On TCP we send; server may not exist — for connect() we only prepare key.
+  // On TCP we send; server may not exist, for connect() we only prepare key.
   // Actual auth message is sent when send_message is used, or here if connected.
   if (connected_ && config_.transport == C2Config::Transport::TcpFramed && sock_.fd >= 0) {
     auto packed = c2_pack_frame(auth, session_key_);
@@ -192,7 +192,7 @@ Result<void> C2Client::connect_tcp(const std::string& endpoint) {
       port = 443;
     }
   }
-  // Default bare port for tcp scheme was 80 — C2 often uses custom ports from URL.
+  // Default bare port for tcp scheme was 80, C2 often uses custom ports from URL.
   if (parsed.scheme == "tcp" && parsed.port == 80 && endpoint.find(':') != std::string::npos) {
     // already handled
   }
@@ -228,7 +228,7 @@ Result<void> C2Client::connect() {
   if (connected_) return Result<void>();
 
   std::vector<std::string> endpoints;
-  endpoints.push_back(config_.endpoint.empty() ? endpoint_ : config_.endpoint);
+  endpoints.push_back(config_.endpoint.empty() ? endpoint_: config_.endpoint);
   for (const auto& e : config_.failover_endpoints) endpoints.push_back(e);
 
   FixedError last_err("No endpoints");
@@ -289,10 +289,10 @@ Result<C2Message> C2Client::send_tcp(const C2Message& msg, int timeout_ms) {
     return Result<C2Message>({}, "C2 payload too large");
   }
   std::vector<std::uint8_t> frame(hdr, hdr + 14);
-  frame.resize(14 + plen + (has_mac ? 32u : 0u));
-  if (plen + (has_mac ? 32u : 0u) > 0) {
+  frame.resize(14 + plen + (has_mac ? 32u: 0u));
+  if (plen + (has_mac ? 32u: 0u) > 0) {
     auto rb = recv_exact(sock_, frame.data() + 14,
-                         static_cast<int>(plen + (has_mac ? 32u : 0u)));
+                         static_cast<int>(plen + (has_mac ? 32u: 0u)));
     if (!rb) {
       disconnect();
       return Result<C2Message>({}, rb.error_msg);
@@ -314,7 +314,7 @@ Result<C2Message> C2Client::send_https(const C2Message& msg, int timeout_ms) {
   auto packed = c2_pack_frame(out, session_key_);
   if (!packed) return Result<C2Message>({}, packed.error_msg);
 
-  std::string url = active_endpoint_.empty() ? endpoint_ : active_endpoint_;
+  std::string url = active_endpoint_.empty() ? endpoint_: active_endpoint_;
   // Ensure path
   auto p = parse_url(url);
   if (p.path.empty() || p.path == "/") {
@@ -377,7 +377,7 @@ Result<C2Message> C2Client::heartbeat() {
   req.seq = next_seq_++;
   const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                       std::chrono::system_clock::now().time_since_epoch())
-                      .count();
+.count();
   std::uint8_t ts[8];
   write_u64_le(ts, static_cast<std::uint64_t>(ms));
   req.payload.assign(ts, ts + 8);
@@ -404,7 +404,7 @@ Result<void> C2Client::reconnect(int max_attempts) {
     auto r = connect();
     if (r) return r;
     last = r.error_msg;
-    // crude sleep via busy-wait free: use socket timeout trick — platform sleep
+    // crude sleep via busy-wait free: use socket timeout trick, platform sleep
 #if LR_PLATFORM_WINDOWS
     Sleep(static_cast<DWORD>(jitter_ms(delay, 20)));
 #else
@@ -427,7 +427,7 @@ std::uint64_t BeaconScheduler::now_ms() {
 }
 
 BeaconScheduler::BeaconScheduler(int interval_ms, int jitter_percent)
-    : interval_ms_(interval_ms), jitter_percent_(jitter_percent) {
+: interval_ms_(interval_ms), jitter_percent_(jitter_percent) {
   reset();
 }
 
@@ -439,7 +439,7 @@ void BeaconScheduler::set_interval(int interval_ms, int jitter_percent) {
 
 void BeaconScheduler::reset() {
   next_fire_ms_ = now_ms() + static_cast<std::uint64_t>(
-      jitter_ms(interval_ms_ > 0 ? interval_ms_ : 1, jitter_percent_));
+      jitter_ms(interval_ms_ > 0 ? interval_ms_: 1, jitter_percent_));
 }
 
 bool BeaconScheduler::should_fire() {

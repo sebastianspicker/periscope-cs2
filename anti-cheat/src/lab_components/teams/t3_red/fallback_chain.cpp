@@ -1,4 +1,4 @@
-// fallback_chain.cpp — multi-step T3→T2→T0 backend fallback attach.
+// fallback_chain.cpp: multi-step T3→T2→T0 backend fallback attach.
 // Key methods: add, attach_first_available, attach_with_report, active_tier.
 
 #include "t3_red/fallback_chain.hpp"
@@ -81,12 +81,12 @@ FallbackAttachReport FallbackChain::attach_with_report(std::uint32_t target_id) 
 // FallbackChain::attach_first_available: Try chain steps until one attach succeeds.
 ac::Status FallbackChain::attach_first_available(std::uint32_t target_id) {
   auto rep = attach_with_report(target_id);
-  return rep.ok ? ac::Status::Ok : ac::Status::Unavailable;
+  return rep.ok ? ac::Status::Ok: ac::Status::Unavailable;
 }
 
 // FallbackChain::active_tier: Which delivery tier is currently active after attach.
 ac::Tier FallbackChain::active_tier() const {
-  return active_ ? active_->tier() : ac::Tier::T0_UsermodeRpm;
+  return active_ ? active_->tier(): ac::Tier::T0_UsermodeRpm;
 }
 
 }  // namespace t3_red

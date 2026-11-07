@@ -1,4 +1,4 @@
-/// radar_t0.cpp — T0: OpenProcess + ReadProcessMemory live radar.
+/// radar_t0.cpp: T0: OpenProcess + ReadProcessMemory live radar.
 /// Works against real CS2. Falls back to simulation if CS2 not found.
 #include "demos/radar_shared.hpp"
 #if LR_HAS_REAL_PLATFORM && LR_PLATFORM_WINDOWS
@@ -19,7 +19,7 @@
 #define TIER_SCAR OBF("VM_READ handle visible in system handle table")
 #define TIER_DET  OBF("NtQuerySystemInformation handle with VM_READ to cs2.exe")
 #define TIER_MIT  OBF("Protected Process Light (PPL), handle-auditing ETW")
-#define TIER_CODE OBF("adapters/real/cs2/memory.cpp :: Cs2MemoryReader(T0_UsermodeRpm)")
+#define TIER_CODE OBF("adapters/real/cs2/memory.cpp:: Cs2MemoryReader(T0_UsermodeRpm)")
 
 using Clock = std::chrono::steady_clock;
 
@@ -45,7 +45,7 @@ int main() {
 #if LR_HAS_REAL_PLATFORM
     auto attach = real::cs2::attach_to_cs2();
     bool live = attach.attached;
-    std::printf("[%s]\n", live ? "REAL CS2 FOUND" : "SIMULATION (start cs2.exe for live)");
+    std::printf("[%s]\n", live ? "REAL CS2 FOUND": "SIMULATION (start cs2.exe for live)");
     if (!live) {
         std::printf("  attach error: %s\n", attach.error_msg.c_str());
     }
@@ -63,7 +63,7 @@ int main() {
             std::printf("  Hijack OK (donor=%u)\n",
                         real::cs2::hijack::g_Hijack().donor_pid());
         } else {
-            std::printf("  Hijack failed — educational OpenProcess RPM\n");
+            std::printf("  Hijack failed, educational OpenProcess RPM\n");
         }
 #endif
 
@@ -72,7 +72,7 @@ int main() {
         if (o) {
             offsets = *o;
             std::printf("  Offsets complete=%d\n  %s\n",
-                        offsets.is_complete() ? 1 : 0,
+                        offsets.is_complete() ? 1: 0,
                         offsets.describe().c_str());
         } else {
             std::printf("  Offset resolve failed: %s\n", o.error_msg.c_str());
@@ -81,7 +81,7 @@ int main() {
         auto st = reader.attach(ac::Tier::T0_UsermodeRpm, attach.pid);
         std::printf("  Backend: %s (attach=%s)\n",
                     reader.active_backend_name(),
-                    st == ac::Status::Ok ? "ok" : "fail");
+                    st == ac::Status::Ok ? "ok": "fail");
     }
 #else
     constexpr bool live = false;
@@ -116,7 +116,7 @@ int main() {
 #endif
 
     if (!rp) {
-        std::printf("  No GPU overlay — console/sim entity path\n");
+        std::printf("  No GPU overlay, console/sim entity path\n");
     }
 
     while (!rp || rp->process_messages()) {
@@ -168,7 +168,7 @@ int main() {
         if (elapsed >= 1000) {
             std::printf("\r[T0] FPS: %.1f | entities: %d | %s   ",
                         window_frames / (elapsed / 1000.0),
-                        last_ents, live ? "LIVE" : "SIM");
+                        last_ents, live ? "LIVE": "SIM");
             fflush(stdout);
             window_frames = 0;
             report_started = Clock::now();

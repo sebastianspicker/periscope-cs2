@@ -27,7 +27,7 @@ float GaussianNoise::sample(float mean, float stddev) noexcept {
 void BehavioralFilter::initialize(const BehavioralFilterConfig& config,
                                    std::uint64_t seed) noexcept {
     m_config = config;
-    m_seed = seed ? seed : 0xBE11A710ULL;
+    m_seed = seed ? seed: 0xBE11A710ULL;
     m_tickCount = 0;
     m_hasLastOrigin = false;
     m_stats = BehavioralFilterStats{};
@@ -66,7 +66,7 @@ bool BehavioralFilter::should_omit_entity(float distance, float player_speed,
 
     float speed_factor = 1.0f + (player_speed / 250.0f) * 2.0f;
     float occlusion_factor =
-        is_occluded ? static_cast<float>(m_config.occlusionBoost) : 1.0f;
+        is_occluded ? static_cast<float>(m_config.occlusionBoost): 1.0f;
 
     float rate = base * speed_factor * occlusion_factor;
     if (rate > 0.35f) rate = 0.35f;
@@ -96,7 +96,7 @@ void BehavioralFilter::filter_entities(ac::EntitySnapshot* entities,
     m_lastOrigin = localOrigin;
     m_hasLastOrigin = true;
 
-    // Gamma(4, ~50–100) reaction-time delay — mean ~200–400 ms.
+    // Gamma(4, ~50–100) reaction-time delay, mean ~200–400 ms.
     GaussianNoise rng(m_tickCount ^ m_seed);
     float gamma_sum = 0.f;
     const float scale =
@@ -139,7 +139,7 @@ void BehavioralFilter::filter_entities(ac::EntitySnapshot* entities,
         const bool in_fov = (std::fabs(angle_h) < half_fov_h) &&
                             (std::fabs(angle_v) < half_fov_v);
 
-        // Outside FoV — elevated omission.
+        // Outside FoV, elevated omission.
         if (!in_fov && m_tickCount > 10) {
             if (rng.uniform() < 0.3f) {
                 omit_entity(e);
@@ -194,7 +194,7 @@ void BehavioralFilter::fuzz_screen(float& screen_x, float& screen_y, float dist,
             if (fuzz_px < 1.f) fuzz_px = 1.f;
             if (fuzz_px > max_fuzz) fuzz_px = max_fuzz;
         }
-        return pos + (rng.uniform() < 0.5f ? fuzz_px : -fuzz_px);
+        return pos + (rng.uniform() < 0.5f ? fuzz_px: -fuzz_px);
     };
     screen_x = fuzz_coord(screen_x);
     screen_y = fuzz_coord(screen_y);

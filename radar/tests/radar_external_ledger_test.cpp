@@ -1,4 +1,4 @@
-// radar_external_ledger_test.cpp — host tests for the second-pass external
+// radar_external_ledger_test.cpp: host tests for the second-pass external
 // assessment primitives (E48, E49, E54, E56, E63, E65, E67, E68).
 
 #include "real/cs2/dead_reckoning.hpp"
@@ -190,7 +190,7 @@ struct FakePhys {
     qword(cr3, (va >> 39) & 0x1FF) = pdpt_pa | 1;
     qword(pdpt_pa, (va >> 30) & 0x1FF) = pd_pa | 1;
     qword(pd_pa, (va >> 21) & 0x1FF) = pt_pa | 1;
-    qword(pt_pa, (va >> 12) & 0x1FF) = pa | 1 | (exec ? 0 : (1ull << 63));
+    qword(pt_pa, (va >> 12) & 0x1FF) = pa | 1 | (exec ? 0: (1ull << 63));
   }
 };
 
@@ -309,7 +309,7 @@ void test_schema_resolver() {
     const auto it = memory.find(address);
     if (it == memory.end()) return false;
     const std::size_t available = it->second.size();
-    const std::size_t copy = size < available ? size : available;
+    const std::size_t copy = size < available ? size: available;
     std::memcpy(out, it->second.data(), copy);
     if (copy < size) {
       std::memset(static_cast<std::uint8_t*>(out) + copy, 0, size - copy);
@@ -342,7 +342,7 @@ void test_world_collision() {
                               std::size_t size) -> bool {
     const auto it = memory.find(address);
     if (it == memory.end()) return false;
-    const std::size_t copy = size < it->second.size() ? size : it->second.size();
+    const std::size_t copy = size < it->second.size() ? size: it->second.size();
     std::memcpy(out, it->second.data(), copy);
     if (copy < size) {
       std::memset(static_cast<std::uint8_t*>(out) + copy, 0, size - copy);
@@ -413,7 +413,7 @@ void test_page_chunks() {
   check(plan[1].address == 0x2000 && plan[1].size == 0x20, "second chunk page aligned");
   check(real::kernel::plan_chunked_read_pages(0, 0, 16).empty(), "zero total");
   check(real::kernel::plan_chunked_read_pages(0xFFFFFFFFFFFFFFF0ull, 0x20, 0x20)
-                .empty(),
+.empty(),
         "overflow refused");
 }
 

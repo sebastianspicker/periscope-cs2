@@ -9,7 +9,7 @@ void Red::apply(sim::World& w) noexcept {
   const auto game = w.game_pid();
   const auto* g = w.proc(game);
   if (game == 0 || g == nullptr) {
-    w.note("handle_inherit_detect: precondition failed — game missing");
+    w.note("handle_inherit_detect: precondition failed, game missing");
     return;
   }
 

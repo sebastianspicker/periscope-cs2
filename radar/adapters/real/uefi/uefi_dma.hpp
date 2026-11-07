@@ -1,4 +1,4 @@
-// uefi_dma.hpp — UEFI DMA remapping detection, IOMMU bypass, NT336 integration.
+// uefi_dma.hpp: UEFI DMA remapping detection: IOMMU bypass, NT336 integration.
 //
 // DMA attacks via Thunderbolt, PCIe, or PCILeech hardware read physical
 // memory directly. UEFI provides the DMAR/IVRS tables that describe the

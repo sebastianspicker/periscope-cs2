@@ -1,4 +1,4 @@
-// crypto.cpp — SHA-256, HMAC, ChaCha20, HKDF, encodings, secure buffer.
+// crypto.cpp: SHA-256: HMAC, ChaCha20, HKDF, encodings, secure buffer.
 
 #include "real/net/net_crypto.hpp"
 #include "real/platform.hpp"
@@ -34,7 +34,7 @@ void secure_zero(void* p, std::size_t n) {
 // ── SecureBuffer ───────────────────────────────────────────────────
 
 SecureBuffer::SecureBuffer(const std::uint8_t* data, std::size_t len)
-    : size_(len), key_(0xA5) {
+: size_(len), key_(0xA5) {
   if (len == 0 || !data) return;
   // Per-buffer key from first mix of content + length (still XOR-only obfuscation).
   key_ = static_cast<std::uint8_t>(0xA5 ^ (len & 0xFF) ^ (data[0]));
@@ -45,12 +45,12 @@ SecureBuffer::SecureBuffer(const std::uint8_t* data, std::size_t len)
 }
 
 SecureBuffer::SecureBuffer(const std::vector<std::uint8_t>& data)
-    : SecureBuffer(data.data(), data.size()) {}
+: SecureBuffer(data.data(), data.size()) {}
 
 SecureBuffer::~SecureBuffer() { destroy(); }
 
 SecureBuffer::SecureBuffer(SecureBuffer&& other) noexcept
-    : data_(std::move(other.data_)), size_(other.size_), key_(other.key_) {
+: data_(std::move(other.data_)), size_(other.size_), key_(other.key_) {
   other.size_ = 0;
   other.key_ = 0;
 }
@@ -222,7 +222,7 @@ std::uint32_t crc32(const std::uint8_t* data, std::size_t len) {
   for (std::size_t i = 0; i < len; ++i) {
     crc ^= data[i];
     for (int j = 0; j < 8; ++j)
-      crc = (crc & 1) ? (crc >> 1) ^ 0xEDB88320u : (crc >> 1);
+      crc = (crc & 1) ? (crc >> 1) ^ 0xEDB88320u: (crc >> 1);
   }
   return crc ^ 0xFFFFFFFFu;
 }
@@ -361,7 +361,7 @@ std::vector<std::uint8_t> derive_session_key(const std::string& token,
 std::string to_hex(const std::uint8_t* data, std::size_t len, bool upper) {
   static const char* lo = "0123456789abcdef";
   static const char* up = "0123456789ABCDEF";
-  const char* hex = upper ? up : lo;
+  const char* hex = upper ? up: lo;
   std::string out;
   out.resize(len * 2);
   for (std::size_t i = 0; i < len; ++i) {
@@ -399,12 +399,12 @@ std::string to_base64(const std::uint8_t* data, std::size_t len) {
   out.reserve(((len + 2) / 3) * 4);
   for (std::size_t i = 0; i < len; i += 3) {
     const std::uint32_t n = (static_cast<std::uint32_t>(data[i]) << 16) |
-        ((i + 1 < len) ? (static_cast<std::uint32_t>(data[i + 1]) << 8) : 0) |
-        ((i + 2 < len) ? static_cast<std::uint32_t>(data[i + 2]) : 0);
+        ((i + 1 < len) ? (static_cast<std::uint32_t>(data[i + 1]) << 8): 0) |
+        ((i + 2 < len) ? static_cast<std::uint32_t>(data[i + 2]): 0);
     out.push_back(tbl[(n >> 18) & 63]);
     out.push_back(tbl[(n >> 12) & 63]);
-    out.push_back((i + 1 < len) ? tbl[(n >> 6) & 63] : '=');
-    out.push_back((i + 2 < len) ? tbl[n & 63] : '=');
+    out.push_back((i + 1 < len) ? tbl[(n >> 6) & 63]: '=');
+    out.push_back((i + 2 < len) ? tbl[n & 63]: '=');
   }
   return out;
 }
@@ -421,7 +421,7 @@ Result<std::vector<std::uint8_t>> from_base64(const std::string& b64) {
   };
   std::vector<std::uint8_t> out;
   int acc = 0, bits = 0;
-  for (char c : b64) {
+  for (char c: b64) {
     const int v = val(c);
     if (v == -2) continue;
     if (v < 0) return Result<std::vector<std::uint8_t>>({}, "Invalid base64");
@@ -464,7 +464,7 @@ Result<std::vector<std::uint8_t>> from_base32(const std::string& b32) {
   std::vector<std::uint8_t> out;
   std::uint32_t buffer = 0;
   int bits = 0;
-  for (char c : b32) {
+  for (char c: b32) {
     const int v = val(c);
     if (v == -2) continue;
     if (v < 0) return Result<std::vector<std::uint8_t>>({}, "Invalid base32");
@@ -532,7 +532,7 @@ int jitter_ms(int base_ms, int percent) {
   if (delta <= 0) return base_ms;
   const int off = static_cast<int>(random_u32(0, static_cast<std::uint32_t>(delta * 2))) - delta;
   const int v = base_ms + off;
-  return v < 1 ? 1 : v;
+  return v < 1 ? 1: v;
 }
 
 }  // namespace real::net

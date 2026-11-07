@@ -1,4 +1,4 @@
-// intervals.hpp — R3/R7: every read/publish cadence constant in one place.
+// intervals.hpp: R3/R7: every read/publish cadence constant in one place.
 //
 // Upstream lesson preserved (cs2-dma): cadence constants scattered across
 // files drift. All intervals live here; consumers reference the constants,
@@ -35,7 +35,7 @@ inline constexpr std::uint32_t kAdaptiveNoViewerHz = 4;
 inline constexpr std::uint32_t kAdaptiveBackgroundHz = 10;
 inline constexpr std::uint32_t kAdaptiveActiveViewerHz = 20;
 
-enum class ViewerDemand : std::uint8_t {
+enum class ViewerDemand: std::uint8_t {
   None = 0,
   Background = 1,
   Active = 2,

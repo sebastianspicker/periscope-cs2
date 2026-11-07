@@ -1,4 +1,4 @@
-// vmx_priv.hpp — Internal shared helpers for the VT-x stack.
+// vmx_priv.hpp: Internal shared helpers for the VT-x stack.
 // Not part of the public API. Privilege probes, safe MSR/CR access, and
 // SEH-guarded privileged instruction wrappers so usermode CI never takes #UD.
 
@@ -191,7 +191,7 @@ inline bool at_cpl0() {
   return cached != 0;
 #else
   unsigned short cs = 0;
-  __asm__ volatile("mov %%cs, %0" : "=r"(cs));
+  __asm__ volatile("mov %%cs, %0": "=r"(cs));
   return (cs & 3u) == 0;
 #endif
 }
@@ -209,8 +209,8 @@ inline void cpuid_raw(uint32_t leaf, uint32_t subleaf,
   *d = static_cast<uint32_t>(info[3]);
 #else
   __asm__ volatile("cpuid"
-                   : "=a"(*a), "=b"(*b), "=c"(*c), "=d"(*d)
-                   : "a"(leaf), "c"(subleaf));
+: "=a"(*a), "=b"(*b), "=c"(*c), "=d"(*d)
+: "a"(leaf), "c"(subleaf));
 #endif
 }
 
@@ -228,7 +228,7 @@ inline Result<uint64_t> safe_rdmsr(uint32_t msr) {
   return Result<uint64_t>(v);
 #else
   uint32_t low = 0, high = 0;
-  __asm__ volatile("rdmsr" : "=a"(low), "=d"(high) : "c"(msr));
+  __asm__ volatile("rdmsr": "=a"(low), "=d"(high): "c"(msr));
   return Result<uint64_t>((static_cast<uint64_t>(high) << 32) | low);
 #endif
 }
@@ -242,8 +242,8 @@ inline Result<void> safe_wrmsr(uint32_t msr, uint64_t value) {
   return Result<void>();
 #else
   __asm__ volatile("wrmsr"
-                   :
-                   : "a"(static_cast<uint32_t>(value)),
+:
+: "a"(static_cast<uint32_t>(value)),
                      "d"(static_cast<uint32_t>(value >> 32)),
                      "c"(msr));
   return Result<void>();
@@ -257,7 +257,7 @@ inline Result<uint64_t> safe_read_cr0() {
   return Result<uint64_t>(v);
 #else
   uint64_t v = 0;
-  __asm__ volatile("mov %%cr0, %0" : "=r"(v));
+  __asm__ volatile("mov %%cr0, %0": "=r"(v));
   return Result<uint64_t>(v);
 #endif
 }
@@ -270,7 +270,7 @@ inline Result<uint64_t> safe_read_cr3() {
   return Result<uint64_t>(v);
 #else
   uint64_t v = 0;
-  __asm__ volatile("mov %%cr3, %0" : "=r"(v));
+  __asm__ volatile("mov %%cr3, %0": "=r"(v));
   return Result<uint64_t>(v);
 #endif
 }
@@ -283,7 +283,7 @@ inline Result<uint64_t> safe_read_cr4() {
   return Result<uint64_t>(v);
 #else
   uint64_t v = 0;
-  __asm__ volatile("mov %%cr4, %0" : "=r"(v));
+  __asm__ volatile("mov %%cr4, %0": "=r"(v));
   return Result<uint64_t>(v);
 #endif
 }
@@ -294,7 +294,7 @@ inline Result<void> safe_write_cr4(uint64_t value) {
   if (seh::write_cr4(value) != 0) return Result<void>("CR4 write failed");
   return Result<void>();
 #else
-  __asm__ volatile("mov %0, %%cr4" : : "r"(value) : "memory");
+  __asm__ volatile("mov %0, %%cr4":: "r"(value): "memory");
   return Result<void>();
 #endif
 }

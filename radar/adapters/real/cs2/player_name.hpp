@@ -1,4 +1,4 @@
-// player_name.hpp — sanitise a game-supplied player name (E50).
+// player_name.hpp: sanitise a game-supplied player name (E50).
 //
 // Names come from a remote string and are attacker-controlled. The reader
 // caps the read at 127 bytes; this helper removes control bytes, collapses
@@ -16,7 +16,7 @@ namespace real::cs2::name {
 inline std::string sanitize(const char* raw, std::size_t max_len = 127) {
   if (raw == nullptr) return {};
   std::string out;
-  out.reserve(max_len < 32 ? max_len : 32);
+  out.reserve(max_len < 32 ? max_len: 32);
   bool last_space = true;
   for (std::size_t i = 0; i < max_len && raw[i] != '\0'; ++i) {
     const unsigned char c = static_cast<unsigned char>(raw[i]);

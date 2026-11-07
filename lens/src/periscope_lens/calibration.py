@@ -1,7 +1,7 @@
 """Screen↔camera calibration (ledger L3).
 
 Adapted from the research ledger: arXiv:2004.08030 "Smartphone camera based
-pointer" — the phone camera becomes a pointer on the *PC's* screen; the core
+pointer", the phone camera becomes a pointer on the *PC's* screen; the core
 math is detecting the screen's corners in the camera frame and solving the
 camera→screen homography. Reimplemented here (cite, don't copy; the paper is
 non-exclusive-distrib).
@@ -61,7 +61,7 @@ class CalibrationMonitor:
 
     ``drift`` becomes True when the residual exceeds ``tolerance_px`` for
     ``patience`` consecutive checks (phone bumped, autofocus hunted, monitor
-    moved) — a re-solve is then required.
+    moved), a re-solve is then required.
     """
 
     tolerance_px: float = 3.0
@@ -183,7 +183,7 @@ def residual_for(
     camera_points: SequenceLikePoints,
     screen_points: SequenceLikePoints,
 ) -> float:
-    """RMS reprojection residual of fresh correspondences against a solve —
+    """RMS reprojection residual of fresh correspondences against a solve -
     the number the drift monitor consumes."""
     src = np.asarray(camera_points, dtype=np.float64)
     dst = np.asarray(screen_points, dtype=np.float64)

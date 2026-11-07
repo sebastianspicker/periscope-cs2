@@ -1,4 +1,4 @@
-// view_point.hpp — Eye-origin derivation for LOS and direction (E48).
+// view_point.hpp: Eye-origin derivation for LOS and direction (E48).
 //
 // A segment from the feet is blocked by the player's own cover. The eye is
 // the correct origin for "can I see them". `m_vecViewOffset` is a small

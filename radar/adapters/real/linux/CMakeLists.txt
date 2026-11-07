@@ -1,9 +1,9 @@
 # Linux real-adapter targets for Periscope Radar.
 #
 # Targets:
-#   ac_linux           — Full userspace stack
-#   ac_linux_mem|proc|pcie — INTERFACE aliases (compat)
-#   aclab_client       — CLI for /dev/aclab (Linux only)
+#   ac_linux, Full userspace stack
+#   ac_linux_mem|proc|pcie, INTERFACE aliases (compat)
+#   aclab_client, CLI for /dev/aclab (Linux only)
 #
 # Kernel module (aclab_module.ko) is built by the Makefile via Kbuild.
 
@@ -70,4 +70,3 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     )
 endif()
-

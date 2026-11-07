@@ -1,4 +1,4 @@
-// T2 RED prototype — full kernel/BYOVD channel on sim::World, no game handle.
+// T2 RED prototype, full kernel/BYOVD channel on sim::World, no game handle.
 
 #include "ac/proto_log.hpp"
 #include "lab/fixture_process.hpp"
@@ -18,9 +18,9 @@ int main() {
   // Path A: fixture unit shape
   t2_red::ByovdSurface byovd;
   byovd.set_candidate({
-      .image_name = "LabVulnDrv.sys",
-      .sha256_hex = "lab_byovd_hash_001",
-      .signed_driver = true,
+.image_name = "LabVulnDrv.sys",
+.sha256_hex = "lab_byovd_hash_001",
+.signed_driver = true,
   });
   ac::proto_status("byovd_load_sim", byovd.attempt_load_lab());
   ac::proto_kv("byovd_loaded", byovd.loaded());
@@ -58,8 +58,8 @@ int main() {
                   rep.entity_count > 0;
   ac::proto_kv("T2_RED_SCAR_OK", ok);
   std::puts(ok ? "prototype ok (full T2 no-handle kernel scar + entities)"
-               : "prototype FAIL");
+: "prototype FAIL");
   // Full multi-sensor blue scan: merge independent reasons/risk (not one bool).
   std::puts("\n[blue should counter] KernelAc full_scan (blocklist+device+callbacks)");
-  return ok ? 0 : 1;
+  return ok ? 0: 1;
 }

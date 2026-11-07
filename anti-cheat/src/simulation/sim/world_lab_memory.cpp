@@ -1,4 +1,4 @@
-// world.cpp — sim::World implementation: processes, handles, drivers, net scars.
+// world.cpp: sim::World implementation: processes: handles, drivers, net scars.
 // make_arena() seeds the educational OS/game snapshot used by all pairs.
 
 #include "sim/world.hpp"
@@ -24,7 +24,7 @@ static_assert(std::is_trivially_copyable_v<LabEntityRow>);
 static_assert(sizeof(LabEntityRow) == kEntRawSize);
 
 bool checked_add(std::size_t left, std::size_t right, std::size_t& out) {
-  if (right > std::numeric_limits<std::size_t>::max() - left) {
+  if (right > std::numeric_limits<std::size_t> ::max() - left) {
     return false;
   }
   out = left + right;
@@ -32,7 +32,7 @@ bool checked_add(std::size_t left, std::size_t right, std::size_t& out) {
 }
 
 bool checked_mul(std::size_t left, std::size_t right, std::size_t& out) {
-  if (left != 0 && right > std::numeric_limits<std::size_t>::max() / left) {
+  if (left != 0 && right > std::numeric_limits<std::size_t> ::max() / left) {
     return false;
   }
   out = left * right;
@@ -49,7 +49,7 @@ bool address_offset(std::uint64_t address, std::uint64_t base,
     return false;
   }
   const auto difference = address - base;
-  if (difference > std::numeric_limits<std::size_t>::max()) {
+  if (difference > std::numeric_limits<std::size_t> ::max()) {
     return false;
   }
   offset = static_cast<std::size_t>(difference);
@@ -217,7 +217,7 @@ bool World::plant_entity_snapshots(
   if (!g || !g->is_game) {
     return false;
   }
-  if (entities.size() > std::numeric_limits<std::uint32_t>::max()) {
+  if (entities.size() > std::numeric_limits<std::uint32_t> ::max()) {
     return false;
   }
   std::size_t table_end = 0;
@@ -234,7 +234,7 @@ bool World::plant_entity_snapshots(
   for (std::size_t i = 0; i < entities.size(); ++i) {
     const auto& e = entities[i];
     const LabEntityRow row{e.origin.x, e.origin.y, e.origin.z, e.team,
-                           static_cast<std::uint8_t>(e.alive ? 1 : 0), {}};
+                           static_cast<std::uint8_t>(e.alive ? 1: 0), {}};
     std::size_t row_delta = 0;
     std::size_t row_offset = 0;
     if (!checked_mul(i, sizeof(row), row_delta) ||
@@ -264,7 +264,7 @@ std::vector<ac::EntitySnapshot> World::read_entity_snapshots(
   if (!g || !g->is_game) {
     return out;
   }
-  const auto rel = table_rel != 0 ? table_rel : lab_entity_table_rel;
+  const auto rel = table_rel != 0 ? table_rel: lab_entity_table_rel;
   if (!range_fits(rel, sizeof(std::uint32_t), g->memory.size())) {
     return out;
   }
@@ -279,7 +279,7 @@ std::vector<ac::EntitySnapshot> World::read_entity_snapshots(
   }
   const auto available_rows = rows_offset <= g->memory.size()
                                   ? (g->memory.size() - rows_offset) / kEntRawSize
-                                  : 0;
+: 0;
   if (count > available_rows) {
     return out;
   }

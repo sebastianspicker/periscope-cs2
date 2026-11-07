@@ -10,7 +10,7 @@
 namespace real::win {
 namespace {
 
-// AddVectoredExceptionHandler returns PVOID handle — store as-is.
+// AddVectoredExceptionHandler returns PVOID handle, store as-is.
 static PVOID s_veh_handle = nullptr;
 static uint64_t s_registrationTick = 0;
 static bool s_first_handler = true;  // 1 = call first
@@ -57,9 +57,9 @@ void register_veh() noexcept {
 
   if (api.AddVectoredExceptionHandler) {
     s_veh_handle = api.AddVectoredExceptionHandler(
-        s_first_handler ? 1u : 0u, veh_handler);
+        s_first_handler ? 1u: 0u, veh_handler);
   } else {
-    s_veh_handle = ::AddVectoredExceptionHandler(s_first_handler ? 1u : 0u, veh_handler);
+    s_veh_handle = ::AddVectoredExceptionHandler(s_first_handler ? 1u: 0u, veh_handler);
   }
   s_registrationTick = read_tick();
 }
@@ -71,7 +71,7 @@ void unregister_veh() noexcept {
   if (api.RemoveVectoredExceptionHandler) {
     api.RemoveVectoredExceptionHandler(s_veh_handle);
   } else {
-    ::RemoveVectoredExceptionHandler(s_veh_handle);
+::RemoveVectoredExceptionHandler(s_veh_handle);
   }
   s_veh_handle = nullptr;
 }

@@ -1,4 +1,4 @@
-// memory_backend.hpp — abstract IMemoryBackend read surface shared by red tiers.
+// memory_backend.hpp: abstract IMemoryBackend read surface shared by red tiers.
 
 #pragma once
 

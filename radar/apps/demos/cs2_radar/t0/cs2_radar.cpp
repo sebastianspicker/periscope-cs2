@@ -18,7 +18,7 @@ void finish(BlueSensorReport& report) {
 }
 }  // namespace
 
-Cs2Radar::Cs2Radar(sim::World& world) : world_(world) {}
+Cs2Radar::Cs2Radar(sim::World& world): world_(world) {}
 std::vector<RedCapability> list_red_capabilities() {
   static const std::vector<RedCapability> caps{{"openprocess_rpm", "OpenProcess VM_READ and ReadProcessMemory", true}, {"handle_minimize", "Brief VM_READ-only handle", true}, {"handle_hide_on_enum", "Hide handle during enumeration", true}, {"process_rename", "Masquerade as a reputable overlay", true}, {"section_map", "Share entity bytes through a section", true}, {"gdi_bitblt_capture", "Capture the game with GDI BitBlt", true}, {"proxy_handle", "Use a reputable process as handle proxy", true}, {"throttled_sparse_reads", "Reduce remote-read cadence", true}};
   return caps;
@@ -57,15 +57,15 @@ AdaptiveResult Cs2Radar::try_technique(const char* name) {
   apply_technique(name);
   auto blue = blue_multi_sensor_scan();
   bool detected = blue.risk > 0.3;
-  std::string reason = detected ? (blue.reasons.empty() ? "risk threshold" : blue.reasons[0]) : "survived";
+  std::string reason = detected ? (blue.reasons.empty() ? "risk threshold": blue.reasons[0]): "survived";
   if (detected) {
-    world_.note(std::string("red:DROPPING ") + name + " — blue detected: " + reason);
-    std::printf("[red:T0] %s DETECTED by blue (%s) — dropping\n", name, reason.c_str());
+    world_.note(std::string("red:DROPPING ") + name + ", blue detected: " + reason);
+    std::printf("[red:T0] %s DETECTED by blue (%s), dropping\n", name, reason.c_str());
     clear_techniques();
     if (attached_) apply_technique("openprocess_rpm");
   } else {
-    world_.note(std::string("red:KEEPING ") + name + " — blue missed it");
-    std::printf("[red:T0] %s SURVIVED — keeping active\n", name);
+    world_.note(std::string("red:KEEPING ") + name + ", blue missed it");
+    std::printf("[red:T0] %s SURVIVED, keeping active\n", name);
   }
   return {name, true, detected, profile.concealment, reason};
 }
@@ -75,8 +75,8 @@ AdaptiveRunReport Cs2Radar::adaptive_red_loop() {
   report.total_techniques = static_cast<int>(caps.size());
   std::sort(caps.begin(), caps.end(), [](const RedCapability& a, const RedCapability& b) {
     TechniqueProfile pa{nullptr,0,0,nullptr}, pb{nullptr,0,0,nullptr};
-    pa = (a.implemented ? TechniqueProfile{a.name,0,0,""} : pa);
-    pb = (b.implemented ? TechniqueProfile{b.name,0,0,""} : pb);
+    pa = (a.implemented ? TechniqueProfile{a.name,0,0,""}: pa);
+    pb = (b.implemented ? TechniqueProfile{b.name,0,0,""}: pb);
     (void)pa; (void)pb;
     return false; // sort by concealment below
   });
@@ -139,10 +139,10 @@ BlueSensorReport Cs2Radar::blue_multi_sensor_scan() {
   mark(report.overlay, !world_.overlays.empty(), "overlay: external presentation surface", report);
   finish(report); return report;
 }
-bool Cs2Radar::scan_entities() { if (!attached_) return false; ::cs2::Cs2GameReader reader{&world_, game_pid_}; players_ = reader.resolve_players(pid_, true); hud_ = read_hud(); for (const auto& player : players_) if (player.controller_index == 1) { local_ = player; break; } rpm_reads_ = static_cast<int>(players_.size()) * 13 + 128; bytes_read_ = static_cast<uint64_t>(rpm_reads_) * 8; return !players_.empty(); }
-::cs2::HudRadarState Cs2Radar::read_hud() { ::cs2::Cs2GameReader reader{&world_, game_pid_}; return reader.resolve_hud_radar(pid_, true); }
-const ::cs2::PlayerData* Cs2Radar::local() const { return local_.pawn_index ? &local_ : nullptr; }
-void Cs2Radar::render_radar_console(::cs2::IntelMode mode) { ::cs2::render_radar_console("T0 RPM", players_, local(), hud_, mode); }
-Cs2RadarStatus Cs2Radar::status() const { int enemies = 0; for (const auto& player : players_) if (local() && player.team != local_.team) ++enemies; return {attached_, static_cast<int>(players_.size()), enemies, static_cast<int>(players_.size()) - enemies - (local() ? 1 : 0), static_cast<int>(backend_.handle_count()), bytes_read_, rpm_reads_, "RPM Source 2 chunked entity-list + CCSGO_HudRadar", hud_}; }
+bool Cs2Radar::scan_entities() { if (!attached_) return false;::cs2::Cs2GameReader reader{&world_, game_pid_}; players_ = reader.resolve_players(pid_, true); hud_ = read_hud(); for (const auto& player : players_) if (player.controller_index == 1) { local_ = player; break; } rpm_reads_ = static_cast<int>(players_.size()) * 13 + 128; bytes_read_ = static_cast<uint64_t>(rpm_reads_) * 8; return !players_.empty(); }
+::cs2::HudRadarState Cs2Radar::read_hud() {::cs2::Cs2GameReader reader{&world_, game_pid_}; return reader.resolve_hud_radar(pid_, true); }
+const::cs2::PlayerData* Cs2Radar::local() const { return local_.pawn_index ? &local_: nullptr; }
+void Cs2Radar::render_radar_console(::cs2::IntelMode mode) {::cs2::render_radar_console("T0 RPM", players_, local(), hud_, mode); }
+Cs2RadarStatus Cs2Radar::status() const { int enemies = 0; for (const auto& player : players_) if (local() && player.team != local_.team) ++enemies; return {attached_, static_cast<int>(players_.size()), enemies, static_cast<int>(players_.size()) - enemies - (local() ? 1: 0), static_cast<int>(backend_.handle_count()), bytes_read_, rpm_reads_, "RPM Source 2 chunked entity-list + CCSGO_HudRadar", hud_}; }
 uint32_t Cs2Radar::pid() const { return pid_; } uint32_t Cs2Radar::game_pid() const { return game_pid_; }
 }  // namespace t0_cs2

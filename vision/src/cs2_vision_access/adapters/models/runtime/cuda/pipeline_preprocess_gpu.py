@@ -30,7 +30,7 @@ def _preprocess_gpu_direct(
 
     h, w = frame_bgr.shape[:2]
 
-    # Upload frame to GPU — pinned-memory fast path with plain fallback.
+    # Upload frame to GPU, pinned-memory fast path with plain fallback.
     src_gpu: Any = None
     if pool is not None and frame_bgr.nbytes > 0:
         try:
@@ -42,7 +42,7 @@ def _preprocess_gpu_direct(
                     np.frombuffer(pinned_view, dtype=np.uint8).reshape(frame_bgr.shape)
                 )
         except Exception as exc:
-            logger.warning("Pinned-memory upload failed (%s) — using plain upload", exc)
+            logger.warning("Pinned-memory upload failed (%s), using plain upload", exc)
             src_gpu = None
     if src_gpu is None:
         src_gpu = cp.asarray(frame_bgr)

@@ -1,8 +1,8 @@
-"""CV-as-validator agreement harness (ledger V7 — research spike).
+"""CV-as-validator agreement harness (ledger V7, research spike).
 
 Research question (docs/CV-VALIDATOR-SPIKE.md): can a second, cheap
 screen-space CV pass *validate* the primary pipeline's per-frame instance
-set — without ever generating input events? This module is the passive
+set, without ever generating input events? This module is the passive
 measurement half: per-frame agreement between a reference instance set and a
 validator instance set, as bounded running statistics.
 
@@ -11,7 +11,7 @@ Design rules:
 - **Passive only.** Nothing here moves a cursor, sends input, or writes to
   any process. The module computes numbers; the spike report interprets them.
 - **Cheap on purpose.** Agreement uses axis-aligned bounding-box IoU, not
-  mask IoU — a validator that costs as much as the pipeline it validates is
+  mask IoU, a validator that costs as much as the pipeline it validates is
   pointless.
 - **Bounded.** The history window is a bounded deque (house B13 rule).
 """

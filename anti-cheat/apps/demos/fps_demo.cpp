@@ -1,5 +1,5 @@
 // Dummy FPS bomb plant/defuse demo for the anti-cheat lab.
-// Headless scenario progression — no 3D renderer required.
+// Headless scenario progression, no 3D renderer required.
 
 #include "fps/scenario.hpp"
 #include "fps/lab_bridge.hpp"
@@ -30,7 +30,7 @@ int run_drop_pickup() {
   show(sc);
   std::printf("carrier=%u\n", sc.bomb_carrier_id());
   sc.kill(1);
-  std::printf("after kill carrier: ground=%d\n", sc.bomb_on_ground() ? 1 : 0);
+  std::printf("after kill carrier: ground=%d\n", sc.bomb_on_ground() ? 1: 0);
   sc.move_player(2, sc.bomb().ground.origin);
   auto up = sc.pickup_bomb(2);
   std::printf("pickup: ok=%d reason=%s carrier=%u\n", up.ok, up.reason,
@@ -38,7 +38,7 @@ int run_drop_pickup() {
   auto plant = sc.plant_instant(2, "A");
   std::printf("plant: ok=%d phase=%s\n", plant.ok, fps::to_string(sc.phase()));
   show(sc);
-  return plant.ok && sc.bomb().planted ? 0 : 2;
+  return plant.ok && sc.bomb().planted ? 0: 2;
 }
 
 int run_economy() {
@@ -52,12 +52,12 @@ int run_economy() {
   sc.end_freeze();
   sc.plant_instant(1, "A");
   std::printf("after plant money_T1=%d kit_CT=%d\n", sc.player(1)->money,
-              sc.player(3)->has_defuse_kit ? 1 : 0);
+              sc.player(3)->has_defuse_kit ? 1: 0);
   sc.defuse_instant(3);
   std::printf("after defuse money_CT1=%d outcome=%s\n", sc.player(3)->money,
               fps::to_string(sc.outcome()));
   show(sc);
-  return sc.outcome() == fps::RoundOutcome::DefendersWinDefuse ? 0 : 2;
+  return sc.outcome() == fps::RoundOutcome::DefendersWinDefuse ? 0: 2;
 }
 
 int run_plant_defuse() {
@@ -92,7 +92,7 @@ int run_plant_defuse() {
   show(sc);
 
   std::printf("\nOUTCOME: %s\n", fps::to_string(sc.outcome()));
-  return sc.outcome() == fps::RoundOutcome::DefendersWinDefuse ? 0 : 2;
+  return sc.outcome() == fps::RoundOutcome::DefendersWinDefuse ? 0: 2;
 }
 
 int run_plant_explode() {
@@ -114,7 +114,7 @@ int run_plant_explode() {
   }
   show(sc);
   std::printf("OUTCOME: %s\n", fps::to_string(sc.outcome()));
-  return sc.outcome() == fps::RoundOutcome::AttackersWinExplode ? 0 : 2;
+  return sc.outcome() == fps::RoundOutcome::AttackersWinExplode ? 0: 2;
 }
 
 int run_lab_bridge() {
@@ -128,7 +128,7 @@ int run_lab_bridge() {
   std::printf("entity snapshots: %zu\n", snaps.size());
   for (const auto& e : snaps) {
     std::printf("  id=%u team=%u alive=%d pos=(%.1f,%.1f,%.1f)\n", e.id, e.team,
-                e.alive ? 1 : 0, e.origin.x, e.origin.y, e.origin.z);
+                e.alive ? 1: 0, e.origin.x, e.origin.y, e.origin.z);
   }
 
   auto w = fps::make_lab_world_from_scenario(sc);
@@ -140,7 +140,7 @@ int run_lab_bridge() {
   }
   std::printf("sim game pid=%u entity_count_in_mem=%u\n", game, count);
   std::printf("(T0 RPM readers can OpenProcess+ReadProcessMemory this stand-in)\n");
-  return count >= 2 ? 0 : 2;
+  return count >= 2 ? 0: 2;
 }
 
 /// Multi-step residual after FPS bridge: RPM entity count + InterestManager
@@ -193,10 +193,10 @@ int run_ac_residual() {
     truth.push_back(server::WorldEntity{
         p.id, p.origin, static_cast<std::uint8_t>(p.team), p.alive});
   }
-  // CT observer at CT spawn — T-spawn enemies are ~80 units away.
+  // CT observer at CT spawn, T-spawn enemies are ~80 units away.
   const auto* ctspawn = sc.map().find_area(fps::AreaId::CTSpawn);
   server::Observer obs{};
-  obs.origin = ctspawn ? ctspawn->center : ac::Vec3{0.f, 0.f, 80.f};
+  obs.origin = ctspawn ? ctspawn->center: ac::Vec3{0.f, 0.f, 80.f};
   server::InterestManager im;
   server::InterestFilterStats fog{};
   auto vis = im.filter_for_client_stats(obs, /*observer_team=*/1, truth,
@@ -204,7 +204,7 @@ int run_ac_residual() {
   std::printf("InterestManager: truth_alive=%d replicated=%d culled=%d "
               "teammates=%d multi=%d detail=%s\n",
               fog.truth_alive, fog.replicated, fog.enemies_culled, fog.teammates,
-              fog.multi_reason ? 1 : 0, fog.detail.c_str());
+              fog.multi_reason ? 1: 0, fog.detail.c_str());
   std::printf("  visible ids:");
   for (const auto& e : vis) {
     std::printf(" %u", e.id);
@@ -223,35 +223,35 @@ int run_ac_residual() {
   }
   auto iar = ia.result();
   std::printf("InfoAdvantage: hits=%d score=%.1f max_consec=%d multi=%d\n",
-              iar.hits, iar.score, iar.max_consecutive, iar.multi_reason ? 1 : 0);
+              iar.hits, iar.score, iar.max_consecutive, iar.multi_reason ? 1: 0);
   for (const auto& r : iar.reasons) {
     std::printf("  reason: %s\n", r.c_str());
   }
 
   const bool ok = count >= 2 && fog.enemies_culled > 0 && iar.hits > 0;
   std::printf("OUTCOME multi-reason: count>=2=%d fog_culled=%d ia_hits>0=%d → %s\n",
-              count >= 2 ? 1 : 0, fog.enemies_culled > 0 ? 1 : 0,
-              iar.hits > 0 ? 1 : 0, ok ? "PASS" : "FAIL");
-  return ok ? 0 : 2;
+              count >= 2 ? 1: 0, fog.enemies_culled > 0 ? 1: 0,
+              iar.hits > 0 ? 1: 0, ok ? "PASS": "FAIL");
+  return ok ? 0: 2;
 }
 
 void usage(const char* argv0) {
   std::printf(
       "Usage: %s [plant_defuse|plant_explode|drop_pickup|economy|lab_bridge|ac_residual|all]\n"
-      "  plant_defuse  — attackers plant A, defenders defuse (default)\n"
-      "  plant_explode — plant B, fuse runs out\n"
-      "  drop_pickup   — carrier death → ground bomb → pickup → plant\n"
-      "  economy       — freeze buy kit/rifle + plant bonus + round money\n"
-      "  lab_bridge    — sync entities into sim::World for AC lab\n"
-      "  ac_residual   — plant + RPM count + InterestManager fog + IA pre-aim\n"
-      "  all           — run all scenarios\n",
+      "  plant_defuse, attackers plant A, defenders defuse (default)\n"
+      "  plant_explode, plant B, fuse runs out\n"
+      "  drop_pickup, carrier death → ground bomb → pickup → plant\n"
+      "  economy, freeze buy kit/rifle + plant bonus + round money\n"
+      "  lab_bridge, sync entities into sim::World for AC lab\n"
+      "  ac_residual, plant + RPM count + InterestManager fog + IA pre-aim\n"
+      "  all, run all scenarios\n",
       argv0);
 }
 
 }  // namespace
 
 int main(int argc, char** argv) {
-  std::printf("dummy FPS — dusty_yard attacker/defender bomb scenario\n");
+  std::printf("dummy FPS, dusty_yard attacker/defender bomb scenario\n");
   std::printf("(educational stand-in for anti-cheat-legit-radar lab)\n");
 
   std::string mode = "plant_defuse";
@@ -289,6 +289,6 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  std::printf("\n%s\n", rc == 0 ? "demo OK" : "demo FAILED");
+  std::printf("\n%s\n", rc == 0 ? "demo OK": "demo FAILED");
   return rc;
 }

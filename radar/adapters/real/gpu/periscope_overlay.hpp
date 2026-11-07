@@ -1,4 +1,4 @@
-// periscope_overlay.hpp — Periscope-level stealth overlay.
+// periscope_overlay.hpp: Periscope-level stealth overlay.
 //
 // Stealth overlay window with:
 //  - WS_EX_TOPMOST | WS_EX_APPWINDOW | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT
@@ -77,12 +77,12 @@ private:
     bool scramble_ensure_initialized() noexcept;
     void scramble_release() noexcept;
 
-    // D3D11 scramble state — opaque PIMPL keeps <d3d11.h> out of the header.
+    // D3D11 scramble state, opaque PIMPL keeps <d3d11.h> out of the header.
     // Stored as void* so cpp-local helpers can own the concrete type.
     void* m_scramble{};
     bool m_scramble_armed{};   // Scramble requested (WDA failed to hide window)
     bool m_scramble_active{};  // Scramble rendering + presenting successfully
-    uint64_t m_scramble_key{}; // Rolling XOR key — advances each frame
+    uint64_t m_scramble_key{}; // Rolling XOR key, advances each frame
 };
 
 // ====================================================================

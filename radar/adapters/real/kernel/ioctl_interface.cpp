@@ -1,4 +1,4 @@
-// ioctl_interface.cpp — Complete IOCTL communication with kernel devices.
+// ioctl_interface.cpp: Complete IOCTL communication with kernel devices.
 // Educational: every IOCTL call documents what blue detects.
 
 #include "real/kernel/ioctl_interface.hpp"
@@ -31,7 +31,7 @@ std::vector<std::string> device_path_candidates_from_name(const std::string& dri
     out.push_back(name);
     return out;
   }
-  // Strip .sys
+  // Strip.sys
   auto dot = name.rfind(".sys");
   if (dot != std::string::npos && dot + 4 == name.size()) {
     name = name.substr(0, dot);
@@ -123,7 +123,7 @@ Result<std::vector<std::uint8_t>> send_ioctl(
   auto& api = real::win::g_Api();
   HANDLE h = reinterpret_cast<HANDLE>(device.native);
 
-  std::vector<std::uint8_t> output(output_size ? output_size : 1);
+  std::vector<std::uint8_t> output(output_size ? output_size: 1);
   DWORD bytes_returned = 0;
 
   BOOL success = FALSE;
@@ -131,9 +131,9 @@ Result<std::vector<std::uint8_t>> send_ioctl(
     success = api.DeviceIoControl(
         h,
         static_cast<DWORD>(ioctl_code),
-        input_data.empty() ? nullptr : const_cast<std::uint8_t*>(input_data.data()),
+        input_data.empty() ? nullptr: const_cast<std::uint8_t*>(input_data.data()),
         static_cast<DWORD>(input_data.size()),
-        output_size ? output.data() : nullptr,
+        output_size ? output.data(): nullptr,
         static_cast<DWORD>(output_size),
         &bytes_returned,
         nullptr);
@@ -141,9 +141,9 @@ Result<std::vector<std::uint8_t>> send_ioctl(
     success = DeviceIoControl(
         h,
         static_cast<DWORD>(ioctl_code),
-        input_data.empty() ? nullptr : const_cast<std::uint8_t*>(input_data.data()),
+        input_data.empty() ? nullptr: const_cast<std::uint8_t*>(input_data.data()),
         static_cast<DWORD>(input_data.size()),
-        output_size ? output.data() : nullptr,
+        output_size ? output.data(): nullptr,
         static_cast<DWORD>(output_size),
         &bytes_returned,
         nullptr);
@@ -164,7 +164,7 @@ Result<std::vector<std::uint8_t>> send_ioctl(
   std::vector<std::uint8_t> buf;
   // Prefer a combined buffer large enough for in+out when output is requested.
   const std::size_t n = (std::max)(input_data.size(), output_size);
-  buf.resize(n ? n : 1);
+  buf.resize(n ? n: 1);
   if (!input_data.empty()) {
     std::memcpy(buf.data(), input_data.data(), input_data.size());
   }
@@ -205,7 +205,7 @@ Result<void> close_device(DeviceHandle device) {
   return Result<void>();
 
 #elif LR_PLATFORM_LINUX
-  ::close(static_cast<int>(device.native));
+::close(static_cast<int>(device.native));
   return Result<void>();
 
 #else

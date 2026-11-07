@@ -1,7 +1,7 @@
-# CUDA kernel sources — compiled at runtime via CuPy RawKernel.
+# CUDA kernel sources, compiled at runtime via CuPy RawKernel.
 #
 # Each kernel is a C++ string constant that gets JIT-compiled by nvrtc
-# (NVIDIA Runtime Compilation library) on first use.  No separate .cu
+# (NVIDIA Runtime Compilation library) on first use.  No separate.cu
 # compilation step is needed.
 #
 # Prerequisites:
@@ -198,7 +198,7 @@ __global__ void yolo_decode_kernel(
 
 
 # =========================================================================
-# EdgeSAM preprocessor — ImageNet normalisation
+# EdgeSAM preprocessor, ImageNet normalisation
 #
 # Takes the RGB float32 [0,1] tensor from letterbox and applies
 # per-channel ImageNet normalisation:
@@ -212,8 +212,8 @@ extern "C" {
 __global__ void imagenet_norm_kernel(
     float* tensor,      // [3, H, W] RGB float32, modified in-place
     int H, int W,
-    const float* mean,  // [3] — e.g. {0.485, 0.456, 0.406}
-    const float* std    // [3] — e.g. {0.229, 0.224, 0.225}
+    const float* mean,  // [3], e.g. {0.485, 0.456, 0.406}
+    const float* std    // [3], e.g. {0.229, 0.224, 0.225}
 ) {
     int c = blockIdx.z;
     int x = blockIdx.x * blockDim.x + threadIdx.x;

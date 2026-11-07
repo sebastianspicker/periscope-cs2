@@ -1,4 +1,4 @@
-// iommu.cpp — IOMMU detection, bypass, and ACPI SMI DMA.
+// iommu.cpp: IOMMU detection: bypass, and ACPI SMI DMA.
 //
 // REAL MODE:   Attempts actual IOMMU bypass via PCIe config space writes
 //              and ACPI SMI invocation via SMI command port.
@@ -133,7 +133,7 @@ Result<bool> iommu_enabled() {
       (sysctlbyname("kern.iommu.present", &iommu_present, &sz, nullptr, 0) ==
            0 &&
        iommu_present);
-  // Result(T,msg) always sets ok=false — success must use Result(true) alone.
+  // Result(T,msg) always sets ok=false, success must use Result(true) alone.
   if (detected) return Result<bool>(true);
   return Result<bool>(false, "IOMMU not detected");
 #else
@@ -251,7 +251,7 @@ Result<bool> iommu_bypass() {
 
   std::printf("[dma] IOMMU bypass: checked %d devices, %d ACS sites\n",
               total_checked, bypass_count);
-  // Success: Result(true) only — Result(true, msg) sets ok=false (error ctor).
+  // Success: Result(true) only, Result(true, msg) sets ok=false (error ctor).
   if (bypass_count > 0) return Result<bool>(true);
   return Result<bool>(false, "No PCIe root ports with ACS found to bypass");
 
@@ -275,7 +275,7 @@ Result<bool> iommu_bypass() {
       auto cfg = physmem_read(cfg_pa, 0x1000);
       if (!cfg || cfg->size() < 0x108) continue;
       ++total_checked;
-      // Read-only walk — clearing requires a writable mapping which modern
+      // Read-only walk, clearing requires a writable mapping which modern
       // Windows denies without a driver; still exercise the ACS finder.
       walk_and_clear_acs(cfg->data(), cfg->size(), nullptr, false,
                          device.address, &local);
@@ -309,7 +309,7 @@ Result<bool> iommu_bypass() {
 
   if (total_checked == 0) {
     // Common defaults
-    for (uint64_t base : {0xE0000000ULL, 0xF0000000ULL, 0xC0000000ULL}) {
+    for (uint64_t base: {0xE0000000ULL, 0xF0000000ULL, 0xC0000000ULL}) {
       bypass_count += try_ecam(base);
       if (total_checked > 0) break;
     }
@@ -320,7 +320,7 @@ Result<bool> iommu_bypass() {
   if (bypass_count > 0) {
     // On Windows we typically cannot clear ACS without a driver; report
     // detection success so the API exercised the real path.
-    // Success must use Result(true) — the (T,msg) ctor always sets ok=false.
+    // Success must use Result(true), the (T,msg) ctor always sets ok=false.
     return Result<bool>(true);
   }
   return Result<bool>(
@@ -345,7 +345,7 @@ Result<std::vector<uint8_t>> acpi_smi_read(uint64_t phys_addr, size_t size) {
 
 #if LR_PLATFORM_LINUX
   if (iopl(3) < 0) {
-    std::printf("[dma] iopl(3) failed — SMI requires root\n");
+    std::printf("[dma] iopl(3) failed, SMI requires root\n");
     std::printf("[dma] Falling back to direct physmem_read for educational demo\n");
     return physmem_read(phys_addr, size);
   }
@@ -377,7 +377,7 @@ Result<std::vector<uint8_t>> acpi_smi_read(uint64_t phys_addr, size_t size) {
   // Attempt educational IOCTL to a known lab SMM/IO port driver, then fall
   // back to physmem_read. Direct port I/O is not available from usermode.
   HANDLE drv =
-      ::CreateFileA("\\\\.\\WinRing0_1_2_0", GENERIC_READ | GENERIC_WRITE, 0,
+::CreateFileA("\\\\.\\WinRing0_1_2_0", GENERIC_READ | GENERIC_WRITE, 0,
                     nullptr, OPEN_EXISTING, 0, nullptr);
   if (drv != INVALID_HANDLE_VALUE) {
     // WinRing0 IOCTL_OLS_WRITE_IO_PORT_BYTE historically 0x9C402084
@@ -390,7 +390,7 @@ Result<std::vector<uint8_t>> acpi_smi_read(uint64_t phys_addr, size_t size) {
     DWORD ret = 0;
     DeviceIoControl(drv, 0x9C402084, &io_req, sizeof(io_req), nullptr, 0, &ret,
                     nullptr);
-    ::CloseHandle(drv);
+::CloseHandle(drv);
     std::printf("[dma] SMI trigger attempted via WinRing0-style IOCTL\n");
   } else {
     std::printf("[dma] SMI on Windows requires kernel driver or UEFI\n");

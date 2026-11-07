@@ -1,4 +1,4 @@
-// T1 Duel — hooks go blind; handles do not.
+// T1 Duel, hooks go blind; handles do not.
 
 #include "ac/telemetry.hpp"
 #include "sim/narrative.hpp"
@@ -53,25 +53,25 @@ int main() {
   std::printf("    hook_visible_opens=%d (expect 0)\n", hook_hits);
 
   n.counter(sim::Side::Blue, "Handle truth monitor (correct)",
-            "Object callbacks / handle table — path irrelevant.");
+            "Object callbacks / handle table, path irrelevant.");
   t1_blue::HandleTruthMonitor truth;
   const int handle_hits = truth.count_vm_read_handles(world, game);
   std::printf("    vm_read_handles=%d (expect >=1)\n", handle_hits);
 
   n.counter(sim::Side::Blue, "Staging detector",
-            "Private RX / stub behavior — supportive only.");
+            "Private RX / stub behavior, supportive only.");
   t1_blue::StagingDetector staging(sink);
   auto sf = staging.inspect(world, red.pid(), red.has_private_rx(), true);
-  n.say(sim::Side::Blue, sf.hit ? sf.detail : "no staging signal");
+  n.say(sim::Side::Blue, sf.hit ? sf.detail: "no staging signal");
 
   const bool naive_blue_loses = hook_hits == 0;
   const bool correct_blue_wins = handle_hits > 0;
   n.result(correct_blue_wins,
            naive_blue_loses
                ? "Naive hook-only AC is blind; handle-based AC still wins T1."
-               : "Hooks also saw the open (unexpected for syscall path).");
+: "Hooks also saw the open (unexpected for syscall path).");
 
   n.say(sim::Side::Lesson,
         "Next: T2 removes the handle via kernel/BYOVD. Run duel_t2.");
-  return correct_blue_wins ? 0 : 1;
+  return correct_blue_wins ? 0: 1;
 }

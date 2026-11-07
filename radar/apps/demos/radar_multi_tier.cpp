@@ -1,15 +1,15 @@
-/// radar_multi_tier.cpp — Complete radar prototype for ALL 5 tiers (T0-T4).
+/// radar_multi_tier.cpp: Complete radar prototype for ALL 5 tiers (T0-T4).
 ///
 /// Each tier reads CS2 entity data using a different technique, projects
 /// world coordinates to radar coordinates, and renders an overlay.
 ///
 /// USAGE:
-///   ./build/radar_multi_tier --tier T0    # T0: OpenProcess + ReadProcessMemory
-///   ./build/radar_multi_tier --tier T1    # T1: Direct syscall NtReadVirtualMemory
-///   ./build/radar_multi_tier --tier T2    # T2: BYOVD gdrv.sys IOCTL (simulated)
-///   ./build/radar_multi_tier --tier T3    # T3: Hyper-V hypercall (simulated)
-///   ./build/radar_multi_tier --tier T4    # T4: PCIe FPGA DMA (simulated)
-///   ./build/radar_multi_tier --tier all   # Run ALL tiers and compare
+///./build/radar_multi_tier --tier T0    # T0: OpenProcess + ReadProcessMemory
+///./build/radar_multi_tier --tier T1    # T1: Direct syscall NtReadVirtualMemory
+///./build/radar_multi_tier --tier T2    # T2: BYOVD gdrv.sys IOCTL (simulated)
+///./build/radar_multi_tier --tier T3    # T3: Hyper-V hypercall (simulated)
+///./build/radar_multi_tier --tier T4    # T4: PCIe FPGA DMA (simulated)
+///./build/radar_multi_tier --tier all   # Run ALL tiers and compare
 ///
 /// Each tier documents:
 ///   TECHNIQUE: What the operation does
@@ -45,44 +45,44 @@ struct TierDoc {
 
 static const TierDoc kTiers[] = {
     {
-        "T0 — Usermode RPM",
+        "T0, Usermode RPM",
         "OpenProcess + ReadProcessMemory from radar process",
         "VM_READ handle visible in system handle table",
         "NtQuerySystemInformation(SystemHandleInformation) → finds non-AC handle with VM_READ to cs2.exe",
         "Protected Process Light (PPL), handle-auditing ETW",
-        "adapters/real/cs2/memory.cpp :: Cs2MemoryReader(UsermodeRpm)"
+        "adapters/real/cs2/memory.cpp:: Cs2MemoryReader(UsermodeRpm)"
     },
     {
-        "T1 — Direct Syscall",
+        "T1, Direct Syscall",
         "NtReadVirtualMemory via syscall instruction (bypasses ntdll hooks)",
         "VM_READ handle + syscall instruction (bypasses usermode hooks but not ETW TI)",
         "Handle enumeration + ETW Threat Intelligence syscall monitoring",
         "ETW TI, kernel callbacks (PsSetLoadImageNotifyRoutine)",
-        "adapters/real/win/syscall_helper.cpp :: syscall_4()"
+        "adapters/real/win/syscall_helper.cpp:: syscall_4()"
     },
     {
-        "T2 — BYOVD Kernel",
-        "KeStackAttachProcess via gdrv.sys IOCTL 0xC3502008 — attaches to CS2 in kernel, no usermode handle",
+        "T2, BYOVD Kernel",
+        "KeStackAttachProcess via gdrv.sys IOCTL 0xC3502008, attaches to CS2 in kernel, no usermode handle",
         "Device handle to \\\\.\\gdrv + IOCTL traffic (no VM_READ handle to cs2.exe!)",
         "Driver hash scan (gdrv.sys SHA256 blocklist), ETW IRP_MJ_DEVICE_CONTROL",
         "Driver Signature Enforcement (DSE), HVCI, BYOVD blocklist",
-        "adapters/real/kernel/vulnerable_driver.cpp :: ByovdSession"
+        "adapters/real/kernel/vulnerable_driver.cpp:: ByovdSession"
     },
     {
-        "T3 — Hypervisor",
-        "vmcall/vmresume to read process memory via EPT — no OS involvement at OS level",
+        "T3, Hypervisor",
+        "vmcall/vmresume to read process memory via EPT, no OS involvement at OS level",
         "CR4.VMXE bit set, VMCS region in physical memory, CPUID timing anomaly",
         "VBS locks VMX, CPUID.1:ECX[31] hypervisor present bit, timing analysis",
         "Virtualization-Based Security (VBS), HVCI, Nested Virtualization",
-        "adapters/real/vmx/{lifecycle, ept, hyperv}.cpp :: vmx_read_physical()"
+        "adapters/real/vmx/{lifecycle, ept, hyperv}.cpp:: vmx_read_physical()"
     },
     {
-        "T4 — PCIe DMA",
-        "FPGA reads physical memory directly from PCIe bus — zero OS involvement",
-        "PCIe read TLP on the bus — visible to IOMMU only",
+        "T4, PCIe DMA",
+        "FPGA reads physical memory directly from PCIe bus, zero OS involvement",
+        "PCIe read TLP on the bus, visible to IOMMU only",
         "VT-d/AMD-Vi DMA remapping blocks DMA to unmapped pages",
         "Enable VT-d/AMD-Vi with DMA remapping in firmware + IOMMU driver in OS",
-        "adapters/real/dma/{core, fpga, backend}.cpp :: RealDmaBackend::read()"
+        "adapters/real/dma/{core, fpga, backend}.cpp:: RealDmaBackend::read()"
     }
 };
 
@@ -197,7 +197,7 @@ static void render_console_radar(const std::vector<RadarBlip>& blips,
     // ── Stats ────────────────────────────────────────────────────
     std::printf("  Entities: %d read in %.0f us (%.1f us/entity)\n",
                 entity_count, elapsed_us,
-                entity_count > 0 ? elapsed_us / entity_count : 0);
+                entity_count > 0 ? elapsed_us / entity_count: 0);
 
     std::printf("\n  RADAR (top-down view, local player at center):\n");
     std::printf("  Legend: O=local, X=enemy team, +=ally team\n\n");
@@ -238,9 +238,9 @@ static void render_console_radar(const std::vector<RadarBlip>& blips,
     std::printf("\n  PLAYERS:\n");
     for (size_t i = 0; i < blips.size(); i++) {
         const auto& blip = blips[i];
-        const char* team_str = blip.is_local ? "YOU" :
-            blip.color == 0xFFCC6644 ? "T " :
-            blip.color == 0xFF4488CC ? "CT" : "?";
+        const char* team_str = blip.is_local ? "YOU":
+            blip.color == 0xFFCC6644 ? "T ":
+            blip.color == 0xFF4488CC ? "CT": "?";
         std::printf("  [%zu] %-3s  health=%3d  radar=(%+.2f, %+.2f)\n",
                     i, team_str, blip.health, (double)blip.x, (double)blip.y);
     }
@@ -283,7 +283,7 @@ static void render_d3d11_radar(const std::vector<RadarBlip>& blips,
       if (created) rp = *created;
     }
     if (!rp || !rp->is_initialized()) {
-        std::printf("[!] D3D11 overlay unavailable — falling back to console\n");
+        std::printf("[!] D3D11 overlay unavailable, falling back to console\n");
         return;
     }
 
@@ -489,10 +489,10 @@ static void run_tier(int tier_index, bool use_d3d11) {
         std::printf("  Falling back to simulation mode.\n");
         read_result.entities = generate_sim_entities(2);
         read_result.success = true;
-        read_result.elapsed_us = tier_index == 0 ? 42.0 :
-                                  tier_index == 1 ? 38.0 :
-                                  tier_index == 2 ? 35.0 :
-                                  tier_index == 3 ? 3.0 : 1.0;
+        read_result.elapsed_us = tier_index == 0 ? 42.0:
+                                  tier_index == 1 ? 38.0:
+                                  tier_index == 2 ? 35.0:
+                                  tier_index == 3 ? 3.0: 1.0;
     }
 
     if (!read_result.success) {
@@ -526,7 +526,7 @@ static void run_tier(int tier_index, bool use_d3d11) {
 int main(int argc, char** argv) {
     const char* tier_arg = (argc > 1 && strncmp(argv[1], "--tier=", 7) == 0)
         ? argv[1] + 7
-        : (argc > 2 && strcmp(argv[1], "--tier") == 0) ? argv[2] : "T0";
+: (argc > 2 && strcmp(argv[1], "--tier") == 0) ? argv[2]: "T0";
 
     bool use_d3d11 = false;
     for (int i = 1; i < argc; i++)
@@ -536,7 +536,7 @@ int main(int argc, char** argv) {
     std::printf("████████████████████████████████████████████████████████████\n");
     std::printf("  Multi-Tier Radar Prototype\n");
     std::printf("  Reads CS2 entity positions and renders radar overlay\n");
-    std::printf("  Tier: %s | Render: %s\n", tier_arg, use_d3d11 ? "D3D11" : "Console");
+    std::printf("  Tier: %s | Render: %s\n", tier_arg, use_d3d11 ? "D3D11": "Console");
     std::printf("████████████████████████████████████████████████████████████\n");
 
     if (strcmp(tier_arg, "all") == 0 || strcmp(tier_arg, "ALL") == 0) {
@@ -555,8 +555,8 @@ int main(int argc, char** argv) {
             ReadResult sim;
             sim.entities = generate_sim_entities(2);
             sim.success = true;
-            sim.elapsed_us = i == 0 ? 42.0 : i == 1 ? 38.0 :
-                             i == 2 ? 35.0 : i == 3 ? 3.0 : 1.0;
+            sim.elapsed_us = i == 0 ? 42.0: i == 1 ? 38.0:
+                             i == 2 ? 35.0: i == 3 ? 3.0: 1.0;
 
             ac::Vec3 local_origin = {0, 0, 0};
             auto blips = project_to_radar(sim.entities, local_origin, 0, 3000.0f);

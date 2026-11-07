@@ -1,6 +1,6 @@
 #pragma once
 
-// HW-monitor disguise — generates deterministic synthetic CPU/RAM metrics and
+// HW-monitor disguise, generates deterministic synthetic CPU/RAM metrics and
 // RTSS/Afterburner-style OSD text (GPU temp/load/fan + FPS).
 //
 // CC-ledger CC.8
@@ -25,7 +25,7 @@ struct DisguiseMetrics {
     std::string osdText;
 };
 
-enum class DisguiseStyle : std::uint8_t {
+enum class DisguiseStyle: std::uint8_t {
     Afterburner = 0,
     Rtss,
     GenericMonitor

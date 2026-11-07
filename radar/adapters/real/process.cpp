@@ -1,4 +1,4 @@
-// process.cpp — Complete cross-platform process operations.
+// process.cpp: Complete cross-platform process operations.
 // Educational framework: TECHNIQUE, SCAR, BLUE, MITIGATION per function.
 
 #include "real/process.hpp"
@@ -53,7 +53,7 @@ Result<std::vector<ProcessInfo>> enum_processes() {
 
 #if LR_PLATFORM_WINDOWS
   {
-    // Prefer Toolhelp32 — stable layout, no fragile NtQSI structure parsing.
+    // Prefer Toolhelp32, stable layout, no fragile NtQSI structure parsing.
     auto& api = real::win::g_Api();
     if (api.resolved && api.CreateToolhelp32Snapshot && api.Process32FirstW &&
         api.Process32NextW) {
@@ -74,7 +74,7 @@ Result<std::vector<ProcessInfo>> enum_processes() {
           } while (api.Process32NextW(snap, &pe));
         }
         if (api.CloseHandle) api.CloseHandle(snap);
-        else ::CloseHandle(snap);
+        else::CloseHandle(snap);
       }
     }
 
@@ -243,7 +243,7 @@ Result<uint32_t> get_parent_pid(uint32_t pid) {
 // ── get_process_path ───────────────────────────────────────────────
 //
 // NOTE: Uses OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION) for path
-// queries. For CS2, avoid calling this function if possible — prefer
+// queries. For CS2, avoid calling this function if possible, prefer
 // querying the path from NtQuerySystemInformation process list instead
 // of opening a handle. If unavoidable, this is lower risk than VM_READ
 // handles, but still creates a handle-table entry.

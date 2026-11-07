@@ -1,4 +1,4 @@
-// pair_util.hpp — helpers shared by strategy pair.cpp runners (narrative glue).
+// pair_util.hpp: helpers shared by strategy pair.cpp runners (narrative glue).
 
 #pragma once
 

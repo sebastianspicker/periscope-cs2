@@ -1,4 +1,4 @@
-// tpm.cpp — TPM PCR operations backend (Linux /dev/tpm*, Windows TBS).
+// tpm.cpp: TPM PCR operations backend (Linux /dev/tpm*: Windows TBS).
 //
 // TECHNIQUE: TPM2_PCR_Read / PCR_Extend / PCR_Event via device or TBS.
 //
@@ -165,7 +165,7 @@ std::vector<std::uint8_t> build_pcr_read_command(int pcr_index) {
 #if LR_PLATFORM_LINUX
 int open_tpm() {
   int fd = open("/dev/tpmrm0", O_RDWR);
-  return fd >= 0 ? fd : open("/dev/tpm0", O_RDWR);
+  return fd >= 0 ? fd: open("/dev/tpm0", O_RDWR);
 }
 
 Result<std::vector<std::uint8_t>> submit_tpm_command(
@@ -208,19 +208,19 @@ Result<std::vector<std::uint8_t>> submit_tpm_command_win(
   HMODULE tbs = ::LoadLibraryA("Tbs.dll");
   if (!tbs) return Result<std::vector<std::uint8_t>>({}, "TBS not available");
   auto create = reinterpret_cast<TbsContextCreate>(
-      ::GetProcAddress(tbs, "Tbsi_Context_Create"));
+::GetProcAddress(tbs, "Tbsi_Context_Create"));
   auto submit = reinterpret_cast<TbsSubmitCommand>(
-      ::GetProcAddress(tbs, "Tbsip_Submit_Command"));
+::GetProcAddress(tbs, "Tbsip_Submit_Command"));
   auto close_context = reinterpret_cast<TbsContextClose>(
-      ::GetProcAddress(tbs, "Tbsip_Context_Close"));
+::GetProcAddress(tbs, "Tbsip_Context_Close"));
   if (!create || !submit || !close_context) {
-    ::FreeLibrary(tbs);
+::FreeLibrary(tbs);
     return Result<std::vector<std::uint8_t>>({}, "TBS functions not found");
   }
   TbsContextParams2 params{2, 0, 1};
   void* context = nullptr;
   if (create(&params, &context) != 0) {
-    ::FreeLibrary(tbs);
+::FreeLibrary(tbs);
     return Result<std::vector<std::uint8_t>>({}, "Tbsi_Context_Create failed");
   }
   std::vector<std::uint8_t> response(4096);
@@ -230,7 +230,7 @@ Result<std::vector<std::uint8_t>> submit_tpm_command_win(
              static_cast<std::uint32_t>(command.size()), response.data(),
              &response_size);
   close_context(context);
-  ::FreeLibrary(tbs);
+::FreeLibrary(tbs);
   if (status != 0) {
     return Result<std::vector<std::uint8_t>>({}, "Tbsip_Submit_Command failed");
   }
@@ -264,7 +264,7 @@ Result<std::vector<std::uint8_t>> tpm_read_pcr(int pcr_index) {
   auto digest = parse_pcr_read_response(*response);
   if (digest) {
     std::printf("[smm] PCR %d digest: ", pcr_index);
-    for (std::uint8_t byte : *digest) std::printf("%02x", byte);
+    for (std::uint8_t byte: *digest) std::printf("%02x", byte);
     std::printf("\n");
   }
   return digest;
@@ -322,7 +322,7 @@ Result<void> tpm_spoof_pcr(int pcr_index,
   auto current = tpm_read_pcr(pcr_index);
   std::string current_hex;
   if (current) {
-    for (auto b : *current) {
+    for (auto b: *current) {
       char buf[4];
       std::snprintf(buf, 4, "%02x", b);
       current_hex += buf;
@@ -368,7 +368,7 @@ Result<void> tpm_spoof_pcr(int pcr_index,
   auto new_val = tpm_read_pcr(pcr_index);
   std::string new_hex;
   if (new_val) {
-    for (auto b : *new_val) {
+    for (auto b: *new_val) {
       char buf[4];
       std::snprintf(buf, 4, "%02x", b);
       new_hex += buf;
@@ -377,9 +377,9 @@ Result<void> tpm_spoof_pcr(int pcr_index,
 
   std::printf("[smm] PCR %d mutated via Event/Extend (not true set)\n", pcr_index);
   std::printf("[smm]   Previous: %s\n",
-              current_hex.empty() ? "(unreadable)" : current_hex.c_str());
+              current_hex.empty() ? "(unreadable)": current_hex.c_str());
   std::printf("[smm]   Current:  %s\n",
-              new_hex.empty() ? "(unreadable)" : new_hex.c_str());
+              new_hex.empty() ? "(unreadable)": new_hex.c_str());
   std::printf(
       "[smm] REAL SMM SPOOF residual: SMM handler rewrites TPM MMIO PCR "
       "before PCR_Read response\n");

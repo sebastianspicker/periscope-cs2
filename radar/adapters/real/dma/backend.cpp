@@ -42,9 +42,9 @@ const char* const kFpgaProbePaths[] = {
 
 }  // namespace
 
-RealDmaBackend::RealDmaBackend(bool use_fpga) : use_fpga_(use_fpga) {
+RealDmaBackend::RealDmaBackend(bool use_fpga): use_fpga_(use_fpga) {
 #ifndef NDEBUG
-  std::printf("[dma] RealDmaBackend: use_fpga=%d\n", use_fpga_ ? 1 : 0);
+  std::printf("[dma] RealDmaBackend: use_fpga=%d\n", use_fpga_ ? 1: 0);
 #endif
 }
 
@@ -53,7 +53,7 @@ ac::Status RealDmaBackend::attach(std::uint32_t target_id) {
   detach();
   target_id_ = target_id;
 
-  // 1) Physical memory transport — probe a safe low page (typically
+  // 1) Physical memory transport, probe a safe low page (typically
   //    reserved/BIOS area; success proves the path is open).
   {
     auto result = physmem_read(0x1000, 64);
@@ -67,13 +67,13 @@ ac::Status RealDmaBackend::attach(std::uint32_t target_id) {
     }
   }
 
-  // 2) FPGA / PCILeech-style device — always attempt when requested, and
+  // 2) FPGA / PCILeech-style device, always attempt when requested, and
   //    also auto-probe common device nodes even if use_fpga_ is false so
   //    the multi-transport chain is complete when hardware is present.
   {
     const bool try_fpga = use_fpga_ || true;  // always probe; fail soft
     if (try_fpga) {
-      for (const char* path : kFpgaProbePaths) {
+      for (const char* path: kFpgaProbePaths) {
         auto device = fpga_dma_open(path);
         if (device) {
           fpga_dev_ = std::move(*device);
@@ -88,7 +88,7 @@ ac::Status RealDmaBackend::attach(std::uint32_t target_id) {
     }
   }
 
-  // 3) Thunderbolt DMA — availability check then a tiny BAR-backed probe.
+  // 3) Thunderbolt DMA, availability check then a tiny BAR-backed probe.
   {
     auto tb = thunderbolt_available();
     if (tb && *tb) {
@@ -101,7 +101,7 @@ ac::Status RealDmaBackend::attach(std::uint32_t target_id) {
 #endif
         return ac::Status::Ok;
       }
-      // Device present but read failed — still mark as candidate only if
+      // Device present but read failed, still mark as candidate only if
       // the availability signal is strong; keep Unavailable for safety.
     }
   }

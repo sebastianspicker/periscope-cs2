@@ -1,4 +1,4 @@
-// bpf_probe.cpp — eBPF / bpffs probes.
+// bpf_probe.cpp: eBPF / bpffs probes.
 
 #include "real/linux/bpf_probe.hpp"
 #include "real/platform.hpp"
@@ -20,7 +20,7 @@ bool mounts_has_bpffs(const std::string& mounts_text,
     std::istringstream in(mounts_text);
     std::string line;
     while (std::getline(in, line)) {
-        // device mountpoint fstype ...
+        // device mountpoint fstype, ...
         std::istringstream ls(line);
         std::string dev, mnt, type;
         if (!(ls >> dev >> mnt >> type)) continue;
@@ -65,7 +65,7 @@ Result<BpfStatus> probe() noexcept {
                 if (e->d_name[0] == '.') continue;
                 st.pinned_objects.emplace_back(e->d_name);
             }
-            ::closedir(d);
+::closedir(d);
         }
     }
 #  ifdef __NR_bpf

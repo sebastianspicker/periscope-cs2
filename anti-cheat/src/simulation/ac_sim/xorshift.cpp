@@ -13,7 +13,7 @@
 namespace sim {
 namespace {
 
-// SplitMix64 — used only to expand a single base seed into 10 lane seeds.
+// SplitMix64, used only to expand a single base seed into 10 lane seeds.
 std::uint64_t splitmix64(std::uint64_t& state) noexcept {
     state += 0x9E3779B97F4A7C15ULL;
     std::uint64_t z = state;
@@ -111,7 +111,7 @@ XorShift128& XorShiftPool::instance(XorShiftInstance idx) noexcept {
 void XorShiftPool::seed_all(std::uint64_t baseSeed, bool force) noexcept {
     if (s_seeded && !force) return;
 
-    std::uint64_t state = baseSeed ? baseSeed : kDeterministicFallbackSeed;
+    std::uint64_t state = baseSeed ? baseSeed: kDeterministicFallbackSeed;
     for (std::size_t i = 0; i < kInstanceCount; ++i) {
         // Decorrelate streams with per-lane salt.
         std::uint64_t a = splitmix64(state) ^ (0xD1B54A32D192ED03ULL * (i + 1));

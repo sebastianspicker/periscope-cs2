@@ -1,4 +1,4 @@
-// anti_debug.hpp — Linux debugger / tracer detection (BLUE sensors).
+// anti_debug.hpp: Linux debugger / tracer detection (BLUE sensors).
 //
 // Mirrors Windows PEB/NtQueryInformationProcess checks using:
 //   /proc/self/status TracerPid

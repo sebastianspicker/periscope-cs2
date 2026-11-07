@@ -3,7 +3,7 @@
 ``cloud.train`` (``training/cloud.py``) requires a flat ``images/`` + ``labels/``
 tree: its preflight image/label counts walk each directory non-recursively and
 ``_ensure_dataset_yaml`` defaults to a flat holdout. A
-session-split root (``images/train``, ``images/val``, ...) fails that preflight.
+session-split root (``images/train``, ``images/val``...) fails that preflight.
 
 This module converts an assembled split tree (as produced by
 :func:`cs2_vision_access.dataset_split.assemble_dataset`, i.e. ``images/{split}/
@@ -39,29 +39,29 @@ def materialize_flat_cloud_bundle(
 ) -> tuple[Path, Path]:
     """Flatten a session-split tree into a flat bundle for cloud training.
 
-    Every labeled image under ``images/train`` and ``images/val`` (with its
-    matching label) is copied into ``cloud_dir/dataset/images`` +
-    ``cloud_dir/dataset/labels`` under a flattened, collision-free stem
-    (path parts joined by ``__``, e.g. ``train__<session>__<stem>``; duplicates
-    raise). ``train.txt`` / ``val.txt`` keep the session split and a flat
-    ``dataset.yaml`` pointing at them is written, ``sessions.json`` provenance is
-    copied when present, and the tree is zipped to ``cloud_dir/dataset.zip`` via
+        Every labeled image under ``images/train`` and ``images/val`` (with its
+        matching label) is copied into ``cloud_dir/dataset/images`` +
+        ``cloud_dir/dataset/labels`` under a flattened, collision-free stem
+        (path parts joined by ``__``, e.g. ``train__<session>__<stem>``; duplicates
+        raise). ``train.txt`` / ``val.txt`` keep the session split and a flat
+        ``dataset.yaml`` pointing at them is written, ``sessions.json`` provenance is
+        copied when present, and the tree is zipped to ``cloud_dir/dataset.zip`` via
     :func:`cs2_vision_access.workflows.training.bundle.create_bundle`.
 
-    Args:
-        split_root: Assembled session-split dataset root (``images/train`` and
-            ``labels/train`` must exist).
-        cloud_dir: Directory that receives ``dataset/`` and ``dataset.zip``.
-        class_names: Class id → name map for the written ``dataset.yaml``.
+        Args:
+            split_root: Assembled session-split dataset root (``images/train`` and
+                ``labels/train`` must exist).
+            cloud_dir: Directory that receives ``dataset/`` and ``dataset.zip``.
+            class_names: Class id → name map for the written ``dataset.yaml``.
 
-    Returns:
-        ``(flat_root, zip_path)`` — the flat tree consumed by ``cloud.train``
-        and the uploadable zip placed under ``cloud_dir``.
+        Returns:
+            ``(flat_root, zip_path)``, the flat tree consumed by ``cloud.train``
+            and the uploadable zip placed under ``cloud_dir``.
 
-    Raises:
-        ValueError: When ``split_root`` is not a split dataset, contains no
-            labeled train/val pairs, or :func:`create_bundle` rejects the
-            flattened tree.
+        Raises:
+            ValueError: When ``split_root`` is not a split dataset, contains no
+                labeled train/val pairs, or :func:`create_bundle` rejects the
+                flattened tree.
     """
     split_root = Path(split_root)
     cloud_dir = Path(cloud_dir)

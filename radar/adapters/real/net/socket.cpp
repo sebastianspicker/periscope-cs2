@@ -1,4 +1,4 @@
-// socket.cpp — Cross-platform sockets: connect, listen, accept, UDP,
+// socket.cpp: Cross-platform sockets: connect: listen, accept, UDP,
 // timeouts, nodelay, keepalive, send_all / recv_exact, proxy-aware connect_ex.
 
 #include "real/net/net_client.hpp"
@@ -35,7 +35,7 @@ namespace {
 
 Result<void> set_blocking(int fd, bool blocking) {
 #if LR_PLATFORM_WINDOWS
-  u_long mode = blocking ? 0 : 1;
+  u_long mode = blocking ? 0: 1;
   if (ioctlsocket(fd, FIONBIO, &mode) != 0)
     return os_error("ioctlsocket FIONBIO");
 #else
@@ -58,7 +58,7 @@ Result<void> wait_connected(int fd, int timeout_ms) {
   timeval tv{};
   tv.tv_sec = timeout_ms / 1000;
   tv.tv_usec = (timeout_ms % 1000) * 1000;
-  const int rc = select(0, nullptr, &wset, &eset, timeout_ms >= 0 ? &tv : nullptr);
+  const int rc = select(0, nullptr, &wset, &eset, timeout_ms >= 0 ? &tv: nullptr);
   if (rc == 0) return Result<void>("connect timed out");
   if (rc < 0) return os_error("select connect");
   int so_error = 0;
@@ -92,11 +92,11 @@ Result<Socket> connect_direct(const std::string& host, std::uint16_t port,
   auto ws = ensure_winsock();
   if (!ws) return Result<Socket>(Socket{-1}, ws.error_msg);
 #endif
-  const int type = (proto == Protocol::Tcp) ? SOCK_STREAM : SOCK_DGRAM;
+  const int type = (proto == Protocol::Tcp) ? SOCK_STREAM: SOCK_DGRAM;
   addrinfo hints{};
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = type;
-  hints.ai_protocol = (proto == Protocol::Tcp) ? IPPROTO_TCP : IPPROTO_UDP;
+  hints.ai_protocol = (proto == Protocol::Tcp) ? IPPROTO_TCP: IPPROTO_UDP;
 
   const std::string port_str = std::to_string(port);
   addrinfo* result = nullptr;
@@ -202,14 +202,14 @@ Result<Socket> listen_tcp(const std::string& host, std::uint16_t port, int backl
   hints.ai_flags = AI_PASSIVE;
 
   const std::string port_str = std::to_string(port);
-  const char* node = (host.empty() || host == "0.0.0.0") ? nullptr : host.c_str();
+  const char* node = (host.empty() || host == "0.0.0.0") ? nullptr: host.c_str();
   addrinfo* result = nullptr;
   const int rc = getaddrinfo(node, port_str.c_str(), &hints, &result);
   if (rc != 0 || !result)
     return Result<Socket>(Socket{-1}, std::string("listen getaddrinfo: ") + gai_strerror(rc));
 
   const int fd = static_cast<int>(
-      ::socket(result->ai_family, result->ai_socktype, result->ai_protocol));
+::socket(result->ai_family, result->ai_socktype, result->ai_protocol));
   if (fd < 0) {
     freeaddrinfo(result);
     return os_error("socket listen");
@@ -268,7 +268,7 @@ Result<int> send(Socket sock, const std::uint8_t* data, int size) {
   if (size < 0) return Result<int>(-1, "negative size");
   if (size == 0) return 0;
   const int sent = static_cast<int>(
-      ::send(sock.fd, reinterpret_cast<const char*>(data), size, 0));
+::send(sock.fd, reinterpret_cast<const char*>(data), size, 0));
   if (sent < 0) return os_error("send");
   return sent;
 }
@@ -289,7 +289,7 @@ Result<int> recv(Socket sock, std::uint8_t* buffer, int buffer_size) {
   if (sock.fd < 0) return Result<int>(-1, "invalid socket");
   if (buffer_size <= 0) return Result<int>(-1, "invalid buffer size");
   const int received = static_cast<int>(
-      ::recv(sock.fd, reinterpret_cast<char*>(buffer), buffer_size, 0));
+::recv(sock.fd, reinterpret_cast<char*>(buffer), buffer_size, 0));
   if (received < 0) return os_error("recv");
   return received;
 }
@@ -353,7 +353,7 @@ Result<void> close(Socket sock) {
 Result<void> set_timeout(Socket sock, int timeout_ms) {
   if (sock.fd < 0) return Result<void>("invalid socket");
 #if LR_PLATFORM_WINDOWS
-  DWORD tv = static_cast<DWORD>(timeout_ms < 0 ? 0 : timeout_ms);
+  DWORD tv = static_cast<DWORD>(timeout_ms < 0 ? 0: timeout_ms);
   setsockopt(sock.fd, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char*>(&tv),
              sizeof(tv));
   setsockopt(sock.fd, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char*>(&tv),
@@ -371,7 +371,7 @@ Result<void> set_timeout(Socket sock, int timeout_ms) {
 
 Result<void> set_nodelay(Socket sock, bool enabled) {
   if (sock.fd < 0) return Result<void>("invalid socket");
-  int v = enabled ? 1 : 0;
+  int v = enabled ? 1: 0;
   if (setsockopt(sock.fd, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char*>(&v),
                  sizeof(v)) != 0)
     return os_error("TCP_NODELAY");
@@ -380,7 +380,7 @@ Result<void> set_nodelay(Socket sock, bool enabled) {
 
 Result<void> set_keepalive(Socket sock, bool enabled) {
   if (sock.fd < 0) return Result<void>("invalid socket");
-  int v = enabled ? 1 : 0;
+  int v = enabled ? 1: 0;
   if (setsockopt(sock.fd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<const char*>(&v),
                  sizeof(v)) != 0)
     return os_error("SO_KEEPALIVE");

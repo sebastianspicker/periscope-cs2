@@ -1,4 +1,4 @@
-// process_cooccurrence.cpp — blue sensor: suspicious process co-occurrence with game pid.
+// process_cooccurrence.cpp: blue sensor: suspicious process co-occurrence with game pid.
 // Complements handle-graph when names/parents look like radar tooling.
 
 #include "t0_blue/process_cooccurrence.hpp"
@@ -25,7 +25,7 @@ bool ProcessCooccurrence::looks_suspicious_name(const std::string& name) {
 
 // ProcessCooccurrence::ProcessCooccurrence: Blue sensor for suspicious process co-residence.
 ProcessCooccurrence::ProcessCooccurrence(ac::ITelemetrySink& sink)
-    : sink_(sink) {}
+: sink_(sink) {}
 
 // ProcessCooccurrence::on_game_session: Observe process set for a game session and score co-occurrence.
 void ProcessCooccurrence::on_game_session(std::uint32_t game_pid,
@@ -42,12 +42,12 @@ void ProcessCooccurrence::on_game_session(std::uint32_t game_pid,
     last_.hits.push_back(h);
     last_.hit = true;
     sink_.emit(ac::TelemetryEvent{
-        .kind = ac::EventKind::ProcessCoRun,
-        .related_tier = ac::Tier::T0_UsermodeRpm,
-        .subject_pid = p.pid,
-        .object_pid = game_pid,
-        .detail = p.name,
-        .risk_delta = 1.0,
+.kind = ac::EventKind::ProcessCoRun,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = p.pid,
+.object_pid = game_pid,
+.detail = p.name,
+.risk_delta = 1.0,
     });
   }
   last_.detail = "session_hits=" + std::to_string(last_.hits.size());
@@ -68,12 +68,12 @@ CooccurrenceResult ProcessCooccurrence::scan_world(const sim::World& w,
       last_.hits.push_back(h);
       last_.hit = true;
       sink_.emit(ac::TelemetryEvent{
-          .kind = ac::EventKind::ProcessCoRun,
-          .related_tier = ac::Tier::T0_UsermodeRpm,
-          .subject_pid = p.pid,
-          .object_pid = game_pid,
-          .detail = p.name,
-          .risk_delta = 1.5,
+.kind = ac::EventKind::ProcessCoRun,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = p.pid,
+.object_pid = game_pid,
+.detail = p.name,
+.risk_delta = 1.5,
       });
     }
     // Reader co-run: process with VM_READ on game even if name is clean.
@@ -89,17 +89,17 @@ CooccurrenceResult ProcessCooccurrence::scan_world(const sim::World& w,
       last_.hits.push_back(h);
       last_.hit = true;
       sink_.emit(ac::TelemetryEvent{
-          .kind = ac::EventKind::ProcessCoRun,
-          .related_tier = ac::Tier::T0_UsermodeRpm,
-          .subject_pid = p.pid,
-          .object_pid = game_pid,
-          .detail = p.name + "#vm_read",
-          .risk_delta = 2.0,
+.kind = ac::EventKind::ProcessCoRun,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = p.pid,
+.object_pid = game_pid,
+.detail = p.name + "#vm_read",
+.risk_delta = 2.0,
       });
     }
   }
   std::ostringstream oss;
-  oss << "co_run hits=" << last_.hits.size() << " weak_enum=" << (weak_enum ? 1 : 0);
+  oss << "co_run hits=" << last_.hits.size() << " weak_enum=" << (weak_enum ? 1: 0);
   last_.detail = oss.str();
   return last_;
 }

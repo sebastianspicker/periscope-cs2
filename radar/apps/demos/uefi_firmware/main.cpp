@@ -1,4 +1,4 @@
-// main.cpp — UEFI firmware analysis demo.
+// main.cpp: UEFI firmware analysis demo.
 //
 // Runs the full UEFI firmware analysis pipeline:
 //   --scan       Full firmware analysis
@@ -45,13 +45,13 @@ int main(int argc, char** argv) {
         auto info = real::uefi::get_dma_protection_info();
         if (info) {
             std::printf("DMA Protection: %s\n", info->detail.c_str());
-            std::printf("  VT-d active:     %s\n", info->vt_d_active ? "yes" : "no");
-            std::printf("  AMD-Vi active:   %s\n", info->amd_vi_active ? "yes" : "no");
+            std::printf("  VT-d active:     %s\n", info->vt_d_active ? "yes": "no");
+            std::printf("  AMD-Vi active:   %s\n", info->amd_vi_active ? "yes": "no");
             std::printf("  DRHD/IVHD units: %d\n", info->drhd_count);
-            std::printf("  INCLUDE_PCI_ALL: %s\n", info->drhd_all_devices ? "yes" : "no");
-            std::printf("  Thunderbolt DMA: %s\n", info->thunderbolt_active ? "OPEN" : "no");
+            std::printf("  INCLUDE_PCI_ALL: %s\n", info->drhd_all_devices ? "yes": "no");
+            std::printf("  Thunderbolt DMA: %s\n", info->thunderbolt_active ? "OPEN": "no");
             std::printf("  IOMMU bypass:    %s\n",
-                        info->iommu_bypass_available ? "possible" : "blocked");
+                        info->iommu_bypass_available ? "possible": "blocked");
         } else {
             std::printf("DMA protection query failed: %s\n", info.error_msg.c_str());
         }
@@ -60,27 +60,27 @@ int main(int argc, char** argv) {
     if (std::strcmp(argv[1], "--secureboot") == 0) {
         auto sb = real::uefi::get_secure_boot_state();
         if (sb) {
-            std::printf("Secure Boot: %s\n", sb->secure_boot_enabled ? "ON" : "OFF");
-            std::printf("Setup Mode:  %s\n", sb->setup_mode ? "ON" : "OFF");
-            std::printf("Audit Mode:  %s\n", sb->audit_mode ? "ON" : "OFF");
-            std::printf("Deployed:    %s\n", sb->deployed_mode ? "ON" : "OFF");
+            std::printf("Secure Boot: %s\n", sb->secure_boot_enabled ? "ON": "OFF");
+            std::printf("Setup Mode:  %s\n", sb->setup_mode ? "ON": "OFF");
+            std::printf("Audit Mode:  %s\n", sb->audit_mode ? "ON": "OFF");
+            std::printf("Deployed:    %s\n", sb->deployed_mode ? "ON": "OFF");
             std::printf("PK=%zu KEK=%zu db=%zu dbx=%zu bytes\n",
                         sb->pk.size(), sb->kek.size(), sb->db.size(), sb->dbx.size());
         } else {
             std::printf("Secure Boot state: %s\n", sb.error_msg.c_str());
             std::printf("  (partial) SecureBoot=%d SetupMode=%d\n",
-                        sb.value.secure_boot_enabled ? 1 : 0,
-                        sb.value.setup_mode ? 1 : 0);
+                        sb.value.secure_boot_enabled ? 1: 0,
+                        sb.value.setup_mode ? 1: 0);
         }
         return 0;
     }
     if (std::strcmp(argv[1], "--txt") == 0) {
         auto txt = real::uefi::read_intel_txt_data();
         if (txt) {
-            std::printf("TXT Capable: %d\n", txt->txt_capable ? 1 : 0);
-            std::printf("TXT Enabled: %d\n", txt->txt_enabled ? 1 : 0);
-            std::printf("SMX:         %d\n", txt->smx_enabled ? 1 : 0);
-            std::printf("Launch:      %d\n", txt->measured_launch_occurred ? 1 : 0);
+            std::printf("TXT Capable: %d\n", txt->txt_capable ? 1: 0);
+            std::printf("TXT Enabled: %d\n", txt->txt_enabled ? 1: 0);
+            std::printf("SMX:         %d\n", txt->smx_enabled ? 1: 0);
+            std::printf("Launch:      %d\n", txt->measured_launch_occurred ? 1: 0);
             std::printf("Heap base:   0x%llx\n",
                         static_cast<unsigned long long>(txt->heap_base));
             if (!txt->detail.empty())
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
             std::printf("DMAR: %s\n", dmar->detail.c_str());
             std::printf("  Width: %d, DRHD: %d, RMRR: %d, Active: %d\n",
                         dmar->host_address_width, dmar->drhd_count,
-                        dmar->rmrr_count, dmar->dma_remap_active ? 1 : 0);
+                        dmar->rmrr_count, dmar->dma_remap_active ? 1: 0);
         } else {
             std::printf("DMAR not available: %s\n", dmar.error_msg.c_str());
         }
@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
     if (std::strcmp(argv[1], "--pcie-dev") == 0) {
         auto fpga = real::uefi::fpga_dma_device_present();
         if (fpga) {
-            std::printf("FPGA DMA device: %s\n", *fpga ? "PRESENT" : "Not found");
+            std::printf("FPGA DMA device: %s\n", *fpga ? "PRESENT": "Not found");
         } else {
             std::printf("FPGA DMA scan: %s\n", fpga.error_msg.c_str());
         }

@@ -1,4 +1,4 @@
-// mode.cpp — Runtime mode and tier availability (public API + probes).
+// mode.cpp: Runtime mode and tier availability (public API + probes).
 //
 // Platform probe helpers live in mode_win_probes / mode_linux_probes /
 // mode_cpu_vmx. This TU owns parse_mode, RuntimeConfig, and probe_tier.
@@ -36,7 +36,7 @@ TierProbe probe_t0() {
   if (!result) {
     p.available = false;
     p.reason = result.error_msg.empty() ? "CS2 process not found"
-                                        : result.error_msg.c_str();
+: result.error_msg.c_str();
     return p;
   }
 
@@ -146,7 +146,7 @@ TierProbe probe_t2() {
   }
   static const char* const kNodes[] = {
       "/dev/legit_radar_phys", "/dev/winring0", "/dev/gdrv"};
-  for (const char* n : kNodes) {
+  for (const char* n: kNodes) {
     if (linux_open_ro(n)) {
       p.available = true;
       p.reason = std::string("kernel device node openable: ") + n;
@@ -259,7 +259,7 @@ TierProbe probe_t4() {
       L"SYSTEM\\CurrentControlSet\\Services\\Usb4HostRouter",
       L"SYSTEM\\CurrentControlSet\\Services\\USB4HOSTROUTER",
   };
-  for (const wchar_t* key : kRegKeys) {
+  for (const wchar_t* key: kRegKeys) {
     if (win_reg_key_exists(key)) {
       p.available = true;
       p.reason = "Thunderbolt/USB4 service key present in registry";
@@ -286,7 +286,7 @@ TierProbe probe_t4() {
   p.available = false;
   p.reason = reason.empty()
                  ? "no Thunderbolt/USB4/FPGA/DMA device signals"
-                 : reason;
+: reason;
   return p;
 
 #else
@@ -447,12 +447,12 @@ std::string describe_mode() {
       "  Driver path: %s\n"
       "  Env: LR_MODE=%s\n",
       mode_name(cfg.mode),
-      cfg.may_use_real() ? "yes" : "no",
-      cfg.may_use_sim() ? "yes" : "no",
-      cs2_available() ? "yes" : "no",
-      cfg.verbose ? "yes" : "no",
-      cfg.driver_device_path ? cfg.driver_device_path : "(default)",
-      env_mode ? env_mode : "(unset)");
+      cfg.may_use_real() ? "yes": "no",
+      cfg.may_use_sim() ? "yes": "no",
+      cs2_available() ? "yes": "no",
+      cfg.verbose ? "yes": "no",
+      cfg.driver_device_path ? cfg.driver_device_path: "(default)",
+      env_mode ? env_mode: "(unset)");
   return buf;
 }
 
@@ -470,7 +470,7 @@ std::string describe_tier_availability() {
     offset += std::snprintf(
         buf + offset, static_cast<std::size_t>(cap - offset),
         "  %-6s %-25s %-3s  (%s)\n", tier_short_name(probe.tier),
-        tier_name(probe.tier), probe.available ? "yes" : "no",
+        tier_name(probe.tier), probe.available ? "yes": "no",
         probe.reason.c_str());
   }
 

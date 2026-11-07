@@ -59,7 +59,7 @@ struct HvRadarReport {
   std::string detail;
 };
 
-// Multi-step educational red client `HvRadar` — plants lab scars on World only.
+// Multi-step educational red client `HvRadar`, plants lab scars on World only.
 class HvRadar {
  public:
   explicit HvRadar(sim::World& world, std::string ui = "hv-radar.exe");

@@ -1,6 +1,6 @@
 #pragma once
 
-// Decoy render engine — synthesizes plausible UI primitives (menus, health
+// Decoy render engine, synthesizes plausible UI primitives (menus, health
 // bars, chat boxes, FPS counters) to dilute VACnet-style ML overlay features.
 //
 // CC-ledger CC.4
@@ -14,7 +14,7 @@
 namespace sim {
 
 struct DecoyOp {
-    enum Type : std::uint8_t {
+    enum Type: std::uint8_t {
         FilledRect = 0,
         Text,
         Circle,

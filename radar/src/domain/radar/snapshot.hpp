@@ -1,7 +1,7 @@
-// snapshot.hpp — R1: immutable absolute-state GameSnapshot + protocol v1.
+// snapshot.hpp: R1: immutable absolute-state GameSnapshot + protocol v1.
 //
 // Adapted from the 2026-11-05 research notes:
-//   - tiansongyu/cs2_cheat (MIT): `GameSnapshot` / `web_radar_json.hpp` —
+//   - tiansongyu/cs2_cheat (MIT): `GameSnapshot` / `web_radar_json.hpp` -
 //     every frame is complete absolute state, no deltas; u64 identifiers are
 //     serialized as JSON strings so JavaScript cannot lose precision.
 //   - avitran0/deadlocked `shared/src/entity.rs`: typed entity variant
@@ -93,7 +93,7 @@ struct BombState {
 
 // Typed world entities (deadlocked's enum shape). `hull` carries the inferno
 // flame-hull polygon; `life_remaining_s` counts down for timed projectiles.
-enum class EntityKind : std::uint8_t {
+enum class EntityKind: std::uint8_t {
   Weapon = 0,
   Inferno = 1,
   Molotov = 2,
@@ -126,7 +126,7 @@ struct GameSnapshot {
 
 // Sharing policy applied at serialization time (ledger R1: sanitize at the
 // single choke point, before anything leaves the process).
-enum class TeamViewPolicy : std::uint8_t {
+enum class TeamViewPolicy: std::uint8_t {
   All = 0,
   LocalTeamOnly = 1,
   OpponentsOnly = 2,

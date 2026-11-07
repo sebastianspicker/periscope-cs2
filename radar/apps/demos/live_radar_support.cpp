@@ -1,4 +1,4 @@
-// live_radar_support.cpp — helpers for live_radar demo.
+// live_radar_support.cpp: helpers for live_radar demo.
 #include "demos/live_radar_support.hpp"
 #include "demos/radar_shared.hpp"
 #include "real/cs2/hijack_reader.hpp"
@@ -151,7 +151,7 @@ const char* filter_name(BlipFilter f) {
 
 int run_simulation_fallback(const char* reason) {
   logf("\n=== LIVE RADAR SIMULATION FALLBACK ===\n");
-  logf("  reason: %s\n", reason ? reason : "CS2 unavailable");
+  logf("  reason: %s\n", reason ? reason: "CS2 unavailable");
   TierDoc doc{"Live Radar (SIM)",
               "attach ladder L2/L1/L3 + entity list + polar HUD projection",
               "VM_READ / donor IPC / OpenProcess scar depends on ladder stage",

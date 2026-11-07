@@ -1,4 +1,4 @@
-// platform.hpp — Single platform-detection header.
+// platform.hpp: Single platform-detection header.
 // All real-backend code includes this and uses LR_PLATFORM_* macros.
 // No platform-specific #ifdefs should appear outside real/ and src/real/.
 

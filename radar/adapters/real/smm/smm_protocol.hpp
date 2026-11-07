@@ -1,4 +1,4 @@
-// smm_protocol.hpp — Pure SMM/ACPI/TPM protocol helpers (no OS I/O).
+// smm_protocol.hpp: Pure SMM/ACPI/TPM protocol helpers (no OS I/O).
 //
 // Unit-testable against synthetic buffers. Platform backends in
 // smi/acpi/tpm/smram/smm_channel supply physical access and port I/O.
@@ -31,7 +31,7 @@ constexpr std::uint16_t kCmosDataPort = 0x71;
 /// RTC/CMOS NMI-mask bit in index port.
 constexpr std::uint8_t kCmosNmiDisable = 0x80;
 
-/// MSR_SMI_COUNT — increments on every SMI (Intel, read-only).
+/// MSR_SMI_COUNT, increments on every SMI (Intel, read-only).
 constexpr std::uint32_t kMsrSmiCount = 0x34;
 /// IA32_SMRR_PHYSBASE / PHYSMASK (when SMRR supported).
 constexpr std::uint32_t kMsrSmrrPhysBase = 0x1F2;
@@ -41,7 +41,7 @@ constexpr std::uint32_t kMsrSmmFeatureControl = 0x4E0;
 /// SMM_Code_Chk_En lives in MSR_SMM_FEATURE_CONTROL bit 2 on many CPUs.
 constexpr std::uint64_t kSmmCodeChkEnBit = 1ull << 2;
 
-/// Intel Host Bridge PCI config: TSEG Memory Base (TSEGMB) — B0:D0:F0 + 0xB8.
+/// Intel Host Bridge PCI config: TSEG Memory Base (TSEGMB), B0:D0:F0 + 0xB8.
 constexpr std::uint8_t kIntelTsegmbOffset = 0xB8;
 /// TSEGMB lock bit (bit 0 = lock on many 100-series+).
 constexpr std::uint32_t kTsegmbLockBit = 0x1u;
@@ -54,7 +54,7 @@ constexpr std::uint32_t kSmmRspMagic = 0x534D4D02u;  // "SMM\2"
 constexpr std::uint32_t kSmmErrMagic = 0x534D4D03u;  // "SMM\3"
 
 /// Lab SMM handler SW-SMI command codes (educational catalog).
-enum class SmiCommand : std::uint8_t {
+enum class SmiCommand: std::uint8_t {
   Nop = 0x00,
   Communicate = 0x01,
   PhysRead = 0x10,

@@ -1,4 +1,4 @@
-// hwbp.hpp — Hardware breakpoint (DR0–DR7) detection and clearance.
+// hwbp.hpp: Hardware breakpoint (DR0–DR7) detection and clearance.
 //
 // Anti-debug / anti-analysis: AC and reverse engineers set DRx breakpoints.
 // We detect non-zero DR0–DR3 or local-enable bits in DR7, and can clear them.

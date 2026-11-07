@@ -2,10 +2,10 @@
 
 Two primary policies:
 
-* ``prev_student`` / ``auto`` — local auto-train: iteration 1 uses optional
+* ``prev_student`` / ``auto``, local auto-train: iteration 1 uses optional
   explicit teacher paths; later iterations use the previous cycle's student
   ONNX + manifest.
-* ``best_package`` / ``remote`` — remote autonomous: prefer the prior best
+* ``best_package`` / ``remote``, remote autonomous: prefer the prior best
   package; fall back to the on-disk ``iter{N-1}`` snapshot under ``data_dir``.
 """
 

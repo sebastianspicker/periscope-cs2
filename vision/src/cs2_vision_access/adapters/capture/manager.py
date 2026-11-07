@@ -1,4 +1,4 @@
-"""Capture management — device opening, frame reading, validation, reconnection.
+"""Capture management, device opening, frame reading, validation, reconnection.
 
 Encapsulates all capture-device and screen-capture concerns so the main
 pipeline loop focuses on inference and rendering.
@@ -154,7 +154,7 @@ class CaptureManager:
         """Handle a failed frame read with reconnection logic.
 
         Reconnect attempts back off (1, 2, 4 s) so a card renegotiating its
-        signal — or a transient USB fault — cannot turn into a hot loop.
+        signal, or a transient USB fault, cannot turn into a hot loop.
         """
         if self._info is not None and self._info.source_type == "file":
             return False, None, "end_of_stream"  # a failed file read is EOF

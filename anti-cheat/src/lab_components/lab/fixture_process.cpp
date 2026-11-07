@@ -1,4 +1,4 @@
-// fixture_process.cpp — lab fixture process / memory backend for isolated unit tests.
+// fixture_process.cpp: lab fixture process / memory backend for isolated unit tests.
 // Provides attachable target_id.
 
 #include "lab/fixture_process.hpp"
@@ -23,9 +23,9 @@ bool range_fits(std::uint64_t address, std::uint64_t base,
                 std::size_t* offset) {
   if (address < base) return false;
   const auto delta = address - base;
-  if (delta > std::numeric_limits<std::size_t>::max()) return false;
+  if (delta > std::numeric_limits<std::size_t> ::max()) return false;
   const auto start = static_cast<std::size_t>(delta);
-  if (size > std::numeric_limits<std::size_t>::max() - start) return false;
+  if (size > std::numeric_limits<std::size_t> ::max() - start) return false;
   if (start > extent || size > extent - start) return false;
   *offset = start;
   return true;
@@ -34,7 +34,7 @@ bool range_fits(std::uint64_t address, std::uint64_t base,
 }  // namespace
 
 // FixtureProcess::FixtureProcess: In-memory lab process fixture with base address + bytes.
-FixtureProcess::FixtureProcess(std::uint32_t id) : id_(id) {
+FixtureProcess::FixtureProcess(std::uint32_t id): id_(id) {
   image_.assign(0x2000, 0);
   plant_synthetic_entities();
   plant_identity_view_matrix();
@@ -45,9 +45,9 @@ void FixtureProcess::write_bytes(std::uint64_t address,
                                  std::span<const std::uint8_t> data) {
   if (address < base_) return;
   const auto delta = address - base_;
-  if (delta > std::numeric_limits<std::size_t>::max()) return;
+  if (delta > std::numeric_limits<std::size_t> ::max()) return;
   const auto off = static_cast<std::size_t>(delta);
-  if (data.size() > std::numeric_limits<std::size_t>::max() - off) return;
+  if (data.size() > std::numeric_limits<std::size_t> ::max() - off) return;
   const auto end = off + data.size();
   if (end > kMaxFixtureImageBytes) return;
   if (end > image_.size()) {
@@ -86,14 +86,14 @@ void FixtureProcess::plant_synthetic_entities() {
 void FixtureProcess::plant_entities(const std::vector<FixtureEntity>& entities) {
   const auto count = static_cast<std::uint32_t>(
       std::min<std::size_t>(entities.size(),
-                            std::numeric_limits<std::uint32_t>::max()));
+                            std::numeric_limits<std::uint32_t> ::max()));
   write_bytes(base_ + 0x00,
               {reinterpret_cast<const std::uint8_t*>(&count),
                reinterpret_cast<const std::uint8_t*>(&count) + sizeof(count)});
 
   // Clear a generous span then write entities.
   if (entities.size() >
-      std::numeric_limits<std::size_t>::max() / sizeof(FixtureEntity)) {
+      std::numeric_limits<std::size_t> ::max() / sizeof(FixtureEntity)) {
     return;
   }
   const std::size_t table_bytes = entities.size() * sizeof(FixtureEntity);
@@ -177,7 +177,7 @@ std::vector<FixtureEntity> FixtureProcess::read_entities() const {
   std::vector<FixtureEntity> out;
   if (count == 0 || count > 256) return out;
   static_assert(256 <=
-                std::numeric_limits<std::size_t>::max() / sizeof(FixtureEntity));
+                std::numeric_limits<std::size_t> ::max() / sizeof(FixtureEntity));
   const auto byte_count = static_cast<std::size_t>(count) * sizeof(FixtureEntity);
   auto rr = read_bytes(base_ + 0x10, byte_count);
   if (rr.status != ac::Status::Ok ||

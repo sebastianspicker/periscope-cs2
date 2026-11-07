@@ -1,4 +1,4 @@
-// proto_log.hpp — lightweight protocol/log helpers for tier demos and tests.
+// proto_log.hpp: lightweight protocol/log helpers for tier demos and tests.
 
 #pragma once
 
@@ -36,7 +36,7 @@ inline void proto_kv(std::string_view k, std::size_t v) {
 }
 
 inline void proto_kv(std::string_view k, bool v) {
-  std::printf("  %-28s %s\n", k.data(), v ? "true" : "false");
+  std::printf("  %-28s %s\n", k.data(), v ? "true": "false");
 }
 
 inline void proto_events(const MemoryTelemetrySink& sink) {
@@ -51,9 +51,9 @@ inline void proto_events(const MemoryTelemetrySink& sink) {
 inline void proto_risk(const RiskState& rs) {
   std::printf("  risk score=%.2f events=%d kinds=%d multi=%s block=%s overwatch=%s\n",
               rs.score, rs.event_count, rs.distinct_kinds,
-              rs.multi_signal ? "true" : "false",
-              rs.block_ranked ? "true" : "false",
-              rs.flag_overwatch ? "true" : "false");
+              rs.multi_signal ? "true": "false",
+              rs.block_ranked ? "true": "false",
+              rs.flag_overwatch ? "true": "false");
   for (const auto& r : rs.reasons) {
     std::printf("    reason: %s\n", r.c_str());
   }

@@ -9,7 +9,7 @@ BlueResult detect(sim::World& w) {
     }
   }
   for (const auto& n : w.net) if (n.looks_like_offset_c2) r.intel_hit = true;
-  // Never C2 alone — pair with client scar.
+  // Never C2 alone, pair with client scar.
   r.detected = r.handle_hit && r.intel_hit;
   if (r.detected) { r.mitigated = true; w.ranked_access_denied = true; }
   r.detail = "network_c2_intel blue handle=" + std::to_string(r.handle_hit?1:0) +

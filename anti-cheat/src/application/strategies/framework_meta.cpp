@@ -1,4 +1,4 @@
-// framework_meta.cpp — Family / string helpers for the strategies framework.
+// framework_meta.cpp: Family / string helpers for the strategies framework.
 // Lives in ac_strategy_core so catalog_util and pair runners share one definition.
 
 #include "strategies/framework.hpp"

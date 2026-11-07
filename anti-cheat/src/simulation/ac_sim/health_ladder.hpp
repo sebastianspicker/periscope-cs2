@@ -1,9 +1,9 @@
 #pragma once
 
-// Runtime health ladder — 3-level healing escalator.
-// Soft  : 3 bad frames   → invalidate HUD + recollect
+// Runtime health ladder, 3-level healing escalator.
+// Soft: 3 bad frames   → invalidate HUD + recollect
 // Medium: 10 soft acts   → re-scan patterns + re-resolve schema
-// Hard  : 3 medium acts  → re-acquire hijack + full rescan
+// Hard: 3 medium acts  → re-acquire hijack + full rescan
 //
 // Good frames de-escalate one level after a quiet stretch.
 //
@@ -20,14 +20,14 @@ struct HealthLadderConfig {
     int goodFramesToDeescalate{30};
 };
 
-enum class HealthLevel : std::uint8_t {
+enum class HealthLevel: std::uint8_t {
     Healthy = 0,
     Soft    = 1,
     Medium  = 2,
     Hard    = 3
 };
 
-enum class HealthAction : std::uint8_t {
+enum class HealthAction: std::uint8_t {
     None = 0,
     InvalidateHudRecollect,
     RescanResolve,

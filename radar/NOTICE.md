@@ -24,3 +24,22 @@ Adapted upstream designs and code (2026-11-05 research pass):
 
 The anti-cheat lab (`../anti-cheat/`) is original code with no adapted
 upstreams: see [`../anti-cheat/NOTICE.md`](../anti-cheat/NOTICE.md).
+
+## Second-pass design references (2026-11-06)
+
+These trees were read for the second assessment pass. No code was copied
+verbatim; the listed ideas were reimplemented in radar's style.
+
+- `hyper-reV-main` (no license file): guest page walk and zero-run finder,
+  shadow-hook entry bookkeeping, page-boundary hypercall chunking.
+- `cs2ext-src` (no license file): live map-collision BVH extraction,
+  weapon/name/spectator reads, cleanup handlers, timer resolution, system
+  preflight.
+- `velocity-cs2` (no license file): schema-scope resolver, signature DSL,
+  encoded address registry, handle sentinels, cache-identity notes.
+- `nexus` (no license file): single IOCTL envelope, JSON parser cautions.
+- `CS2-GFusion-Python-main` (restrictive license, no derivatives without
+  permission): `.opt` collision map format, world-entity scan budget,
+  track TTL cautions. Treat its code as reference only.
+
+Verify each upstream's terms again before copying code rather than an idea.

@@ -1,4 +1,4 @@
-"""setup subcommand — one-command setup for the live ingame overlay.
+"""setup subcommand, one-command setup for the live ingame overlay.
 
 Checks dependencies, downloads a model, creates a configuration file, and
 optionally tests the pipeline. Designed to get a visually impaired user from
@@ -185,7 +185,7 @@ def _download_and_export_model(
 
             model_info = _DOWNLOADABLE_MODELS.get(model_name)
             if model_info is None:
-                print(f"  Unknown model {model_name!r}, trying export from local .pt...")
+                print(f"  Unknown model {model_name!r}, trying export from local.pt...")
 
             try:
                 import ultralytics
@@ -508,7 +508,7 @@ def _print_final_instructions(
 
 def _handle_setup(arguments: argparse.Namespace) -> int:
     print("=" * 60)
-    print(" CS2 Vision Access — Ingame Overlay Setup")
+    print(" CS2 Vision Access, Ingame Overlay Setup")
     print("=" * 60)
     print()
 

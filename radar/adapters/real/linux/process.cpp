@@ -1,4 +1,4 @@
-// process.cpp — Linux process enumeration and deep /proc inspection.
+// process.cpp: Linux process enumeration and deep /proc inspection.
 
 #include "real/linux/process.hpp"
 #include "real/platform.hpp"
@@ -50,8 +50,8 @@ std::string read_file_line(const std::string& path) {
 bool parse_stat_line(const std::string& stat_line, ProcessInfo& out) noexcept {
     if (stat_line.empty()) return false;
 
-    // Format: pid (comm) state ppid ... starttime ...
-    // comm may contain spaces/parens — use first '(' and last ')'.
+    // Format: pid (comm) state ppid, ... starttime, ...
+    // comm may contain spaces/parens, use first '(' and last ')'.
     auto open_paren = stat_line.find('(');
     auto close_paren = stat_line.rfind(')');
     if (open_paren == std::string::npos || close_paren == std::string::npos ||
@@ -71,7 +71,7 @@ bool parse_stat_line(const std::string& stat_line, ProcessInfo& out) noexcept {
     std::istringstream rest(stat_line.substr(close_paren + 2));
     // fields after comm: state ppid pgrp session tty_nr tpgid flags
     // minflt cminflt majflt cmajflt utime stime cutime cstime priority
-    // nice num_threads itrealvalue starttime ...
+    // nice num_threads itrealvalue starttime, ...
     rest >> out.state >> out.ppid;
     long pgrp = 0, session = 0, tty = 0, tpgid = 0;
     unsigned long flags = 0, minflt = 0, cminflt = 0, majflt = 0, cmajflt = 0;
@@ -82,7 +82,7 @@ bool parse_stat_line(const std::string& stat_line, ProcessInfo& out) noexcept {
     rest >> pgrp >> session >> tty >> tpgid >> flags >> minflt >> cminflt >>
         majflt >> cmajflt >> utime >> stime >> cutime >> cstime >> priority >>
         nice >> num_threads >> itreal >> starttime;
-    out.threads = num_threads > 0 ? static_cast<uint32_t>(num_threads) : 0;
+    out.threads = num_threads > 0 ? static_cast<uint32_t>(num_threads): 0;
     out.start_time = static_cast<uint64_t>(starttime);
     out.tgid = out.pid; // refined from status if available
     (void)pgrp;
@@ -134,7 +134,7 @@ Result<std::vector<ProcessInfo>> enumerate_all() noexcept {
         auto info = get_info(pid);
         if (info) processes.push_back(*info);
     }
-    ::closedir(proc);
+::closedir(proc);
     return processes;
 #else
     return Result<std::vector<ProcessInfo>>({}, "enumerate_all requires Linux");
@@ -234,7 +234,7 @@ Result<bool> is_alive(uint32_t pid) noexcept {
     char path[64];
     std::snprintf(path, sizeof(path), "/proc/%u", pid);
     struct stat st {};
-    return ::stat(path, &st) == 0;
+    return::stat(path, &st) == 0;
 #else
     (void)pid;
     return Result<bool>(false, "is_alive requires Linux");
@@ -371,7 +371,7 @@ Result<std::vector<ThreadInfo>> get_threads(uint32_t pid) noexcept {
         }
         threads.push_back(std::move(t));
     }
-    ::closedir(d);
+::closedir(d);
     return threads;
 #else
     (void)pid;
@@ -398,7 +398,7 @@ Result<std::vector<FdInfo>> get_fds(uint32_t pid) noexcept {
         if (n > 0) info.target.assign(buf, static_cast<size_t>(n));
         fds.push_back(std::move(info));
     }
-    ::closedir(d);
+::closedir(d);
     return fds;
 #else
     (void)pid;

@@ -1,4 +1,4 @@
-// vmx_intrin.hpp — Full Intel VT-x / Hyper-V research stack for x64.
+// vmx_intrin.hpp: Full Intel VT-x / Hyper-V research stack for x64.
 //
 // Unprivileged surfaces (CPUID, EPT entry math, hierarchy software bookkeeping,
 // Hyper-V leaf spoofing) run correctly in ordinary usermode. Privileged
@@ -23,7 +23,7 @@ namespace real::vmx {
 // ── VMX Basic Types ────────────────────────────────────────────────
 
 /// VMCS field encodings (Intel SDM Vol 3C, Appendix B).
-enum class VmcsField : std::uint64_t {
+enum class VmcsField: std::uint64_t {
   // 16-bit control fields
   Vpid                     = 0x00000000,
   PostedIntrNotifyVector   = 0x00000002,
@@ -159,7 +159,7 @@ enum class VmcsField : std::uint64_t {
 };
 
 /// VMX instruction completion status.
-enum class VmxStatus : std::uint64_t {
+enum class VmxStatus: std::uint64_t {
   Success = 0,
   FailWithStatus = 1,
   FailInvalid = 2,

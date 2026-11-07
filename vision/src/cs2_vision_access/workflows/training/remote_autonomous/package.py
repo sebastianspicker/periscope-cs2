@@ -47,7 +47,7 @@ def _align_fp16_with_best(
 
         convert_to_fp16(onnx_path, fp16_path)
         print(f"  Best-iter FP16: {fp16_path.name}")
-    except Exception as exc:  # noqa: BLE001 — optional artefact
+    except Exception as exc:  # noqa: BLE001, optional artefact
         notes.append(f"best-iter FP16 convert skipped: {exc}")
         # Drop mismatched last-iter FP16 from package consideration.
         if fp16_path.is_file():

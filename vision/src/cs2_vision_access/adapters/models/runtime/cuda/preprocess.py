@@ -3,9 +3,9 @@
 Provides CUDA-optimised versions of the most expensive CPU operations in the
 inference pipeline:
 
-1. **Letterbox** — BGR uint8 frame → RGB float32 CHW tensor with letterbox
+1. **Letterbox**, BGR uint8 frame → RGB float32 CHW tensor with letterbox
    padding, bilinear interpolation, and [0, 1] normalisation.
-2. **YOLO decode** — Raw Ultralytics ONNX output → xyxy boxes + scores + class
+2. **YOLO decode**, Raw Ultralytics ONNX output → xyxy boxes + scores + class
    IDs (with confidence filtering).
 
 Both functions fall back to CPU (OpenCV + NumPy) when CUDA is unavailable.

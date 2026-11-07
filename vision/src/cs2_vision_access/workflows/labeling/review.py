@@ -5,10 +5,10 @@ and promote entries in ``draft_status.json`` (schema_version 1).
 
 Per-file ``review_status`` values (schema_version 1, compatible extension):
 
-- ``draft_pending`` — bootstrap default; not reviewed
-- ``accepted`` — human accepted the draft polygon label
-- ``rejected`` — human rejected; must not be promoted to GT layout
-- ``promoted`` — accepted draft was copied into a GT labels directory
+- ``draft_pending``, bootstrap default; not reviewed
+- ``accepted``, human accepted the draft polygon label
+- ``rejected``, human rejected; must not be promoted to GT layout
+- ``promoted``, accepted draft was copied into a GT labels directory
 
 Promote / copy logic lives in :mod:`cs2_vision_access.workflows.labeling.promote`.
 Shared draft_status I/O lives in :mod:`cs2_vision_access.workflows.labeling.review_io`.
@@ -38,7 +38,7 @@ from cs2_vision_access.workflows.labeling.types import (
     BootstrapError,
 )
 
-# Re-export I/O so ``from ...review import load_draft_status`` keeps working.
+# Re-export I/O so ``from ... review import load_draft_status`` keeps working.
 __all__ = [
     "accept_drafts",
     "list_draft_status",

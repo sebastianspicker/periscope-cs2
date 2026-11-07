@@ -5,17 +5,17 @@ parameters (preset, width, mode, etc.) while the pipeline is running,
 without restarting.
 
 Controls (press in the display window; global overlay hotkeys on Windows are Ctrl+Alt+<key>):
-  Q / Esc  — Quit
-  Space    — Pause/resume
-  1        — high-visibility preset
-  2        — maximum-visibility preset
-  3        — cyan-black preset
-  + / =    — Increase outline width (inner + outer)
-  - / _    — Decrease outline width
-  T        — Toggle temporal stability filter
-  O        — Cycle output mode (overlay → alpha → green → overlay)
-  F        — Toggle alpha fill on/off
-  H        — Toggle headless-friendly info display
+  Q / Esc, Quit
+  Space, Pause/resume
+  1, high-visibility preset
+  2, maximum-visibility preset
+  3, cyan-black preset
+  + / =, Increase outline width (inner + outer)
+  - / _, Decrease outline width
+  T, Toggle temporal stability filter
+  O, Cycle output mode (overlay → alpha → green → overlay)
+  F, Toggle alpha fill on/off
+  H, Toggle headless-friendly info display
 """
 
 from __future__ import annotations

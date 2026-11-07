@@ -1,4 +1,4 @@
-// Split from periscope_overlay.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_overlay.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/gpu/periscope_overlay.hpp"
 #include "real/win/peb_util.hpp"
 #include "real/win/timing.hpp"
@@ -28,7 +28,7 @@ namespace real::gpu::periscope {
 // Hash the prefix bytes (not the pointer) so identical seed+prefix is
 // deterministic across translation units and string pooling modes.
 std::string generate_random_name(uint64_t seed, const char* prefix) noexcept {
-    const char* p = prefix ? prefix : "MpsSvc";
+    const char* p = prefix ? prefix: "MpsSvc";
     uint64_t h = seed ^ 0x9E3779B97F4A7C15ULL;
     for (const unsigned char* c = reinterpret_cast<const unsigned char*>(p); *c; ++c) {
         h ^= static_cast<uint64_t>(*c);
@@ -43,4 +43,3 @@ std::string generate_random_name(uint64_t seed, const char* prefix) noexcept {
 }
 
 } // namespace real::gpu::periscope
-

@@ -15,7 +15,7 @@ exactly to the monitor the player looks at, and blits the composited frame at
 native resolution. Because the pixels shown are the pixels captured, alignment
 is a solved problem: nothing is scaled, nothing is moved.
 
-Only the composited output ever reaches this window — inference diagnostics,
+Only the composited output ever reaches this window, inference diagnostics,
 pause badges and hotkey hints stay on the preview path. On Windows the window
 can additionally exclude itself from screen capture (streamproof), so a
 recording or stream of the gaming PC never shows the outline even when the

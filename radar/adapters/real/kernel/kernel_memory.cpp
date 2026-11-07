@@ -1,4 +1,4 @@
-// kernel_memory.cpp — Kernel-level memory operations (educational).
+// kernel_memory.cpp: Kernel-level memory operations (educational).
 // Every function documents the forensic scar, detection vector, and mitigation.
 //
 // LESSON: Kernel memory access is the T2/T3 privilege level. Operations here
@@ -185,8 +185,8 @@ Result<std::vector<std::uint8_t>> read_physical_via_gdrv(std::uint64_t phys_addr
     std::uint32_t reserved;
   };
 
-  for (const char* path : candidates) {
-    // Ledger E17: RAII device ownership — the handle closes on every exit
+  for (const char* path: candidates) {
+    // Ledger E17: RAII device ownership, the handle closes on every exit
     // path, and the chunk loop comes from the overflow-checked planner.
     auto dev = ScopedDevice::open(path);
     if (!dev.valid()) continue;
@@ -227,7 +227,7 @@ Result<void> write_physical_via_gdrv(std::uint64_t phys_addr,
     std::uint32_t reserved;
   };
 
-  for (const char* path : candidates) {
+  for (const char* path: candidates) {
     auto dev = ScopedDevice::open(path);
     if (!dev.valid()) continue;
 
@@ -284,14 +284,14 @@ Result<std::vector<std::uint8_t>> read_physical(std::uint64_t phys_addr, std::si
   void* map = ::mmap(nullptr, map_size, PROT_READ, MAP_SHARED, fd,
                      static_cast<off_t>(page_start));
   if (map == MAP_FAILED) {
-    ::close(fd);
+::close(fd);
     return os_error("mmap /dev/mem");
   }
 
   std::vector<std::uint8_t> result(size);
   std::memcpy(result.data(), static_cast<std::uint8_t*>(map) + offset, size);
-  ::munmap(map, map_size);
-  ::close(fd);
+::munmap(map, map_size);
+::close(fd);
   return result;
 
 #elif LR_PLATFORM_WINDOWS
@@ -337,13 +337,13 @@ Result<void> write_physical(std::uint64_t phys_addr,
   void* map = ::mmap(nullptr, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
                      static_cast<off_t>(page_start));
   if (map == MAP_FAILED) {
-    ::close(fd);
+::close(fd);
     return os_error("mmap /dev/mem for write");
   }
 
   std::memcpy(static_cast<std::uint8_t*>(map) + offset, data.data(), data.size());
-  ::munmap(map, map_size);
-  ::close(fd);
+::munmap(map, map_size);
+::close(fd);
   return Result<void>();
 
 #elif LR_PLATFORM_WINDOWS
@@ -408,4 +408,3 @@ Result<void> write_physical(std::uint64_t phys_addr,
 }
 
 }  // namespace real::kernel::mem
-

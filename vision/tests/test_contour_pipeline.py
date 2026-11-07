@@ -175,7 +175,7 @@ def test_ring_header_wire_contract() -> None:
     # The wire contract consumers rely on; guard it against accidental change.
     assert HEADER_SIZE == 48
     assert MAGIC == 0x4356_3153
-    # The constant is the big-endian spelling of the name "CV1S" — the wire
+    # The constant is the big-endian spelling of the name "CV1S", the wire
     # bytes themselves read "S1VC" (see the MAGIC comment in shared.py).
     assert struct.pack(">I", MAGIC) == b"CV1S"
     assert struct.pack("<I", MAGIC) == b"S1VC"

@@ -29,18 +29,18 @@ bool hide_current_thread() noexcept {
 bool is_current_thread_hidden() noexcept {
   auto& api = g_Api();
   api.ensure_resolved();
-  // NtQueryInformationThread may not be in ApiTable — resolve from ntdll
+  // NtQueryInformationThread may not be in ApiTable, resolve from ntdll
   using NtQueryInformationThread_t = NTSTATUS(NTAPI*)(HANDLE, ULONG, PVOID, ULONG, PULONG);
   static NtQueryInformationThread_t NtQueryInformationThread = nullptr;
   if (!NtQueryInformationThread) {
     HMODULE ntdll = ::GetModuleHandleW(L"ntdll.dll");
     if (ntdll) {
       NtQueryInformationThread = reinterpret_cast<NtQueryInformationThread_t>(
-          ::GetProcAddress(ntdll, "NtQueryInformationThread"));
+::GetProcAddress(ntdll, "NtQueryInformationThread"));
     }
   }
   if (!NtQueryInformationThread) {
-    // Cannot query — if hide_current_thread was called we still return false.
+    // Cannot query, if hide_current_thread was called we still return false.
     return false;
   }
   BOOLEAN hidden = FALSE;

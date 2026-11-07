@@ -1,4 +1,4 @@
-// webradar_service.cpp — R5 web-radar service core. See webradar_service.hpp.
+// webradar_service.cpp: R5 web-radar service core. See webradar_service.hpp.
 
 #include "radar/webradar_service.hpp"
 
@@ -34,7 +34,7 @@ void WebRadarService::configure(const ServiceConfig& config) {
   stats_.target_hz =
       config_.enabled
           ? 1000u / std::max<std::uint32_t>(config_.interval_ms, 1u)
-          : 0u;
+: 0u;
 }
 
 bool WebRadarService::origin_allowed(const std::string& origin) const {
@@ -102,7 +102,7 @@ std::string WebRadarService::poll_client(std::uint64_t client_id,
   // interval gate: treat the step as "a full interval has passed".
   const bool clock_went_backwards = now_ms < client.last_sent_ms;
   const std::uint64_t elapsed =
-      clock_went_backwards ? config_.interval_ms : now_ms - client.last_sent_ms;
+      clock_went_backwards ? config_.interval_ms: now_ms - client.last_sent_ms;
   if (client.last_sent_ms != 0 && elapsed < config_.interval_ms) {
     return {};
   }
@@ -115,7 +115,7 @@ std::string WebRadarService::poll_client(std::uint64_t client_id,
   // Latest-frame semantics: frames the client never observed are counted as
   // coalesced (superseded before send). When the client's own poll cadence
   // is slow (more than twice the publish interval between polls) the same
-  // loss is additionally attributed to client slowness — the pair of
+  // loss is additionally attributed to client slowness, the pair of
   // counters distinguishes producer coalescing from consumer backpressure.
   if (client.last_sent_version != 0) {
     const std::uint64_t missed =

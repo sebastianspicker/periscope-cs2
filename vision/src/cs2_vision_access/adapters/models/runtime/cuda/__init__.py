@@ -2,15 +2,15 @@
 
 Provides a complete CUDA-accelerated inference pipeline:
 
-- **Unified pipeline** — ``GpuInferencePipeline`` chains preprocess → infer
+- **Unified pipeline**, ``GpuInferencePipeline`` chains preprocess → infer
   → decode → NMS all on GPU (with ``GpuPipelineConfig`` / ``DetectionResult``).
-- **CUDA streams** — async pipeline stages (transfer → compute → inference);
+- **CUDA streams**, async pipeline stages (transfer → compute → inference);
   the streams are wired into the pipeline for overlapping preprocess,
   inference, and post-processing.
-- **Memory pool** — pre-allocated GPU buffers for zero-allocation inference;
+- **Memory pool**, pre-allocated GPU buffers for zero-allocation inference;
   used by the decode kernels and the direct GPU letterbox preprocess.
-- **Per-operation kernels** — NMS, letterbox, YOLO decode, marching squares.
-- **CPU fallback** — every operation works without a GPU (pure NumPy).
+- **Per-operation kernels**, NMS, letterbox, YOLO decode, marching squares.
+- **CPU fallback**, every operation works without a GPU (pure NumPy).
 
 Usage::
 

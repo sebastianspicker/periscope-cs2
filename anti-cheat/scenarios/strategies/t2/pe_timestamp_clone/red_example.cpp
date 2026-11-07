@@ -55,7 +55,7 @@ bool pe_timestamp_clone_red_apply(sim::World& w, sim::Narrator& n) {
   }
   if (!cloned) return false;
 
-  n.say(sim::Side::Red, "step 5: plant co-scars — unlinked map + manual region residual");
+  n.say(sim::Side::Red, "step 5: plant co-scars, unlinked map + manual region residual");
   game->manual_mapped_region = true;
   game->has_foreign_thread = true;
   w.module_loaded = true;

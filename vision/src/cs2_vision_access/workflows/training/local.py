@@ -56,7 +56,7 @@ def resolve_train_hyperparameters(
 ) -> tuple[int, int, int]:
     """Resolve epoch/batch/imgsz, applying few-epoch smoke defaults when requested.
 
-    Explicit non-None values always win. Smoke is a plumbing check only — it does
+    Explicit non-None values always win. Smoke is a plumbing check only, it does
     not train a CS2-validated model and is not a substitute for a full run.
     """
     resolved_epochs = epochs if epochs is not None else (SMOKE_EPOCHS if smoke else DEFAULT_EPOCHS)
@@ -108,7 +108,7 @@ def _validate_dataset(
         or not config.is_file()
         or config.suffix.lower() not in {".yaml", ".yml"}
     ):
-        raise TrainingError("dataset YAML must be a regular local .yaml/.yml file")
+        raise TrainingError("dataset YAML must be a regular local.yaml/.yml file")
     config = config.resolve()
     return _normalise_dataset_yaml_contract(config, Path(dataset_root), class_names)
 
@@ -117,18 +117,18 @@ def _resolve_model_path(
     base_model: str | Path,
     allow_model_download: bool,
 ) -> str:
-    """Resolve a local .pt checkpoint or validate a downloadable model name."""
+    """Resolve a local.pt checkpoint or validate a downloadable model name."""
     base_value = str(base_model)
     base_path = Path(base_value)
     if base_path.is_file():
         if base_path.is_symlink():
             raise TrainingError("base model must not be a symlink")
         if base_path.suffix.lower() != ".pt":
-            raise TrainingError("local base model must be a .pt checkpoint")
+            raise TrainingError("local base model must be a.pt checkpoint")
         return str(base_path.resolve())
 
     if base_path.exists():
-        raise TrainingError("base model must be a regular .pt file")
+        raise TrainingError("base model must be a regular.pt file")
     if not allow_model_download:
         raise TrainingError(
             "base model is not a local file; pass --allow-model-download to permit "

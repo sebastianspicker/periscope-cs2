@@ -1,9 +1,9 @@
-// webradar_service.hpp — R5: embedded web-radar service core (portable).
+// webradar_service.hpp: R5: embedded web-radar service core (portable).
 //
 // Adapted from the research ledger (R5): cs2-dma `webradar.h` (Apache-2.0)
-// supplies the service shape — interval clamps, per-client latest-frame
+// supplies the service shape, interval clamps, per-client latest-frame
 // backpressure, coalescing/drop counters, runtime stats, fallback payload,
-// origin allowlist — and tiansongyu/cs2_cheat (MIT) supplies the endpoint
+// origin allowlist, and tiansongyu/cs2_cheat (MIT) supplies the endpoint
 // layout and threat model (HTTP/WS token is not transport security; LAN
 // only; never port-forward).
 //

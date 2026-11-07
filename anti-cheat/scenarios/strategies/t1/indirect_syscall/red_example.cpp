@@ -20,7 +20,7 @@ RedResult apply(sim::World& w) {
 
   std::printf("[red:indirect_syscall] stage + syscall attach + entity pull\n");
   t1_red::SyscallCheat client(w);
-  // Staging on; stack/etw evasions off — pure syscall-path scar for the duel.
+  // Staging on; stack/etw evasions off, pure syscall-path scar for the duel.
   auto rep = client.run_full_loop(true, false);
   ++steps;
 

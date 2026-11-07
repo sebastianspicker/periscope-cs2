@@ -19,15 +19,15 @@ RedResult apply(sim::World& w) {
     return r;
   }
 
-  // Step 2: representation A — per-build watermark text.
+  // Step 2: representation A, per-build watermark text.
   w.build_watermark = "wm:watermark-a7:distribution";
   ++r.steps;
 
-  // Step 3: representation B — per-build build id (distinct from baseline).
+  // Step 3: representation B, per-build build id (distinct from baseline).
   w.binary_build_id = "wm-build-a7";
   ++r.steps;
 
-  // Step 4: representation C — shared sections carrying the provenance name.
+  // Step 4: representation C, shared sections carrying the provenance name.
   // The same section name is retained twice on purpose: the blue lesson is to
   // count the repeated evidence once, keeping three representations in total.
   w.add_section({kProvenanceSection, r.actor_pid, w.game_pid(), false});

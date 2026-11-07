@@ -1,4 +1,4 @@
-"""Output sinks for the live pipeline — protocol and concrete implementations.
+"""Output sinks for the live pipeline, protocol and concrete implementations.
 
 Output sinks receive each rendered frame and deliver it to an external
 destination such as a video file, PNG sequence, or streaming compositor.

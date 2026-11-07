@@ -1,4 +1,4 @@
-// ssn_resolve.hpp — Hell's Gate / Halo's Gate / Tartarus' Gate SSN recovery.
+// ssn_resolve.hpp: Hell's Gate / Halo's Gate / Tartarus' Gate SSN recovery.
 //
 // When EDR/AC hooks ntdll stubs (jmp/call at prologue), the classic
 // "read mov eax, SSN; syscall; ret" pattern fails. These algorithms recover
@@ -6,10 +6,10 @@
 // exports and adjusting the index delta.
 //
 // Order of attempts for resolve_ssn_robust():
-//   1. Hell's Gate  — direct stub parse (clean ntdll)
-//   2. Halo's Gate  — neighbor walk by address when target is hooked
-//   3. Tartarus' Gate — scan deeper into the function body past a JMP hook
-//   4. Sorted-export index — final fallback using Zw* address order
+//   1. Hell's Gate, direct stub parse (clean ntdll)
+//   2. Halo's Gate, neighbor walk by address when target is hooked
+//   3. Tartarus' Gate, scan deeper into the function body past a JMP hook
+//   4. Sorted-export index, final fallback using Zw* address order
 
 #pragma once
 
@@ -22,7 +22,7 @@
 
 namespace real::win {
 
-enum class SsnMethod : std::uint8_t {
+enum class SsnMethod: std::uint8_t {
   None = 0,
   HellsGate,      // clean stub at export
   HalosGate,      // recovered from neighbor

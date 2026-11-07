@@ -2,7 +2,7 @@
 
 // Server interest management / fog-of-war for the educational lab.
 // Structural counter: only replicate entities the observer should know about.
-// Simulated educational policy — not a production game server.
+// Simulated educational policy, not a production game server.
 
 #include "ac/types.hpp"
 
@@ -38,7 +38,7 @@ struct InterestFilterStats {
 
 /// Structural counter: only replicate entities the observer should know about.
 ///
-/// Lab policy (deterministic, pure — no I/O or World mutation):
+/// Lab policy (deterministic, pure, no I/O or World mutation):
 /// - Dead entities are never replicated.
 /// - Same-team alive entities are always replicated (including self).
 /// - Enemy alive entities are replicated only when within `enemy_radius`

@@ -218,7 +218,7 @@ Result<void> D3D11RenderPipeline::resize_swap_chain(int w, int h)
                                     DXGI_FORMAT_UNKNOWN, 0);
   if (FAILED(hr)) return Result<void>("swap-chain ResizeBuffers failed");
   auto r = create_render_target();
-  // Resize drops layered state on some builds — re-assert color-key immediately.
+  // Resize drops layered state on some builds, re-assert color-key immediately.
   if (hwnd_) configure_overlay_transparency(hwnd_, style_.window_alpha);
   return r;
 }
@@ -233,7 +233,7 @@ Result<void> D3D11RenderPipeline::create_render_target()
   if (FAILED(hr)) return Result<void>("swap-chain GetBuffer failed");
   hr = device_->CreateRenderTargetView(backbuffer, nullptr, &rtv_);
   backbuffer->Release();
-  return FAILED(hr) ? Result<void>("CreateRenderTargetView failed") : Result<void>();
+  return FAILED(hr) ? Result<void>("CreateRenderTargetView failed"): Result<void>();
 }
 
 Result<void> D3D11RenderPipeline::create_pipeline_resources()
@@ -258,8 +258,8 @@ Result<void> D3D11RenderPipeline::create_pipeline_resources()
     return Result<void>("CreateRasterizerState failed");
 
   static constexpr const char* vertex_shader = R"(
-    struct VSIn { float2 pos : POSITION; float2 uv : TEXCOORD; float4 col : COLOR; };
-    struct VSOut { float4 pos : SV_Position; float2 uv : TEXCOORD; float4 col : COLOR; };
+    struct VSIn { float2 pos: POSITION; float2 uv: TEXCOORD; float4 col: COLOR; };
+    struct VSOut { float4 pos: SV_Position; float2 uv: TEXCOORD; float4 col: COLOR; };
     VSOut main(VSIn input) {
       VSOut output;
       output.pos = float4(input.pos, 0.0f, 1.0f);
@@ -269,8 +269,8 @@ Result<void> D3D11RenderPipeline::create_pipeline_resources()
     }
   )";
   static constexpr const char* pixel_shader = R"(
-    struct PSIn { float4 pos : SV_Position; float2 uv : TEXCOORD; float4 col : COLOR; };
-    float4 main(PSIn input) : SV_Target { return input.col; }
+    struct PSIn { float4 pos: SV_Position; float2 uv: TEXCOORD; float4 col: COLOR; };
+    float4 main(PSIn input): SV_Target { return input.col; }
   )";
 
   ID3DBlob* vs_blob = nullptr;
@@ -279,14 +279,14 @@ Result<void> D3D11RenderPipeline::create_pipeline_resources()
   HRESULT hr = D3DCompile(vertex_shader, std::strlen(vertex_shader), nullptr, nullptr,
                           nullptr, "main", "vs_4_0", 0, 0, &vs_blob, &errors);
   if (FAILED(hr)) {
-    const std::string error = errors ? static_cast<const char*>(errors->GetBufferPointer()) : "unknown error";
+    const std::string error = errors ? static_cast<const char*>(errors->GetBufferPointer()): "unknown error";
     release(errors);
     return Result<void>(std::string("vertex shader compilation failed: ") + error);
   }
   hr = D3DCompile(pixel_shader, std::strlen(pixel_shader), nullptr, nullptr, nullptr,
                   "main", "ps_4_0", 0, 0, &ps_blob, &errors);
   if (FAILED(hr)) {
-    const std::string error = errors ? static_cast<const char*>(errors->GetBufferPointer()) : "unknown error";
+    const std::string error = errors ? static_cast<const char*>(errors->GetBufferPointer()): "unknown error";
     release(errors);
     release(vs_blob);
     return Result<void>(std::string("pixel shader compilation failed: ") + error);
@@ -319,7 +319,7 @@ Result<void> D3D11RenderPipeline::create_pipeline_resources()
   index_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
   index_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
   return FAILED(device_->CreateBuffer(&index_desc, nullptr, &ib_))
-      ? Result<void>("CreateBuffer for indices failed") : Result<void>();
+      ? Result<void>("CreateBuffer for indices failed"): Result<void>();
 }
 
 #endif  // LR_PLATFORM_WINDOWS

@@ -1,4 +1,4 @@
-// lab_bridge.cpp — map fps::Scenario players → EntitySnapshot + sim::World.
+// lab_bridge.cpp: map fps::Scenario players → EntitySnapshot + sim::World.
 // plant_lab_entities-compatible layout for RPM/lab radar readers.
 
 #include "fps/lab_bridge.hpp"
@@ -76,7 +76,7 @@ bool sync_entities_to_sim(const Scenario& sc, sim::World& w) {
   const std::uint32_t count =
       static_cast<std::uint32_t>(std::min<std::size_t>(players.size(), 32));
   static_assert(32 <=
-                (std::numeric_limits<std::size_t>::max() - 0x10) / sizeof(LabEnt));
+                (std::numeric_limits<std::size_t> ::max() - 0x10) / sizeof(LabEnt));
   const std::size_t need = 0x10 + static_cast<std::size_t>(count) * sizeof(LabEnt);
   if (g->memory.size() < need) {
     g->memory.resize(std::max(need, static_cast<std::size_t>(0x10 + 32 * sizeof(LabEnt))),
@@ -91,7 +91,7 @@ bool sync_entities_to_sim(const Scenario& sc, sim::World& w) {
     e.y = players[i].origin.y;
     e.z = players[i].origin.z;
     e.team = static_cast<std::uint8_t>(players[i].team);
-    e.alive = players[i].alive ? 1 : 0;
+    e.alive = players[i].alive ? 1: 0;
     const auto entity_bytes =
         std::bit_cast<std::array<std::uint8_t, sizeof(LabEnt)>>(e);
     const auto offset = 0x10 + static_cast<std::size_t>(i) * sizeof(LabEnt);
@@ -106,7 +106,7 @@ bool sync_entities_to_sim(const Scenario& sc, sim::World& w) {
 
 sim::World make_lab_world_from_scenario(const Scenario& sc,
                                         const char* game_name) {
-  auto w = sim::make_arena(game_name ? game_name : "dusty-fps.exe");
+  auto w = sim::make_arena(game_name ? game_name: "dusty-fps.exe");
   // Replace default planted entities with scenario players.
   if (!sync_entities_to_sim(sc, w)) {
     w.note("fps lab_bridge sync failed (no game process)");

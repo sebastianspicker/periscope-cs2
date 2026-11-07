@@ -1,4 +1,4 @@
-"""train-auto subcommand — config-driven multi-stage training orchestration."""
+"""train-auto subcommand, config-driven multi-stage training orchestration."""
 
 from __future__ import annotations
 
@@ -30,7 +30,7 @@ def register_train_auto_commands(subcommands: Subcommands) -> None:
         "--config",
         type=Path,
         required=True,
-        help="path to train-auto config (.json / .yaml / .yml)",
+        help="path to train-auto config (.json /.yaml /.yml)",
     )
     train_auto.add_argument(
         "--force",

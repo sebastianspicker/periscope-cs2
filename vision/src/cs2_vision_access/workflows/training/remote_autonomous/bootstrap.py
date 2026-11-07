@@ -64,7 +64,7 @@ def _phase_bootstrap_labels(
             artifacts_dir = _resolve_edgesam_artifacts_dir(data_dir, edgesam_artifacts_dir)
             notes.append(f"edgesam artifacts_dir={artifacts_dir}")
             print(
-                "Sparse labels — EdgeSAM auto-label "
+                "Sparse labels, EdgeSAM auto-label "
                 f"(artifacts={artifacts_dir}, download={download_edgesam})..."
             )
             edgesam_result = deps.bootstrap_with_edgesam(
@@ -117,7 +117,7 @@ def _phase_bootstrap_labels(
 
         if not used_edgesam and (not use_edgesam or edgesam_coco_fallback):
             print(
-                "Sparse labels — bootstrapping player-shaped polygons with YOLO-seg "
+                "Sparse labels, bootstrapping player-shaped polygons with YOLO-seg "
                 "COCO person (shape prior for CS2 silhouettes)..."
             )
             # Product player is class 0 in PRODUCT_CLASSES; remapped from COCO person.

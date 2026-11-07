@@ -1,4 +1,4 @@
-// T0 BLUE prototype — handle graph + co-occurrence against a simulated T0 red.
+// T0 BLUE prototype, handle graph + co-occurrence against a simulated T0 red.
 
 #include "ac/proto_log.hpp"
 #include "ac/risk_score.hpp"
@@ -49,6 +49,6 @@ int main() {
   const bool detected = !handles.suspicious().empty();
   ac::proto_kv("T0_DETECTED", detected);
   std::puts(detected ? "prototype ok (t0 red surface caught)"
-                     : "prototype FAIL");
-  return detected ? 0 : 1;
+: "prototype FAIL");
+  return detected ? 0: 1;
 }

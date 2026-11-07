@@ -1,7 +1,7 @@
 #pragma once
 
 // Multi-invariant HV trust aggregation over time (ranked policy depth).
-// Not a single World bool — aggregates inconsistent signals across samples.
+// Not a single World bool, aggregates inconsistent signals across samples.
 
 #include "sim/world.hpp"
 
@@ -31,7 +31,7 @@ struct TrustSample {
   std::string hv_vendor;
 };
 
-enum class TrustAction : std::uint8_t {
+enum class TrustAction: std::uint8_t {
   Allow = 0,
   SoftFlag,
   BlockRanked,

@@ -1,4 +1,4 @@
-// tri_loader.hpp — R11 (portable half): map-collision `.tri` file format.
+// tri_loader.hpp: R11 (portable half): map-collision `.tri` file format.
 //
 // Format (documented here; the extraction pipeline that produces the files
 // from game assets is the lab/script half of ledger R11):

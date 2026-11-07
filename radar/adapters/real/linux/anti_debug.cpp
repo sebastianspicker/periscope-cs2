@@ -1,4 +1,4 @@
-// anti_debug.cpp — Linux tracer / debugger detection sensors.
+// anti_debug.cpp: Linux tracer / debugger detection sensors.
 
 #include "real/linux/anti_debug.hpp"
 #include "real/platform.hpp"
@@ -73,9 +73,9 @@ Result<bool> self_ptrace_detected() noexcept {
     if (::ptrace(PTRACE_TRACEME, 0, nullptr, nullptr) < 0) {
         return true;
     }
-    // Undo — detach by raising and ignoring is messy; call TRACEME only once.
+    // Undo, detach by raising and ignoring is messy; call TRACEME only once.
     // After successful TRACEME we are "tracing ourselves"; detach via:
-    ::ptrace(PTRACE_DETACH, ::getpid(), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, ::getpid(), nullptr, nullptr);
     return false;
 #else
     return Result<bool>(false, "self_ptrace_detected requires Linux");

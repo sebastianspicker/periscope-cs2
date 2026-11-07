@@ -20,7 +20,7 @@ BlueResult Blue::detect(const sim::World& w) noexcept {
   std::printf("[blue:thread_4kb_signature] sensor 2: 4KB signature buffer pattern scan\n");
   constexpr std::string_view bad_strings[] = {
       "OpenProcess", "ReadProcessMemory", "cheat", "radar", "VAC", "injection"};
-  for (const auto s : bad_strings) {
+  for (const auto s: bad_strings) {
     const std::size_t slen = s.size();
     if (w.thread_start_4kb.size() < slen) continue;
     for (std::size_t i = 0; i + slen <= w.thread_start_4kb.size(); ++i) {
@@ -37,9 +37,9 @@ BlueResult Blue::detect(const sim::World& w) noexcept {
 
   std::printf("[blue:thread_4kb_signature] sensor 3: return-address chain residual (LESSON)\n");
   int suspicious_frames = 0;
-  for (const auto addr : w.thread_return_chain) {
+  for (const auto addr: w.thread_return_chain) {
     bool in_mod = false;
-    for (const auto& [pid, proc] : w.processes) {
+    for (const auto& [pid, proc]: w.processes) {
       (void)pid;
       for (const auto& mod : proc.modules) {
         if (addr >= mod.base && addr < mod.base + mod.size) {
@@ -78,8 +78,8 @@ BlueResult Blue::detect(const sim::World& w) noexcept {
   if (r.detail.empty()) r.detail = "no_thread_signature_signals";
 
   std::printf("[blue:thread_4kb_signature] patterns=%d rwx=%d chain=%d handle=%d signals=%d detected=%d\n",
-              r.patterns_found, r.rwx_detected ? 1 : 0, chain_hit ? 1 : 0,
-              foreign_handle ? 1 : 0, signals, r.detected ? 1 : 0);
+              r.patterns_found, r.rwx_detected ? 1: 0, chain_hit ? 1: 0,
+              foreign_handle ? 1: 0, signals, r.detected ? 1: 0);
   return r;
 }
 
@@ -87,9 +87,9 @@ BlueResult Blue::mitigate(sim::World& w) noexcept {
   BlueResult r = detect(w);
   if (r.detected) {
     w.ranked_access_denied = true;
-    w.note("thread_4kb_signature: BLUE mitigated — thread flagged for server-side review");
+    w.note("thread_4kb_signature: BLUE mitigated, thread flagged for server-side review");
   }
-  std::printf("[blue:thread_4kb_signature] mitigate detected=%d\n", r.detected ? 1 : 0);
+  std::printf("[blue:thread_4kb_signature] mitigate detected=%d\n", r.detected ? 1: 0);
   return r;
 }
 

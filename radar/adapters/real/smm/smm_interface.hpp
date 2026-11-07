@@ -1,4 +1,4 @@
-// smm_interface.hpp — Real SMM (System Management Mode) research stack.
+// smm_interface.hpp: Real SMM (System Management Mode) research stack.
 //
 // Covers: SW-SMI trigger, CMOS, SMM communicate protocol, SMRAM/TSEG
 // discovery, ACPI table ops, EFI runtime variables, TPM PCR ops, and
@@ -41,7 +41,7 @@ Result<void> smi_cmos_write(std::uint16_t index, std::uint8_t value);
 /// Read a value from CMOS via index port.
 Result<std::uint8_t> smi_cmos_read(std::uint16_t index);
 
-/// Dump CMOS bank [0, length) — length capped at 256.
+/// Dump CMOS bank [0, length), length capped at 256.
 Result<std::vector<std::uint8_t>> cmos_dump(std::size_t length = 128);
 
 /// Communicate with an SMM handler via a shared physical buffer.

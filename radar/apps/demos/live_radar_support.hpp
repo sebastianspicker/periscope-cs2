@@ -1,4 +1,4 @@
-// live_radar_support.hpp — helpers/globals shared by live_radar demo TUs.
+// live_radar_support.hpp: helpers/globals shared by live_radar demo TUs.
 #pragma once
 
 #include "real/real_fwd.hpp"

@@ -2,7 +2,7 @@
 
 Periscope is a set of four CS2 research projects with different threat models and licenses. They are research tools you build and configure yourself, and targeting a live, running game is in scope ([decision 0002](docs/decisions/0002-live-game-use-permitted.md)).
 
-| If you want to... | Start here | What you get | Status |
+| If you want to, ... | Start here | What you get | Status |
 |---|---|---|---|
 | see players on a map while the game runs | [`radar/`](radar/) | External radar with optional Windows real backends, a local web view and a relay | Usable on Windows with real backends enabled; everything defaults to simulation |
 | put outlines on visible players | [`vision/`](vision/) | Pixel-only capture and outline package with a CLI | Pre-alpha, CPU-first, HDMI second-device path is Windows-only |

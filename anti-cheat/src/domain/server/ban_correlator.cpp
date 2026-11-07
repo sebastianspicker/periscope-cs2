@@ -1,4 +1,4 @@
-// ban_correlator.cpp — multi-signal BanCorrelator (delayed ban / confidence fusion).
+// ban_correlator.cpp: multi-signal BanCorrelator (delayed ban / confidence fusion).
 // Structural blue: correlates weak signals over time, not instant rageban.
 
 #include "server/ban_correlator.hpp"

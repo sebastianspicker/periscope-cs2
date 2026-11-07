@@ -1,4 +1,4 @@
-// handle_inherit_detect — multi-step parent/child inherit; multi-reason blue.
+// handle_inherit_detect, multi-step parent/child inherit; multi-reason blue.
 
 #include "strategies/framework.hpp"
 

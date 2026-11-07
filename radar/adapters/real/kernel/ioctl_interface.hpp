@@ -1,4 +1,4 @@
-// ioctl_interface.hpp — Device open / IOCTL / close for kernel device objects.
+// ioctl_interface.hpp: Device open / IOCTL / close for kernel device objects.
 //
 // LESSON: Device opens and IOCTL requests are observable through handle tables,
 // syscall telemetry, and IRP tracing. This backend performs real Windows
@@ -43,12 +43,12 @@ Result<void> close_device(DeviceHandle device);
 
 /// RAII owner for a device handle: the handle is closed exactly once, on
 /// every exit path (the manual close-per-branch pattern this replaces is
-/// where handle leaks come from — assessment ledger E17). Movable, not
+/// where handle leaks come from, assessment ledger E17). Movable, not
 /// copyable.
 class ScopedDevice {
  public:
   ScopedDevice() = default;
-  explicit ScopedDevice(DeviceHandle device) : device_(device) {}
+  explicit ScopedDevice(DeviceHandle device): device_(device) {}
   ~ScopedDevice() {
     if (is_valid_device_handle(device_)) {
       (void)close_device(device_);
@@ -56,7 +56,7 @@ class ScopedDevice {
   }
   ScopedDevice(const ScopedDevice&) = delete;
   ScopedDevice& operator=(const ScopedDevice&) = delete;
-  ScopedDevice(ScopedDevice&& other) noexcept : device_(other.device_) {
+  ScopedDevice(ScopedDevice&& other) noexcept: device_(other.device_) {
     other.device_.native = 0;
   }
   ScopedDevice& operator=(ScopedDevice&& other) noexcept {
@@ -100,7 +100,7 @@ struct ChunkPlan {
 };
 
 /// Split ``[address, address+total)`` into device-sized chunks (ledger E17:
-/// chunk boundaries are explicit, overflow-checked, and testable — the
+/// chunk boundaries are explicit, overflow-checked, and testable, the
 /// callers never hand-write the loop math).
 inline std::vector<ChunkPlan> plan_chunked_read(std::uint64_t address,
                                                 std::size_t total,
@@ -109,7 +109,7 @@ inline std::vector<ChunkPlan> plan_chunked_read(std::uint64_t address,
   if (total == 0 || max_chunk == 0) return plan;
   std::size_t done = 0;
   while (done < total) {
-    const std::size_t chunk = total - done < max_chunk ? total - done : max_chunk;
+    const std::size_t chunk = total - done < max_chunk ? total - done: max_chunk;
     if (!chunk_range_ok(address, done, chunk)) {
       plan.clear();  // range would overflow: refuse the whole read
       return plan;
@@ -134,7 +134,7 @@ inline std::vector<ChunkPlan> plan_chunked_read_pages(std::uint64_t address,
     const std::uint64_t current = address + done;
     const std::size_t page_room =
         static_cast<std::size_t>(page_size - (current & (page_size - 1)));
-    std::size_t chunk = total - done < max_chunk ? total - done : max_chunk;
+    std::size_t chunk = total - done < max_chunk ? total - done: max_chunk;
     if (chunk > page_room) chunk = page_room;
     if (!chunk_range_ok(address, done, chunk)) {
       plan.clear();

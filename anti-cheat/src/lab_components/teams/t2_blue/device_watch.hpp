@@ -1,4 +1,4 @@
-// device_watch.hpp — T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
+// device_watch.hpp: T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #pragma once

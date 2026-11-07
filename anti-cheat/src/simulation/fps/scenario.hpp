@@ -1,7 +1,7 @@
 #pragma once
 
 // Counter-Strike-inspired bomb-defuse FPS scenario (headless, Simulated).
-// Plant/defuse/drop/economy rules for the anti-cheat lab — not Valve netcode.
+// Plant/defuse/drop/economy rules for the anti-cheat lab, not Valve netcode.
 
 #include "fps/map.hpp"
 
@@ -11,19 +11,19 @@
 
 namespace fps {
 
-enum class Team : std::uint8_t {
+enum class Team: std::uint8_t {
   Attacker = 0,  // plant side (T)
   Defender = 1,  // defuse side (CT)
 };
 
-enum class RoundPhase : std::uint8_t {
+enum class RoundPhase: std::uint8_t {
   Buy = 0,  // freeze / buy time
   Live,
   BombPlanted,
   RoundEnd,
 };
 
-enum class RoundOutcome : std::uint8_t {
+enum class RoundOutcome: std::uint8_t {
   None = 0,
   AttackersWinExplode,
   AttackersWinEliminate,
@@ -33,7 +33,7 @@ enum class RoundOutcome : std::uint8_t {
 };
 
 // Lab weapon class (minimal CS flavor for buy/damage).
-enum class WeaponClass : std::uint8_t {
+enum class WeaponClass: std::uint8_t {
   None = 0,
   Pistol,
   Rifle,

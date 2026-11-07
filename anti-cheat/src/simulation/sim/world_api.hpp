@@ -1,5 +1,5 @@
 #pragma once
-// world_api.hpp — sim::World method declarations (included inside struct World).
+// world_api.hpp: sim::World method declarations (included inside struct World).
 
   void note(std::string line);
   std::uint32_t spawn(std::string name, bool game = false, bool ac = false,

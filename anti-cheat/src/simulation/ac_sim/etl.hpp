@@ -1,6 +1,6 @@
 #pragma once
 
-// Execution Timeline Logger (ETL) — structured ring buffer of subsystem events.
+// Execution Timeline Logger (ETL), structured ring buffer of subsystem events.
 // Every radar subsystem records Init/Frame/MemoryRead/... events for post-run
 // verification. Stack-only messages; no heap in the hot path.
 //
@@ -12,7 +12,7 @@
 
 namespace sim {
 
-/// Fixed message buffer — no heap, no exceptions.
+/// Fixed message buffer, no heap, no exceptions.
 struct EtlMessage {
     char buf[256]{};
 
@@ -54,7 +54,7 @@ private:
     }
 };
 
-enum class EtlEventType : std::uint8_t {
+enum class EtlEventType: std::uint8_t {
     Init = 0,
     Frame,
     MemoryRead,

@@ -38,7 +38,7 @@ RedResult apply(sim::World& w) {
   w.server_sends_full_enemy_origin = true;
   ++steps;
 
-  // Phase 3: client holds session key and exfils it — encryption alone fails.
+  // Phase 3: client holds session key and exfils it, encryption alone fails.
   w.client_has_stream_key = true;
   w.stream_key_exfiltrated = true;
   r.has_key = true;

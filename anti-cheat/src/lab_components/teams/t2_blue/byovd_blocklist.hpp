@@ -1,4 +1,4 @@
-// byovd_blocklist.hpp — T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
+// byovd_blocklist.hpp: T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #pragma once

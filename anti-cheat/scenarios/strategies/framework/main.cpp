@@ -1,4 +1,4 @@
-// main.cpp — strategy_lab CLI:
+// main.cpp: strategy_lab CLI:
 //   list [--family <F>] [--tier <T>] | stats | all [--quiet] [--family <F>]
 //   [--tier <T>] | run <id> | attach | mode.
 // Dual-mode dispatch: strategies run against real CS2 and/or sim::World.
@@ -11,10 +11,10 @@
 //   - `stats` prints a summary table (families, tiers, real-capable).
 //
 // Quick start:
-//   ./build/strategy_lab attach              # Check if CS2 is running
-//   ./build/strategy_lab run 01_external_rpm # Dual mode (real + sim)
-//   ./build/strategy_lab mode sim            # Force sim-only mode
-//   LR_MODE=real ./build/strategy_lab run 01_external_rpm  # Env override
+//./build/strategy_lab attach              # Check if CS2 is running
+//./build/strategy_lab run 01_external_rpm # Dual mode (real + sim)
+//./build/strategy_lab mode sim            # Force sim-only mode
+//   LR_MODE=real./build/strategy_lab run 01_external_rpm  # Env override
 
 #include "strategies/framework.hpp"
 
@@ -74,7 +74,7 @@ const char* canonical_family(const char* s) {
 // Canonicalize a tier name to "T0".."T4"; nullptr if not a valid tier.
 const char* canonical_tier(const char* s) {
   static const char* const kTiers[] = {"T0", "T1", "T2", "T3", "T4"};
-  for (const char* t : kTiers) {
+  for (const char* t: kTiers) {
     if (strategies::iequals(t, s)) return t;
   }
   return nullptr;
@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
       }
       const char* real_tag = strategies::supports_real_mode(e.meta)
                                  ? "[real-capable]"
-                                 : "[sim-only]    ";
+: "[sim-only]    ";
       std::printf("%-22s %s [%s] %s\n", e.meta.id, real_tag,
                   e.meta.tiers, e.meta.title);
       std::printf("%-22s  red: %s\n", "", e.meta.red_one_liner);
@@ -273,7 +273,7 @@ int main(int argc, char** argv) {
     const bool pass = effective.blue_detected ||
                       effective.blue_mitigated ||
                       !effective.red_achieved;
-    return pass ? 0 : 1;
+    return pass ? 0: 1;
   }
 
   // ── attach ──────────────────────────────────────────────────────

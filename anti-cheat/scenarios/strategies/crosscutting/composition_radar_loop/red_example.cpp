@@ -21,7 +21,7 @@ RedResult apply(sim::World& w) {
 
   // Phase 1–2: pattern scan + layout mutate + refresh (offset rot lesson).
   // Re-plant marker on current game memory for AOB path without wiping CS ents
-  // if memory large enough — pattern scan uses plant_lab_entities if needed.
+  // if memory large enough, pattern scan uses plant_lab_entities if needed.
   examples::pattern_offset_scan::ScannerSession session;
   // Attach pattern scanner process on same World.
   auto scan = examples::pattern_offset_scan::apply(w, session);
@@ -36,9 +36,9 @@ RedResult apply(sim::World& w) {
                r.entities >= 2;
   r.detail = "composition red cs_ents=" + std::to_string(cs.entity_count) +
              " site=" + cs.site +
-             " scan=" + std::to_string(scan.achieved ? 1 : 0) +
-             " refresh=" + std::to_string(r.refreshed ? 1 : 0) +
-             " overlay=" + std::to_string(ov.achieved ? 1 : 0);
+             " scan=" + std::to_string(scan.achieved ? 1: 0) +
+             " refresh=" + std::to_string(r.refreshed ? 1: 0) +
+             " overlay=" + std::to_string(ov.achieved ? 1: 0);
   w.note(r.detail);
   return r;
 }

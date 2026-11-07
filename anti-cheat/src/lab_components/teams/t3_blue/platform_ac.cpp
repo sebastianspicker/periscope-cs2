@@ -1,4 +1,4 @@
-// platform_ac.cpp — T3 blue platform/HV sensor using World.trust posture flags.
+// platform_ac.cpp: T3 blue platform/HV sensor using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #include "t3_blue/platform_ac.hpp"
@@ -11,7 +11,7 @@ namespace t3_blue {
 // Educational multi-sensor platform AC on HostTrust + bridge scars.
 
 PlatformAc::PlatformAc(sim::World& world, ac::ITelemetrySink& sink)
-    : world_(world), sink_(sink) {}
+: world_(world), sink_(sink) {}
 
 // PlatformAc::require_vbs_hvci: Require VBS+HVCI posture for ranked admission.
 void PlatformAc::require_vbs_hvci(bool on) { require_trust_ = on; }
@@ -28,9 +28,9 @@ PlatformDetection PlatformAc::evaluate_ranked() {
     d.policy_fail = true;
     d.reasons.push_back("ranked requires VBS+HVCI");
     ac::TelemetryEvent ev{.kind = ac::EventKind::TrustPolicyFail,
-                          .related_tier = ac::Tier::T3_Hypervisor,
-                          .detail = "vbs_hvci_off",
-                          .risk_delta = 6.0};
+.related_tier = ac::Tier::T3_Hypervisor,
+.detail = "vbs_hvci_off",
+.risk_delta = 6.0};
     sink_.emit(ev);
     risk_.ingest(ev);
   }
@@ -58,9 +58,9 @@ PlatformDetection PlatformAc::probe_hv() {
     d.hv_anomaly = true;
     d.reasons.push_back("HV probe anomaly vendor=" + t.hv_vendor);
     ac::TelemetryEvent ev{.kind = ac::EventKind::HvProbeAnomaly,
-                          .related_tier = ac::Tier::T3_Hypervisor,
-                          .detail = t.hv_vendor,
-                          .risk_delta = 4.0};
+.related_tier = ac::Tier::T3_Hypervisor,
+.detail = t.hv_vendor,
+.risk_delta = 4.0};
     sink_.emit(ev);
     risk_.ingest(ev);
   }
@@ -85,9 +85,9 @@ PlatformDetection PlatformAc::scan_bridge() {
       d.bridge_hit = true;
       d.reasons.push_back("bridge driver " + dr.name);
       ac::TelemetryEvent ev{.kind = ac::EventKind::BridgeSuspected,
-                            .related_tier = ac::Tier::T3_Hypervisor,
-                            .detail = dr.name,
-                            .risk_delta = 3.0};
+.related_tier = ac::Tier::T3_Hypervisor,
+.detail = dr.name,
+.risk_delta = 3.0};
       sink_.emit(ev);
       risk_.ingest(ev);
     }
@@ -125,7 +125,7 @@ PlatformDetection PlatformAc::full() {
   d.reasons.insert(d.reasons.end(), c.reasons.begin(), c.reasons.end());
   std::ostringstream oss;
   oss << "platform risk=" << d.risk << " reasons=" << d.reasons.size()
-      << " block=" << (d.trust_aggregate_block ? 1 : 0);
+      << " block=" << (d.trust_aggregate_block ? 1: 0);
   d.detail = oss.str();
   return d;
 }

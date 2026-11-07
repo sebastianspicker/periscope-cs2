@@ -1,4 +1,4 @@
-// schema_resolver.hpp — data-only runtime schema field lookup (E55).
+// schema_resolver.hpp: data-only runtime schema field lookup (E55).
 //
 // The E13 walker resolves a field once a class-info pointer is known. The
 // missing seam was *discovery*. This resolver is the external-process
@@ -35,9 +35,8 @@ namespace detail {
 
 template <typename ReadFn>
 inline bool read_cstr_contains(std::uint64_t address, const char* needle,
-                               std::size_t max_len, ReadFn& read) {
+                               ReadFn& read) {
   if (address == 0 || needle == nullptr || *needle == '\0') return false;
-  (void)max_len;
   char buffer[160]{};
   if (!read(address, buffer, sizeof(buffer) - 1)) return false;
   return std::strstr(buffer, needle) != nullptr;
@@ -71,8 +70,7 @@ inline FieldLookup resolve_field_bruteforce(ReadFn read, std::uint64_t scope,
       continue;
     }
     if (name_ptr < 0x10000 || name_ptr == 0xFFFFFFFFFFFFFFFFull) continue;
-    if (!detail::read_cstr_contains(name_ptr, class_name,
-                                    layout.max_name_length, read)) {
+    if (!detail::read_cstr_contains(name_ptr, class_name, read)) {
       continue;
     }
 

@@ -35,7 +35,7 @@ def run_self_test(script_dir: Path, code_dir: Path) -> int:
         try:
             fn()
             print(f"  OK  {name}")
-        except Exception as exc:  # noqa: BLE001 — collect all self-test failures
+        except Exception as exc:  # noqa: BLE001, collect all self-test failures
             failures += 1
             print(f"  FAIL  {name}: {exc}", file=sys.stderr)
 
@@ -167,8 +167,8 @@ def run_self_test(script_dir: Path, code_dir: Path) -> int:
         _assert("m_iHealth = 0x34C" in hpp, "health hex")
         _assert("entity_identity_stride = 0x70" in hpp, "stride")
         _assert('kGeneratedAt = "2000-01-01T00:00:00Z"' in hpp, "timestamp")
-        _assert("PINNED DUMP — January 2000" in hpp, "pin note from timestamp")
-        # Extended symbols must appear — incomplete 8-field emit cannot pass.
+        _assert("PINNED DUMP, January 2000" in hpp, "pin note from timestamp")
+        # Extended symbols must appear, incomplete 8-field emit cannot pass.
         _assert("m_bDormant = 0x103" in hpp, "extended m_bDormant in header")
         _assert("m_ArmorValue = 0x1C9C" in hpp, "extended m_ArmorValue in header")
         _assert("m_entitySpottedState = 0x1C58" in hpp, "extended m_entitySpottedState")
@@ -220,7 +220,7 @@ def run_self_test(script_dir: Path, code_dir: Path) -> int:
         if snap_p.is_file():
             prev = load_json_path(snap_p)
             changes = diff_snapshots(prev, snap)
-            # Not asserting empty — dumps may lag snapshot — just that diff runs.
+            # Not asserting empty, dumps may lag snapshot, just that diff runs.
             _assert(isinstance(changes, list), "diff returns list")
             print(f"       on-disk vs installed snapshot: {len(changes)} value change(s)")
 

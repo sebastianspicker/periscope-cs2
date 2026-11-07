@@ -1,4 +1,4 @@
-"""Alpha-only outline renderer — outputs RGBA frames with transparent background.
+"""Alpha-only outline renderer, outputs RGBA frames with transparent background.
 
 Use cases:
   - OBS / KM Box / streaming compositing: output just the outlines with alpha
@@ -6,9 +6,9 @@ Use cases:
   - Side-by-side: overlay view + alpha view for comparison
 
 Two output modes:
-  ``alpha`` — RGBA with transparent background, just the outlines visible
-  ``green`` — RGB with green (#00FF00) background for chroma-key compositing
-  ``overlay`` — Standard BGR overlay on the captured frame (like the file pipeline)
+  ``alpha``, RGBA with transparent background, just the outlines visible
+  ``green``, RGB with green (#00FF00) background for chroma-key compositing
+  ``overlay``, Standard BGR overlay on the captured frame (like the file pipeline)
 """
 
 from __future__ import annotations
@@ -51,14 +51,14 @@ class AlphaRendererConfig:
     """Configuration for the alpha/green-screen renderer.
 
     ``output_mode``:
-      - ``alpha`` — RGBA output with transparent background
-      - ``green`` — BGR output with green background (chroma key)
-      - ``overlay`` — Standard overlay on the captured frame
+      - ``alpha``, RGBA output with transparent background
+      - ``green``, BGR output with green background (chroma key)
+      - ``overlay``, Standard overlay on the captured frame
 
-    ``fill_alpha`` — When in alpha mode, the fill opacity is scaled by this
+    ``fill_alpha``, When in alpha mode, the fill opacity is scaled by this
     factor so interior tint is semi-transparent on the alpha channel too.
 
-    ``chroma_key_color`` — BGR tuple for the green-screen background color.
+    ``chroma_key_color``, BGR tuple for the green-screen background color.
     """
 
     output_mode: str = "alpha"

@@ -119,7 +119,7 @@ def stage_validate(
         _enforce_label_class_ids(labels_dir, config, updates)
         return updates
 
-    # flat_cloud — soft validate: min labels/images; leaky train=val check
+    # flat_cloud, soft validate: min labels/images; leaky train=val check
     images_dir = root / "images"
     n_images = count_images_recursive(images_dir)
     n_labels = count_labels_recursive(labels_dir)

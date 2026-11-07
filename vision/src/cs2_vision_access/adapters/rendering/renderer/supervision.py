@@ -1,4 +1,4 @@
-"""Supervision integration — convert between InstanceMask and sv.Detections.
+"""Supervision integration, convert between InstanceMask and sv.Detections.
 
 Provides a SupervisionAnnotator that wraps supervision annotators (MaskAnnotator,
 BoxAnnotator, LabelAnnotator) as an alternative rendering path alongside the
@@ -43,11 +43,11 @@ class SupervisionBridgeError(RuntimeError):
 class SupervisionAnnotatorConfig:
     """Configuration for Supervision-based rendering.
 
-    ``mask`` — draw instance masks (uses sv.MaskAnnotator).
-    ``box`` — draw bounding boxes (uses sv.BoxAnnotator).
-    ``label`` — draw class + confidence labels (uses sv.LabelAnnotator).
-    ``trace`` — draw trace trails (uses sv.TraceAnnotator, experimental).
-    ``color_lookup`` — color assignment strategy (INDEX, CLASS, TRACK).
+    ``mask``, draw instance masks (uses sv.MaskAnnotator).
+    ``box``, draw bounding boxes (uses sv.BoxAnnotator).
+    ``label``, draw class + confidence labels (uses sv.LabelAnnotator).
+    ``trace``, draw trace trails (uses sv.TraceAnnotator, experimental).
+    ``color_lookup``, color assignment strategy (INDEX, CLASS, TRACK).
     """
 
     mask: bool = False

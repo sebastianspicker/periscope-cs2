@@ -55,3 +55,7 @@ costs a parser on each side and keeps both products deployable alone.
 
 The bridge does not make vision a memory reader. It labels outlines only when
 a radar snapshot is available; with no file, vision behaves exactly as before.
+
+Status: the contract and the vision-side loader exist and are tested. The live
+loop does not consume the snapshot yet, so no labels appear without a further
+integration step.

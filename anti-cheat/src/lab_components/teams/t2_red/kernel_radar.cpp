@@ -1,4 +1,4 @@
-// kernel_radar.cpp — T2 red kernel/BYOVD path on sim::World drivers/devices/callbacks.
+// kernel_radar.cpp: T2 red kernel/BYOVD path on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_red/kernel_radar.hpp"
@@ -13,7 +13,7 @@ namespace t2_red {
 
 // KernelRadar::KernelRadar: T2 red kernel/BYOVD radar orchestrator on World.
 KernelRadar::KernelRadar(sim::World& world, std::string ui_name)
-    : world_(world), ui_name_(std::move(ui_name)) {
+: world_(world), ui_name_(std::move(ui_name)) {
   ui_pid_ = world_.spawn(ui_name_);
   game_pid_ = world_.game_pid();
 }
@@ -53,7 +53,7 @@ bool KernelRadar::bring_up(KernelPath path) {
   last_.device = device_;
   last_.driver_sha = driver_sha_;
   last_.no_game_handle = !has_game_handle();
-  last_.detail = last_.brought_up ? "bring_up_ok" : "bring_up_failed";
+  last_.detail = last_.brought_up ? "bring_up_ok": "bring_up_failed";
   return last_.brought_up;
 }
 
@@ -75,7 +75,7 @@ void KernelRadar::enable_physmem_direct_map() {
 // KernelRadar::enable_dkom_token_steal: Mark a simulated SYSTEM token source and ACL bypass.
 void KernelRadar::enable_dkom_token_steal() {
   std::uint32_t source_pid = 0;
-  for (const auto& [pid, process] : world_.processes) {
+  for (const auto& [pid, process]: world_.processes) {
     if (process.name == "SYSTEM") {
       source_pid = pid;
       break;
@@ -263,11 +263,11 @@ KernelRadarReport KernelRadar::run_full_loop(KernelPath path, bool strip_cbs) {
   }
   std::ostringstream oss;
   oss << "full_loop entities=" << last_.entity_count
-      << " no_handle=" << (last_.no_game_handle ? 1 : 0)
-      << " byovd=" << (last_.byovd ? 1 : 0)
-      << " custom=" << (last_.custom_driver ? 1 : 0)
+      << " no_handle=" << (last_.no_game_handle ? 1: 0)
+      << " byovd=" << (last_.byovd ? 1: 0)
+      << " custom=" << (last_.custom_driver ? 1: 0)
       << " ioctl_ops=" << last_.ioctl_ops << " bytes=" << last_.bytes_read
-      << " stripped=" << (last_.callback_stripped ? 1 : 0);
+      << " stripped=" << (last_.callback_stripped ? 1: 0);
   last_.detail = oss.str();
   world_.note("t2 KernelRadar " + last_.detail);
   return last_;
@@ -296,20 +296,20 @@ KernelRadarReport KernelRadar::run_full_stealth_loop(KernelPath path) {
 
   std::ostringstream oss;
   oss << "full_stealth entities=" << last_.entity_count
-      << " no_handle=" << (last_.no_game_handle ? 1 : 0)
-      << " physmem=" << (last_.physmem_mapped ? 1 : 0)
-      << " dkom=" << (last_.dkom_stolen ? 1 : 0)
-      << " acpi=" << (last_.acpi_read ? 1 : 0)
-      << " hypercall=" << (last_.hypercall_read ? 1 : 0)
-      << " pool=" << (last_.pool_hidden ? 1 : 0)
-       << " wfp=" << (last_.wfp_installed ? 1 : 0)
-       << " etw_ti=" << (last_.etw_ti_blind ? 1 : 0)
-       << " instr=" << (last_.instr_callback ? 1 : 0)
-       << " hal_heap=" << (last_.hal_heap_exploit ? 1 : 0)
-       << " null_deref=" << (last_.null_ptr_deref ? 1 : 0)
-       << " dpc=" << (last_.dpc_execution ? 1 : 0)
+      << " no_handle=" << (last_.no_game_handle ? 1: 0)
+      << " physmem=" << (last_.physmem_mapped ? 1: 0)
+      << " dkom=" << (last_.dkom_stolen ? 1: 0)
+      << " acpi=" << (last_.acpi_read ? 1: 0)
+      << " hypercall=" << (last_.hypercall_read ? 1: 0)
+      << " pool=" << (last_.pool_hidden ? 1: 0)
+       << " wfp=" << (last_.wfp_installed ? 1: 0)
+       << " etw_ti=" << (last_.etw_ti_blind ? 1: 0)
+       << " instr=" << (last_.instr_callback ? 1: 0)
+       << " hal_heap=" << (last_.hal_heap_exploit ? 1: 0)
+       << " null_deref=" << (last_.null_ptr_deref ? 1: 0)
+       << " dpc=" << (last_.dpc_execution ? 1: 0)
        << " dpc_count=" << last_.dpc_queue_count
-       << " module_shadow=" << (last_.module_shadowing ? 1 : 0);
+       << " module_shadow=" << (last_.module_shadowing ? 1: 0);
   last_.detail = oss.str();
   world_.note("t2 KernelRadar " + last_.detail);
   return last_;

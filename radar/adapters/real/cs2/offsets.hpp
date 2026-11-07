@@ -1,4 +1,4 @@
-// offsets.hpp — Real CS2 offset resolution via signature scanning.
+// offsets.hpp: Real CS2 offset resolution via signature scanning.
 //
 // LESSON: Game updates change offsets. Cheats must either:
 //   (a) Scan memory for byte signatures (AOB pattern scan)
@@ -137,7 +137,7 @@ bool try_load_runtime_snapshot_file(Cs2Offsets& out_fields_only);
 /// (assessment ledger E12). Walks the entity list once through ``reader``,
 /// tallies how many controllers/pawns resolve and how many field reads land
 /// inside sanity ranges, and classifies the offsets as Ok / NoPlayers /
-/// Wrong. Freshness (dump timestamp) is necessary but not sufficient — this
+/// Wrong. Freshness (dump timestamp) is necessary but not sufficient, this
 /// is the semantic half of the offset gate.
 struct OffsetsValidationReport {
   validate::OffsetsValidation validation = validate::OffsetsValidation::Wrong;

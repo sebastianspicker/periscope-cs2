@@ -1,4 +1,4 @@
-// ret_addr_spoof — multi-step open/read + spoofed chain; multi-reason blue walk.
+// ret_addr_spoof, multi-step open/read + spoofed chain; multi-reason blue walk.
 
 #include "strategies/framework.hpp"
 
@@ -29,7 +29,7 @@ StrategyResult run(sim::World& w, sim::Narrator& n) {
   r.summary = det.detail.empty()
                   ? ("suspicious_frames=" + std::to_string(det.suspicious_frames) +
                      " signals=" + std::to_string(det.signals))
-                  : det.detail;
+: det.detail;
   n.result(r.blue_detected || r.blue_mitigated, r.summary);
   return r;
 }

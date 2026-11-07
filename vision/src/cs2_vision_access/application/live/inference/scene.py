@@ -8,7 +8,7 @@ carrying them across the cut produces stale, wrong outlines.
 
 The detector is deliberately cheap and dependency-free: it compares a
 downsampled grayscale thumbnail of the current frame against the previous
-one (numpy slicing only — no OpenCV in the application layer) and reports a
+one (numpy slicing only, no OpenCV in the application layer) and reports a
 cut when the mean absolute difference exceeds ``threshold`` (0-255 scale),
 subject to a ``cooldown_frames`` minimum spacing between reported cuts.
 

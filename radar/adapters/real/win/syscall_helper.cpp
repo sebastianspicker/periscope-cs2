@@ -2,7 +2,7 @@
 // Indirect Syscall Architecture (SCH-3 compliant)
 //
 // REQUIREMENT: The module must NOT contain the 0F 05 (syscall) instruction
-// in its own .text section.  Direct syscalls (embedding 0F 05 in user code)
+// in its own.text section.  Direct syscalls (embedding 0F 05 in user code)
 // are easily detected by EDRs scanning for the syscall instruction outside
 // of ntdll.dll.  This file implements *indirect* syscalls to defeat that
 // detection.
@@ -18,7 +18,7 @@
 //
 //   2. FIND GADGET
 //      find_syscall_gadget() locates a "syscall; ret" sequence
-//      (bytes 0F 05 C3) inside ntdll's .text section.
+//      (bytes 0F 05 C3) inside ntdll's.text section.
 //      This is the gadget we jump to.
 //
 //   3. INDIRECT CALL
@@ -33,7 +33,7 @@
 //   EDR hooks typically place a jmp at the start of the ntdll
 //   syscall stub to redirect to their monitoring code.  Direct
 //   syscalls bypass this hook entirely, but leave 0F 05 in the
-//   cheat's .text section -- a strong indicator.  Indirect syscalls
+//   cheat's.text section -- a strong indicator.  Indirect syscalls
 //   avoid both problems:
 //     - No 0F 05 in user code (opsec)
 //     - syscall executes from ntdll where the EDR already
@@ -118,8 +118,8 @@ static const std::uint8_t* find_export_by_name(uintptr_t moduleBase,
     const char* b = name;
     bool eq = true;
     while (*a && *b) {
-      char ca = *a >= 'A' && *a <= 'Z' ? *a + 32 : *a;
-      char cb = *b >= 'A' && *b <= 'Z' ? *b + 32 : *b;
+      char ca = *a >= 'A' && *a <= 'Z' ? *a + 32: *a;
+      char cb = *b >= 'A' && *b <= 'Z' ? *b + 32: *b;
       if (ca != cb) { eq = false; break; }
       ++a; ++b;
     }
@@ -133,7 +133,7 @@ static const std::uint8_t* find_export_by_name(uintptr_t moduleBase,
 }
 
 int resolve_ssn(const char* name) {
-  // Guard against debugger presence — if BeingDebugged is set,
+  // Guard against debugger presence, if BeingDebugged is set,
   // return fake SSNs so the syscall path fails safely.
   {
     auto* peb = peb::get_peb();
@@ -176,7 +176,7 @@ static void* find_syscall_gadget() {
     return nullptr;
   }
 
-  // Collect all "syscall; ret" (0F 05 C3) gadgets in .text
+  // Collect all "syscall; ret" (0F 05 C3) gadgets in.text
   static void* gadgets[128];
   static int gadgetCount = 0;
 
@@ -217,7 +217,7 @@ Result<void> resolve(SyscallNumber& entry, const char* name) {
 }  // namespace
 
 Result<void> SyscallTable::resolve_all() {
-  for (const std::pair<SyscallNumber*, const char*> entry : {
+  for (const std::pair<SyscallNumber*, const char*> entry: {
            std::pair{&NtOpenProcess, OBF("NtOpenProcess")},
            std::pair{&NtReadVirtualMemory, OBF("NtReadVirtualMemory")},
            std::pair{&NtClose, OBF("NtClose")},
@@ -282,10 +282,10 @@ NTSTATUS syscall_4(int ssn, std::uint64_t arg1, std::uint64_t arg2,
       "je 0f\n\t"
       "mov $0xC00000BB, %%eax\n\t"
       "0:"
-      : "=&a"(result)
-      : [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
+: "=&a"(result)
+: [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
         [arg4] "r"(arg4), [gadget] "r"(gadget), [canary] "r"(canary)
-      : "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
+: "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
   *ret_addr = orig_ret;
   return result;
 }
@@ -315,10 +315,10 @@ NTSTATUS syscall_5(int ssn, std::uint64_t arg1, std::uint64_t arg2,
       "je 0f\n\t"
       "mov $0xC00000BB, %%eax\n\t"
       "0:"
-      : "=&a"(result)
-      : [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
+: "=&a"(result)
+: [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
         [arg4] "r"(arg4), [arg5] "r"(arg5), [gadget] "r"(gadget), [canary] "r"(canary)
-      : "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
+: "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
   *ret_addr = orig_ret;
   return result;
 }
@@ -350,10 +350,10 @@ NTSTATUS syscall_6(int ssn, std::uint64_t arg1, std::uint64_t arg2,
       "je 0f\n\t"
       "mov $0xC00000BB, %%eax\n\t"
       "0:"
-      : "=&a"(result)
-      : [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
+: "=&a"(result)
+: [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
         [arg4] "r"(arg4), [arg5] "r"(arg5), [arg6] "r"(arg6), [gadget] "r"(gadget), [canary] "r"(canary)
-      : "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
+: "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
   *ret_addr = orig_ret;
   return result;
 }
@@ -386,11 +386,11 @@ NTSTATUS syscall_7(int ssn, std::uint64_t arg1, std::uint64_t arg2,
       "je 0f\n\t"
       "mov $0xC00000BB, %%eax\n\t"
       "0:"
-      : "=&a"(result)
-      : [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
+: "=&a"(result)
+: [ssn] "r"(ssn), [arg1] "r"(arg1), [arg2] "r"(arg2), [arg3] "r"(arg3),
         [arg4] "r"(arg4), [arg5] "r"(arg5), [arg6] "r"(arg6), [arg7] "r"(arg7),
         [gadget] "r"(gadget), [canary] "r"(canary)
-      : "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
+: "rcx", "rdx", "r8", "r9", "r10", "r11", "r15", "memory", "cc");
   *ret_addr = orig_ret;
   return result;
 }
@@ -414,7 +414,7 @@ NTSTATUS syscall_direct_NtDuplicateObject(HANDLE SourceProcessHandle,
                    static_cast<std::uint64_t>(Options));
 }
 #else
-// MSVC — indirect syscall via MASM assembly (syscall_msvc.asm)
+// MSVC, indirect syscall via MASM assembly (syscall_msvc.asm)
 extern "C" {
     void* g_syscall_gadget_ptr = nullptr;
     NTSTATUS syscall_asm_4(int ssn, std::uint64_t arg1, std::uint64_t arg2,

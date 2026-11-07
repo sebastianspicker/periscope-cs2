@@ -1,4 +1,4 @@
-// strategy_support.cpp — non-inline surface for the strategy support library.
+// strategy_support.cpp: non-inline surface for the strategy support library.
 // Most helpers are header-inline for pair convenience; this TU anchors the
 // library and re-exports risk/signal helpers that tests can link against.
 

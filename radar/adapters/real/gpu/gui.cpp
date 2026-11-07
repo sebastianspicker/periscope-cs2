@@ -1,4 +1,4 @@
-// gui.cpp — Immediate-mode GUI core (frame, window, tabs, style).
+// gui.cpp: Immediate-mode GUI core (frame: window, tabs, style).
 // Widget methods live in gui_widgets.cpp; radar panel in gui_radar_panel.cpp.
 
 #include "real/gpu/gui_internal.hpp"
@@ -9,7 +9,7 @@ namespace real::gpu::gui {
 // GuiSystem public methods (core)
 // ====================================================================
 
-GuiSystem::GuiSystem() : impl_(new Impl()) {}
+GuiSystem::GuiSystem(): impl_(new Impl()) {}
 GuiSystem::~GuiSystem() { delete impl_; }
 
 void GuiSystem::set_style(const GuiStyle& s) { impl_->style = s; }
@@ -140,7 +140,7 @@ bool GuiSystem::begin_tab(const char* label) {
     }
     if (!i.in.mouse_down && i.active_id == tid) i.active_id = 0;
     uint32_t col = (t == i.active_tab) ? i.style.accent
-                   : hover ? i.style.button_hover : i.style.button;
+: hover ? i.style.button_hover: i.style.button;
     i.rp->draw_rect_filled(tr.x, tr.y, tr.w, tr.h, col);
     i.rp->draw_rect(tr.x, tr.y, tr.w, tr.h, i.style.frame);
     i.draw_text_sz(tr, i.tabs[t].c_str(), i.style.text, true,

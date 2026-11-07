@@ -1,4 +1,4 @@
-// driver_guard.cpp — implements driver_guard (T2 blue).
+// driver_guard.cpp: implements driver_guard (T2 blue).
 // Key methods: set_allowlist, on_image_load, find, scan_world, find.
 
 #include "t2_blue/driver_guard.hpp"
@@ -8,7 +8,7 @@
 
 namespace t2_blue {
 
-DriverGuard::DriverGuard(ac::ITelemetrySink& sink) : sink_(sink) {}
+DriverGuard::DriverGuard(ac::ITelemetrySink& sink): sink_(sink) {}
 
 // DriverGuard::set_allowlist: Set allowlist on this lab unit.
 void DriverGuard::set_allowlist(std::vector<std::string> sha256_hex) {
@@ -21,12 +21,12 @@ void DriverGuard::on_image_load(const DriverLoadEvent& ev) {
       std::find(allowlist_.begin(), allowlist_.end(), ev.sha256_hex) !=
       allowlist_.end();
   sink_.emit(ac::TelemetryEvent{
-      .kind = ac::EventKind::DriverLoad,
-      .related_tier = ac::Tier::T2_KernelByovd,
-      .subject_pid = 0,
-      .object_pid = 0,
-      .detail = ev.path + (allowed ? "|allow" : "|unknown"),
-      .risk_delta = allowed ? 0.0 : 2.5,
+.kind = ac::EventKind::DriverLoad,
+.related_tier = ac::Tier::T2_KernelByovd,
+.subject_pid = 0,
+.object_pid = 0,
+.detail = ev.path + (allowed ? "|allow": "|unknown"),
+.risk_delta = allowed ? 0.0: 2.5,
   });
 }
 

@@ -1,4 +1,4 @@
-// radar_pipeline.cpp — Complete radar frame pipeline implementation.
+// radar_pipeline.cpp: Complete radar frame pipeline implementation.
 //
 // ALL 15+ ac_sim features are integrated here. Previously each was
 // fully implemented but NEVER instantiated or called from any pipeline.
@@ -155,7 +155,7 @@ bool FramePipeline::init_api_integrity() noexcept {
     ETL_RECORD(sim::EtlEventType::Init,
                "ApiIntegrityChecker initialized modules=" +
                    std::to_string(registered) +
-                   (g_pipeline->m_apiIntegrityOk ? " probe=ok" : " probe=fail"));
+                   (g_pipeline->m_apiIntegrityOk ? " probe=ok": " probe=fail"));
 #else
     // Non-Windows lab hosts: still mark registry ready so offline paths are
     // honest about platform support via verify_all detail strings.
@@ -277,9 +277,9 @@ bool FramePipeline::init_platform_core() noexcept {
 
         // V5-F3: Install top-level exception handler to suppress WER crash dumps.
         // Without this, an unhandled crash creates a full minidump of the cheat
-        // process in %LOCALAPPDATA%\CrashDumps — a complete forensic artifact.
-        ::SetUnhandledExceptionFilter([](PEXCEPTION_POINTERS) -> LONG {
-            ExitProcess(0);  // Terminate immediately — no WER dump
+        // process in %LOCALAPPDATA%\CrashDumps, a complete forensic artifact.
+::SetUnhandledExceptionFilter([](PEXCEPTION_POINTERS) -> LONG {
+            ExitProcess(0);  // Terminate immediately, no WER dump
             return EXCEPTION_EXECUTE_HANDLER;
         });
     }
@@ -303,7 +303,7 @@ void FramePipeline::mark_handle_shutdown(const char* name) noexcept {
 
 void FramePipeline::shutdown_rng() noexcept {
     // XorShiftPool owns process-global static instances and exposes no
-    // deinit API — the pool is intentionally seeded once for the process
+    // deinit API, the pool is intentionally seeded once for the process
     // lifetime, so teardown is limited to clearing the handle state.
     mark_handle_shutdown("RNG");
 }
@@ -471,7 +471,7 @@ namespace {
 // ══════════════════════════════════════════════════════════════════════
 
 RealFramePipeline::RealFramePipeline() noexcept {
-    // Construction only — use initialize() to start
+    // Construction only, use initialize() to start
 }
 
 RealFramePipeline::~RealFramePipeline() noexcept {
@@ -479,7 +479,7 @@ RealFramePipeline::~RealFramePipeline() noexcept {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  initialize()  —  creates SubsystemHandles, registers with
+//  initialize(),  creates SubsystemHandles, registers with
 //                   InitOrchestrator, calls initialize_all()
 // ══════════════════════════════════════════════════════════════════════
 
@@ -559,7 +559,7 @@ bool FramePipeline::initialize(uint32_t cs2_pid, bool use_real_cs2) noexcept {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  run_frame()  —  delegates to FrameLoop
+//  run_frame(),  delegates to FrameLoop
 // ══════════════════════════════════════════════════════════════════════
 
 void FramePipeline::shutdown() noexcept {
@@ -577,7 +577,7 @@ void FramePipeline::shutdown() noexcept {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  pre_frame()  —  per-frame evasion & pre-collection logic
+//  pre_frame(),  per-frame evasion & pre-collection logic
 // ══════════════════════════════════════════════════════════════════════
 
 } // namespace radar::real_adapter

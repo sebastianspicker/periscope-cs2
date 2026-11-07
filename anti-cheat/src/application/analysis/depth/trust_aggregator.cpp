@@ -1,4 +1,4 @@
-// trust_aggregator.cpp — depth analytics: multi-sample / fusion scoring for blue.
+// trust_aggregator.cpp: depth analytics: multi-sample / fusion scoring for blue.
 // Educational scorers over World residuals.
 
 #include "depth/trust_aggregator.hpp"
@@ -145,13 +145,13 @@ TrustAggregateResult TrustAggregator::evaluate() const {
   add_reason(vbs_vs_hv, "vbs_vs_personal_hv");
   add_reason(timing_and_hv, "timing_and_personal_hv");
 
-  r.policy_fails = (vbs_off ? 1 : 0) + (hvci_off ? 1 : 0) +
-                   (secure_boot_off ? 1 : 0) + (attest_fail ? 1 : 0);
-  r.spoof_signals = (personal_hv ? 1 : 0) + (timing_spoof ? 1 : 0) +
-                    (ept_hide ? 1 : 0) + (vtl1_miss ? 1 : 0) +
-                    (sk_dirty ? 1 : 0) + (smm ? 1 : 0) + (cpuid_lat ? 1 : 0);
+  r.policy_fails = (vbs_off ? 1: 0) + (hvci_off ? 1: 0) +
+                   (secure_boot_off ? 1: 0) + (attest_fail ? 1: 0);
+  r.spoof_signals = (personal_hv ? 1: 0) + (timing_spoof ? 1: 0) +
+                    (ept_hide ? 1: 0) + (vtl1_miss ? 1: 0) +
+                    (sk_dirty ? 1: 0) + (smm ? 1: 0) + (cpuid_lat ? 1: 0);
   r.inconsistent_pairs =
-      timeline_flips + (vbs_vs_hv ? 1 : 0) + (timing_and_hv ? 1 : 0);
+      timeline_flips + (vbs_vs_hv ? 1: 0) + (timing_and_hv ? 1: 0);
 
   r.risk = r.policy_fails * 2.0 + r.spoof_signals * 1.5 +
            r.inconsistent_pairs * 2.5;
@@ -175,7 +175,7 @@ TrustAggregateResult TrustAggregator::evaluate() const {
       << " policy_fails=" << r.policy_fails << " spoof=" << r.spoof_signals
       << " inconsistent=" << r.inconsistent_pairs << " flips=" << timeline_flips
       << " risk=" << r.risk << " action=" << static_cast<int>(r.action)
-      << " ranked=" << (r.allow_ranked ? 1 : 0);
+      << " ranked=" << (r.allow_ranked ? 1: 0);
   r.detail = oss.str();
   return r;
 }
@@ -193,7 +193,7 @@ TrustAggregateResult TrustAggregator::evaluate_world_timeline(
   // One snapshot of current state (tick 0). Extra tick count only notes intent
   // for multi-push callers; frozen re-sample is collapsed by union evaluate.
   push(capture(w, 0));
-  // If ticks > 1, also push copies only when documenting sample budget — but
+  // If ticks > 1, also push copies only when documenting sample budget, but
   // same payload → zero flips and union counts stay stable (same risk @ t=1 or t=3).
   for (int t = 1; t < ticks; ++t) {
     auto s = capture(w, t);

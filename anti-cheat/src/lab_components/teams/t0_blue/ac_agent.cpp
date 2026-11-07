@@ -1,4 +1,4 @@
-// ac_agent.cpp — T0 blue agent: handle-graph + co-occurrence sensors on World.
+// ac_agent.cpp: T0 blue agent: handle-graph + co-occurrence sensors on World.
 // run_full_loop / detect path emits telemetry and risk.
 
 #include "t0_blue/ac_agent.hpp"
@@ -9,7 +9,7 @@ namespace t0_blue {
 
 // AcAgent::AcAgent: T0 blue agent: handle graph + co-occurrence + risk sink.
 AcAgent::AcAgent(sim::World& world, ac::ITelemetrySink& sink)
-    : world_(world),
+: world_(world),
       sink_(sink),
       handles_(sink),
       co_(sink) {
@@ -62,15 +62,15 @@ Detection AcAgent::scan_handles() {
     d.handle_hit = true;
     d.reasons.push_back("VM_READ from " + e.source_name + " pid=" +
                         std::to_string(e.source_pid) + " (" + dec.reason + ")" +
-                        (e.via_syscall ? " syscall" : " winapi") +
-                        (e.hidden_during_enum ? " hidden_enum" : ""));
+                        (e.via_syscall ? " syscall": " winapi") +
+                        (e.hidden_during_enum ? " hidden_enum": ""));
     ac::TelemetryEvent ev{
-        .kind = ac::EventKind::HandleToGame,
-        .related_tier = ac::Tier::T0_UsermodeRpm,
-        .subject_pid = e.source_pid,
-        .object_pid = game_pid_,
-        .detail = e.source_name,
-        .risk_delta = 3.0,
+.kind = ac::EventKind::HandleToGame,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = e.source_pid,
+.object_pid = game_pid_,
+.detail = e.source_name,
+.risk_delta = 3.0,
     };
     sink_.emit(ev);
     risk_.ingest(ev);
@@ -92,12 +92,12 @@ Detection AcAgent::scan_cooccurrence() {
   for (const auto& h : r.hits) {
     d.reasons.push_back("co-run " + h.name + " (" + h.reason + ")");
     risk_.ingest(ac::TelemetryEvent{
-        .kind = ac::EventKind::ProcessCoRun,
-        .related_tier = ac::Tier::T0_UsermodeRpm,
-        .subject_pid = h.pid,
-        .object_pid = game_pid_,
-        .detail = h.name,
-        .risk_delta = h.risk_delta,
+.kind = ac::EventKind::ProcessCoRun,
+.related_tier = ac::Tier::T0_UsermodeRpm,
+.subject_pid = h.pid,
+.object_pid = game_pid_,
+.detail = h.name,
+.risk_delta = h.risk_delta,
     });
   }
   d.risk = risk_.state().score;
@@ -114,7 +114,7 @@ Detection AcAgent::scan_injection() {
   }
   if (g->has_foreign_thread || g->thread_hijacked) {
     d.inject_hit = true;
-    d.reasons.push_back(g->thread_hijacked ? "thread_hijacked" : "foreign_thread");
+    d.reasons.push_back(g->thread_hijacked ? "thread_hijacked": "foreign_thread");
     risk_.ingest({ac::EventKind::HandleToGame, ac::Tier::T0_UsermodeRpm, 0,
                   game_pid_, "inject_thread", 2.5});
   }
@@ -147,9 +147,9 @@ Detection AcAgent::scan_module_integrity() {
     if (m.iat_hooked || m.eat_hooked || m.present_hooked) {
       d.module_integrity_hit = true;
       d.reasons.push_back(std::string("hook ") + m.name +
-                          (m.iat_hooked ? " iat" : "") +
-                          (m.eat_hooked ? " eat" : "") +
-                          (m.present_hooked ? " present" : ""));
+                          (m.iat_hooked ? " iat": "") +
+                          (m.eat_hooked ? " eat": "") +
+                          (m.present_hooked ? " present": ""));
     }
   }
   d.risk = risk_.state().score;
@@ -175,7 +175,7 @@ Detection AcAgent::scan_overlays() {
   if (world_.gdi_bitblt_capture || world_.printwindow_capture) {
     d.overlay_hit = true;
     d.reasons.push_back(world_.gdi_bitblt_capture ? "gdi_bitblt_capture"
-                                                 : "printwindow_capture");
+: "printwindow_capture");
   }
   d.risk = risk_.state().score;
   return d;

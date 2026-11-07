@@ -88,7 +88,7 @@ def train_val_paths_are_leaky(
 def parse_dataset_yaml_train_val(text: str) -> tuple[str | None, str | None]:
     """Extract train: and val: path values from dataset.yaml text.
 
-    Minimal parser — avoids requiring PyYAML for the leaky-val gate.
+    Minimal parser, avoids requiring PyYAML for the leaky-val gate.
     """
     train_m = re.search(r"(?m)^train:\s*(.+?)\s*$", text)
     val_m = re.search(r"(?m)^val:\s*(.+?)\s*$", text)
@@ -171,7 +171,7 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=profile.image_size,
         help=(
-            f"Training image size (default: {profile.image_size} — 2× faster than 640, "
+            f"Training image size (default: {profile.image_size}, 2× faster than 640, "
             "minimal quality loss)"
         ),
     )
@@ -320,7 +320,7 @@ def main() -> None:
         dynamic=False,
     )
 
-    # model.export() saves next to the .pt with .onnx extension.
+    # model.export() saves next to the.pt with.onnx extension.
     exported_onnx = best_pt.with_suffix(".onnx")
     if not exported_onnx.is_file():
         raise RuntimeError(f"ONNX export failed: {exported_onnx} not found")

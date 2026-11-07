@@ -1,4 +1,4 @@
-"""Segmentation backends — protocol, factory, and implementations.
+"""Segmentation backends, protocol, factory, and implementations.
 
 Cleanly separates the ``Segmenter`` protocol and backend normalization
 (``segmenters.protocol``) from the factory (``segmenters.factory``) and the

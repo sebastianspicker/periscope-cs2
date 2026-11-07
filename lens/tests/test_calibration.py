@@ -45,7 +45,7 @@ def test_exact_solve_recovers_mapping() -> None:
 
 
 def test_perspective_projection_is_recoverable() -> None:
-    """A true projective warp (keystone) — the case plain affine cannot fit."""
+    """A true projective warp (keystone), the case plain affine cannot fit."""
     width, height = 1280, 720
     markers = screen_marker_positions(width, height)
     projective = np.array(

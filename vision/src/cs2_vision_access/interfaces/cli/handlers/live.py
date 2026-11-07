@@ -1,4 +1,4 @@
-"""live subcommand — real-time HDMI capture with contour overlay or alpha output.
+"""live subcommand, real-time HDMI capture with contour overlay or alpha output.
 
 Usage::
 

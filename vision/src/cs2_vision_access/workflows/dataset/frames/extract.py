@@ -1,4 +1,4 @@
-"""Frame extraction logic — OpenCV-driven deterministic frame saving.
+"""Frame extraction logic, OpenCV-driven deterministic frame saving.
 
 Separated from ``models.py`` so that model consumers do not need OpenCV.
 """

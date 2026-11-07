@@ -121,7 +121,7 @@ std::uint64_t spoof_call_1(void* fn, std::uint64_t arg) noexcept {
     std::uint64_t result = 0;
     void* gadget = g.ret_gadget;
     // rcx=arg already for f; we call f then return. The return address pushed
-    // by CALL is inside this function (not ntdll) — for full spoof use JMP
+    // by CALL is inside this function (not ntdll), for full spoof use JMP
     // gadget chains in asm. Here we still exercise gadget resolution + call.
     (void)gadget;
     result = f(arg);

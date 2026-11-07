@@ -16,7 +16,7 @@ RedResult apply(sim::World& w) {
   }
   ++steps;
 
-  // Phase 1: MCU bridge actor (memory-clean path — no game handle required).
+  // Phase 1: MCU bridge actor (memory-clean path, no game handle required).
   r.actor_pid = w.spawn("kmbox-bridge.exe");
   if (!w.proc(r.actor_pid)) {
     r.detail = "actor spawn verification failed";
@@ -52,7 +52,7 @@ RedResult apply(sim::World& w) {
              " raw_mixed=1 steps=" + std::to_string(steps);
   w.note(r.detail);
   std::printf("[input_synthesis] RED achieved=%s steps=%d\n",
-              r.achieved ? "true" : "false", steps);
+              r.achieved ? "true": "false", steps);
   return r;
 }
 

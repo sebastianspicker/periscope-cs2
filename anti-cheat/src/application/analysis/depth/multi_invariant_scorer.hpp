@@ -1,7 +1,7 @@
 #pragma once
 
 // Multi-invariant demo scoring: vision + sound + latency + report graph.
-// Delayed action thresholds and FP budget — shipped scorer, not test stubs.
+// Delayed action thresholds and FP budget, shipped scorer, not test stubs.
 
 #include "server/info_advantage.hpp"
 #include "sim/world.hpp"
@@ -26,7 +26,7 @@ struct RichDemoFrame {
   bool input_source_raw = true;
 };
 
-enum class DelayedAction : std::uint8_t {
+enum class DelayedAction: std::uint8_t {
   None = 0,
   ObserveOnly,
   FlagOverwatch,

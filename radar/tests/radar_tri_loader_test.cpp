@@ -1,4 +1,4 @@
-// radar_tri_loader_test.cpp — R11: `.tri` collision file round-trip and
+// radar_tri_loader_test.cpp: R11: `.tri` collision file round-trip and
 // rejection paths (stream-injected, no filesystem, no game assets).
 
 #include "radar/tri_loader.hpp"

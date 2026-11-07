@@ -5,7 +5,7 @@
 
 namespace examples::info_advantage {
 
-// RED: legit radar — human aim with unfair hidden knowledge (no aimbot write).
+// RED: legit radar, human aim with unfair hidden knowledge (no aimbot write).
 // Plants World.aim_samples residuals blue must score (not invent).
 RedResult apply(sim::World& w) {
   RedResult r;
@@ -45,7 +45,7 @@ RedResult apply(sim::World& w) {
   }
   ++steps;
 
-  // Phase 2: second residual channel — spectator/delayed feed (optional depth).
+  // Phase 2: second residual channel, spectator/delayed feed (optional depth).
   w.spectator_feed_active = true;
   w.spectator_has_delayed_enemy_origin = true;
   w.spectator_count = 1;
@@ -71,7 +71,7 @@ RedResult apply(sim::World& w) {
              " steps=" + std::to_string(steps);
   w.note(r.detail);
   std::printf("[info_advantage] RED achieved=%s steps=%d\n",
-              r.achieved ? "true" : "false", steps);
+              r.achieved ? "true": "false", steps);
   return r;
 }
 

@@ -1,11 +1,11 @@
-// process.hpp — Real CS2 process attachment and querying.
+// process.hpp: Real CS2 process attachment and querying.
 //
 // LESSON: Anti-cheats detect external readers by the handle graph.
 // Opening cs2.exe with OpenProcess(PROCESS_VM_READ) creates a visible
 // entry in the system handle table. This is the T0 detection vector.
 // Real anti-cheats (VAC, VACnet) enumerate handles pointing to the
 // game process. The only way to avoid this is to not have a handle
-// (T2+: kernel, HV, DMA) — no amount of usermode renaming helps.
+// (T2+: kernel, HV, DMA), no amount of usermode renaming helps.
 //
 // Educational design:
 //   REAL MODE:   Attaches to the real cs2.exe on the system.

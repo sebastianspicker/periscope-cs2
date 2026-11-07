@@ -1,4 +1,4 @@
-// periscope_radar.cpp — Radar coordinate math implementation.
+// periscope_radar.cpp: Radar coordinate math implementation.
 
 #include "real/cs2/periscope_radar.hpp"
 #include "real/cs2/periscope_hud.hpp"
@@ -81,7 +81,7 @@ RadarLayout compute_radar_layout(
 
     float radarScale = hud.isRound
         ? hud.radarScale
-        : (hud.visibilitySize / hud.visibilitySizeMax);
+: (hud.visibilitySize / hud.visibilitySizeMax);
 
     float iconScaleMin = std::max(cvars.clRadarIconScaleMin, 0.1f);
     layout.dotRadius = std::clamp(radarScale, 0.0f, 1.0f) *

@@ -2,7 +2,7 @@
 
 namespace examples::delayed_ban {
 
-// RED: stay under instant thresholds — weak scars across multiple match ticks.
+// RED: stay under instant thresholds, weak scars across multiple match ticks.
 RedResult apply(sim::World& w) {
   RedResult r;
   r.actor_pid = w.spawn("short-life-radar.exe");
@@ -13,8 +13,8 @@ RedResult apply(sim::World& w) {
   w.lab_match_tick = 0;
   w.lab_confidence = 0;
   w.lab_delayed_ban_ready = false;
-  w.advance_match_tick(0.8);  // tick 1 — under ban bar
-  w.advance_match_tick(0.9);  // tick 2 — crosses multi-sample bar
+  w.advance_match_tick(0.8);  // tick 1, under ban bar
+  w.advance_match_tick(0.9);  // tick 2, crosses multi-sample bar
   w.advance_match_tick(0.5);  // tick 3
   r.ticks = w.lab_match_tick;
   r.confidence = w.lab_confidence;

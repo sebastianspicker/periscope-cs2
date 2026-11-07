@@ -1,4 +1,4 @@
-// radar.hpp — Real CS2 radar data reader.
+// radar.hpp: Real CS2 radar data reader.
 //
 // LESSON: In CS2, the HUD radar data is a separate structure from the
 // entity list. It contains pre-computed 2D map positions, icons, and

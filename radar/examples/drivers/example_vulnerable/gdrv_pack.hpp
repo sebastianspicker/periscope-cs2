@@ -1,7 +1,7 @@
-// gdrv_pack.hpp — Host-side ABI packing helpers (no WDK, no driver load).
+// gdrv_pack.hpp: Host-side ABI packing helpers (no WDK: no driver load).
 //
 // These call into the same layout definitions as the kernel driver and
-// usermode client. Host unit tests drive THESE functions — not a parallel
+// usermode client. Host unit tests drive THESE functions, not a parallel
 // re-implementation of the wire format.
 
 #pragma once
@@ -110,7 +110,7 @@ inline std::uint32_t ioctl_code_at(unsigned index) {
         IOCTL_GDRV_VIRT_WRITE,     IOCTL_GDRV_ENTITY_WALK, IOCTL_GDRV_PROCESS_SCAN,
         IOCTL_GDRV_CALLBACK_STRIP, IOCTL_GDRV_MODULE_LIST,
     };
-    return (index < IOCTL_GDRV_COUNT) ? kCodes[index] : 0;
+    return (index < IOCTL_GDRV_COUNT) ? kCodes[index]: 0;
 }
 
 // ── Attach-safe staging layout (mirrors kernel post-detach publish) ──

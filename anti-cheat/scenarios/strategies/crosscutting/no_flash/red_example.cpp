@@ -1,4 +1,4 @@
-// RED: force flash alpha to zero (client FX strip) — not player ESP.
+// RED: force flash alpha to zero (client FX strip), not player ESP.
 
 #include "red_example.hpp"
 

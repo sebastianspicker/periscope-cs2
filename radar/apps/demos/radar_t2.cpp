@@ -1,4 +1,4 @@
-/// radar_t2.cpp — T2: BYOVD gdrv.sys IOCTL radar (theoretical live mode).
+/// radar_t2.cpp: T2: BYOVD gdrv.sys IOCTL radar (theoretical live mode).
 #include "demos/radar_shared.hpp"
 #if LR_HAS_REAL_PLATFORM && LR_PLATFORM_WINDOWS
 #include "real/win/api_table.hpp"
@@ -12,12 +12,12 @@
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 #endif
 
-#define TIER_NAME OBF("T2 — BYOVD Kernel")
+#define TIER_NAME OBF("T2, BYOVD Kernel")
 #define TIER_TECH OBF("KeStackAttachProcess via gdrv.sys IOCTL")
 #define TIER_SCAR OBF("Device handle to driver + IOCTL traffic (NO VM_READ HANDLE)")
 #define TIER_DET  OBF("Driver hash scan, ETW IRP_MJ_DEVICE_CONTROL")
 #define TIER_MIT  OBF("Driver Signature Enforcement (DSE), HVCI, BYOVD blocklist")
-#define TIER_CODE OBF("adapters/real/kernel/vulnerable_driver.cpp :: ByovdSession")
+#define TIER_CODE OBF("adapters/real/kernel/vulnerable_driver.cpp:: ByovdSession")
 
 using Clock = std::chrono::steady_clock;
 
@@ -41,7 +41,7 @@ int main() {
 #if LR_HAS_REAL_PLATFORM
     auto attach = real::cs2::attach_to_cs2();
     bool live = attach.attached;
-    std::printf("[%s]\n", live ? "CS2 FOUND — would use BYOVD path" : "SIMULATION");
+    std::printf("[%s]\n", live ? "CS2 FOUND, would use BYOVD path": "SIMULATION");
 
     real::cs2::Cs2MemoryReader reader;
     real::cs2::Cs2Offsets offsets{};
@@ -121,7 +121,7 @@ int main() {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - report_started).count();
         if (elapsed >= 1000) {
             std::printf("\r[T2] FPS: %.1f | entities: %d | %s   ",
-                        window_frames / (elapsed / 1000.0), last_ents, live ? "LIVE" : "SIM");
+                        window_frames / (elapsed / 1000.0), last_ents, live ? "LIVE": "SIM");
             fflush(stdout); window_frames = 0; report_started = Clock::now();
         }
 } while (0);
@@ -151,6 +151,6 @@ int main() {
     if (live) { reader.detach(); real::cs2::detach_from_cs2(attach.handle); }
 #endif
     if (rp) { rp->shutdown(); delete rp; }
-    std::printf("[T2] Complete. Device handle closed — IOCTL scar resolved.\n");
+    std::printf("[T2] Complete. Device handle closed, IOCTL scar resolved.\n");
     return 0;
 }

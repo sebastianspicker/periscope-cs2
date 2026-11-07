@@ -1,4 +1,4 @@
-// T3 RED prototype — VBS gate, full HV path on World, fallback chain. 
+// T3 RED prototype, VBS gate, full HV path on World, fallback chain.
 #include "ac/proto_log.hpp"
 #include "lab/fixture_process.hpp"
 #include "sim/world.hpp"
@@ -88,8 +88,8 @@ int main() {
   ac::proto_kv("T3_RED_SCAR_OK", pure_hv_ok);
   std::puts(pure_hv_ok
                 ? "prototype ok (full T3 pure HV path, no game handle)"
-                : "prototype FAIL");
+: "prototype FAIL");
   std::puts(
       "\n[blue should counter] TrustPolicy(VBS/HVCI) + PlatformAc full + bridge");
-  return pure_hv_ok ? 0 : 1;
+  return pure_hv_ok ? 0: 1;
 }

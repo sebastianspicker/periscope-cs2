@@ -1,12 +1,12 @@
-# CMakeLists.txt — T4 PCIe DMA firmware example
+# CMakeLists.txt: T4 PCIe DMA firmware example
 #
 # Builds:
-#   host_sim  — full T4 PCIe DMA CS2 entity read simulation
+#   host_sim, full T4 PCIe DMA CS2 entity read simulation
 #
 # Usage:
 #   cmake -S . -B build
 #   cmake --build build
-#   ./build/bin/host_sim
+#./build/bin/host_sim
 #
 # Options:
 #   BUILD_SIM    Build host_sim (ON by default)
@@ -40,7 +40,7 @@ add_library(dma_core STATIC
     page_table_walker.cpp
     cs2_dma_reader.cpp
 )
-target_include_directories(dma_core PUBLIC .)
+target_include_directories(dma_core PUBLIC.)
 target_compile_definitions(dma_core PRIVATE _CRT_SECURE_NO_WARNINGS)
 
 # ── host_sim ──────────────────────────────────────────────────────────

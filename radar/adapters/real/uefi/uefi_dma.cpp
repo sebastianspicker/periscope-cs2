@@ -1,4 +1,4 @@
-// uefi_dma.cpp — UEFI DMA remapping detection and IOMMU status.
+// uefi_dma.cpp: UEFI DMA remapping detection and IOMMU status.
 
 #include "real/uefi/uefi_dma.hpp"
 #include "real/uefi/uefi_fw.hpp"
@@ -122,12 +122,12 @@ Result<DmaProtectionInfo> get_dma_protection_info() {
         errors += std::string("TB=") + tb.error_msg.c_str() + "; ";
     }
 
-    info.detail = std::string("VT-d=") + (info.vt_d_active ? "ON" : "OFF") +
-                  " AMD-Vi=" + (info.amd_vi_active ? "ON" : "OFF") +
+    info.detail = std::string("VT-d=") + (info.vt_d_active ? "ON": "OFF") +
+                  " AMD-Vi=" + (info.amd_vi_active ? "ON": "OFF") +
                   " DRHD=" + std::to_string(info.drhd_count) +
-                  " ALL_PCI=" + (info.drhd_all_devices ? "yes" : "no") +
-                  " ThunderboltDMA=" + (info.thunderbolt_active ? "OPEN" : "no") +
-                  " bypass=" + (info.iommu_bypass_available ? "possible" : "blocked");
+                  " ALL_PCI=" + (info.drhd_all_devices ? "yes": "no") +
+                  " ThunderboltDMA=" + (info.thunderbolt_active ? "OPEN": "no") +
+                  " bypass=" + (info.iommu_bypass_available ? "possible": "blocked");
     if (!errors.empty())
         info.detail += " [" + errors + "]";
 
@@ -206,7 +206,7 @@ Result<bool> thunderbolt_dma_available() {
             "SYSTEM\\CurrentControlSet\\Control\\DmaSecurity\\AllowedBuses",
             0, KEY_READ, &key) == ERROR_SUCCESS) {
         RegCloseKey(key);
-        // Key exists — policy present; treat as protected unless empty probe fails
+        // Key exists, policy present; treat as protected unless empty probe fails
         std::printf("[uefi:dma] Thunderbolt present; DmaSecurity policy key exists\n");
         return Result<bool>(false); // Kernel DMA protection policy configured
     }

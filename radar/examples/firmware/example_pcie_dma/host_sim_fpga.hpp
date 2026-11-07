@@ -43,9 +43,9 @@ struct FpgaDevice {
     const Cs2MemoryImage* mem = nullptr;   // bound target memory
     static FpgaDevice* s_inst;
 
-    // C-callable DMA path (PhysReadFn) — routes through the active FPGA.
+    // C-callable DMA path (PhysReadFn), routes through the active FPGA.
     static bool phys_cb(uint64_t pa, void* buf, size_t sz) {
-        return s_inst ? s_inst->hw_read(pa, buf, sz) : false;
+        return s_inst ? s_inst->hw_read(pa, buf, sz): false;
     }
 
     // Register write (host → FPGA)
@@ -103,7 +103,7 @@ struct FpgaDevice {
         }
     }
 
-    // The DMA read path — models a PCIe Memory Read TLP sequence.
+    // The DMA read path, models a PCIe Memory Read TLP sequence.
     // IOMMU, if enabled, blocks every request.
     bool hw_read(uint64_t pa, void* buf, size_t sz) {
         if (iommu_enabled) {
@@ -116,12 +116,12 @@ struct FpgaDevice {
         total_us += lat;
         tlp_count += (sz + DMA_MAX_PAYLOAD - 1) / DMA_MAX_PAYLOAD;
         total_bytes += sz;
-        return mem ? mem->phys_read(pa, buf, sz) : false;
+        return mem ? mem->phys_read(pa, buf, sz): false;
     }
 
     // Descriptor-ring bulk DMA. `ring` points at host-side descriptors.
     void run_dma(const DmaDescriptor* ring = nullptr, uint32_t count = 0) {
-        host_sim_log("FPGA", "DOORBELL - starting DMA (%u descriptors)", count ? count : desc_count);
+        host_sim_log("FPGA", "DOORBELL - starting DMA (%u descriptors)", count ? count: desc_count);
         if (iommu_enabled) {
             host_sim_log("IOMMU", "BLOCKED: IOMMU remapping active");
             dma_err = DMA_ERR_IOMMU;
@@ -130,7 +130,7 @@ struct FpgaDevice {
             return;
         }
         if (!ring) ring = reinterpret_cast<const DmaDescriptor*>(desc_addr);
-        const uint32_t n = count ? count : desc_count;
+        const uint32_t n = count ? count: desc_count;
         if (!ring || n == 0) {
             dma_err = DMA_ERR_BAD_DESC;
             dma_st = DMA_STATUS_ERROR;
@@ -158,7 +158,7 @@ struct FpgaDevice {
                     break;
                 }
                 // Copy into FPGA data buffer at dst offset.
-                const uint64_t dst = d.dst_addr < DATA_BUFFER_SIZE ? d.dst_addr : 0;
+                const uint64_t dst = d.dst_addr < DATA_BUFFER_SIZE ? d.dst_addr: 0;
                 std::memcpy(db.data() + dst, tmp.data(), d.size);
                 total_bytes += d.size;
                 tlp_count += (d.size + DMA_MAX_PAYLOAD - 1) / DMA_MAX_PAYLOAD;

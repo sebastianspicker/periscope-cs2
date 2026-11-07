@@ -1,4 +1,4 @@
-// syscall_aware_monitor.cpp — T1 blue hook/syscall-aware monitor on sim World scars.
+// syscall_aware_monitor.cpp: T1 blue hook/syscall-aware monitor on sim World scars.
 // Multi-reason detect for soft-edge delivery.
 
 #include "t1_blue/syscall_aware_monitor.hpp"
@@ -9,7 +9,7 @@ namespace t1_blue {
 
 SyscallAwareHandleMonitor::SyscallAwareHandleMonitor(
     t0_blue::HandleGraphMonitor& handles)
-    : handles_(handles) {}
+: handles_(handles) {}
 
 // SyscallAwareHandleMonitor::evaluate: Syscall-aware monitor: correlate handles with syscall/soft signals.
 void SyscallAwareHandleMonitor::evaluate(
@@ -23,7 +23,7 @@ void SyscallAwareHandleMonitor::evaluate(
 
 // T1Agent::T1Agent: T1 blue agent composing hook trap + staging + handles.
 T1Agent::T1Agent(sim::World& world, ac::ITelemetrySink& sink)
-    : world_(world),
+: world_(world),
       sink_(sink),
       handles_(sink),
       mon_(handles_),
@@ -65,7 +65,7 @@ T1Detection T1Agent::full_scan() {
   if (st.hit) {
     d.reasons.push_back("staging " + st.detail);
     risk_.ingest({ac::EventKind::Generic, ac::Tier::T1_SyscallSoft, 0, game,
-                  st.detail, st.risk > 0 ? st.risk : 1.5});
+                  st.detail, st.risk > 0 ? st.risk: 1.5});
   }
 
   // 3) ETW blind / stack spoof
@@ -83,7 +83,7 @@ T1Detection T1Agent::full_scan() {
   }
 
   // 4) Hollow / lineage
-  for (const auto& [pid, p] : world_.processes) {
+  for (const auto& [pid, p]: world_.processes) {
     if (p.is_game || p.is_ac) {
       continue;
     }

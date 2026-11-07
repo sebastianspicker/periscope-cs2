@@ -1,4 +1,4 @@
-// page_walk.cpp — Software x86-64 page-table walk via physical reads.
+// page_walk.cpp: Software x86-64 page-table walk via physical reads.
 
 #include "real/linux/page_walk.hpp"
 
@@ -91,7 +91,7 @@ Result<pagemap::WalkResult> walk(uint64_t cr3, uint64_t va,
 
     auto r = pagemap::walk_from_entries(va, *pml4e, *pdpte, *pde, *pte);
     if (!r.ok) {
-        return Result<pagemap::WalkResult>(r, r.fail_stage ? r.fail_stage : "walk");
+        return Result<pagemap::WalkResult>(r, r.fail_stage ? r.fail_stage: "walk");
     }
     return r;
 }

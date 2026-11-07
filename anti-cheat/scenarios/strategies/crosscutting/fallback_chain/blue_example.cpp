@@ -2,7 +2,7 @@
 
 namespace examples::fallback_chain {
 
-// BLUE: stack sensors — HV-only hunting misses RPM fallback.
+// BLUE: stack sensors, HV-only hunting misses RPM fallback.
 BlueResult detect(sim::World& w) {
   BlueResult r;
   const auto game = w.game_pid();
@@ -21,8 +21,8 @@ BlueResult detect(sim::World& w) {
     w.byovd_policy_block = true;
     w.ranked_access_denied = true;
   }
-  r.detail = "fallback_chain blue handle=" + std::to_string(r.handle_hit ? 1 : 0) +
-             " driver=" + std::to_string(r.driver_hit ? 1 : 0);
+  r.detail = "fallback_chain blue handle=" + std::to_string(r.handle_hit ? 1: 0) +
+             " driver=" + std::to_string(r.driver_hit ? 1: 0);
   w.note(r.detail);
   return r;
 }

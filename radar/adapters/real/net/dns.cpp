@@ -1,4 +1,4 @@
-// dns.cpp — DNS tunneling (base32 labels), wire-format query/response,
+// dns.cpp: DNS tunneling (base32 labels): wire-format query/response,
 // UDP resolver, and DNS-over-HTTPS.
 
 #include "real/net/net_client.hpp"
@@ -32,7 +32,7 @@ Result<std::vector<std::string>> encode_dns_tunnel(
 
   // Base32 is DNS-label safe (A-Z2-7). Each query is: <b32label>.<domain>
   // with at most 63 chars per label and total name <= 253.
-  const std::string encoded = (data && size) ? to_base32(data, size) : std::string{};
+  const std::string encoded = (data && size) ? to_base32(data, size): std::string{};
   std::vector<std::string> chunks;
   if (encoded.empty()) {
     chunks.push_back(std::string("0.") + domain);
@@ -43,7 +43,7 @@ Result<std::vector<std::string>> encode_dns_tunnel(
   const std::size_t max_name = 253;
   const std::size_t domain_budget = domain.size() + 1;  // leading dot
   std::size_t max_data_in_name =
-      (max_name > domain_budget) ? (max_name - domain_budget) : max_label;
+      (max_name > domain_budget) ? (max_name - domain_budget): max_label;
   // One data label per qname keeps decode trivial (first label = payload chunk).
   const std::size_t chunk_len = (std::min)(max_label, max_data_in_name);
 
@@ -58,21 +58,21 @@ Result<std::vector<std::uint8_t>> decode_dns_tunnel(
     const std::vector<std::string>& txt_records) {
   std::string encoded;
   for (const auto& record : txt_records) {
-    // Wire form from encode: <base32_or_hex_label>.<domain...>
+    // Wire form from encode: <base32_or_hex_label>.<domain, ...>
     // Also accept raw base32/hex strings and multi-label data without domain.
     if (record.empty()) continue;
 
     // If the record is a full qname, the payload is always the first label
     // (encode_dns_tunnel contract). Remaining labels are the tunnel domain.
     const auto dot = record.find('.');
-    std::string part = (dot == std::string::npos) ? record : record.substr(0, dot);
+    std::string part = (dot == std::string::npos) ? record: record.substr(0, dot);
 
     // Skip empty / marker-only
     if (part == "0" && dot != std::string::npos) continue;
 
     // Reject obvious non-alphabet junk
     bool ok = !part.empty();
-    for (char c : part) {
+    for (char c: part) {
       const unsigned char u = static_cast<unsigned char>(c);
       const bool alnum =
           (u >= 'A' && u <= 'Z') || (u >= 'a' && u <= 'z') ||
@@ -98,13 +98,13 @@ static void dns_write_name(std::vector<std::uint8_t>& out, const std::string& na
   while (i < name.size()) {
     if (name[i] == '.') { ++i; continue; }
     const auto dot = name.find('.', i);
-    const std::size_t end = (dot == std::string::npos) ? name.size() : dot;
+    const std::size_t end = (dot == std::string::npos) ? name.size(): dot;
     std::size_t lab_len = end - i;
     if (lab_len > 63) lab_len = 63;
     out.push_back(static_cast<std::uint8_t>(lab_len));
     out.insert(out.end(), name.begin() + static_cast<std::ptrdiff_t>(i),
                name.begin() + static_cast<std::ptrdiff_t>(i + lab_len));
-    i = end + (dot == std::string::npos ? 0 : 1);
+    i = end + (dot == std::string::npos ? 0: 1);
     if (dot == std::string::npos) break;
   }
   out.push_back(0);

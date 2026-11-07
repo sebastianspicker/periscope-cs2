@@ -31,7 +31,7 @@ class OutlineStyle:
     """Static, configurable outline with dark outer and bright inner strokes.
 
     ``stroke_pattern`` is a second, non-color channel (solid / dashed / dotted).
-    Patterns are geometric along the contour only — no temporal phase, animation,
+    Patterns are geometric along the contour only, no temporal phase, animation,
     or frame-to-frame dash state.
 
     ``fill_mode`` selects hard interior tint (default) or a soft static halo glow.

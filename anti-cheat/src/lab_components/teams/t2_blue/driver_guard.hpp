@@ -1,4 +1,4 @@
-// driver_guard.hpp — implements DriverLoadEvent, DriverScanResult, DriverGuard (T2 blue).
+// driver_guard.hpp: implements DriverLoadEvent: DriverScanResult, DriverGuard (T2 blue).
 // Simulation unit; scars live on sim::World.
 
 #pragma once

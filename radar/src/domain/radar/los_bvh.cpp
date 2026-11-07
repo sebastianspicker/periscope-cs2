@@ -1,4 +1,4 @@
-// los_bvh.cpp — R11 map-collision BVH and segment queries. See los_bvh.hpp.
+// los_bvh.cpp: R11 map-collision BVH and segment queries. See los_bvh.hpp.
 
 #include "radar/los_bvh.hpp"
 
@@ -95,7 +95,7 @@ bool segment_triangle_hit(const WorldPosition& a, const WorldPosition& b,
 }  // namespace
 
 LosBvh::LosBvh(const std::vector<Triangle>& triangles)
-    : triangles_(triangles) {
+: triangles_(triangles) {
   ordered_indices_.resize(triangles_.size());
   for (std::size_t i = 0; i < ordered_indices_.size(); ++i) {
     ordered_indices_[i] = static_cast<std::uint32_t>(i);
@@ -111,8 +111,8 @@ std::uint32_t LosBvh::build(std::size_t begin, std::size_t end) {
   nodes_.emplace_back();
   BvhNode& node = nodes_[node_index];
   // Start from inverted bounds so the box fits the triangles, not the origin.
-  node.min_x = node.min_y = node.min_z = std::numeric_limits<float>::max();
-  node.max_x = node.max_y = node.max_z = std::numeric_limits<float>::lowest();
+  node.min_x = node.min_y = node.min_z = std::numeric_limits<float> ::max();
+  node.max_x = node.max_y = node.max_z = std::numeric_limits<float> ::lowest();
 
   for (std::size_t i = begin; i < end; ++i) {
     const Triangle& tri = triangles_[ordered_indices_[i]];
@@ -124,7 +124,7 @@ std::uint32_t LosBvh::build(std::size_t begin, std::size_t end) {
   const std::size_t count = end - begin;
   if (count <= kLeafSize) {
     node.leaf = true;
-    // The leaf's triangles are exactly ordered_indices_[begin, end) — the
+    // The leaf's triangles are exactly ordered_indices_[begin, end), the
     // recursive nth_element partition guarantees each leaf owns a contiguous
     // window of the persistent ordered index buffer.
     node.first_triangle = static_cast<std::uint32_t>(begin);
@@ -133,12 +133,12 @@ std::uint32_t LosBvh::build(std::size_t begin, std::size_t end) {
   }
 
   // Median split on the largest centroid-axis extent.
-  float min_c[3] = {std::numeric_limits<float>::max(),
-                    std::numeric_limits<float>::max(),
-                    std::numeric_limits<float>::max()};
-  float max_c[3] = {std::numeric_limits<float>::lowest(),
-                    std::numeric_limits<float>::lowest(),
-                    std::numeric_limits<float>::lowest()};
+  float min_c[3] = {std::numeric_limits<float> ::max(),
+                    std::numeric_limits<float> ::max(),
+                    std::numeric_limits<float> ::max()};
+  float max_c[3] = {std::numeric_limits<float> ::lowest(),
+                    std::numeric_limits<float> ::lowest(),
+                    std::numeric_limits<float> ::lowest()};
   for (std::size_t i = begin; i < end; ++i) {
     const Triangle& tri = triangles_[ordered_indices_[i]];
     const float cx = (tri[0].x + tri[1].x + tri[2].x) / 3.0f;
@@ -156,7 +156,7 @@ std::uint32_t LosBvh::build(std::size_t begin, std::size_t end) {
   const int axis =
       extent[0] >= extent[1] && extent[0] >= extent[2]
           ? 0
-          : (extent[1] >= extent[2] ? 1 : 2);
+: (extent[1] >= extent[2] ? 1: 2);
 
   const std::size_t mid = begin + count / 2;
   auto centroid_axis = [this, axis](std::uint32_t index) {

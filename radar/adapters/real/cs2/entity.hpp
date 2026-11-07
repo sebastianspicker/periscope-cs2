@@ -1,4 +1,4 @@
-// entity.hpp — CS2 entity model (bridges to entities.hpp for ODR safety).
+// entity.hpp: CS2 entity model (bridges to entities.hpp for ODR safety).
 //
 // NOTE: This header is DEPRECATED in favor of entities.hpp which provides
 // the same interface with the same namespace. Including both headers will

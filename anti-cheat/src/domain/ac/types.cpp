@@ -1,4 +1,4 @@
-// types.cpp — implements types.
+// types.cpp: implements types.
 // Simulation unit; scars live on sim::World.
 
 #include "ac/types.hpp"

@@ -134,7 +134,7 @@ def _run_coco_person_bootstrap(
         updates["labels_written"] = total_written
         updates["label_count"] = n_after
         notes.append(f"bootstrap total written={total_written}; now {n_after} labels")
-    except Exception as error:  # noqa: BLE001 — soft fail unless required
+    except Exception as error:  # noqa: BLE001, soft fail unless required
         updates["label_status"] = "bootstrap_failed"
         notes.append(f"bootstrap failed (soft): {error}")
         append_soft_note(updates, notes[-1])

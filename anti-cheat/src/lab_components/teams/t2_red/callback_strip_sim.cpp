@@ -1,4 +1,4 @@
-// callback_strip_sim.cpp — T2 red kernel/BYOVD path on sim::World drivers/devices/callbacks.
+// callback_strip_sim.cpp: T2 red kernel/BYOVD path on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_red/callback_strip_sim.hpp"
@@ -52,7 +52,7 @@ CallbackStripReport CallbackStripSim::enable_shadow(sim::World& w, bool on) {
   w.enable_callback_shadow(on);
   r.shadow = on;
   r.after = capture(w);
-  r.detail = std::string("callback_shadow=") + (on ? "on" : "off");
+  r.detail = std::string("callback_shadow=") + (on ? "on": "off");
   w.note("t2 CallbackStripSim " + r.detail);
   return r;
 }

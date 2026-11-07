@@ -1,4 +1,4 @@
-// api_table_batches.cpp — Per-module EAT resolve batches for ApiTable.
+// api_table_batches.cpp: Per-module EAT resolve batches for ApiTable.
 
 #include "real/win/api_table_internal.hpp"
 
@@ -58,7 +58,7 @@ bool ApiTable::resolve_kernel32_batch() noexcept {
         { api_detail::get_name(kVirtualQuery), reinterpret_cast<void**>(&this->VirtualQuery), api_detail::get_name(kModKernel32), false },
         // CreateToolhelp32Snapshot is used for non-CS2 process enumeration
         // only (educational/cross-reference). It must NEVER be called on
-        // CS2 — the handle enumerator will detect it.
+        // CS2, the handle enumerator will detect it.
         { api_detail::get_name(kCreateToolhelp32Snapshot), reinterpret_cast<void**>(&this->CreateToolhelp32Snapshot), api_detail::get_name(kModKernel32), false },
         { api_detail::get_name(kProcess32FirstW), reinterpret_cast<void**>(&this->Process32FirstW), api_detail::get_name(kModKernel32), false },
         { api_detail::get_name(kProcess32NextW), reinterpret_cast<void**>(&this->Process32NextW), api_detail::get_name(kModKernel32), false },
@@ -197,4 +197,3 @@ bool ApiTable::resolve_dxgi_batch() noexcept {
 }  // namespace real::win
 
 #endif  // LR_PLATFORM_WINDOWS
-

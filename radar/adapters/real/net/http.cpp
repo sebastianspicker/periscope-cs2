@@ -1,4 +1,4 @@
-// http.cpp — HTTP/HTTPS client.
+// http.cpp: HTTP/HTTPS client.
 // Windows: WinHTTP with TLS 1.2+, redirects, custom headers, optional proxy.
 // Non-Windows: raw HTTP/1.1 over TCP (HTTPS requires WinHTTP or external TLS).
 
@@ -85,7 +85,7 @@ Result<HttpResponse> winhttp_request(
   if (!opts.proxy.empty()) {
     auto p = parse_url(opts.proxy.find("://") == std::string::npos
                            ? ("http://" + opts.proxy)
-                           : opts.proxy);
+: opts.proxy);
     WINHTTP_PROXY_INFO pi{};
     pi.dwAccessType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
     std::wstring proxy_w = to_wide(p.host + ":" + std::to_string(p.port));
@@ -100,7 +100,7 @@ Result<HttpResponse> winhttp_request(
     return os_error("WinHttpConnect");
   }
 
-  DWORD flags = secure ? WINHTTP_FLAG_SECURE : 0;
+  DWORD flags = secure ? WINHTTP_FLAG_SECURE: 0;
   HINTERNET req = WinHttpOpenRequest(
       conn, to_wide(method).c_str(), to_wide(parsed.path).c_str(),
       nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, flags);
@@ -128,7 +128,7 @@ Result<HttpResponse> winhttp_request(
   // Redirect policy
   DWORD redirect_policy = opts.follow_redirects
       ? WINHTTP_OPTION_REDIRECT_POLICY_DISALLOW_HTTPS_TO_HTTP
-      : WINHTTP_OPTION_REDIRECT_POLICY_NEVER;
+: WINHTTP_OPTION_REDIRECT_POLICY_NEVER;
   WinHttpSetOption(req, WINHTTP_OPTION_REDIRECT_POLICY, &redirect_policy,
                    sizeof(redirect_policy));
 
@@ -149,7 +149,7 @@ Result<HttpResponse> winhttp_request(
 
   const BOOL ok = WinHttpSendRequest(
       req, WINHTTP_NO_ADDITIONAL_HEADERS, 0,
-      body_len ? const_cast<LPVOID>(static_cast<const void*>(body)) : WINHTTP_NO_REQUEST_DATA,
+      body_len ? const_cast<LPVOID>(static_cast<const void*>(body)): WINHTTP_NO_REQUEST_DATA,
       static_cast<DWORD>(body_len), static_cast<DWORD>(body_len), 0);
   if (!ok) {
     const auto err = os_error("WinHttpSendRequest");
@@ -248,7 +248,7 @@ Result<HttpResponse> winhttp_request(
   return response;
 }
 
-#else  // !Windows — raw HTTP only
+#else  // !Windows, raw HTTP only
 
 Result<HttpResponse> winhttp_request(
     const std::string& method, const std::string& url,
@@ -272,7 +272,7 @@ Result<HttpResponse> winhttp_request(
   if (!opts.front_host.empty()) headers["Host"] = opts.front_host;
 
   auto resp = http_exchange_raw(*sock, method, parsed.path,
-                                opts.front_host.empty() ? parsed.host : opts.front_host,
+                                opts.front_host.empty() ? parsed.host: opts.front_host,
                                 headers, body, body_len, opts.timeout_ms);
   close(*sock);
   if (resp) resp->final_url = url;
@@ -297,7 +297,7 @@ Result<HttpResponse> https_get_ex(const std::string& url,
     std::string next = loc;
     if (loc.find("://") == std::string::npos) {
       auto base = parse_url(url);
-      next = (base.is_https ? "https://" : "http://") + base.host;
+      next = (base.is_https ? "https://": "http://") + base.host;
       if (loc.empty() || loc[0] != '/') next += "/";
       next += loc;
     }
@@ -314,7 +314,7 @@ Result<HttpResponse> https_post_ex(const std::string& url,
                                     const HttpRequestOptions& opts,
                                     const std::string& content_type) {
   const std::string ct =
-      content_type.empty() ? "application/octet-stream" : content_type;
+      content_type.empty() ? "application/octet-stream": content_type;
   return winhttp_request("POST", url, opts, body.data(), body.size(), ct);
 }
 

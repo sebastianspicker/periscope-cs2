@@ -1,4 +1,4 @@
-// evasion_t4_advanced.cpp — multi-step T4 off-box stealth on sim::World.
+// evasion_t4_advanced.cpp: multi-step T4 off-box stealth on sim::World.
 // max_offbox_stealth: FPGA scatter + IOMMU bypass + peer DMA + residuals.
 // deep_offbox_stealth: max + Thunderbolt / BAR / ACPI / USB DFU Wave 11 paths.
 
@@ -8,7 +8,7 @@
 
 namespace t4_red {
 
-AdvancedT4Evasion::AdvancedT4Evasion(sim::World& world) : world_(world) {}
+AdvancedT4Evasion::AdvancedT4Evasion(sim::World& world): world_(world) {}
 
 // AdvancedT4Evasion::max_offbox_stealth: Hardware + FPGA + bypass + peer + residuals.
 AdvancedStealthReport AdvancedT4Evasion::max_offbox_stealth() {
@@ -57,7 +57,7 @@ AdvancedStealthReport AdvancedT4Evasion::max_offbox_stealth() {
       "DMA device, FPGA scatter cadence, ATS/ACS IOMMU bypass, PCIe peer "
       "transactions, capture/display/network/input, and dual-boot residuals";
   std::ostringstream detail;
-  detail << "advanced_offbox achieved=" << (report.achieved ? 1 : 0)
+  detail << "advanced_offbox achieved=" << (report.achieved ? 1: 0)
          << " entities=" << report.radar.entity_count
          << " scatter=" << report.radar.fpga_scatter_count
          << " peer_txns=" << report.radar.pcie_peer_txns;
@@ -127,7 +127,7 @@ AdvancedStealthReport AdvancedT4Evasion::deep_offbox_stealth() {
       "transactions, Thunderbolt security, BAR remaps, ACPI/USB firmware, "
       "capture/display/network/input, and dual-boot residuals";
   std::ostringstream detail;
-  detail << "deep_offbox achieved=" << (report.achieved ? 1 : 0)
+  detail << "deep_offbox achieved=" << (report.achieved ? 1: 0)
          << " entities=" << report.radar.entity_count
          << " scatter=" << report.radar.fpga_scatter_count
          << " peer_txns=" << report.radar.pcie_peer_txns

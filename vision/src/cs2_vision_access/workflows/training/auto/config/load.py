@@ -83,7 +83,7 @@ def config_from_mapping(payload: Mapping[str, Any]) -> AutoTrainConfig:
         label_raw["enabled"] = True
         if "bootstrap" not in label_raw:
             label_raw["bootstrap"] = True
-        # Do not force teacher=edgesam — operators set it when models are ready.
+        # Do not force teacher=edgesam, operators set it when models are ready.
         # Default gate off for unattended runs. Explicit block=true is rejected
         # by the validation below (do not silently swallow it).
         if not bool(human_gate_raw.get("block", False)):
@@ -146,7 +146,7 @@ def load_config(path: str | Path) -> AutoTrainConfig:
         except yaml.YAMLError as error:
             raise AutoTrainConfigError(f"invalid YAML config: {error}") from error
     else:
-        raise AutoTrainConfigError("config must use .json, .yaml, or .yml extension")
+        raise AutoTrainConfigError("config must use.json.yaml, or.yml extension")
 
     if not isinstance(payload, dict):
         raise AutoTrainConfigError("config root must be an object")

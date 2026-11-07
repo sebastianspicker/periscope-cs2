@@ -1,4 +1,4 @@
-// registry_dual.cpp — Dual-mode (real + sim) strategy execution.
+// registry_dual.cpp: Dual-mode (real + sim) strategy execution.
 // Split from the original 610-line monolith registry.cpp.
 // Requires real platform backends; gracefully degrades when absent.
 
@@ -41,14 +41,14 @@ bool supports_real_mode(const StrategyMeta& meta) {
 std::string DualResult::describe() const {
   std::string out;
   if (real.handle_opened || real.red_achieved) {
-    out += "[REAL] "; out += real.red_achieved ? "Red achieved: YES (" + std::to_string(real.entities_read) + " entities)\n" : "Red achieved: NO (" + real.error_msg + ")\n";
-    out += "[REAL] Handle opened: "; out += real.handle_opened ? "YES" : "NO"; out += "\n";
-    out += "[REAL] Blue would detect: "; out += real.blue_would_detect ? "YES (handle scar)" : "NO"; out += "\n";
-    out += "[REAL] "; out += real.summary.empty() ? real.error_msg : real.summary; out += "\n";
+    out += "[REAL] "; out += real.red_achieved ? "Red achieved: YES (" + std::to_string(real.entities_read) + " entities)\n": "Red achieved: NO (" + real.error_msg + ")\n";
+    out += "[REAL] Handle opened: "; out += real.handle_opened ? "YES": "NO"; out += "\n";
+    out += "[REAL] Blue would detect: "; out += real.blue_would_detect ? "YES (handle scar)": "NO"; out += "\n";
+    out += "[REAL] "; out += real.summary.empty() ? real.error_msg: real.summary; out += "\n";
   }
-  out += "[SIM]  Red achieved: "; out += sim.red_achieved ? "YES" : "NO";
-  out += " | Blue detected: "; out += sim.blue_detected ? "YES" : "NO";
-  out += " | Mitigated: "; out += sim.blue_mitigated ? "YES" : "NO";
+  out += "[SIM]  Red achieved: "; out += sim.red_achieved ? "YES": "NO";
+  out += " | Blue detected: "; out += sim.blue_detected ? "YES": "NO";
+  out += " | Mitigated: "; out += sim.blue_mitigated ? "YES": "NO";
   out += "\n[SIM]  "; out += sim.summary; out += "\n";
   out += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nLESSON: ";
   if (real.handle_opened && sim.blue_detected) out += "Both REAL and SIM show detection.\n";

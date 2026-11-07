@@ -1,4 +1,4 @@
-// page_table_walker.cpp — x86-64 page table walk via DMA reads.
+// page_table_walker.cpp: x86-64 page table walk via DMA reads.
 //
 // Translates virtual addresses to physical addresses by walking 4-level
 // page tables using physical memory reads (via PCIe DMA).
@@ -46,7 +46,7 @@ uint64_t PageTableWalker::translate(
     if (!phys_read_fn(pdp_pa, &pdpe, sizeof(pdpe))) return 0;
     if (!(pdpe & PAGE_PRESENT)) return 0;
 
-    // 1GB page (PS bit set in PDPE) — frame in bits 51:30
+    // 1GB page (PS bit set in PDPE), frame in bits 51:30
     if (pdpe & PAGE_PS) {
         return (pdpe & ONE_GB_MASK) + (virt_addr & (PAGE_SIZE_1G - 1));
     }
@@ -57,7 +57,7 @@ uint64_t PageTableWalker::translate(
     if (!phys_read_fn(pd_pa, &pde, sizeof(pde))) return 0;
     if (!(pde & PAGE_PRESENT)) return 0;
 
-    // 2MB page (PS bit set in PDE) — frame in bits 51:21
+    // 2MB page (PS bit set in PDE), frame in bits 51:21
     if (pde & PAGE_PS) {
         return (pde & LARGE_PAGE_MASK) + (virt_addr & (PAGE_SIZE_2M - 1));
     }
@@ -171,13 +171,13 @@ uint64_t PageTableWalker::find_eprocess(
 
     uint8_t page[4096];
 
-    for (auto region : kScanRegions) {
+    for (auto region: kScanRegions) {
         uint64_t start = region[0], end = region[1];
         if (end <= start) continue;
 
         for (uint64_t pa = start; pa < end; pa += 0x1000) {
             if (!phys_read_fn(pa, page, sizeof(page)))
-                continue;  // hole in physical memory map — skip
+                continue;  // hole in physical memory map, skip
 
             // EPROCESS is page-aligned; check ImageFileName at both layouts.
             const char* name10 = reinterpret_cast<const char*>(page + (kEpWin10ImageFile ^ kEpKey));
@@ -219,5 +219,5 @@ uint64_t PageTableWalker::find_process_cr3(
     uint64_t cr3 = 0;
     if (!phys_read_fn(ep + (kEpDirTableBase ^ kEpKey), &cr3, sizeof(cr3)))
         return 0;
-    return (cr3 & PAGE_MASK) != 0 ? cr3 : 0;
+    return (cr3 & PAGE_MASK) != 0 ? cr3: 0;
 }

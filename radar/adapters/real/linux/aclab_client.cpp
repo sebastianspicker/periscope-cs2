@@ -1,8 +1,8 @@
-// aclab_client.cpp — CLI for the aclab kernel module (uses kmod_client library).
+// aclab_client.cpp: CLI for the aclab kernel module (uses kmod_client library).
 //
 // BUILD: linked via CMake target aclab_client, or:
 //   g++ -std=c++20 -I../../.. aclab_client.cpp kmod_client.cpp -o aclab_client
-// RUN:   sudo ./aclab_client --scan
+// RUN:   sudo./aclab_client --scan
 
 #include "real/linux/kmod_client.hpp"
 #include "real/linux/aclab_ioctl.h"
@@ -35,7 +35,7 @@ static void cmd_info() {
 }
 
 static void hex_dump(const uint8_t* data, size_t n, size_t max_show = 64) {
-    size_t show = n < max_show ? n : max_show;
+    size_t show = n < max_show ? n: max_show;
     for (size_t i = 0; i < show; ++i)
         std::printf("%02x ", data[i]);
     if (n > max_show) std::printf("...");
@@ -111,14 +111,14 @@ static int cmd_scan() {
                 ++fails;
             }
         } else {
-            std::printf("  FAIL %s\n", r ? "short" : r.error_msg.c_str());
+            std::printf("  FAIL %s\n", r ? "short": r.error_msg.c_str());
             ++fails;
         }
     }
 
     c.close();
     std::printf("\nScan complete: %d failures\n", fails);
-    return fails ? 1 : 0;
+    return fails ? 1: 0;
 }
 
 int main(int argc, char** argv) {
@@ -146,7 +146,7 @@ int main(int argc, char** argv) {
 
     if (std::strcmp(argv[1], "--phys") == 0 && argc > 2) {
         uint64_t addr = std::strtoull(argv[2], nullptr, 0);
-        size_t size = argc > 3 ? std::strtoul(argv[3], nullptr, 0) : 64;
+        size_t size = argc > 3 ? std::strtoul(argv[3], nullptr, 0): 64;
         auto r = c.phys_read(addr, size);
         if (!r) {
             std::printf("[!] %s\n", r.error_msg.c_str());
@@ -167,7 +167,7 @@ int main(int argc, char** argv) {
     if (std::strcmp(argv[1], "--virt") == 0 && argc > 3) {
         uint32_t pid = static_cast<uint32_t>(std::atoi(argv[2]));
         uint64_t addr = std::strtoull(argv[3], nullptr, 0);
-        size_t size = argc > 4 ? std::strtoul(argv[4], nullptr, 0) : 64;
+        size_t size = argc > 4 ? std::strtoul(argv[4], nullptr, 0): 64;
         auto r = c.virt_read(pid, addr, size);
         if (!r) {
             std::printf("[!] %s\n", r.error_msg.c_str());

@@ -2,7 +2,7 @@
 
 Operators annotate per-session staging folders, then assign whole ``session_id``
 values to train, val, or test. Adjacent frames within a session are never
-randomly split across partitions — that would measure memorization, not
+randomly split across partitions, that would measure memorization, not
 generalization.
 
 Plan types and builders live in :mod:`cs2_vision_access.workflows.dataset.split_plan`;

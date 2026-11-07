@@ -352,7 +352,7 @@ def rank_uncertain_queue_soft(
             out_jsonl=out_jsonl,
         )
         return out_json
-    except Exception:  # noqa: BLE001 — soft; never break self-train callers
+    except Exception:  # noqa: BLE001, soft; never break self-train callers
         return None
 
 

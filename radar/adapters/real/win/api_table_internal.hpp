@@ -1,4 +1,4 @@
-// api_table_internal.hpp — PE/EAT helpers and batch machinery for api_table*.cpp.
+// api_table_internal.hpp: PE/EAT helpers and batch machinery for api_table*.cpp.
 #pragma once
 
 #include "real/win/api_table.hpp"
@@ -30,7 +30,7 @@ struct PeExportDir {
     DWORD AddressOfNameOrdinals;
 };
 
-enum NameId : int {
+enum NameId: int {
     kNtQuerySystemInformation,
     kNtReadVirtualMemory,
     kNtClose,

@@ -1,4 +1,4 @@
-// hook_trap.cpp — T1 blue hook/syscall-aware monitor on sim World scars.
+// hook_trap.cpp: T1 blue hook/syscall-aware monitor on sim World scars.
 // Multi-reason detect for soft-edge delivery.
 
 #include "t1_blue/hook_trap.hpp"
@@ -52,7 +52,7 @@ HookTrapReport UsermodeHookTrap::analyze(const sim::World& w,
   std::ostringstream oss;
   oss << "hook_trap winapi_vis=" << r.visible_winapi_opens
       << " syscall_missed=" << r.syscall_opens_missed
-      << " blind=" << (r.blind_to_syscall_red ? 1 : 0);
+      << " blind=" << (r.blind_to_syscall_red ? 1: 0);
   r.detail = oss.str();
   return r;
 }
@@ -86,7 +86,7 @@ HandleTruthReport HandleTruthMonitor::analyze(const sim::World& w,
       ++r.hidden;
     }
     r.owners.push_back(p->name + "#" + std::to_string(h.owner_pid) +
-                       (h.via_syscall_path ? ":syscall" : ":winapi"));
+                       (h.via_syscall_path ? ":syscall": ":winapi"));
   }
   std::ostringstream oss;
   oss << "handle_truth foreign=" << r.foreign_vm_read

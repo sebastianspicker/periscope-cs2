@@ -1,4 +1,4 @@
-// world_collision.hpp — live vphys2 mesh-BVH extraction (E47).
+// world_collision.hpp: live vphys2 mesh-BVH extraction (E47).
 //
 // Tier-2 LOS source. The game already holds the current map's collision world;
 // this walks it through the external read functor instead of shipping a
@@ -152,7 +152,7 @@ std::size_t extract_mesh(ReadFn& read, std::uint64_t bvh_ptr,
     return 0;
   }
   std::int32_t max_vert = 0;
-  for (const std::int32_t index : indices) {
+  for (const std::int32_t index: indices) {
     if (index > max_vert) max_vert = index;
   }
   if (max_vert <= 0 || max_vert > 0x1000000) return 0;
@@ -225,7 +225,7 @@ bool process_mesh_body(ReadFn& read, std::uint64_t body,
   std::memcpy(&tri_ptr, md + 0x50, sizeof(tri_ptr));
 
   std::uint32_t node_count = 0;
-  for (const std::size_t offset : {0x28u, 0x30u, 0x48u, 0x58u}) {
+  for (const std::size_t offset: {0x28u, 0x30u, 0x48u, 0x58u}) {
     std::int32_t candidate = 0;
     std::memcpy(&candidate, md + offset, sizeof(candidate));
     if (candidate > 0 && candidate < 0x1000000) {

@@ -1,4 +1,4 @@
-// real_fwd.hpp — Single include for all real backends.
+// real_fwd.hpp: Single include for all real backends.
 // Includes the platform layer, OS API wrappers, CS2 process attachment,
 // and all hardware backends (VMX, DMA, GPU, SMM, networking).
 //

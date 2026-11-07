@@ -25,7 +25,7 @@ RedResult apply(sim::World& w) {
   }
   ++steps;
 
-  // Phase 1: soft humanized deltas (not snap) — injected provenance residual.
+  // Phase 1: soft humanized deltas (not snap), injected provenance residual.
   const std::size_t before = w.inputs.size();
   for (int i = 0; i < 10; ++i) {
     w.push_input(sim::InputEvent{0.05 * i, "injected", 3.f + (i % 3), 2.f});
@@ -61,7 +61,7 @@ RedResult apply(sim::World& w) {
              " saas=1 steps=" + std::to_string(steps);
   w.note(r.detail);
   std::printf("[aim_humanization] RED achieved=%s steps=%d\n",
-              r.achieved ? "true" : "false", steps);
+              r.achieved ? "true": "false", steps);
   return r;
 }
 

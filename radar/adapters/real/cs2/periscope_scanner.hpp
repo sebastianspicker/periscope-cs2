@@ -1,4 +1,4 @@
-// periscope_scanner.hpp — Periscope-level pattern scanner.
+// periscope_scanner.hpp: Periscope-level pattern scanner.
 //
 // SIMD-accelerated pattern scanner with RIP-relative address resolution.
 // Uses 10 validated patterns from Periscope's working prototype.
@@ -60,7 +60,7 @@ struct PeriscopeOffsets {
 
     // RVA fallbacks (when patterns miss). Pinned to the November 2026
     // a2x/cs2-dumper snapshot: client.dll RVAs unless noted. kDwWindowWidth
-    // is an engine2.dll RVA — it is applied to the engine2 base.
+    // is an engine2.dll RVA, it is applied to the engine2 base.
     static constexpr uint64_t kDwEntityList            = 0x271EB08;
     static constexpr uint64_t kDwLocalPlayerPawn       = 0x25698C8;
     static constexpr uint64_t kDwLocalPlayerController = 0x25413F8;
@@ -88,7 +88,7 @@ struct SchemaOffsets {
     static constexpr uint64_t m_hPlayerPawn          = 0x92C;
     static constexpr uint64_t m_pGameSceneNode       = 0x330;
     static constexpr uint64_t kIdentityStride        = 0x70;
-    // Not present in the November 2026 schema dump — kept as a prototype-era
+    // Not present in the November 2026 schema dump, kept as a prototype-era
     // value; verify against a live build before relying on it.
     static constexpr uint64_t m_iWeaponID            = 0x10B0;
 };
@@ -97,7 +97,7 @@ struct SchemaOffsets {
 // HUD radar offsets (live-retuned 2026-07-26 against CS2 SDL build)
 // ====================================================================
 struct HudRadarOffsets {
-    // CHud panel registry — primary layout (polar=1 in-match verified):
+    // CHud panel registry, primary layout (polar=1 in-match verified):
     // Contiguous panel table: count @ +0x260, data @ +0x268, stride 0x20.
     // Entry layout: [+0x00 pad][+0x10 name*][+0x18 panel_object*]
     static constexpr uint64_t kHudTreeOffset                 = 0x258; // legacy BST root*
@@ -146,7 +146,7 @@ std::vector<ScanResult> scan_all_patterns(
 /// Resolve a single RIP-relative address.
 /// matchAddr: address of the pattern match inside the target module.
 /// displacement: the int32 operand already read from the instruction bytes
-/// (e.g. from the scan chunk) — never read from matchAddr in this process.
+/// (e.g. from the scan chunk), never read from matchAddr in this process.
 /// instructionLen: total length of the instruction (RIP = matchAddr + len).
 uint64_t resolve_rip(uint64_t matchAddr, int32_t displacement,
                      int instructionLen) noexcept;

@@ -1,4 +1,4 @@
-// vulnerable_driver.cpp — Complete BYOVD operations for educational anti-cheat lab.
+// vulnerable_driver.cpp: Complete BYOVD operations for educational anti-cheat lab.
 //
 // LESSON: BYOVD (Bring Your Own Vulnerable Driver) is a T2 technique.
 // A still-signed but vulnerable driver provides kernel memory access.
@@ -305,7 +305,7 @@ Result<ByovdSession> establish_byovd_session(const std::string& preferred_image_
     auto load = load_driver(preferred_image_path, service, service);
     if (load && load->loaded) {
       auto info = find_vulnerable_driver(service);
-      VulnerableDriverInfo use = info ? *info : VulnerableDriverInfo{};
+      VulnerableDriverInfo use = info ? *info: VulnerableDriverInfo{};
       if (!info) {
         use.name = service + ".sys";
         use.original_filename = driver_basename(preferred_image_path);
@@ -350,7 +350,7 @@ Result<std::vector<std::uint8_t>> ByovdSession::read_kernel_memory(
           enc_ioctl(0x00222000u),
       };
       bool ok = false;
-      for (auto enc : alts) {
+      for (auto enc: alts) {
         result = send_ioctl(device, dec_ioctl(enc), in, chunk);
         if (result) {
           ok = true;
@@ -436,7 +436,7 @@ Result<std::uint64_t> ByovdSession::get_process_cr3(std::uint32_t pid) {
   auto via_mem = real::kernel::mem::get_process_cr3(pid);
   if (via_mem) return via_mem;
 
-  // Optional: PROCESS_SCAN-style info IOCTL — not a standard CR3 IOCTL on
+  // Optional: PROCESS_SCAN-style info IOCTL, not a standard CR3 IOCTL on
   // educational gdrv; fall through to explicit error.
   return Result<std::uint64_t>(
       0, "BYOVD: CR3 not available for pid " + std::to_string(pid) +

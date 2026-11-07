@@ -1,4 +1,4 @@
-// Split from hijack_reader.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from hijack_reader.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/hijack_reader.hpp"
 #include "real/cs2/hijack_reader_internal.hpp"
 #include "real/cs2/process_cache.hpp"
@@ -34,7 +34,7 @@ bool HijackReader::ensure_handle() noexcept {
         NTSTATUS dupResult = real::win::syscall_direct_NtDuplicateObject(
             donorProc,
             reinterpret_cast<HANDLE>(m_donorHandleValue),
-            ::GetCurrentProcess(),
+::GetCurrentProcess(),
             &dupe,
             PROCESS_VM_READ | PROCESS_QUERY_INFORMATION,
             0,
@@ -50,7 +50,7 @@ bool HijackReader::ensure_handle() noexcept {
             api.CloseHandle(dupe);
         }
 
-        // Re-duplication failed — fall through to find_and_duplicate,
+        // Re-duplication failed, fall through to find_and_duplicate,
         // which decides (via the count-based cooldown) whether a fresh
         // NtQSI re-enumeration is due.
     }
@@ -144,7 +144,7 @@ bool HijackReader::read(uint64_t address, void* buffer, size_t size) noexcept {
         &bytesRead);
 
     if (status < 0) {
-        // Handle may be stale — close and re-acquire
+        // Handle may be stale, close and re-acquire
         close_cs2_handle();
         return false;
     }
@@ -253,4 +253,3 @@ HijackReader& g_Hijack() noexcept {
 }
 
 } // namespace real::cs2::hijack
-

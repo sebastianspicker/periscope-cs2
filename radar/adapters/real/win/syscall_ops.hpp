@@ -1,4 +1,4 @@
-// syscall_ops.hpp — High-level process memory ops via indirect syscalls.
+// syscall_ops.hpp: High-level process memory ops via indirect syscalls.
 //
 // All NT calls go through syscall_4/5/6/7 (indirect gadget in ntdll).
 // No ntdll export stubs are executed for the sensitive path.

@@ -1,4 +1,4 @@
-// mode_linux_probes.cpp — Linux device/sysfs tier probes.
+// mode_linux_probes.cpp: Linux device/sysfs tier probes.
 
 #include "real/mode/mode_internal.hpp"
 
@@ -21,13 +21,13 @@ using real::mode::detail::contains_ci;
 bool linux_open_ro(const char* path) {
   int fd = ::open(path, O_RDONLY | O_CLOEXEC);
   if (fd < 0) return false;
-  ::close(fd);
+::close(fd);
   return true;
 }
 
 bool linux_path_exists(const char* path) {
   struct stat st{};
-  return ::stat(path, &st) == 0;
+  return::stat(path, &st) == 0;
 }
 
 bool linux_read_first_line(const char* path, std::string& out) {
@@ -113,7 +113,7 @@ bool linux_pci_dma_signals(std::string& reason) {
       }
     }
   }
-  ::closedir(pci_dir);
+::closedir(pci_dir);
 
   if (found) {
     reason = detail;
@@ -127,7 +127,7 @@ bool linux_pci_dma_signals(std::string& reason) {
       while (dirent* e = ::readdir(tb)) {
         if (e->d_name && e->d_name[0] != '.') ++count;
       }
-      ::closedir(tb);
+::closedir(tb);
       if (count > 0) {
         reason = "thunderbolt sysfs bus has devices";
         return true;
@@ -138,7 +138,7 @@ bool linux_pci_dma_signals(std::string& reason) {
   // Named research DMA device nodes
   static const char* const kDevs[] = {
       "/dev/fpga0", "/dev/pcileech", "/dev/ftdi", "/dev/xdma0"};
-  for (const char* p : kDevs) {
+  for (const char* p: kDevs) {
     if (linux_path_exists(p)) {
       reason = std::string("DMA device node present: ") + p;
       return true;

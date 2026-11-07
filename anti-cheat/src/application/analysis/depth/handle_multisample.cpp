@@ -1,4 +1,4 @@
-// handle_multisample.cpp — depth analytics: multi-sample / fusion scoring for blue.
+// handle_multisample.cpp: depth analytics: multi-sample / fusion scoring for blue.
 // Educational scorers over World residuals.
 
 #include "depth/handle_multisample.hpp"
@@ -107,11 +107,11 @@ MultiSampleHandleResult MultiSampleHandleDetector::evaluate(
   // Lineage composition: reader parent is short-lived stub / non-explorer chain.
   std::unordered_set<std::uint32_t> owners;
   for (const auto& s : samples_) {
-    for (auto pid : s.truth_owner_pids) {
+    for (auto pid: s.truth_owner_pids) {
       owners.insert(pid);
     }
   }
-  for (auto pid : owners) {
+  for (auto pid: owners) {
     const auto* p = w.proc(pid);
     if (!p) {
       continue;
@@ -183,12 +183,12 @@ MultiSampleHandleResult MultiSampleHandleDetector::evaluate(
 
   std::ostringstream oss;
   oss << "samples=" << r.samples_taken << " max_vis=" << r.max_visible
-      << " max_truth=" << r.max_truth << " race=" << (r.race_detected ? 1 : 0)
-      << " continuous=" << (r.continuous_hit ? 1 : 0)
-      << " lineage=" << (r.lineage_hit ? 1 : 0)
-      << " rep_evasion=" << (r.reputation_evasion ? 1 : 0)
+      << " max_truth=" << r.max_truth << " race=" << (r.race_detected ? 1: 0)
+      << " continuous=" << (r.continuous_hit ? 1: 0)
+      << " lineage=" << (r.lineage_hit ? 1: 0)
+      << " rep_evasion=" << (r.reputation_evasion ? 1: 0)
       << " score=" << r.score
-      << " composed=" << (r.composed_hit ? 1 : 0);
+      << " composed=" << (r.composed_hit ? 1: 0);
   r.detail = oss.str();
   return r;
 }
@@ -209,7 +209,7 @@ HandleRaceScript run_handle_race(sim::World& w, int samples, bool use_syscall,
 
   MultiSampleHandleDetector det;
 
-  // Optional suspicious parent (loader stub) — lineage composition signal.
+  // Optional suspicious parent (loader stub), lineage composition signal.
   std::uint32_t parent = parent_pid;
   if (parent == 0) {
     parent = w.spawn("stage-loader.exe", false, false, 0);

@@ -1,4 +1,4 @@
-// pci_parse.hpp — Pure PCI sysfs resource / BDF parsers.
+// pci_parse.hpp: Pure PCI sysfs resource / BDF parsers.
 // Portable: no OS syscalls. Unit-tested on every host.
 
 #pragma once

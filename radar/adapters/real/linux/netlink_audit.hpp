@@ -1,4 +1,4 @@
-// netlink_audit.hpp — Audit / netlink scar surface probes.
+// netlink_audit.hpp: Audit / netlink scar surface probes.
 //
 // Kernel module IOCTLs and credential changes often produce audit records.
 // This helper checks whether auditd/netlink audit is alive.

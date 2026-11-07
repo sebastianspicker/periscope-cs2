@@ -1,4 +1,4 @@
-"""Bakeoff configuration — dataclass, JSON loading, CLI parsing."""
+"""Bakeoff configuration, dataclass, JSON loading, CLI parsing."""
 
 from __future__ import annotations
 
@@ -109,7 +109,7 @@ def load_bakeoff_config(path: str | Path) -> dict[str, object]:
     if candidate.is_symlink():
         raise BakeoffError("bakeoff config path must not be a symlink")
     if not candidate.is_file() or candidate.suffix.lower() != ".json":
-        raise BakeoffError("bakeoff config must be a regular local .json file")
+        raise BakeoffError("bakeoff config must be a regular local.json file")
     try:
         payload = json.loads(candidate.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:

@@ -1,4 +1,4 @@
-// periscope_entity.cpp — Periscope-level entity collector implementation.
+// periscope_entity.cpp: Periscope-level entity collector implementation.
 
 #include "real/cs2/periscope_entity.hpp"
 #include "real/cs2/periscope_scanner.hpp"
@@ -65,7 +65,7 @@ Vector3 OriginState::hold(const Vector3& current, bool valid) noexcept {
 }
 
 // ====================================================================
-// EntityCollector — private helpers
+// EntityCollector, private helpers
 // ====================================================================
 
 bool EntityCollector::collect_controller(uint64_t addr, PlayerData& out,
@@ -121,7 +121,7 @@ bool EntityCollector::collect_local(uint64_t pawnAddr, uint64_t viewAnglesAddr,
     m_local.pawnAddr = pawnAddr;
     m_local.valid = local.alive;
 
-    // Read view angles — read into local variable then assign
+    // Read view angles, read into local variable then assign
     Vector3 angles{};
     if (viewAnglesAddr && readFn(viewAnglesAddr, &angles, sizeof(Vector3))) {
         m_local.viewAngles = angles;
@@ -210,7 +210,7 @@ float EntityCollector::probe_yaw_eyeangles(uint64_t pawnAddr,
 }
 
 // ====================================================================
-// EntityCollector — public interface
+// EntityCollector, public interface
 // ====================================================================
 
 size_t EntityCollector::collect(uint64_t entityListAddr,
@@ -228,7 +228,7 @@ size_t EntityCollector::collect(uint64_t entityListAddr,
     rng_state ^= rng_state << 17;
 
     // Build shuffled slot index list (45-63 slots per frame). Slot 0 is the
-    // null entity — controllers start at index 1.
+    // null entity, controllers start at index 1.
     int indices[kMaxPlayers];
     int count = 45 + static_cast<int>(rng_state % 19);
     for (int i = 0; i < count; ++i) indices[i] = i + 1;
@@ -269,7 +269,7 @@ size_t EntityCollector::collect(uint64_t entityListAddr,
         uint64_t entryAddr = chunk0 +
             static_cast<uint64_t>(i & chunkMask) * SchemaOffsets::kIdentityStride;
 
-        // Dummy read: touch the slot but discard — breaks stride detection
+        // Dummy read: touch the slot but discard, breaks stride detection
         if (is_dummy[idx]) {
             uint64_t dummy;
             readFn(entryAddr, &dummy, sizeof(dummy));

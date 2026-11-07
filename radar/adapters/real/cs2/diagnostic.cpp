@@ -1,11 +1,11 @@
 // EDUCATIONAL NOTE: The diagnostic offsets below are CS2 build-specific.
 // They are resolved at runtime via signature scanning in offsets.cpp.
 // If your CS2 build is newer than this code, these offsets will need
-// updating. This is expected — CS2 changes offsets every update.
+// updating. This is expected, CS2 changes offsets every update.
 //
 // Honesty contract: never invent fixed success (e.g. fake thread counts).
 // Reads that cannot be proven from process memory or OS query fail with
-// a non-empty error — consumers treat that as unavailable telemetry.
+// a non-empty error, consumers treat that as unavailable telemetry.
 
 #include "real/cs2/diagnostic.hpp"
 #include "real/cs2/offsets_snapshot.hpp"
@@ -66,7 +66,7 @@ bool read_pe_timestamp(Cs2MemoryReader& reader, std::uint64_t module_base,
 }
 
 #if LR_PLATFORM_WINDOWS
-// SYSTEM_PROCESS_INFORMATION layout (partial) — same shape as process_cache.
+// SYSTEM_PROCESS_INFORMATION layout (partial), same shape as process_cache.
 struct DiagSystemProcessInfo {
   ULONG NextEntryOffset;
   ULONG NumberOfThreads;
@@ -78,7 +78,7 @@ struct DiagSystemProcessInfo {
 };
 
 // Honest OS query: SystemProcessInformation NumberOfThreads for cs2.exe.
-// Returns 0 when the process is absent or NtQSI is unavailable — never fakes.
+// Returns 0 when the process is absent or NtQSI is unavailable, never fakes.
 int count_cs2_threads_via_ntqsi() {
   auto& api = real::win::g_Api();
   if (!api.resolved || !api.NtQuerySystemInformation) return 0;
@@ -104,11 +104,11 @@ int count_cs2_threads_via_ntqsi() {
         const wchar_t c = info->ImageName.Buffer[i];
         nameBuf[i] = (c >= L'A' && c <= L'Z')
                          ? static_cast<char>(c - L'A' + 'a')
-                         : static_cast<char>(c < 128 ? c : '?');
+: static_cast<char>(c < 128 ? c: '?');
       }
       if (std::strcmp(nameBuf, "cs2.exe") == 0) {
         const int n = static_cast<int>(info->NumberOfThreads);
-        return n > 0 ? n : 0;
+        return n > 0 ? n: 0;
       }
     }
     if (info->NextEntryOffset == 0) break;
@@ -124,8 +124,8 @@ std::string RealDiagnosticState::describe() const {
   std::ostringstream out;
   out << "verified_modules=" << verified_module_count
       << " thread_count=" << thread_count
-      << " debugger_detected=" << (debugger_detected ? "true" : "false")
-      << " secure_allowed=" << (client_allowed_on_secure ? "true" : "false");
+      << " debugger_detected=" << (debugger_detected ? "true": "false")
+      << " secure_allowed=" << (client_allowed_on_secure ? "true": "false");
   return out.str();
 }
 
@@ -133,7 +133,7 @@ Result<std::vector<std::string>> read_verified_modules(Cs2MemoryReader& reader,
                                                        const Cs2Offsets& offsets) {
 #if LR_PLATFORM_WINDOWS
   if (!reader.is_attached()) {
-    return {{}, "Reader not attached — cannot verify modules"};
+    return {{}, "Reader not attached, cannot verify modules"};
   }
 
   std::vector<std::string> modules;
@@ -149,9 +149,9 @@ Result<std::vector<std::string>> read_verified_modules(Cs2MemoryReader& reader,
 
   // Secondary: scan known absolute globals' nearby string tables for module names.
   const uint64_t probe_addrs[] = {
-      offsets.radar_base != 0 ? offsets.radar_base : 0,
-      offsets.view_angles != 0 ? offsets.view_angles - 0x200 : 0,
-      offsets.entity_list != 0 ? offsets.entity_list - 0x1000 : 0,
+      offsets.radar_base != 0 ? offsets.radar_base: 0,
+      offsets.view_angles != 0 ? offsets.view_angles - 0x200: 0,
+      offsets.entity_list != 0 ? offsets.entity_list - 0x1000: 0,
       client_base,
   };
 
@@ -159,11 +159,11 @@ Result<std::vector<std::string>> read_verified_modules(Cs2MemoryReader& reader,
       OBF("client.dll"), OBF("engine2.dll"), OBF("tier0.dll"),
       OBF("inputsystem.dll"), OBF("schemasystem.dll"), OBF("studiorender.dll")};
 
-  for (auto probe_addr : probe_addrs) {
+  for (auto probe_addr: probe_addrs) {
     if (probe_addr == 0) continue;
     auto buf_vec = do_read(reader, probe_addr, 128);
     if (buf_vec.size() < 16) continue;
-    for (auto mod_name : known_modules) {
+    for (auto mod_name: known_modules) {
       const size_t mod_len = std::strlen(mod_name);
       if (mod_len == 0 || mod_len >= buf_vec.size()) continue;
       for (size_t off = 0; off + mod_len < buf_vec.size(); ++off) {
@@ -181,7 +181,7 @@ Result<std::vector<std::string>> read_verified_modules(Cs2MemoryReader& reader,
     return Result<std::vector<std::string>>(std::move(modules));
   }
 
-  // Honest failure — no invented module list.
+  // Honest failure, no invented module list.
   return {{}, "No diagnostic module data readable (attach + offsets required)"};
 #else
   (void)reader;
@@ -194,7 +194,7 @@ Result<int> read_thread_count(Cs2MemoryReader& reader, const Cs2Offsets& offsets
   (void)offsets;
 #if LR_PLATFORM_WINDOWS
   if (!reader.is_attached()) {
-    return {0, "Reader not attached — cannot count threads"};
+    return {0, "Reader not attached, cannot count threads"};
   }
 
   // Prefer OS-level NtQuerySystemInformation NumberOfThreads for cs2.exe.
@@ -208,7 +208,7 @@ Result<int> read_thread_count(Cs2MemoryReader& reader, const Cs2Offsets& offsets
       0x100, 0x104, 0x108, 0x10C, 0x200, 0x204, 0x208, 0x20C,
   };
   if (offsets.radar_base != 0) {
-    for (auto off : probe_offsets) {
+    for (auto off: probe_offsets) {
       auto val_bytes = do_read(reader, offsets.radar_base + off, sizeof(int));
       if (val_bytes.size() == sizeof(int)) {
         int val = 0;
@@ -241,7 +241,7 @@ Result<RealDiagnosticState> read_diagnostic_state(Cs2MemoryReader& reader,
     return {state, "Reader not attached"};
   }
 
-  // Debugger presence on the local process (radar host) — real OS query.
+  // Debugger presence on the local process (radar host), real OS query.
   // Direct call is educational (IAT scar); mirrors what CS2 itself checks.
   state.debugger_detected = ::IsDebuggerPresent() != FALSE;
 
@@ -271,8 +271,8 @@ Result<RealDiagnosticState> read_diagnostic_state(Cs2MemoryReader& reader,
       state.pe_timestamp_client_dll == 0) {
     return {state,
             modules ? modules.error_msg.c_str()
-                    : (threads ? threads.error_msg.c_str()
-                               : "No diagnostic signals readable")};
+: (threads ? threads.error_msg.c_str()
+: "No diagnostic signals readable")};
   }
   return Result<RealDiagnosticState>(std::move(state));
 #else

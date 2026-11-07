@@ -14,7 +14,7 @@
 namespace t1_red {
 
 // Lab type `SyscallBackend` used by this educational unit.
-class SyscallBackend final : public ac::IMemoryBackend {
+class SyscallBackend final: public ac::IMemoryBackend {
  public:
   ac::Tier tier() const override { return ac::Tier::T1_SyscallSoft; }
   std::string_view name() const override { return name_.c_str(); }
@@ -31,7 +31,7 @@ class SyscallBackend final : public ac::IMemoryBackend {
   bool is_attached() const override { return attached_; }
   ac::ReadResult read(const ac::ReadRequest& req) override;
 
-  /// Always true in World mode — the T1 lesson is handle remains.
+  /// Always true in World mode, the T1 lesson is handle remains.
   bool exposes_usermode_handle() const { return mode_ == Mode::World; }
   /// Lab model: direct/indirect syscalls never enter hooked ntdll stubs.
   bool bypasses_usermode_api_hooks() const { return true; }
@@ -44,7 +44,7 @@ class SyscallBackend final : public ac::IMemoryBackend {
   bool last_via_syscall() const { return mode_ == Mode::World; }
 
  private:
-  enum class Mode : std::uint8_t { None, Fixture, World };
+  enum class Mode: std::uint8_t { None, Fixture, World };
 
   Mode mode_ = Mode::None;
   bool attached_ = false;

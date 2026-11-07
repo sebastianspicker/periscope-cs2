@@ -38,7 +38,7 @@ std::uint64_t chunk_table_offset() {
 std::uint64_t identity_stride(const Cs2Offsets& offsets) {
   return offsets.entity_list_entry != 0
              ? offsets.entity_list_entry
-             : snapshot::constants::entity_identity_stride;
+: snapshot::constants::entity_identity_stride;
 }
 
 Result<std::uint64_t> resolve_handle(Cs2MemoryReader& reader,
@@ -56,7 +56,7 @@ Result<std::uint64_t> resolve_handle(Cs2MemoryReader& reader,
   const auto chunk = read_value<std::uint64_t>(reader, chunk_address, OBF("entity-list chunk"));
   if (!chunk || !handle::pointer_usable(*chunk)) {
     return {{}, chunk.error_msg.empty() ? OBF("Entity-list chunk is unavailable")
-                                        : chunk.error_msg.c_str()};
+: chunk.error_msg.c_str()};
   }
 
   const std::uint64_t stride = identity_stride(offsets);
@@ -84,12 +84,12 @@ Result<Cs2PlayerEntity> read_player_at(Cs2MemoryReader& reader,
       reader, controller + offsets.entity_controller_pawn, OBF("controller pawn handle"));
   if (!pawn_handle || *pawn_handle == 0) {
     return {{}, pawn_handle.error_msg.empty() ? OBF("Player has no pawn")
-                                              : pawn_handle.error_msg.c_str()};
+: pawn_handle.error_msg.c_str()};
   }
   const auto pawn = resolve_handle(reader, entity_list, *pawn_handle, offsets);
   if (!pawn || *pawn == 0) {
     return {{}, pawn.error_msg.empty() ? OBF("Pawn handle did not resolve")
-                                       : pawn.error_msg.c_str()};
+: pawn.error_msg.c_str()};
   }
 
   Cs2PlayerEntity entity;
@@ -148,7 +148,7 @@ Result<Cs2PlayerEntity> read_player_at(Cs2MemoryReader& reader,
     if (angles) entity.eye_angles = *angles;
   }
 
-  // Armor (optional — best-effort).
+  // Armor (optional, best-effort).
   {
     const auto armor = read_value<std::int32_t>(
         reader, *pawn + snapshot::fields::m_ArmorValue, OBF("m_ArmorValue"));
@@ -199,7 +199,7 @@ ac::EntitySnapshot Cs2PlayerEntity::to_snapshot() const {
 std::string EntityReadResult::describe() const {
   std::ostringstream out;
   out << "entities=" << entity_count << " local_index=" << local_player_index
-      << " successful=" << (read_successful ? "true" : "false")
+      << " successful=" << (read_successful ? "true": "false")
       << " read_time_us=" << read_time_us;
   if (!error_msg.empty()) out << " error=" << error_msg;
   return out.str();
@@ -218,7 +218,7 @@ EntityReadResult read_entity_list(Cs2MemoryReader& reader,
   if (!entity_list_ptr || *entity_list_ptr == 0) {
     result.error_msg = entity_list_ptr.error_msg.empty()
                            ? OBF("Failed to read entity list pointer")
-                           : entity_list_ptr.error_msg.c_str();
+: entity_list_ptr.error_msg.c_str();
   } else {
     const std::uint64_t entity_list = *entity_list_ptr;
 
@@ -265,7 +265,7 @@ Result<Cs2PlayerEntity> read_local_player(Cs2MemoryReader& reader,
                                                OBF("local player pointer"));
   if (!local || *local == 0) {
     return {{}, local.error_msg.empty() ? OBF("Local player is unavailable")
-                                        : local.error_msg.c_str()};
+: local.error_msg.c_str()};
   }
 
   Cs2PlayerEntity entity;

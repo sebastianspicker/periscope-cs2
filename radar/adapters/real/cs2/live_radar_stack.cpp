@@ -1,4 +1,4 @@
-// Split from live_radar_stack.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from live_radar_stack.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/live_radar_stack.hpp"
 #include "real/cs2/live_radar_stack_internal.hpp"
 #include "real/cs2/offsets_snapshot.hpp"
@@ -83,7 +83,7 @@ const char* AttachLadder::scar_string(AttachStage s) noexcept {
     case AttachStage::HijackVerified:
       return "SCAR:L1_hijack donor-duplicated VM_READ; UI may still soft-query";
     case AttachStage::DonorWorkerIpc:
-      return "SCAR:L2_donor_worker pure IPC — UI detached from CS2; scar on worker PID";
+      return "SCAR:L2_donor_worker pure IPC, UI detached from CS2; scar on worker PID";
     case AttachStage::DirectOpenProcess:
       return "SCAR:L3_openprocess direct PROCESS_VM_READ on cs2.exe (UI)";
     case AttachStage::DegradedHudOnly:
@@ -220,7 +220,7 @@ RoundIntel read_round_intel(RemoteReadFn read, const Cs2Offsets& offsets,
   // Round active heuristic: any alive players or a planted bomb.
   intel.is_round = (intel.alive_t + intel.alive_ct) > 0 || intel.bomb_planted;
   intel.valid = true;
-  intel.detail = intel.bomb_planted ? "round+bomb" : (intel.is_round ? "round" : "idle");
+  intel.detail = intel.bomb_planted ? "round+bomb": (intel.is_round ? "round": "idle");
   return intel;
 }
 
@@ -230,7 +230,7 @@ BlueDualScore score_blue_dual(const BlueDualConfig& cfg) noexcept {
   s.rpm_reads_window = cfg.rpm_reads;
   s.rpm_bytes_window = cfg.rpm_bytes;
 
-  const double sec = cfg.window_sec > 0.1 ? cfg.window_sec : 5.0;
+  const double sec = cfg.window_sec > 0.1 ? cfg.window_sec: 5.0;
   const double rps = static_cast<double>(cfg.rpm_reads) / sec;
   if (rps > 5000.0) s.volume_score = 95;
   else if (rps > 2000.0) s.volume_score = 70;
@@ -296,7 +296,7 @@ bool write_offset_snapshot_file(const Cs2Offsets& offsets, std::uint64_t client_
   if (!path || !client_base) return false;
   // Emit RVAs
   const auto rva = [&](std::uint64_t abs) -> std::uint64_t {
-    return abs >= client_base ? abs - client_base : abs;
+    return abs >= client_base ? abs - client_base: abs;
   };
   std::ofstream out(path, std::ios::binary | std::ios::trunc);
   if (!out) return false;
@@ -334,7 +334,7 @@ OffsetUpdateResult auto_update_offsets(std::uint32_t cs2_pid,
     if (resolved) {
       out = *resolved;
       r.complete = out.is_complete();
-      r.detail = r.snapshot_loaded ? "snapshot+resolve" : "embedded_resolve";
+      r.detail = r.snapshot_loaded ? "snapshot+resolve": "embedded_resolve";
     } else {
       r.detail = "resolve_failed";
       return r;
@@ -367,7 +367,7 @@ OffsetUpdateResult auto_update_offsets(std::uint32_t cs2_pid,
       if (scanned->entity_list) out.entity_list = scanned->entity_list;
       if (scanned->local_player) out.local_player = scanned->local_player;
       r.pattern_helped = out.is_complete();
-      r.detail += r.pattern_helped ? ";pattern_helped" : ";pattern_partial";
+      r.detail += r.pattern_helped ? ";pattern_helped": ";pattern_partial";
     }
   }
 
@@ -390,4 +390,3 @@ OffsetUpdateResult auto_update_offsets(std::uint32_t cs2_pid,
 }
 
 }  // namespace real::cs2::stack
-

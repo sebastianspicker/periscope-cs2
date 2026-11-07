@@ -1,4 +1,4 @@
-// driver_loader.cpp — Complete kernel driver loading via SCM + module inventory.
+// driver_loader.cpp: Complete kernel driver loading via SCM + module inventory.
 // Educational: every operation documents what forensic artifact it leaves.
 //
 // LESSON: Loading a kernel driver creates artifacts in:
@@ -51,7 +51,7 @@ std::string driver_basename(const std::string& path_or_name) {
   if (path_or_name.empty()) return {};
   std::size_t slash = path_or_name.find_last_of("\\/");
   std::string base = (slash == std::string::npos) ? path_or_name
-                                                  : path_or_name.substr(slash + 1);
+: path_or_name.substr(slash + 1);
   // Drop NT path prefix residue like "\SystemRoot\System32\drivers\foo.sys"
   return base;
 }
@@ -109,7 +109,7 @@ Result<DriverLoadResult> load_driver(const std::string& driver_path,
   SC_HANDLE svc = static_cast<SC_HANDLE>(api.CreateServiceA(
       scm,
       service_name.c_str(),
-      display_name.empty() ? service_name.c_str() : display_name.c_str(),
+      display_name.empty() ? service_name.c_str(): display_name.c_str(),
       SERVICE_ALL_ACCESS,
       SERVICE_KERNEL_DRIVER,
       SERVICE_DEMAND_START,
@@ -290,7 +290,7 @@ namespace {
 // SystemModuleInformation = 11
 constexpr ULONG kSystemModuleInformation = 11;
 
-// SYSTEM_MODULE_INFORMATION entry — layout matches ntddk / ReactOS on x64.
+// SYSTEM_MODULE_INFORMATION entry, layout matches ntddk / ReactOS on x64.
 // NumberOfModules is followed by 4 bytes of padding before the module array.
 struct RtlProcessModuleInformation {
   PVOID Section;
@@ -444,7 +444,7 @@ Result<std::vector<KernelModuleInfo>> enum_kernel_modules() {
 #ifndef NDEBUG
     std::printf("[kernel] Enumerated %zu kernel modules (PSAPI%s)\n",
                 merged.size(),
-                (via_nt && !via_nt->empty()) ? "+SystemModuleInformation" : "");
+                (via_nt && !via_nt->empty()) ? "+SystemModuleInformation": "");
 #endif
     return merged;
   }

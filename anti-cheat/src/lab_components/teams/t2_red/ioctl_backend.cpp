@@ -1,4 +1,4 @@
-// ioctl_backend.cpp — implements ioctl_backend (T2 red).
+// ioctl_backend.cpp: implements ioctl_backend (T2 red).
 // Key methods: attach_fixture, attach_world, to_string, attach, detach.
 
 #include "t2_red/ioctl_backend.hpp"
@@ -44,7 +44,7 @@ ac::Status IoctlReadBackend::attach_world(sim::World& world,
   if (!found) {
     return ac::Status::Unavailable;
   }
-  // Optional: BYOVD policy may already block — try a probe read later.
+  // Optional: BYOVD policy may already block, try a probe read later.
   world_ = &world;
   opener_pid_ = opener_pid;
   game_pid_ = game_pid;

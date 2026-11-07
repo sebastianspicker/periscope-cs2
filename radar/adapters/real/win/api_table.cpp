@@ -1,4 +1,4 @@
-// api_table.cpp — ApiTable resolve orchestration and global g_Api().
+// api_table.cpp: ApiTable resolve orchestration and global g_Api().
 
 #include "real/win/api_table_internal.hpp"
 
@@ -71,7 +71,7 @@ bool ApiTable::resolve() noexcept {
             sizeof(funcs) / sizeof(funcs[0]));
     }
 
-    // Timing jitter — small delay to break deterministic timing analysis
+    // Timing jitter, small delay to break deterministic timing analysis
     {
         LARGE_INTEGER delay;
         delay.QuadPart = -10000LL; // 1ms base
@@ -186,4 +186,3 @@ ApiTable& g_Api() noexcept {
 }  // namespace real::win
 
 #endif  // LR_PLATFORM_WINDOWS
-

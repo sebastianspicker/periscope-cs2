@@ -25,14 +25,14 @@ namespace {
 bool module_name_matches(const std::string& path, const std::string& requested) {
   if (path == requested) return true;
   const auto separator = path.find_last_of('/');
-  return path.substr(separator == std::string::npos ? 0 : separator + 1) == requested;
+  return path.substr(separator == std::string::npos ? 0: separator + 1) == requested;
 }
 
 #if LR_PLATFORM_LINUX
 Result<std::pair<std::uint64_t, std::uint64_t>> module_range(const std::string& name) {
   std::ifstream maps("/proc/self/maps");
   std::string line;
-  std::uint64_t begin = std::numeric_limits<std::uint64_t>::max();
+  std::uint64_t begin = std::numeric_limits<std::uint64_t> ::max();
   std::uint64_t end = 0;
   while (std::getline(maps, line)) {
     const auto dash = line.find('-');
@@ -64,12 +64,12 @@ Result<std::pair<std::uint64_t, std::uint64_t>> module_range(const std::string& 
     if (header == nullptr) return {{}, "Loaded image has no Mach-O header: " + name};
 
     const auto slide = _dyld_get_image_vmaddr_slide(index);
-    std::uint64_t begin = std::numeric_limits<std::uint64_t>::max();
+    std::uint64_t begin = std::numeric_limits<std::uint64_t> ::max();
     std::uint64_t end = 0;
     const bool is_64_bit = header->magic == MH_MAGIC_64 || header->magic == MH_CIGAM_64;
     const load_command* command = reinterpret_cast<const load_command*>(
         reinterpret_cast<const std::uint8_t*>(header) +
-        (is_64_bit ? sizeof(mach_header_64) : sizeof(mach_header)));
+        (is_64_bit ? sizeof(mach_header_64): sizeof(mach_header)));
 
     for (std::uint32_t command_index = 0; command_index < header->ncmds; ++command_index) {
       if (command->cmdsize < sizeof(load_command)) {
@@ -102,14 +102,14 @@ Result<std::pair<std::uint64_t, std::uint64_t>> module_range(const std::string& 
 Result<HMODULE> find_module(const std::string& name) {
   std::vector<HMODULE> modules(256);
   DWORD bytes_needed = 0;
-  // Use K32* exports directly — psapi macros are stripped in windows_h.hpp.
-  if (!::K32EnumProcessModules(::GetCurrentProcess(), modules.data(),
+  // Use K32* exports directly, psapi macros are stripped in windows_h.hpp.
+  if (! ::K32EnumProcessModules(::GetCurrentProcess(), modules.data(),
                             static_cast<DWORD>(modules.size() * sizeof(HMODULE)), &bytes_needed)) {
     return {{}, os_error("EnumProcessModules").error_msg};
   }
   if (bytes_needed > modules.size() * sizeof(HMODULE)) {
     modules.resize((bytes_needed + sizeof(HMODULE) - 1) / sizeof(HMODULE));
-    if (!::K32EnumProcessModules(::GetCurrentProcess(), modules.data(),
+    if (! ::K32EnumProcessModules(::GetCurrentProcess(), modules.data(),
                               static_cast<DWORD>(modules.size() * sizeof(HMODULE)), &bytes_needed)) {
       return {{}, os_error("EnumProcessModules").error_msg};
     }
@@ -136,7 +136,7 @@ Result<LibHandle> load_library(const std::string& path) {
   void* module = ::dlopen(path.c_str(), RTLD_NOW | RTLD_LOCAL);
   if (module == nullptr) {
     const char* error = ::dlerror();
-    return {{}, std::string("dlopen: ") + (error != nullptr ? error : "unknown error")};
+    return {{}, std::string("dlopen: ") + (error != nullptr ? error: "unknown error")};
   }
   return Result<LibHandle>({module});
 #else
@@ -155,7 +155,7 @@ Result<LibHandle> load_system_library(const std::string& name) {
   void* module = ::dlopen(name.c_str(), RTLD_NOW | RTLD_LOCAL);
   if (module == nullptr) {
     const char* error = ::dlerror();
-    return {{}, std::string("dlopen: ") + (error != nullptr ? error : "unknown error")};
+    return {{}, std::string("dlopen: ") + (error != nullptr ? error: "unknown error")};
   }
   return Result<LibHandle>({module});
 #else
@@ -171,7 +171,7 @@ Result<void*> get_symbol(LibHandle lib, const std::string& name) {
   if (symbol == nullptr) return {{}, os_error("GetProcAddress").error_msg};
   return Result<void*>(symbol);
 #elif LR_PLATFORM_LINUX || defined(__APPLE__)
-  ::dlerror();
+::dlerror();
   void* symbol = ::dlsym(lib.native, name.c_str());
   const char* error = ::dlerror();
   if (error != nullptr) return {{}, std::string("dlsym: ") + error};
@@ -184,12 +184,12 @@ Result<void*> get_symbol(LibHandle lib, const std::string& name) {
 Result<void> unload_library(LibHandle lib) {
   if (lib.native == nullptr) return Result<void>("Invalid library handle");
 #if LR_PLATFORM_WINDOWS
-  if (!::FreeLibrary(static_cast<HMODULE>(lib.native))) return os_error("FreeLibrary");
+  if (! ::FreeLibrary(static_cast<HMODULE>(lib.native))) return os_error("FreeLibrary");
   return {};
 #elif LR_PLATFORM_LINUX || defined(__APPLE__)
   if (::dlclose(lib.native) != 0) {
     const char* error = ::dlerror();
-    return Result<void>(std::string("dlclose: ") + (error != nullptr ? error : "unknown error"));
+    return Result<void>(std::string("dlclose: ") + (error != nullptr ? error: "unknown error"));
   }
   return {};
 #else
@@ -220,7 +220,7 @@ Result<std::size_t> get_module_size(const std::string& name) {
   auto module = find_module(name);
   if (!module) return {{}, module.error_msg};
   MODULEINFO info{};
-  if (!::K32GetModuleInformation(::GetCurrentProcess(), *module, &info, sizeof(info))) {
+  if (! ::K32GetModuleInformation(::GetCurrentProcess(), *module, &info, sizeof(info))) {
     return {{}, os_error("GetModuleInformation").error_msg};
   }
   return Result<std::size_t>(info.SizeOfImage);

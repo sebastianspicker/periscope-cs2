@@ -1,4 +1,4 @@
-// radar_shared.hpp — Shared radar rendering and projection code for all tiers.
+// radar_shared.hpp: Shared radar rendering and projection code for all tiers.
 
 #pragma once
 #include "real/real_fwd.hpp"
@@ -69,7 +69,7 @@ struct TierDoc {
 //
 // This is the inverse-scale law, not a post-hoc "×2 on blip coords" fudge.
 static inline float radar_world_scale(float cl_radar_scale = 0.7f) {
-    return 750.0f / (cl_radar_scale > 0.0f ? cl_radar_scale : 0.7f);
+    return 750.0f / (cl_radar_scale > 0.0f ? cl_radar_scale: 0.7f);
 }
 
 static inline void project_world_to_radar(float dx, float dy, float yaw_deg,
@@ -99,9 +99,9 @@ static inline std::vector<RadarBlip> project_to_radar(
         float dy = e.origin.y - local_origin.y;  // horizontal Y, not Z
         float rx = 0.f, ry = 0.f;
         project_world_to_radar(dx, dy, local_yaw_deg, scale, rx, ry);
-        uint32_t color = e.is_local ? 0xFFFFFFFF :
-                         (e.team == 2) ? 0xFFCC6644 :
-                         (e.team == 3) ? 0xFF4488CC : 0xFF888888;
+        uint32_t color = e.is_local ? 0xFFFFFFFF:
+                         (e.team == 2) ? 0xFFCC6644:
+                         (e.team == 3) ? 0xFF4488CC: 0xFF888888;
         blips.push_back({rx, ry, e.angles.y, color, e.health, e.is_local});
     }
     return blips;
@@ -132,11 +132,11 @@ static inline void render_console(const TierDoc& doc,
         int gx = (int)(b.x * s + N / 2);
         int gy = (int)(b.y * s + N / 2);
         if (gx >= 0 && gx < N && gy >= 0 && gy < N)
-            grid[gy][gx] = b.is_local ? 'O' : (b.color == 0xFFCC6644 ? 'X' : '+');
+            grid[gy][gx] = b.is_local ? 'O': (b.color == 0xFFCC6644 ? 'X': '+');
     }
 
     std::printf("\n  %d players | %.0fus total | %.1fus/entity\n",
-        (int)ents.size(), us, ents.size() ? us / ents.size() : 0);
+        (int)ents.size(), us, ents.size() ? us / ents.size(): 0);
     std::printf("\n    ");
     for (int x = 0; x < N; x++) std::printf("%c", 'A' + (x % 26));
     std::printf("\n");
@@ -148,9 +148,9 @@ static inline void render_console(const TierDoc& doc,
 
     for (size_t i = 0; i < blips.size(); i++) {
         const auto& b = blips[i];
-        const char* t = b.is_local ? "YOU" :
-            (b.color == 0xFFCC6644) ? "T " :
-            (b.color == 0xFF4488CC) ? "CT" : " ?";
+        const char* t = b.is_local ? "YOU":
+            (b.color == 0xFFCC6644) ? "T ":
+            (b.color == 0xFF4488CC) ? "CT": " ?";
         std::printf("  [%zu] %-3s hp=%3d radar=(%+.2f,%+.2f) angle=%.0f\n",
                     i, t, b.health, (double)b.x, (double)b.y, (double)b.angle);
     }
@@ -202,7 +202,7 @@ static inline void render_d3d11(real::gpu::RenderPipeline* rp,
         l.screen_x = b.x; l.screen_y = b.y; l.angle = b.angle;
         l.color = b.color; l.health = b.health;
         l.is_local = b.is_local; l.is_visible = true;
-        std::snprintf(l.label, sizeof(l.label), "%s", b.is_local ? "YOU" : "");
+        std::snprintf(l.label, sizeof(l.label), "%s", b.is_local ? "YOU": "");
         frame.blips.push_back(l);
     }
 
@@ -243,7 +243,7 @@ static inline int radar_demo_max_frames(bool live) {
         int n = std::atoi(env);
         if (n > 0) return n;
     }
-    return 45;  // ~0.7s at 16ms — enough for entities + tier text
+    return 45;  // ~0.7s at 16ms, enough for entities + tier text
 }
 
 static inline void print_tier_surface(const TierDoc& doc, int entities, int blips,
@@ -254,7 +254,7 @@ static inline void print_tier_surface(const TierDoc& doc, int entities, int blip
     std::printf("  Mitigation:%s\n", doc.mitigation);
     std::printf("  Code:      %s\n", doc.real_code);
     std::printf("  Mode:      %s | entities=%d blips=%d\n",
-                live ? "LIVE" : "SIMULATION", entities, blips);
+                live ? "LIVE": "SIMULATION", entities, blips);
 }
 
 // ── Full render for both platforms ────────────────────────────────

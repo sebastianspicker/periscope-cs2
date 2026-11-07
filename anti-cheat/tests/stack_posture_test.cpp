@@ -1,4 +1,4 @@
-// stack_posture_test.cpp — host test for the pure intel/read posture policy.
+// stack_posture_test.cpp: host test for the pure intel/read posture policy.
 //
 // Covers the two ways this policy can quietly go wrong:
 //   1. The per-frame event shaper overwriting a degrade (so a ladder step never

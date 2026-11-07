@@ -1,4 +1,4 @@
-// xorstr.hpp — Compile-time XOR string obfuscation.
+// xorstr.hpp: Compile-time XOR string obfuscation.
 // All sensitive strings must use OBF() to defeat static string scanning.
 // Key comes from build_keys.hpp (per-build random).
 //
@@ -127,7 +127,7 @@ encrypted_string(const CharT (&)[N]) -> encrypted_string<CharT, N - 1>;
                 static_cast<unsigned long long>(_enc_s_.data()[_i_s_]) ^    \
                 (build::kXorKeySeed +                                       \
                  static_cast<unsigned long long>(_i_s_) *                    \
-                 ::win::obf::kGoldenRatio));                                \
+::win::obf::kGoldenRatio));                                \
         }                                                                   \
         _buf_s_[sizeof(str) - 1] = 0;                                       \
         return _buf_s_;                                                      \

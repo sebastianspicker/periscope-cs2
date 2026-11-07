@@ -1,4 +1,4 @@
-// staging_detector.hpp — T1 blue staging sensor: private RX / short-lived stub on processes.
+// staging_detector.hpp: T1 blue staging sensor: private RX / short-lived stub on processes.
 // inspect(pid) for one actor; scan_world() walks StagingWatch hits.
 
 #pragma once

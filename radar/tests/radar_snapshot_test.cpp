@@ -1,4 +1,4 @@
-// radar_snapshot_test.cpp — R1: protocol v1 serializer checks.
+// radar_snapshot_test.cpp: R1: protocol v1 serializer checks.
 //
 // Covers the properties the research ledger demands: stable field order,
 // u64 ids serialized as strings, Steam IDs off by default, non-finite float
@@ -128,8 +128,8 @@ void test_escaping() {
 
 void test_non_finite_normalized() {
   GameSnapshot snap = sample_snapshot();
-  const float quiet_nan = std::numeric_limits<float>::quiet_NaN();
-  const float inf = std::numeric_limits<float>::infinity();
+  const float quiet_nan = std::numeric_limits<float> ::quiet_NaN();
+  const float inf = std::numeric_limits<float> ::infinity();
   snap.players[0].pos = {quiet_nan, inf, -inf};
   snap.players[0].yaw = quiet_nan;
   const std::string json = radar_domain::serialize_snapshot_v1(snap);

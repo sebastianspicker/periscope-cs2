@@ -1,4 +1,4 @@
-// vulnerable_driver.hpp — BYOVD catalog + session for T2 kernel memory access.
+// vulnerable_driver.hpp: BYOVD catalog + session for T2 kernel memory access.
 //
 // LESSON: BYOVD leaves a loaded-module hash, SCM records, device objects, and
 // IOCTL telemetry. Defenders should block known vulnerable drivers before load.

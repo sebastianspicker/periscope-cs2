@@ -1,6 +1,6 @@
 #pragma once
 
-// Weak T0 evasions novices try — and why they fail against handle-graph blue.
+// Weak T0 evasions novices try, and why they fail against handle-graph blue.
 
 #include "sim/world.hpp"
 
@@ -38,7 +38,7 @@ class WeakEvasionKit {
                                                    std::uint32_t owner_pid,
                                                    std::uint32_t game_pid);
 
-  /// Claim looks_reputable (allowlist bait) — blue strong policy still fires.
+  /// Claim looks_reputable (allowlist bait), blue strong policy still fires.
   static WeakEvasionReport claim_reputation(sim::World& w, std::uint32_t pid);
 
   /// Run several weak evasions; returns per-step reports.

@@ -36,7 +36,7 @@ def emit_hpp(snap: dict) -> str:
 
     Emits *every* FIELD_MAP field (core + extended: dormant, armor, spotted,
     observer, bomb) plus all GLOBAL_KEYS and ENTITY_CONSTANTS. Never drops
-    extended symbols that build_snapshot required — write+install must not
+    extended symbols that build_snapshot required, write+install must not
     strip adapters/real/cs2/offsets_snapshot.hpp.
     """
     for key in ("globals", "fields", "constants"):
@@ -88,7 +88,7 @@ def emit_hpp(snap: dict) -> str:
         "// NOTE: entities.cpp / live_radar_stack.cpp require the full FIELD_MAP set",
         "// (core + armor, dormant, spotted, bomb, observer). emit_hpp emits every key.",
         "//",
-        f"// PINNED DUMP — {pin_note(ts)}. Refresh with",
+        f"// PINNED DUMP, {pin_note(ts)}. Refresh with",
         "// radar/scripts/update_cs2_signatures.py; `--check` reports drift read-only.",
         "// Never hand-edit values here: the updater regenerates this file wholesale.",
         "",

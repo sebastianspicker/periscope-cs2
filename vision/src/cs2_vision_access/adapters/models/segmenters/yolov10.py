@@ -7,17 +7,17 @@ Architecture
 ------------
 YOLOv10 differs from YOLOv5/v8/v11 in two key ways:
 
-1. **NMS-free** — the model is trained with one-to-one matching, so the forward
+1. **NMS-free**, the model is trained with one-to-one matching, so the forward
    pass produces a single output tensor with final detections (no NMS post-
    processing needed).
 
-2. **Detection-only** — YOLOv10 has no segmentation head. Outputs are bounding
+2. **Detection-only**, YOLOv10 has no segmentation head. Outputs are bounding
    boxes, not masks. The renderer will use axis-aligned rectangle outlines.
 
 Model format (onnx-community)
 -----------------------------
-- **Input**: ``images`` — float32 ``[1, 3, 640, 640]``, RGB, values in [0, 1].
-- **Output**: ``output0`` — float32 ``[1, N, 6]`` where each row is
+- **Input**: ``images``, float32 ``[1, 3, 640, 640]``, RGB, values in [0, 1].
+- **Output**: ``output0``, float32 ``[1, N, 6]`` where each row is
   ``[x1, y1, x2, y2, score, class_id]``. Coordinates are in the preprocessed
   (padded/square) image space and are unscaled to the original frame internally.
 

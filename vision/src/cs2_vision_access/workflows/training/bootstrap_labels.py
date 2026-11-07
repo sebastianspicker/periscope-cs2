@@ -72,7 +72,7 @@ def bootstrap_labels_with_yolo_person(
     polygon shapes to learn. Class id is remapped to *class_id* (default 0
     for player / single-class training).
 
-    Person misses are **not** written as empty labels — frames stay unlabeled so
+    Person misses are **not** written as empty labels, frames stay unlabeled so
     later self-train can fill them. Written polygons use the ``# pseudo`` marker
     via :func:`write_label` (``overwrite_pseudo``).
 
@@ -99,7 +99,7 @@ def bootstrap_labels_with_yolo_person(
     model = YOLO(base_model)
 
     # Flat images/ plus optional CS2-10k holdout staging dir images_val/
-    # (only when labeling the default flat pool — not an explicit train split).
+    # (only when labeling the default flat pool, not an explicit train split).
     default_images = (data_dir / "images").resolve()
     include_val = images_dir.resolve() == default_images
     image_roots = candidate_image_dirs_for_labeling(
@@ -133,7 +133,7 @@ def bootstrap_labels_with_yolo_person(
                     continue
             except OSError:
                 continue
-            # Pseudo may still be revised only if empty of polygons — skip if body.
+            # Pseudo may still be revised only if empty of polygons, skip if body.
             body = label_path.read_text(encoding="utf-8")
             content_lines = [
                 ln for ln in body.splitlines() if ln.strip() and not ln.strip().startswith("#")
@@ -153,7 +153,7 @@ def bootstrap_labels_with_yolo_person(
             classes=[0],  # COCO person
         )
         if not results:
-            # Leave unlabeled — self-train can fill later.
+            # Leave unlabeled, self-train can fill later.
             continue
 
         result = results[0]
@@ -199,7 +199,7 @@ def bootstrap_labels_with_yolo_person(
             min_area=float(min_polygon_area),
         )
         if not lines:
-            # No usable polygon — leave unlabeled.
+            # No usable polygon, leave unlabeled.
             continue
 
         if write_label(label_path, lines, policy="overwrite_pseudo"):

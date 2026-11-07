@@ -1,4 +1,4 @@
-"""gui subcommand — launch the desktop GUI dashboard for live outlining.
+"""gui subcommand, launch the desktop GUI dashboard for live outlining.
 
 The GUI module is imported lazily inside the handler so the CLI parser stays
 importable on machines without a display or tkinter.

@@ -1,4 +1,4 @@
-// aclab_module.c — Educational Linux kernel module for anti-cheat lab (T2/T3).
+// aclab_module.c: Educational Linux kernel module for anti-cheat lab (T2/T3).
 //
 // Exposes /dev/aclab with physical + process virtual memory ops, CR3 read,
 // DKOM hide, and credential steal. Every operation logs SCAR lines to dmesg.
@@ -67,7 +67,7 @@ static int aclab_phys_write(u64 phys_addr, const u8* buf, u32 size)
 	iounmap(mapped);
 	pr_info("[aclab] PHYS_WRITE: 0x%llx %u bytes\n",
 		(unsigned long long)phys_addr, size);
-	pr_info("[aclab] SCAR: physical write — integrity scanners may trip\n");
+	pr_info("[aclab] SCAR: physical write, integrity scanners may trip\n");
 	return 0;
 }
 
@@ -244,7 +244,7 @@ static int aclab_steal_cred(pid_t target_pid, pid_t source_pid)
 
 	put_cred(src_cred);
 
-	/* commit_creds only applies to current — for foreign target we use
+	/* commit_creds only applies to current, for foreign target we use
 	 * override_creds pattern is wrong. Educational path: install via
 	 * rcu_assign on target under task_lock (simplified lab model). */
 	task_lock(target);
@@ -338,7 +338,7 @@ static long aclab_ioctl(struct file* filp, unsigned int cmd, unsigned long arg)
 		if (!aclab_virt_op_valid(&op))
 			return -EINVAL;
 		ret = aclab_virt_write(op.pid, op.virt_addr, op.data, op.size);
-		return ret > 0 ? 0 : ret;
+		return ret > 0 ? 0: ret;
 	}
 	case ACLAB_IOCTL_HIDE_PROC: {
 		pid_t pid;

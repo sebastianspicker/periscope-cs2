@@ -1,6 +1,6 @@
 """Ultralytics ONNX segmentation backend.
 
-This is the default segmenter backend — loads a checksum-verified ONNX model
+This is the default segmenter backend, loads a checksum-verified ONNX model
 via Ultralytics ``YOLO(..., task="segment")`` and parses mask polygons.
 """
 

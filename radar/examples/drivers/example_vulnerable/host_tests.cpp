@@ -1,4 +1,4 @@
-// host_tests.cpp — Host-side unit tests for the shipped gdrv ABI/pack surface.
+// host_tests.cpp: Host-side unit tests for the shipped gdrv ABI/pack surface.
 //
 // Drives gdrv_pack.hpp / gdrv_abi.h (the same headers used by user_test and
 // the kernel driver). No parallel re-implementation of wire formats.
@@ -265,7 +265,7 @@ static void test_driver_source_attach_safe() {
 
     std::string src = read_file_text(beside.c_str());
     if (src.empty()) {
-        for (const char* c : candidates) {
+        for (const char* c: candidates) {
             src = read_file_text(c);
             if (!src.empty()) break;
         }
@@ -369,7 +369,7 @@ static void test_driver_source_attach_safe() {
             EXPECT(mid.find("stage[") != std::string::npos,
                    "MODULE_LIST: fills stage[] while attached");
         }
-        auto after = body.substr(detach == std::string::npos ? 0 : detach);
+        auto after = body.substr(detach == std::string::npos ? 0: detach);
         EXPECT(after.find("RtlCopyMemory(user_buffer") != std::string::npos,
                "MODULE_LIST: header write after detach");
     }
@@ -394,5 +394,5 @@ int main() {
     test_driver_source_attach_safe();
 
     std::printf("\n=== Summary: %d passed, %d failed ===\n", g_passed, g_failed);
-    return g_failed == 0 ? 0 : 1;
+    return g_failed == 0 ? 0: 1;
 }

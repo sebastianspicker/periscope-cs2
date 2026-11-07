@@ -1,4 +1,4 @@
-// preflight.hpp — pre-attach system posture report (E61).
+// preflight.hpp: pre-attach system posture report (E61).
 //
 // Loading a kernel driver into a hardened Windows install fails in ways that
 // are hard to read from a raw SCM error: Secure Boot with test signing off,
@@ -58,7 +58,7 @@ inline const char* verdict_name(Verdict verdict) {
 
 inline const char* tri(bool value, bool known) {
   if (!known) return "unknown";
-  return value ? "yes" : "no";
+  return value ? "yes": "no";
 }
 
 inline std::string describe(const SystemStatus& s) {
@@ -78,7 +78,7 @@ inline std::string describe(const SystemStatus& s) {
   out += " driver_file=";
   out += tri(s.driver_file, s.driver_file_known);
   out += " driver_loaded=";
-  out += s.driver_loaded ? "yes" : "no";
+  out += s.driver_loaded ? "yes": "no";
   return out;
 }
 

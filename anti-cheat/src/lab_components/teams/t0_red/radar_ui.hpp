@@ -1,6 +1,6 @@
 #pragma once
 
-// External radar UI surface (window / web feed) — no game inject.
+// External radar UI surface (window / web feed), no game inject.
 // Can register an OverlayWindow scar on sim::World for blue heuristics.
 //
 // Platform rendering is composed by real adapters, not this reusable lab component.

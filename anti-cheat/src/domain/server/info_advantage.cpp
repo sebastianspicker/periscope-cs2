@@ -1,4 +1,4 @@
-// info_advantage.cpp — server info-advantage scorer (aim vs vision/audio truth).
+// info_advantage.cpp: server info-advantage scorer (aim vs vision/audio truth).
 // Multi-invariant behavior score; pairs with structural fog.
 
 #include "server/info_advantage.hpp"

@@ -1,4 +1,4 @@
-// T2 Duel — empty handles; drivers/devices/blocklists decide.
+// T2 Duel, empty handles; drivers/devices/blocklists decide.
 
 #include "ac/telemetry.hpp"
 #include "sim/narrative.hpp"
@@ -23,14 +23,14 @@ int main() {
   auto rep = red.run_full_loop(t2_red::KernelPath::Byovd, /*strip_cbs=*/true);
   n.say(sim::Side::Red, rep.detail);
   std::printf("[red] entities=%d has_game_handle=%d byovd=%d ioctl_ops=%d\n",
-              rep.entity_count, red.has_game_handle() ? 1 : 0, rep.byovd ? 1 : 0,
+              rep.entity_count, red.has_game_handle() ? 1: 0, rep.byovd ? 1: 0,
               rep.ioctl_ops);
 
   n.counter(sim::Side::Blue, "T0 handle agent",
             "Should be quiet if red is pure T2.");
   t0_blue::AcAgent t0(world, sink);
   auto hscan = t0.scan_handles();
-  std::printf("    t0_handle_hit=%d\n", hscan.handle_hit ? 1 : 0);
+  std::printf("    t0_handle_hit=%d\n", hscan.handle_hit ? 1: 0);
 
   n.counter(sim::Side::Blue, "KernelAc full_scan",
             "Blocklist + unknown memrw + devices + callback audit.");
@@ -47,8 +47,8 @@ int main() {
   bool ioctl_after = world.device_ioctl_read(
       red.ui_pid(), red.device(), world.game_pid(),
       world.proc(world.game_pid())->base, 4, after);
-  std::printf("    mitigate=%d ioctl_after_block=%d\n", mit ? 1 : 0,
-              ioctl_after ? 1 : 0);
+  std::printf("    mitigate=%d ioctl_after_block=%d\n", mit ? 1: 0,
+              ioctl_after ? 1: 0);
 
   const bool blue_wins =
       (det.byovd || det.suspicious_device || det.callback_tamper ||
@@ -57,9 +57,9 @@ int main() {
   n.result(blue_wins,
            !hscan.handle_hit
                ? "Handle graph silent, but kernel suite caught T2 surface."
-               : "Also saw handles (mixed red).");
+: "Also saw handles (mixed red).");
 
   n.say(sim::Side::Lesson,
         "Next: T3 goes under the OS with a personal HV. Run duel_t3.");
-  return blue_wins && !ioctl_after ? 0 : 1;
+  return blue_wins && !ioctl_after ? 0: 1;
 }

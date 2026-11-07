@@ -1,4 +1,4 @@
-// registry_run.cpp — Strategy pair execution: run_one, run_all, run_filtered.
+// registry_run.cpp: Strategy pair execution: run_one: run_all, run_filtered.
 // Split from the original 610-line monolith registry.cpp.
 
 #include "strategies/framework.hpp"
@@ -19,7 +19,7 @@ int run_one(std::string_view id, bool verbose) {
   }
   sim::Narrator n;
   if (verbose) {
-    std::printf("\n############################\n# %s — %s\n# RED: %s\n# BLUE: %s\n############################\n",
+    std::printf("\n############################\n# %s, %s\n# RED: %s\n# BLUE: %s\n############################\n",
                 e->meta.id, e->meta.title, e->meta.red_one_liner,
                 e->meta.blue_one_liner);
   }
@@ -27,13 +27,13 @@ int run_one(std::string_view id, bool verbose) {
   auto res = e->run(world, n);
   if (verbose) {
     std::printf("    red_achieved=%d blue_detected=%d blue_mitigated=%d\n    %s\n",
-                res.red_achieved ? 1 : 0, res.blue_detected ? 1 : 0,
-                res.blue_mitigated ? 1 : 0, res.summary.c_str());
+                res.red_achieved ? 1: 0, res.blue_detected ? 1: 0,
+                res.blue_mitigated ? 1: 0, res.summary.c_str());
   }
   const bool ok = res.blue_detected || res.blue_mitigated || !res.red_achieved;
   // A pass without red achieving never exercises blue; make it visible.
   if (!res.red_achieved) std::fprintf(stderr, "WARN %s: red never achieved, blue untested\n", e->meta.id);
-  return ok ? 0 : 1;
+  return ok ? 0: 1;
 }
 
 // run_all: Run every catalog entry; return 0 only if all pass.
@@ -47,7 +47,7 @@ int run_all(bool verbose) {
     }
   }
   std::printf("\nCatalog: %zu strategies, %d failure(s)\n", catalog().size(), fails);
-  return fails == 0 ? 0 : 1;
+  return fails == 0 ? 0: 1;
 }
 
 // run_filtered: run catalog subset by family name and/or tier substring.
@@ -77,13 +77,13 @@ int run_filtered(const char* family_filter, const char* tier_filter, bool verbos
     if (!res.red_achieved) std::fprintf(stderr, "WARN %s: red never achieved, blue untested\n", e.meta.id);
     if (!ok) { ++fails; ++stats.failures; if (verbose) std::fprintf(stderr, "FAIL %s\n", e.meta.id); }
     else if (verbose) std::printf("ok %s red=%d det=%d mit=%d\n", e.meta.id,
-                    res.red_achieved ? 1 : 0, res.blue_detected ? 1 : 0,
-                    res.blue_mitigated ? 1 : 0);
+                    res.red_achieved ? 1: 0, res.blue_detected ? 1: 0,
+                    res.blue_mitigated ? 1: 0);
   }
   stats.detail = "run_filtered total=" + std::to_string(stats.total) +
                  " fails=" + std::to_string(stats.failures);
   if (out_stats) *out_stats = stats;
-  return fails == 0 ? 0 : 1;
+  return fails == 0 ? 0: 1;
 }
 
 }  // namespace strategies

@@ -54,7 +54,7 @@ class DetectionResult:
     ``cupy.asnumpy`` if a host array is required).
     """
 
-    boxes: Any  # [N, 4] xyxy — NumPy, or CuPy when return_gpu=True
+    boxes: Any  # [N, 4] xyxy, NumPy, or CuPy when return_gpu=True
     scores: Any  # [N]
     class_ids: Any  # [N]
     num_detections: int
@@ -129,7 +129,7 @@ class GpuInferencePipeline:
 
         # Input dtype resolved from the ONNX session during IO binding.
         # Defaults to float32; the session's declared input dtype is
-        # authoritative — config ``use_fp16`` never forces fp16 on a
+        # authoritative, config ``use_fp16`` never forces fp16 on a
         # float32 model (correctness first).
         self._input_dtype: np.dtype = np.dtype(np.float32)
 
@@ -160,7 +160,7 @@ class GpuInferencePipeline:
             step = "session.io_binding()"
             binding = self.session.io_binding()
 
-            # Input — allocate and bind with the model's actual dtype.
+            # Input, allocate and bind with the model's actual dtype.
             step = "input binding"
             det_shape = (1, 3, self.image_size, self.image_size)
             det_input_gpu = cp.empty(det_shape, dtype=self._input_dtype)
@@ -196,7 +196,7 @@ class GpuInferencePipeline:
             self._io_input = det_input_gpu
             self._io_output = det_output_gpu
             logger.info(
-                "GPU IO binding enabled (%s input) — zero-copy inference",
+                "GPU IO binding enabled (%s input), zero-copy inference",
                 self._input_dtype,
             )
         except Exception as exc:
@@ -213,7 +213,7 @@ class GpuInferencePipeline:
 
         Reports the input dtype resolved from the ONNX session during
         ``_setup_io_binding``.  The session's declared input dtype is
-        authoritative — fp16 is never forced on a float32 model.
+        authoritative, fp16 is never forced on a float32 model.
         """
         return bool(self._input_dtype == np.float16)
 
@@ -258,7 +258,7 @@ class GpuInferencePipeline:
 
         t0 = time.perf_counter()
 
-        # ---- Step 1: Preprocess (stretch) — GPU ----
+        # ---- Step 1: Preprocess (stretch), GPU ----
         h, w = frame_bgr.shape[:2]
 
         if self.cuda_available and self._io_binding is not None:
@@ -280,7 +280,7 @@ class GpuInferencePipeline:
                             self.pool,
                         )
                 except Exception as exc:
-                    logger.warning("Streamed preprocess failed (%s) — running synchronously", exc)
+                    logger.warning("Streamed preprocess failed (%s), running synchronously", exc)
                     _preprocess_gpu_direct(
                         frame_bgr,
                         self._io_input,
@@ -308,7 +308,7 @@ class GpuInferencePipeline:
 
         t1 = time.perf_counter()
 
-        # ---- Step 2: ONNX Inference — GPU ----
+        # ---- Step 2: ONNX Inference, GPU ----
         if self._io_binding is not None:
             # ORT must not read the input before the preprocess kernel is done
             # (it ran on the non-blocking transfer stream or CuPy's stream).
@@ -341,7 +341,7 @@ class GpuInferencePipeline:
 
         t2 = time.perf_counter()
 
-        # ---- Step 3: Decode + NMS — GPU auto-dispatch ----
+        # ---- Step 3: Decode + NMS, GPU auto-dispatch ----
         # Runs on the compute stream when streaming is enabled so it can
         # overlap with the next frame's preprocessing / inference.
         if self._streams_enabled():
@@ -362,7 +362,7 @@ class GpuInferencePipeline:
                         self.iou_threshold,
                     )
             except Exception as exc:
-                logger.warning("Streamed decode/NMS failed (%s) — running synchronously", exc)
+                logger.warning("Streamed decode/NMS failed (%s), running synchronously", exc)
                 boxes, scores, class_ids = _decode_nms(
                     raw_output,
                     self.num_classes,
@@ -392,7 +392,7 @@ class GpuInferencePipeline:
 
                 sync_all()
             except Exception as exc:
-                logger.warning("CUDA stream synchronisation failed (%s) — continuing", exc)
+                logger.warning("CUDA stream synchronisation failed (%s), continuing", exc)
 
         # ---- Convert to CPU unless caller asked to keep GPU arrays ----
         stay_on_gpu = bool(return_gpu and self.cuda_available)

@@ -1,7 +1,7 @@
 #pragma once
 
 // Ops graph fusion: account + HWID + VPN + C2 + payment → seller/cluster risk.
-// One correlator over ≥3 signal families — not six lone flags.
+// One correlator over ≥3 signal families, not six lone flags.
 
 #include "sim/world.hpp"
 
@@ -23,7 +23,7 @@ struct SellerSignalSnapshot {
   int unique_build_ids = 0;
 };
 
-enum class ClusterAction : std::uint8_t {
+enum class ClusterAction: std::uint8_t {
   None = 0,
   Watchlist,
   SoftRestrictCluster,

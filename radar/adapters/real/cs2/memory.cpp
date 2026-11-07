@@ -19,12 +19,12 @@
 namespace real::cs2 {
 namespace {
 
-class RpmBackend final : public ac::IMemoryBackend {
+class RpmBackend final: public ac::IMemoryBackend {
  public:
-  explicit RpmBackend(ac::Tier actual_tier = ac::Tier::T0_UsermodeRpm) : actual_tier_(actual_tier) {}
+  explicit RpmBackend(ac::Tier actual_tier = ac::Tier::T0_UsermodeRpm): actual_tier_(actual_tier) {}
   ac::Tier tier() const override { return actual_tier_; }
   std::string_view name() const override {
-    return actual_tier_ == ac::Tier::T1_SyscallSoft ? "real_syscall" : "real_rpm";
+    return actual_tier_ == ac::Tier::T1_SyscallSoft ? "real_syscall": "real_rpm";
   }
 
   ac::Status attach(std::uint32_t target_id) override {
@@ -68,7 +68,7 @@ class RpmBackend final : public ac::IMemoryBackend {
       if (api.resolved && api.CloseHandle) {
         api.CloseHandle(handle_);
       } else {
-        ::CloseHandle(handle_);
+::CloseHandle(handle_);
       }
     }
     // Hijack-borrowed handles are not closed here.
@@ -90,9 +90,9 @@ class RpmBackend final : public ac::IMemoryBackend {
 
   ac::ReadResult read(const ac::ReadRequest& request) override {
     if (!is_attached() || request.size == 0) {
-      return {is_attached() ? ac::Status::InvalidArgument : ac::Status::Unavailable, {}};
+      return {is_attached() ? ac::Status::InvalidArgument: ac::Status::Unavailable, {}};
     }
-    if (request.address > std::numeric_limits<std::uint64_t>::max() - request.size) {
+    if (request.address > std::numeric_limits<std::uint64_t> ::max() - request.size) {
       return {ac::Status::InvalidArgument, {}};
     }
 #if LR_PLATFORM_WINDOWS
@@ -153,20 +153,20 @@ class RpmBackend final : public ac::IMemoryBackend {
 /// This backend is available only when a compatible kernel driver
 /// (e.g., gdrv.sys BYOVD) is loaded. attach() opens the device and
 /// sends IOCTL_MEM_READ requests. If the device cannot be opened,
-/// the backend reports Unavailable — it NEVER falls back to RPM
+/// the backend reports Unavailable, it NEVER falls back to RPM
 /// when Preference is PreferIoctl (see Cs2MemoryReader::attach).
-class IoctlBackend final : public ac::IMemoryBackend {
+class IoctlBackend final: public ac::IMemoryBackend {
  public:
   explicit IoctlBackend(const char* device_path = nullptr,
                           std::uint32_t ioctl_code = real::kernel::IOCTL_MEM_READ)
-      : device_path_(device_path), ioctl_code_(ioctl_code) {}
+: device_path_(device_path), ioctl_code_(ioctl_code) {}
 
   ac::Tier tier() const override { return ac::Tier::T2_KernelByovd; }
   std::string_view name() const override { return "real_ioctl"; }
 
   // Resolve device path: use OBF default if none provided
   const char* resolved_device_path() const noexcept {
-    return device_path_ ? device_path_ : OBF("\\\\.\\gdrv");
+    return device_path_ ? device_path_: OBF("\\\\.\\gdrv");
   }
 
   ac::Status attach(std::uint32_t target_id) override {
@@ -202,9 +202,9 @@ class IoctlBackend final : public ac::IMemoryBackend {
 
   ac::ReadResult read(const ac::ReadRequest& request) override {
     if (!is_attached() || request.size == 0) {
-      return {is_attached() ? ac::Status::InvalidArgument : ac::Status::Unavailable, {}};
+      return {is_attached() ? ac::Status::InvalidArgument: ac::Status::Unavailable, {}};
     }
-    if (request.address > std::numeric_limits<std::uint64_t>::max() - request.size) {
+    if (request.address > std::numeric_limits<std::uint64_t> ::max() - request.size) {
       return {ac::Status::InvalidArgument, {}};
     }
 #if LR_PLATFORM_WINDOWS
@@ -224,7 +224,7 @@ class IoctlBackend final : public ac::IMemoryBackend {
     auto result = real::kernel::send_ioctl(
         device_, ioctl_code_, input, request.size);
     if (!result) {
-      // IOCTL failed — device may have been unloaded or handle revoked.
+      // IOCTL failed, device may have been unloaded or handle revoked.
       // Do NOT fall back to RPM: the preference is PreferIoctl.
       return {ac::Status::Denied, {}};
     }
@@ -235,7 +235,7 @@ class IoctlBackend final : public ac::IMemoryBackend {
   }
 
  private:
-  // Device path is stored as raw pointer — it's either a static OBF string
+  // Device path is stored as raw pointer, it's either a static OBF string
   // or a caller-provided string that outlives this backend.
   const char* device_path_;
   std::uint32_t ioctl_code_;
@@ -249,17 +249,17 @@ class IoctlBackend final : public ac::IMemoryBackend {
 /// Privileged-tier backend: hands off to real/vmx or real/dma when those
 /// libraries are linked; otherwise fails with Unavailable and never pretends
 /// to be attached or to return successful reads.
-class UnavailableBackend final : public ac::IMemoryBackend {
+class UnavailableBackend final: public ac::IMemoryBackend {
  public:
   explicit UnavailableBackend(ac::Tier tier, const char* backend_name)
-      : tier_(tier), name_(backend_name ? backend_name
-                                        : "unavailable_requires_privileged_backend") {}
+: tier_(tier), name_(backend_name ? backend_name
+: "unavailable_requires_privileged_backend") {}
 
   ac::Tier tier() const override { return tier_; }
   std::string_view name() const override { return name_; }
   ac::Status attach(std::uint32_t target_id) override {
     // Explicit non-Ok: no silent attach, no fabricated RPM path.
-    return target_id == 0 ? ac::Status::InvalidArgument : ac::Status::Unavailable;
+    return target_id == 0 ? ac::Status::InvalidArgument: ac::Status::Unavailable;
   }
   void detach() override {}
   bool is_attached() const override { return false; }
@@ -292,7 +292,7 @@ ac::Status Cs2MemoryReader::attach(ac::Tier tier, std::uint32_t pid) {
   }
 
   backend_ = create_backend(tier, pid);
-  ac::Status status = backend_ ? backend_->attach(pid) : ac::Status::Unavailable;
+  ac::Status status = backend_ ? backend_->attach(pid): ac::Status::Unavailable;
   if (status != ac::Status::Ok) {
     if (m_preference == MemoryBackendPreference::PreferIoctl) {
       // V4-V1 / V4-V2 BLOCK: When PreferIoctl is set, NEVER fall back
@@ -312,7 +312,7 @@ ac::Status Cs2MemoryReader::attach(ac::Tier tier, std::uint32_t pid) {
     // vectors V4-V1 and V4-V2 are understood and accepted.
     if (tier != ac::Tier::T0_UsermodeRpm) {
       backend_ = std::make_unique<RpmBackend>(ac::Tier::T0_UsermodeRpm);
-      status = backend_ ? backend_->attach(pid) : ac::Status::Unavailable;
+      status = backend_ ? backend_->attach(pid): ac::Status::Unavailable;
     }
   }
   if (status != ac::Status::Ok) {
@@ -353,8 +353,8 @@ ac::ReadResult Cs2MemoryReader::read_string(std::uint64_t address, std::size_t m
 Result<std::uint64_t> Cs2MemoryReader::read_pointer_chain(
     std::uint64_t base, const std::vector<std::uint64_t>& offsets) {
   std::uint64_t current = base;
-  for (const std::uint64_t offset : offsets) {
-    if (current > std::numeric_limits<std::uint64_t>::max() - offset) {
+  for (const std::uint64_t offset: offsets) {
+    if (current > std::numeric_limits<std::uint64_t> ::max() - offset) {
       return {0, "Pointer-chain address overflow"};
     }
     const auto result = read(current + offset, sizeof(current));
@@ -379,7 +379,7 @@ const char* Cs2MemoryReader::active_tier_name() const {
 }
 
 const char* Cs2MemoryReader::active_backend_name() const {
-  return backend_ ? backend_->name().data() : "detached";
+  return backend_ ? backend_->name().data(): "detached";
 }
 
 std::unique_ptr<ac::IMemoryBackend> create_backend(ac::Tier tier, std::uint32_t pid) {
@@ -392,14 +392,14 @@ std::unique_ptr<ac::IMemoryBackend> create_backend(ac::Tier tier, std::uint32_t 
       // but with a different tier label. Still subject to V4-V1/V4-V2.
       return std::make_unique<RpmBackend>(ac::Tier::T1_SyscallSoft);
     case ac::Tier::T2_KernelByovd:
-      // T2: kernel IOCTL — no VM_READ handle, no usermode NtReadVirtualMemory.
+      // T2: kernel IOCTL, no VM_READ handle, no usermode NtReadVirtualMemory.
       // This is the only path that avoids both V4-V1 (handle table)
       // and V4-V2 (ETW Threat Intelligence).
       return std::make_unique<IoctlBackend>();
     case ac::Tier::T3_Hypervisor:
       // T3 lives in real/vmx (hypercall / EPT). That stack requires CPL=0 and
       // is not silently substituted with usermode RPM. PreferIoctl attach()
-      // also refuses RPM fallback for T2+ — same honesty for T3.
+      // also refuses RPM fallback for T2+, same honesty for T3.
       // When LR_ENABLE_REAL_VMX is ON, link ac_real_vmx and replace this with
       // a thin wrapper around hyperv_read_virtual_memory; until then fail clean.
       return std::make_unique<UnavailableBackend>(

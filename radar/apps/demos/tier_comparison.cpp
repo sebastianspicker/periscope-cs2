@@ -94,7 +94,7 @@ TierResult make_result(DemoTier tier) {
 TierResult run_simulated(DemoTier tier) {
   TierResult result = make_result(tier);
   volatile std::uint32_t checksum = 0;
-  const int passes = tier == DemoTier::T4 ? 1 : static_cast<int>(tier) + 2;
+  const int passes = tier == DemoTier::T4 ? 1: static_cast<int>(tier) + 2;
 
   const auto started = std::chrono::steady_clock::now();
   std::vector<SimulatedEntity> entities;
@@ -202,7 +202,7 @@ TierResult run_real_reader(DemoTier tier, const RealContext& context) {
   result.succeeded = entities.read_successful;
   result.entities_read = entities.entities.size();
   result.elapsed_us = std::chrono::duration_cast<std::chrono::microseconds>(finished - started).count();
-  result.message = entities.read_successful ? "real CS2 entity list read" : entities.error_msg;
+  result.message = entities.read_successful ? "real CS2 entity list read": entities.error_msg;
   reader.detach();
   return result;
 #endif
@@ -233,7 +233,7 @@ TierResult run_real_t4(const RealContext& context) {
 
 void print_results(const std::array<TierResult, 5>& results, bool simulation) {
   std::printf("\n══════════════════════════════════════════════════════════════════════════════════════\n");
-  std::printf("  TIER COMPARISON — CS2 Entity Read%s\n", simulation ? " (SIMULATION)" : "");
+  std::printf("  TIER COMPARISON, CS2 Entity Read%s\n", simulation ? " (SIMULATION)": "");
   std::printf("══════════════════════════════════════════════════════════════════════════════════════\n");
   std::printf("%-24s %-10s %-9s %-10s %-9s %s\n", "Tier", "Available", "Success", "Entities", "Time", "OS Artifact");
   std::printf("%-24s %-10s %-9s %-10s %-9s %s\n", "────", "─────────", "───────", "────────", "────", "──────────");
@@ -242,7 +242,7 @@ void print_results(const std::array<TierResult, 5>& results, bool simulation) {
     if (result.succeeded) std::snprintf(elapsed, sizeof(elapsed), "%lldus", result.elapsed_us);
     else std::snprintf(elapsed, sizeof(elapsed), "-");
     std::printf("%-24s %-10s %-9s %-10zu %-9s %s\n", result.name,
-                result.available ? "YES" : "NO", result.succeeded ? "YES" : "NO",
+                result.available ? "YES": "NO", result.succeeded ? "YES": "NO",
                 result.entities_read, elapsed, result.artifact);
   }
 
@@ -283,24 +283,24 @@ int main(int argc, char* argv[]) {
     const RealContext context = prepare_real_context();
     if (!context.ready) {
       // CS2/hardware absent: complete deterministic sim path rather than empty NO table.
-      std::printf("[tier_comparison] Real CS2 unavailable (%s) — auto --simulate fallback\n",
+      std::printf("[tier_comparison] Real CS2 unavailable (%s), auto --simulate fallback\n",
                   context.error.c_str());
       simulate = true;
     } else {
       for (std::size_t index = 0; index < kTiers.size(); ++index) {
         results[index] = kTiers[index] == DemoTier::T4 ? run_real_t4(context)
-                                                       : run_real_reader(kTiers[index], context);
+: run_real_reader(kTiers[index], context);
       }
       // If every tier failed to produce entities, still fall back so lab runs are non-empty.
       bool any_success = false;
       for (const auto& r : results) any_success = any_success || (r.succeeded && r.entities_read > 0);
       if (!any_success) {
-        std::printf("[tier_comparison] Real tier reads empty — auto --simulate fallback\n");
+        std::printf("[tier_comparison] Real tier reads empty, auto --simulate fallback\n");
         simulate = true;
       }
     }
 #else
-    std::printf("[tier_comparison] Real backends not built — auto --simulate fallback\n");
+    std::printf("[tier_comparison] Real backends not built, auto --simulate fallback\n");
     simulate = true;
 #endif
   }
@@ -318,6 +318,6 @@ int main(int argc, char* argv[]) {
     if (r.available && r.succeeded && r.entities_read > 0) ++ok;
   }
   std::printf("\ntier_comparison: pass=%d/%zu entities_total=%zu mode=%s\n", ok,
-              results.size(), entities_total, simulate ? "SIMULATION" : "REAL");
-  return (ok == static_cast<int>(results.size())) ? 0 : 1;
+              results.size(), entities_total, simulate ? "SIMULATION": "REAL");
+  return (ok == static_cast<int>(results.size())) ? 0: 1;
 }

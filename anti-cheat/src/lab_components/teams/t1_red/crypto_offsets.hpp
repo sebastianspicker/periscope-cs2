@@ -1,4 +1,4 @@
-// crypto_offsets.hpp — implements CryptoOffsets (T1 red).
+// crypto_offsets.hpp: implements CryptoOffsets (T1 red).
 // Simulation unit; scars live on sim::World.
 
 #pragma once

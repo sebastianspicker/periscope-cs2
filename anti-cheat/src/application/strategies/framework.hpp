@@ -3,7 +3,7 @@
 // Strategy lab framework: every catalog entry is a red/blue pair you can run.
 //
 // Dual-mode architecture (educational):
-//   SIM MODE:  Strategies run against sim::World — deterministic, no game required.
+//   SIM MODE:  Strategies run against sim::World, deterministic, no game required.
 //              All catalog pairs work this way. The classic educational path.
 //   REAL MODE: Strategies execute against a real CS2 process via OS/hardware APIs.
 //              The game must be running. Shows how the technique works in practice.
@@ -17,12 +17,12 @@
 //   - Was the technique mitigated?
 //
 // Support library (this folder):
-//   strategy_types.hpp  — RedOutcome / BlueOutcome / SignalHit
-//   scar_sensors.hpp    — World scar inventory (handles, drivers, trust, …)
-//   multi_reason.hpp    — Weighted multi-reason blue detector builder
-//   pair_util.hpp       — Pair result assembly + handle/entity helpers
-//   catalog_util.hpp    — Catalog filter / histogram / validate
-//   strategy_support.hpp — Back-compat examples::support helpers
+//   strategy_types.hpp, RedOutcome / BlueOutcome / SignalHit
+//   scar_sensors.hpp, World scar inventory (handles, drivers, trust, …)
+//   multi_reason.hpp, Weighted multi-reason blue detector builder
+//   pair_util.hpp, Pair result assembly + handle/entity helpers
+//   catalog_util.hpp, Catalog filter / histogram / validate
+//   strategy_support.hpp, Back-compat examples::support helpers
 
 #include "sim/narrative.hpp"
 #include "sim/world.hpp"

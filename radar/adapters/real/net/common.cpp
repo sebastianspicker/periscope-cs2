@@ -1,4 +1,4 @@
-// common.cpp — Shared helpers: Winsock lifetime, URL parsing, HTTP body parse.
+// common.cpp: Shared helpers: Winsock lifetime: URL parsing, HTTP body parse.
 
 #include "real/net/net_client.hpp"
 #include "real/net/net_internal.hpp"
@@ -37,7 +37,7 @@ int close_socket(int fd) {
 #if LR_PLATFORM_WINDOWS
   return closesocket(fd);
 #else
-  return ::close(fd);
+  return::close(fd);
 #endif
 }
 
@@ -119,7 +119,7 @@ ParsedUrl parse_url(const std::string& url) {
 
   std::string authority = (slash_pos == std::string::npos)
       ? remaining
-      : remaining.substr(0, slash_pos);
+: remaining.substr(0, slash_pos);
 
   // IPv6 [addr]:port
   if (!authority.empty() && authority.front() == '[') {
@@ -224,7 +224,7 @@ Result<HttpResponse> parse_http_response(const std::vector<std::uint8_t>& raw) {
         const auto s2 = line.find(' ', s1 + 1);
         try {
           result.status_code = std::stoi(
-              line.substr(s1 + 1, (s2 == std::string::npos ? line.size() : s2) - s1 - 1));
+              line.substr(s1 + 1, (s2 == std::string::npos ? line.size(): s2) - s1 - 1));
         } catch (...) {
           result.status_code = 0;
         }
@@ -305,7 +305,7 @@ Result<HttpResponse> http_exchange_raw(
   for (;;) {
     auto received = recv(sock, buf, static_cast<int>(sizeof(buf)));
     if (!received) {
-      if (!raw.empty()) break;  // timeout with data — try parse
+      if (!raw.empty()) break;  // timeout with data, try parse
       return Result<HttpResponse>({}, received.error_msg);
     }
     if (*received == 0) break;

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-update_cs2_signatures.py — Auto-update CS2 offsets/signatures from a2x/cs2-dumper.
+update_cs2_signatures.py: Auto-update CS2 offsets/signatures from a2x/cs2-dumper.
 
 Educational lab helper: pulls the latest public dump so entity-list / schema
 field offsets stay current after game updates. Pure transform/diff logic is

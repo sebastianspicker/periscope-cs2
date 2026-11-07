@@ -53,14 +53,14 @@ bool detect(sim::World& w, sim::Narrator& n) {
   }
 
   const int signals = static_cast<int>(reasons.size());
-  // Prefer continuous residual after restore — multi-reason lesson.
+  // Prefer continuous residual after restore, multi-reason lesson.
   const bool detected =
       signals >= 2 && (live_tampered || window_residual || continuous_crc);
 
   std::printf(
       "[blue:convars_temp_restore] live=%d window=%d crc=%d signals=%d detected=%d\n",
-      live_tampered ? 1 : 0, window_residual ? 1 : 0, continuous_crc ? 1 : 0, signals,
-      detected ? 1 : 0);
+      live_tampered ? 1: 0, window_residual ? 1: 0, continuous_crc ? 1: 0, signals,
+      detected ? 1: 0);
   for (const auto& r : reasons) {
     std::printf("[blue:convars_temp_restore]   %s\n", r.c_str());
   }
@@ -69,7 +69,7 @@ bool detect(sim::World& w, sim::Narrator& n) {
     n.say(sim::Side::Blue,
           "DETECTED: multi-reason residual caught modify window after restore.");
   } else {
-    n.say(sim::Side::Blue, "ConVar CRC matches — insufficient multi-reason residual.");
+    n.say(sim::Side::Blue, "ConVar CRC matches, insufficient multi-reason residual.");
   }
   return detected;
 }

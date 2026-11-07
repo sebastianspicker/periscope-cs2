@@ -1,4 +1,4 @@
-// byovd_surface.cpp — T2 red kernel/BYOVD path on sim::World drivers/devices/callbacks.
+// byovd_surface.cpp: T2 red kernel/BYOVD path on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_red/byovd_surface.hpp"

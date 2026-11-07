@@ -22,7 +22,7 @@ def decode_gpu(
     """Decode raw Ultralytics ONNX output on GPU with pre-allocated buffers.
 
     Returns:
-        ``(boxes, scores, class_ids)`` — CuPy arrays on GPU.
+        ``(boxes, scores, class_ids)``, CuPy arrays on GPU.
     """
     import cupy as cp
 
@@ -69,7 +69,7 @@ def decode_cpu(
     """Reference CPU YOLO decode.
 
     Returns:
-        ``(boxes, scores, class_ids)`` — NumPy arrays.
+        ``(boxes, scores, class_ids)``, NumPy arrays.
     """
     import numpy as np
 

@@ -3,7 +3,7 @@
 // Memory acquisition abstraction. Each tier registers a different backend.
 // Enforces that red strategies cannot mix incompatible acquisition + handle models.
 // The factory creates the appropriate reader based on model.
-// All operations are sim-only — they set World fields, never touch real OS.
+// All operations are sim-only, they set World fields, never touch real OS.
 
 #include "ac/types.hpp"
 #include "sim/world.hpp"
@@ -18,7 +18,7 @@
 
 namespace sim {
 
-/// Abstract memory reader — the single trust boundary for game memory access.
+/// Abstract memory reader, the single trust boundary for game memory access.
 /// Each tier provides its own implementation.
 class MemoryReader {
  public:
@@ -66,7 +66,7 @@ bool acquisition_compatible(ac::MemoryAcquisitionModel model,
                             ac::DefenseLayer layer);
 
 /// T0: Direct RPM via ReadProcessMemory / NtReadVirtualMemory.
-class DirectRpmReader final : public MemoryReader {
+class DirectRpmReader final: public MemoryReader {
  public:
   explicit DirectRpmReader(World& world, std::uint32_t cheat_pid);
   ac::MemoryAcquisitionModel model() const override;
@@ -82,7 +82,7 @@ class DirectRpmReader final : public MemoryReader {
 };
 
 /// T1: Direct syscall (bypasses ntdll, but handle remains visible).
-class SyscallReader final : public MemoryReader {
+class SyscallReader final: public MemoryReader {
  public:
   explicit SyscallReader(World& world, std::uint32_t cheat_pid);
   ac::MemoryAcquisitionModel model() const override;
@@ -97,7 +97,7 @@ class SyscallReader final : public MemoryReader {
 };
 
 /// T2: Kernel driver IOCTL (MmCopyVirtualMemory-class path). No usermode handle.
-class KernelIoctlReader final : public MemoryReader {
+class KernelIoctlReader final: public MemoryReader {
  public:
   explicit KernelIoctlReader(World& world, std::uint32_t cheat_pid,
                              std::string device_name = "\\\\.\\LabMemRw");
@@ -118,7 +118,7 @@ class KernelIoctlReader final : public MemoryReader {
 };
 
 /// T3: Hypervisor hypercall / personal HV bridge. No usermode handle.
-class HvHypercallReader final : public MemoryReader {
+class HvHypercallReader final: public MemoryReader {
  public:
   explicit HvHypercallReader(World& world, std::uint32_t cheat_pid,
                              std::string vendor = "lab-hv");
@@ -138,7 +138,7 @@ class HvHypercallReader final : public MemoryReader {
 };
 
 /// T4: DMA physical memory read. No local handle, no kernel driver in guest.
-class DmaPhysicalReader final : public MemoryReader {
+class DmaPhysicalReader final: public MemoryReader {
  public:
   explicit DmaPhysicalReader(World& world, std::uint32_t cheat_pid = 0);
   ac::MemoryAcquisitionModel model() const override;
@@ -156,7 +156,7 @@ class DmaPhysicalReader final : public MemoryReader {
 };
 
 /// Cross-cutting: hijack proxy reader. No handle from radar PID.
-class HijackProxyReader final : public MemoryReader {
+class HijackProxyReader final: public MemoryReader {
  public:
   explicit HijackProxyReader(World& world, std::uint32_t cheat_pid);
   ac::MemoryAcquisitionModel model() const override;

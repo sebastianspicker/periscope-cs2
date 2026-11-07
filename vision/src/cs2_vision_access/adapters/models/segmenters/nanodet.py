@@ -3,13 +3,13 @@
 NanoDet is an ultra-lightweight FCOS-style anchor-free detector from
 `RangiLyu/nanodet <https://github.com/RangiLyu/nanodet>`_.  The smallest
 variant (NanoDet-Plus-m-320) has only **1.17 M params** and a **2.3 MB FP16**
-ONNX file — roughly 4× smaller than YOLO11n-seg.
+ONNX file, roughly 4× smaller than YOLO11n-seg.
 
 Architecture
 ------------
 - FCOS-style anchor-free detection head with Generalized Focal Loss.
 - The ONNX export can optionally bake in NMS (via ``tools/export_onnx.py``).
-- Detection only — outputs bounding boxes with no segmentation masks.
+- Detection only, outputs bounding boxes with no segmentation masks.
 
 ONNX export (required before use)
 -----------------------------------
@@ -23,7 +23,7 @@ export ONNX from a PyTorch checkpoint yourself::
     python setup.py develop
 
     # Download a pretrained checkpoint (e.g. NanoDet-Plus-m-320).
-    # From the Model Zoo in the repo README, download the .ckpt file.
+    # From the Model Zoo in the repo README, download the.ckpt file.
 
     # Export to ONNX (NMS included in the graph).
     python tools/export_onnx.py \\
@@ -33,10 +33,10 @@ export ONNX from a PyTorch checkpoint yourself::
     # The exported model is saved alongside the checkpoint as ``.onnx``.
 
 The exported ONNX has:
-- **Input**: ``input.1`` — float32 ``[1, 3, H, W]``, **BGR**, values 0–255,
+- **Input**: ``input.1``, float32 ``[1, 3, H, W]``, **BGR**, values 0–255,
   where ``H, W`` match the training resolution (e.g. 320, 416).
 - **Output**: a single float32 tensor ``[1, N, 6]`` where each row is
-  ``[x1, y1, x2, y2, score, class_id]`` — coordinates are in **original image
+  ``[x1, y1, x2, y2, score, class_id]``, coordinates are in **original image
   pixel space** (not padded), so no coordinate unprojection is needed.
 
 NanoDet-Plus variants from the Model Zoo:
@@ -154,7 +154,7 @@ class NanoDetSegmenter:
                 )
 
         model_outputs = {out.name for out in self._session.get_outputs()}
-        # Find the NMS output — should be a 2D or 3D float tensor with 6 channels.
+        # Find the NMS output, should be a 2D or 3D float tensor with 6 channels.
         self._output_name: str | None = None
         for candidate in _OUTPUT_NAMES:
             if candidate in model_outputs:

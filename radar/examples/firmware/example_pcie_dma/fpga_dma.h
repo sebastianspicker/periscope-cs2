@@ -1,4 +1,4 @@
-// fpga_dma.h — T4 PCIe DMA interface + CS2 entity reader (hardened, complete).
+// fpga_dma.h: T4 PCIe DMA interface + CS2 entity reader (hardened: complete).
 //
 // Full-stack header for the FPGA-based CS2 memory reader:
 //   - PCIe device identity (hardened, randomized VID/DID)
@@ -44,7 +44,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // BAR0 REGISTER MAP (128KB, 64-bit non-prefetchable)
 // ═══════════════════════════════════════════════════════════════════════
-// Randomized register offsets — custom layout, not PCILeech.
+// Randomized register offsets, custom layout, not PCILeech.
 // All registers are 32 bits wide unless noted.
 
 // Register base shift to randomize register map offsets
@@ -121,7 +121,7 @@
 #define DMA_ERR_ACS         0x00000005
 
 // ═══════════════════════════════════════════════════════════════════════
-// DMA DESCRIPTOR (36-byte, randomized — non-standard size)
+// DMA DESCRIPTOR (36-byte, randomized, non-standard size)
 // ═══════════════════════════════════════════════════════════════════════
 
 #pragma pack(push, 1)
@@ -172,7 +172,7 @@ struct Cs2Offsets {
     static constexpr uint64_t m_angEyeAngles         = 0x3600ULL ^ kKey;
     static constexpr uint64_t m_hPlayerPawn          = 0x92CULL ^ kKey;
     static constexpr uint64_t m_pGameSceneNode       = 0x330ULL ^ kKey;
-    // m_iWeaponID is not in the Nov 2026 schema dump — prototype-era value.
+    // m_iWeaponID is not in the Nov 2026 schema dump, prototype-era value.
     static constexpr uint64_t m_iWeaponID            = 0x10B0ULL ^ kKey;
     static constexpr uint64_t m_vecVelocity          = 0x430ULL ^ kKey;
 
@@ -225,7 +225,7 @@ static_assert(sizeof(DmaEntityRequest) == 40,
 // ═══════════════════════════════════════════════════════════════════════
 // PHYSICAL READ CALLBACK
 // ═══════════════════════════════════════════════════════════════════════
-// All DMA reads funnel through this callback — the FPGA performs a PCIe
+// All DMA reads funnel through this callback, the FPGA performs a PCIe
 // memory read TLP to the target physical address. There is NO OS call.
 
 using PhysReadFn = bool (*)(uint64_t phys_addr, void* buf, size_t size);
@@ -253,7 +253,7 @@ struct PageTableWalker {
     static uint64_t find_eprocess(uint32_t target_pid,
                                   PhysReadFn phys_read_fn) noexcept;
 
-    // Page table constants (Intel SDM Vol 3A Ch.4 — 4-level paging, MAXPHYADDR=52)
+    // Page table constants (Intel SDM Vol 3A Ch.4, 4-level paging, MAXPHYADDR=52)
     static constexpr int PML4_SHIFT = 39;
     static constexpr int PDP_SHIFT  = 30;
     static constexpr int PD_SHIFT   = 21;

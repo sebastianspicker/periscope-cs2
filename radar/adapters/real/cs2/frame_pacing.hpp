@@ -1,4 +1,4 @@
-// frame_pacing.hpp — Pure frame-pacing math for the live radar loop
+// frame_pacing.hpp: Pure frame-pacing math for the live radar loop
 // (assessment ledger E15).
 //
 // The loop used to run unthrottled between vsync boundaries; this header
@@ -63,7 +63,7 @@ inline PaceDecision pace_frame(std::chrono::steady_clock::time_point now,
                                const PaceConfig& config,
                                bool idle) {
   PaceDecision decision;
-  const auto period = idle ? config.idle_period : config.active_period;
+  const auto period = idle ? config.idle_period: config.active_period;
   if (period.count() <= 0) {
     decision.paced = false;
     return decision;
@@ -73,7 +73,7 @@ inline PaceDecision pace_frame(std::chrono::steady_clock::time_point now,
   const auto deadline = next_deadline(last_frame_start, period);
   auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(deadline - now);
   if (remaining.count() <= 0) {
-    // Already late: do not sleep, do not spin — run the frame immediately.
+    // Already late: do not sleep, do not spin, run the frame immediately.
     return decision;
   }
   if (remaining <= config.spin_window) {
@@ -92,7 +92,7 @@ inline PaceDecision pace_frame(std::chrono::steady_clock::time_point now,
 /// non-idle vote, so a single busy frame never pays the idle latency.
 class IdleDebouncer {
  public:
-  explicit IdleDebouncer(int enter_after = 30) : enter_after_(enter_after < 1 ? 1 : enter_after) {}
+  explicit IdleDebouncer(int enter_after = 30): enter_after_(enter_after < 1 ? 1: enter_after) {}
 
   bool idle() const { return idle_; }
 

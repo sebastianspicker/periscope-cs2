@@ -1,4 +1,4 @@
-// pinned_buffer.hpp — RAII page-locked buffer for kernel/hypercall copies
+// pinned_buffer.hpp: RAII page-locked buffer for kernel/hypercall copies
 // (E69).
 //
 // A kernel driver or hypervisor must not touch a pageable user page mid-copy.
@@ -24,7 +24,7 @@ namespace real::kernel {
 
 class PinnedBuffer {
  public:
-  explicit PinnedBuffer(std::size_t size) : bytes_(size) {
+  explicit PinnedBuffer(std::size_t size): bytes_(size) {
 #if LR_PLATFORM_WINDOWS
     if (!bytes_.empty()) {
       locked_ = VirtualLock(bytes_.data(), bytes_.size()) != FALSE;
@@ -43,7 +43,7 @@ class PinnedBuffer {
   PinnedBuffer(const PinnedBuffer&) = delete;
   PinnedBuffer& operator=(const PinnedBuffer&) = delete;
   PinnedBuffer(PinnedBuffer&& other) noexcept
-      : bytes_(std::move(other.bytes_)), locked_(other.locked_) {
+: bytes_(std::move(other.bytes_)), locked_(other.locked_) {
     other.locked_ = false;
   }
   PinnedBuffer& operator=(PinnedBuffer&& other) noexcept {

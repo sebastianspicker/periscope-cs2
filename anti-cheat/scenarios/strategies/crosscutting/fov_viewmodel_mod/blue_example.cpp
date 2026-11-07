@@ -11,7 +11,7 @@ BlueResult detect(sim::World& w) {
   const bool fov = w.fov_mod_active && w.client_fov_override > 90.f;
   const bool vm = w.viewmodel_fov_override > 54.f;
 
-  // Independent reasons — either knob alone is weak; multi-reason raises bar.
+  // Independent reasons, either knob alone is weak; multi-reason raises bar.
   if (w.fov_mod_active) {
     r.reasons.emplace_back("fov_mod_session_flag");
   }
@@ -41,15 +41,15 @@ BlueResult detect(sim::World& w) {
   }
 
   std::ostringstream oss;
-  oss << "fov_viewmodel_mod blue fov=" << (fov ? 1 : 0)
-      << " viewmodel=" << (vm ? 1 : 0)
+  oss << "fov_viewmodel_mod blue fov=" << (fov ? 1: 0)
+      << " viewmodel=" << (vm ? 1: 0)
       << " signals=" << r.signals
-      << " detected=" << (r.detected ? 1 : 0)
-      << " mitigated=" << (r.mitigated ? 1 : 0);
+      << " detected=" << (r.detected ? 1: 0)
+      << " mitigated=" << (r.mitigated ? 1: 0);
   r.detail = oss.str();
   w.note(r.detail);
   std::printf("[fov_viewmodel_mod] BLUE signals=%d detected=%s\n", r.signals,
-              r.detected ? "true" : "false");
+              r.detected ? "true": "false");
   for (const auto& reason : r.reasons) {
     std::printf("[fov_viewmodel_mod]   %s\n", reason.c_str());
   }

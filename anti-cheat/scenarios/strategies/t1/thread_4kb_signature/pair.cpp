@@ -1,4 +1,4 @@
-// thread_4kb_signature — multi-step clean 4KB + chain residual; multi-reason blue.
+// thread_4kb_signature, multi-step clean 4KB + chain residual; multi-reason blue.
 
 #include "strategies/framework.hpp"
 

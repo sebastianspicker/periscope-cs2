@@ -1,4 +1,4 @@
-// hv_backend.cpp — T3 red HV path using World.trust posture flags.
+// hv_backend.cpp: T3 red HV path using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #include "t3_red/hv_backend.hpp"

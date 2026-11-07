@@ -1,4 +1,4 @@
-// memory.cpp — Linux process/virtual memory access and capability probes.
+// memory.cpp: Linux process/virtual memory access and capability probes.
 
 #include "real/linux/memory_internal.hpp"
 
@@ -100,7 +100,7 @@ Result<std::vector<uint8_t>> read_process_mem_procfs(uint32_t pid, uint64_t addr
             std::string("Cannot open ") + path);
     }
     auto r = detail::pread_all(fd, addr, size);
-    ::close(fd);
+::close(fd);
     return r;
 #else
     (void)pid;
@@ -121,14 +121,14 @@ Result<void> write_process_mem_procfs(uint32_t pid, uint64_t addr,
         ssize_t n = ::pwrite(fd, data.data() + done, data.size() - done,
                              static_cast<off_t>(addr + done));
         if (n < 0) {
-            ::close(fd);
+::close(fd);
             return Result<void>(std::string("pwrite failed: ") +
                                 std::strerror(errno));
         }
         if (n == 0) break;
         done += static_cast<size_t>(n);
     }
-    ::close(fd);
+::close(fd);
     if (done != data.size()) return Result<void>("short pwrite to /proc/pid/mem");
     return Result<void>();
 #else
@@ -153,7 +153,7 @@ Result<std::vector<uint8_t>> read_process_memory_ptrace(uint32_t pid,
     }
     int status = 0;
     if (::waitpid(static_cast<pid_t>(pid), &status, 0) < 0) {
-        ::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
         return Result<std::vector<uint8_t>>({}, "waitpid after attach failed");
     }
 
@@ -165,14 +165,14 @@ Result<std::vector<uint8_t>> read_process_memory_ptrace(uint32_t pid,
         long word = ::ptrace(PTRACE_PEEKDATA, static_cast<pid_t>(pid),
                              reinterpret_cast<void*>(addr + i), nullptr);
         if (word == -1 && errno != 0) {
-            ::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
             return Result<std::vector<uint8_t>>(
                 {}, std::string("PTRACE_PEEKDATA failed: ") + std::strerror(errno));
         }
         size_t chunk = std::min(kWord, size - i);
         std::memcpy(buf.data() + i, &word, chunk);
     }
-    ::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
     return buf;
 #else
     (void)pid;
@@ -191,7 +191,7 @@ Result<void> write_process_memory_ptrace(
                             std::strerror(errno));
     }
     int status = 0;
-    ::waitpid(static_cast<pid_t>(pid), &status, 0);
+::waitpid(static_cast<pid_t>(pid), &status, 0);
 
     constexpr size_t kWord = sizeof(long);
     for (size_t i = 0; i < data.size(); i += kWord) {
@@ -202,7 +202,7 @@ Result<void> write_process_memory_ptrace(
             word = ::ptrace(PTRACE_PEEKDATA, static_cast<pid_t>(pid),
                             reinterpret_cast<void*>(addr + i), nullptr);
             if (word == -1 && errno != 0) {
-                ::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
                 return Result<void>("PTRACE_PEEKDATA (RMW) failed");
             }
         }
@@ -210,12 +210,12 @@ Result<void> write_process_memory_ptrace(
         if (::ptrace(PTRACE_POKEDATA, static_cast<pid_t>(pid),
                      reinterpret_cast<void*>(addr + i),
                      reinterpret_cast<void*>(word)) < 0) {
-            ::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
             return Result<void>(std::string("PTRACE_POKEDATA failed: ") +
                                 std::strerror(errno));
         }
     }
-    ::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
+::ptrace(PTRACE_DETACH, static_cast<pid_t>(pid), nullptr, nullptr);
     return Result<void>();
 #else
     (void)pid;
@@ -238,7 +238,7 @@ Result<std::vector<uint8_t>> read_kernel_memory(uint64_t addr,
         return Result<std::vector<uint8_t>>({}, "Cannot open /proc/kcore");
     }
     auto r = detail::pread_all(fd, addr, size);
-    ::close(fd);
+::close(fd);
     return r;
 #else
     (void)addr;
@@ -251,7 +251,7 @@ Result<std::vector<uint8_t>> read_self_memory(uint64_t addr,
     if (!virt_request_valid(addr, size)) {
         return Result<std::vector<uint8_t>>({}, "invalid self read size");
     }
-    // Direct memcpy from own address space — no syscall scar for foreign PID.
+    // Direct memcpy from own address space, no syscall scar for foreign PID.
     // Still faults if addr is invalid (we catch via mincore/probe when possible).
 #if LR_PLATFORM_LINUX
     std::vector<uint8_t> buf(size);
@@ -264,7 +264,7 @@ Result<std::vector<uint8_t>> read_self_memory(uint64_t addr,
     remote.iov_len = size;
     ssize_t n = ::process_vm_readv(::getpid(), &local, 1, &remote, 1, 0);
     if (n < 0) {
-        // Fallback: volatile memcpy (may SIGSEGV — caller must pass valid addr)
+        // Fallback: volatile memcpy (may SIGSEGV, caller must pass valid addr)
         std::memcpy(buf.data(), reinterpret_cast<const void*>(addr), size);
         return buf;
     }
@@ -286,7 +286,7 @@ Result<bool> devmem_accessible() noexcept {
 #if LR_PLATFORM_LINUX
     int fd = ::open("/dev/mem", O_RDONLY | O_SYNC);
     if (fd >= 0) {
-        ::close(fd);
+::close(fd);
         return true;
     }
     return Result<bool>(false, "/dev/mem not accessible");
@@ -343,7 +343,7 @@ Result<bool> kcore_accessible() noexcept {
 #if LR_PLATFORM_LINUX
     int fd = ::open("/proc/kcore", O_RDONLY);
     if (fd >= 0) {
-        ::close(fd);
+::close(fd);
         return true;
     }
     return Result<bool>(false, "/proc/kcore not accessible");
@@ -365,14 +365,14 @@ Result<void> load_kernel_module(const std::vector<uint8_t>& elf_data,
     while (off < elf_data.size()) {
         ssize_t n = ::write(fd, elf_data.data() + off, elf_data.size() - off);
         if (n < 0) {
-            ::close(fd);
+::close(fd);
             return Result<void>("write memfd failed");
         }
         off += static_cast<size_t>(n);
     }
-    const char* mod_params = params.empty() ? "" : params.c_str();
+    const char* mod_params = params.empty() ? "": params.c_str();
     long ret = ::syscall(__NR_finit_module, fd, mod_params, 0);
-    ::close(fd);
+::close(fd);
     if (ret < 0) {
         return Result<void>(std::string("finit_module failed: ") +
                             std::strerror(errno));
@@ -390,9 +390,9 @@ Result<void> load_kernel_module_path(const std::string& path,
 #if LR_PLATFORM_LINUX
     int fd = detail::open_safe(path.c_str(), O_RDONLY);
     if (fd < 0) return Result<void>("Cannot open module file");
-    const char* mod_params = params.empty() ? "" : params.c_str();
+    const char* mod_params = params.empty() ? "": params.c_str();
     long ret = ::syscall(__NR_finit_module, fd, mod_params, 0);
-    ::close(fd);
+::close(fd);
     if (ret < 0) {
         return Result<void>(std::string("finit_module failed: ") +
                             std::strerror(errno));

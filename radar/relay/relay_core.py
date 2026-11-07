@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""relay_core.py — R6 public-radar relay: pure policy core.
+"""relay_core.py: R6 public-radar relay: pure policy core.
 
 Adapted from the research notes (R6):
 tiansongyu/cs2_cheat `radar-relay` (MIT) supplies the room/token/limiter
 design; avitran0/deadlocked `server/` supplies the shareable session UUID.
-Pure logic only — sockets live in relay_server.py.
+Pure logic only, sockets live in relay_server.py.
 
 Policy decisions carried over from upstream:
 - Direction of trust: the producer dials OUTBOUND; the relay never connects
   to the gaming machine.
 - Producer and Viewer credentials are separate; a viewer can never publish.
-- Per room, only the LATEST frame is retained (no history, no persistence —
+- Per room, only the LATEST frame is retained (no history, no persistence -
   a deliberate privacy decision).
 - Limits: 512 KiB frame cap, per-connection frame rate limit, per-room
   viewer cap.
@@ -37,7 +37,7 @@ DEFAULT_VIEWER_CAP = 16
 
 
 class RelayError(Exception):
-    """Rejected at the relay boundary (bad token, bad room, oversize...)."""
+    """Rejected at the relay boundary (bad token, bad room, oversize, ...)."""
 
 
 @dataclass

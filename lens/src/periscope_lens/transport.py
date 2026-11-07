@@ -10,10 +10,10 @@ Carried over from the research ledger (R5/R6 doctrine, applied to the cable):
   clean-rejection rule), unknown *message types* are skipped (forward compat
   within a known version).
 - **Absolute-state payloads**: each ``Targets`` frame is complete for its
-  frame id — no deltas (decision 2 of the ledger).
+  frame id, no deltas (decision 2 of the ledger).
 - **Bounded**: a frame larger than 512 KiB is rejected.
 - The capture timestamp in ``Targets`` is the *camera* timestamp
-  (Camera2 ``sensorTimestamp``), not the send time — L7 compensation depends
+  (Camera2 ``sensorTimestamp``), not the send time, L7 compensation depends
   on it.
 - u64 ids never cross the wire as floats; they stay integers end to end.
 
@@ -180,9 +180,9 @@ def _frame(message_type: int, payload: bytes) -> bytes:
 class Decoder:
     """Streaming decoder over concatenated frames.
 
-    ``feed(chunk)`` appends bytes; ``messages()`` decodes everything
-    buffered. Unknown message types are skipped with their payload (forward
-    compat); a wrong version, a truncated frame, or an oversized frame raise
+        ``feed(chunk)`` appends bytes; ``messages()`` decodes everything
+        buffered. Unknown message types are skipped with their payload (forward
+        compat); a wrong version, a truncated frame, or an oversized frame raise
     :class:`ProtocolError`.
     """
 

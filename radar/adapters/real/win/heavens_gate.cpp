@@ -32,7 +32,7 @@ bool is_wow64_process() noexcept {
   using IsWow64Process_t = BOOL(WINAPI*)(HANDLE, PBOOL);
   HMODULE k32 = ::GetModuleHandleW(L"kernel32.dll");
   auto fn = k32 ? reinterpret_cast<IsWow64Process_t>(::GetProcAddress(k32, "IsWow64Process"))
-                : nullptr;
+: nullptr;
   if (fn && fn(::GetCurrentProcess(), &wow)) return wow != FALSE;
   return false;
 #else
@@ -55,13 +55,13 @@ HeavensGateReport heavens_gate_probe() noexcept {
   rep.gate_available = heavens_gate_available();
 
 #if LR_ARCH_X64
-  // Fall through to indirect syscall path — the modern equivalent.
+  // Fall through to indirect syscall path, the modern equivalent.
   auto& table = syscalls();
   if (table.NtClose.number < 0) {
     rep.detail = "SSN unresolved";
     return rep;
   }
-  // NtClose(nullptr) → STATUS_INVALID_HANDLE (0xC0000008) — proves syscall works
+  // NtClose(nullptr) → STATUS_INVALID_HANDLE (0xC0000008), proves syscall works
   NTSTATUS st = syscall_4(table.NtClose.number, 0, 0, 0, 0);
   rep.used_native_syscall = true;
   rep.result = static_cast<std::uint64_t>(static_cast<std::uint32_t>(st));
@@ -104,7 +104,7 @@ HeavensGateReport heavens_gate_probe() noexcept {
   //   retf
   // x64_code:
   //   xor eax, eax
-  //   mov al, 0x08  ; low byte marker
+  //   mov al, 0x08; low byte marker
   //   retf
 
   std::uint8_t shell[] = {
@@ -127,7 +127,7 @@ HeavensGateReport heavens_gate_probe() noexcept {
     return rep;
   }
   std::memcpy(mem, shell, sizeof(shell));
-  // Execute — may fault on modern hardened WOW64; catch via SEH
+  // Execute, may fault on modern hardened WOW64; catch via SEH
   std::uint32_t gate_result = 0;
   __try {
     auto f = reinterpret_cast<std::uint32_t (*)()>(mem);
@@ -138,7 +138,7 @@ HeavensGateReport heavens_gate_probe() noexcept {
   } __except (EXCEPTION_EXECUTE_HANDLER) {
     rep.detail = "Heaven's Gate shellcode faulted (CFG/CIG?)";
   }
-  ::VirtualFree(mem, 0, MEM_RELEASE);
+::VirtualFree(mem, 0, MEM_RELEASE);
   return rep;
 #else
   rep.detail = "unsupported arch";

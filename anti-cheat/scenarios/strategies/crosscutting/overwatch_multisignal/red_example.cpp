@@ -16,7 +16,7 @@ RedResult apply(sim::World& w) {
   }
   ++steps;
 
-  // Phase 1: weak technical scar — foreign VM_READ.
+  // Phase 1: weak technical scar, foreign VM_READ.
   r.actor_pid = w.spawn("multi-weak.exe");
   if (!w.proc(r.actor_pid)) {
     r.detail = "actor spawn verification failed";
@@ -30,7 +30,7 @@ RedResult apply(sim::World& w) {
   }
   ++steps;
 
-  // Phase 2: network residual — VPN/proxy graph.
+  // Phase 2: network residual, VPN/proxy graph.
   w.vpn_proxy_active = true;
   ++steps;
 
@@ -52,7 +52,7 @@ RedResult apply(sim::World& w) {
              std::to_string(steps);
   w.note(r.detail);
   std::printf("[overwatch_multisignal] RED achieved=%s steps=%d\n",
-              r.achieved ? "true" : "false", steps);
+              r.achieved ? "true": "false", steps);
   return r;
 }
 

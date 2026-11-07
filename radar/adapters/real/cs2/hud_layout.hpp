@@ -1,4 +1,4 @@
-// hud_layout.hpp — Read CS2 HUD/radar cvars and compute minimap screen rect.
+// hud_layout.hpp: Read CS2 HUD/radar cvars and compute minimap screen rect.
 // Educational: shows how external tools derive overlay placement from live settings.
 #pragma once
 
@@ -14,7 +14,7 @@ namespace real::cs2 {
 struct RadarHudSettings {
   float hud_scaling = 1.0f;          ///< hud_scaling
   float cl_hud_radar_scale = 1.0f;   ///< cl_hud_radar_scale (panel size)
-  float cl_radar_scale = 0.7f;       ///< cl_radar_scale (map zoom — not panel size)
+  float cl_radar_scale = 0.7f;       ///< cl_radar_scale (map zoom, not panel size)
   float safezonex = 1.0f;
   float safezoney = 1.0f;
   bool cl_radar_rotate = true;

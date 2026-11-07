@@ -1,4 +1,4 @@
-// mini_radar.cpp — R12 view-relative mini-radar math. See mini_radar.hpp.
+// mini_radar.cpp: R12 view-relative mini-radar math. See mini_radar.hpp.
 
 #include "radar/mini_radar.hpp"
 
@@ -23,13 +23,13 @@ void project_mini_radar(const WorldPosition& local,
                         float& out_y, bool& clamped) {
   const float width = std::isfinite(config.width) && config.width > 0.0f
                           ? config.width
-                          : 150.0f;
+: 150.0f;
   const float height = std::isfinite(config.height) && config.height > 0.0f
                            ? config.height
-                           : 150.0f;
+: 150.0f;
   const float scale = std::isfinite(config.scale) && config.scale > 0.0f
                           ? config.scale
-                          : 1.0f;
+: 1.0f;
   const float center_x = width / 2.0f;
   const float center_y = height / 2.0f;
 

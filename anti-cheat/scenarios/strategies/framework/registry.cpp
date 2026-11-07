@@ -1,4 +1,4 @@
-// registry.cpp — strategy catalog table only.
+// registry.cpp: strategy catalog table only.
 // Forward-declares all entry_NN factories and assembles the catalog vector.
 // Run/dual-mode logic lives in registry_run.cpp and registry_dual.cpp.
 

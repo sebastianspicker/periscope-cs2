@@ -1,4 +1,4 @@
-// Split from live_radar_stack.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from live_radar_stack.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/live_radar_stack.hpp"
 #include "real/cs2/live_radar_stack_internal.hpp"
 #include "real/cs2/entity_layout.hpp"
@@ -40,7 +40,7 @@ std::uint64_t chunk_table_offset() {
 }
 std::uint64_t identity_stride(const Cs2Offsets& o) {
   return o.entity_list_entry ? o.entity_list_entry
-                             : snapshot::constants::entity_identity_stride;
+: snapshot::constants::entity_identity_stride;
 }
 
 bool resolve_handle_fn(RemoteReadFn fn, std::uint64_t entity_list, std::uint32_t handle,
@@ -127,7 +127,7 @@ void read_observer_target_fn(RemoteReadFn fn, std::uint64_t pawn,
 // to ONE read of the first controller page and the pawn side to ONE window
 // read per live pawn (+1-2 scene-node reads), with a per-chunk pointer cache
 // for pawns living outside the first chunk. Any bulk failure falls back to
-// the per-field path for that player — the fast path is an optimization,
+// the per-field path for that player, the fast path is an optimization,
 // never a correctness dependency.
 
 namespace bulk {
@@ -143,7 +143,7 @@ layout::ListGeometry geometry_for(const Cs2Offsets& offsets) {
 
 /// Field spans inside a pawn head covered by one bulk window. Offsets that
 /// do not fit under the window cap are omitted (the caller reads those
-/// directly — the window extractor's bounds check keeps this honest).
+/// directly, the window extractor's bounds check keeps this honest).
 std::vector<layout::FieldSpan> pawn_window_spans(const Cs2Offsets& offsets) {
   std::vector<layout::FieldSpan> spans;
   const auto add = [&spans](std::uint64_t offset, std::size_t size) {
@@ -428,7 +428,7 @@ bool read_player_fn(RemoteReadFn fn, const Cs2Offsets& offsets, std::uint64_t en
   };
 
   if (!entity.is_alive && !entity.is_local_player) {
-    // Still need origin for dead teammate spectator heuristics — cheap path
+    // Still need origin for dead teammate spectator heuristics, cheap path
     if (!read_origin(origin)) return false;
     entity.origin = origin;
     read_name_fn(fn, controller, offsets, entity.name);
@@ -561,7 +561,7 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
 
   // Scatter: Fisher-Yates on controller indices BEFORE resolve
   if (opt.scatter_indices && order.size() > 1) {
-    std::uint64_t rng = opt.rng ? *opt.rng : 0x9E3779B97F4A7C15ULL;
+    std::uint64_t rng = opt.rng ? *opt.rng: 0x9E3779B97F4A7C15ULL;
     for (size_t i = order.size(); i > 1; --i) {
       rng = rng * 0x5851F42D4C957F2DULL + 0x14057B7EF767814FULL;
       size_t j = static_cast<size_t>(rng % i);
@@ -571,7 +571,7 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
   }
 
   int steps = 0;
-  for (int index : order) {
+  for (int index: order) {
     std::uint64_t controller = 0;
     bool have_controller = false;
     bool slot_known = false;
@@ -657,7 +657,7 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
   result.read_time_us = static_cast<std::uint64_t>(
       std::chrono::duration_cast<std::chrono::microseconds>(
           std::chrono::high_resolution_clock::now() - start)
-          .count());
+.count());
   return result;
 }
 
@@ -679,7 +679,7 @@ EntityReadResult read_world_entities_fn(RemoteReadFn read,
 
   const int max = std::max(opt.world_start, std::min(opt.world_max, 4096));
   const int span = std::max(1, (max - opt.world_start) / 2);
-  const int start = opt.world_start + (opt.world_phase ? span : 0);
+  const int start = opt.world_start + (opt.world_phase ? span: 0);
   const int end = std::min(max, start + span);
   if (start >= end) {
     result.read_successful = true;
@@ -809,4 +809,3 @@ EntityReadResult read_entity_list_throttled(Cs2MemoryReader& reader,
 }
 
 }  // namespace real::cs2::stack
-

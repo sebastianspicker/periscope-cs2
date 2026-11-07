@@ -1,4 +1,4 @@
-// offset_blob.cpp — implements offset_blob (T1 red).
+// offset_blob.cpp: implements offset_blob (T1 red).
 // Key methods: load_encrypted, get.
 
 #include "t1_red/offset_blob.hpp"
@@ -16,7 +16,7 @@ ac::Status OffsetBlob::load_encrypted(const std::vector<std::uint8_t>& blob,
   for (std::size_t i = 0; i < blob.size(); ++i) {
     plain[i] = static_cast<std::uint8_t>(blob[i] ^ key);
   }
-  // Lab format: [u8 name_len][name...][u64 value] repeating
+  // Lab format: [u8 name_len][name, ...][u64 value] repeating
   std::size_t i = 0;
   while (i < plain.size()) {
     const auto nlen = plain[i++];
@@ -33,7 +33,7 @@ ac::Status OffsetBlob::load_encrypted(const std::vector<std::uint8_t>& blob,
     e.value = v;
     entries_.push_back(std::move(e));
   }
-  return entries_.empty() ? ac::Status::InvalidArgument : ac::Status::Ok;
+  return entries_.empty() ? ac::Status::InvalidArgument: ac::Status::Ok;
 }
 
 // OffsetBlob::get: Lookup a named offset/value from the loaded blob.

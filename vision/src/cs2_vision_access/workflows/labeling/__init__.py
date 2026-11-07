@@ -1,8 +1,8 @@
 """Box-to-mask bootstrap: convert YOLO detection boxes into draft seg polygons.
 
 Detection labels (``class_id x_c y_c w h``, normalized) become Ultralytics
-segmentation polygons (``class_id x1 y1 ... xn yn``). Outputs are always
-``draft_pending`` — never ground truth — and require human review.
+segmentation polygons (``class_id x1 y1, ... xn yn``). Outputs are always
+``draft_pending``, never ground truth, and require human review.
 """
 
 from __future__ import annotations

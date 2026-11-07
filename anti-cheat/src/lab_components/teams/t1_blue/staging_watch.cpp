@@ -1,4 +1,4 @@
-// staging_watch.cpp — implements staging_watch (T1 blue).
+// staging_watch.cpp: implements staging_watch (T1 blue).
 // Key methods: observe, scan_world, string.
 
 #include "t1_blue/staging_watch.hpp"
@@ -7,7 +7,7 @@
 
 namespace t1_blue {
 
-StagingWatch::StagingWatch(ac::ITelemetrySink& sink) : sink_(sink) {}
+StagingWatch::StagingWatch(ac::ITelemetrySink& sink): sink_(sink) {}
 
 // StagingWatch::observe: Observe one process for private RX / short-lived stub.
 void StagingWatch::observe(const StagingObservation& obs) {
@@ -17,24 +17,24 @@ void StagingWatch::observe(const StagingObservation& obs) {
   StagingScanHit h;
   h.pid = obs.pid;
   h.name = obs.image_name;
-  h.reason = std::string(obs.has_private_rx ? "private_rx" : "") +
-             (obs.short_lived_stub ? "|stub" : "");
+  h.reason = std::string(obs.has_private_rx ? "private_rx": "") +
+             (obs.short_lived_stub ? "|stub": "");
   last_.hits.push_back(h);
   last_.hit = true;
   sink_.emit(ac::TelemetryEvent{
-      .kind = ac::EventKind::Generic,
-      .related_tier = ac::Tier::T1_SyscallSoft,
-      .subject_pid = obs.pid,
-      .object_pid = 0,
-      .detail = obs.image_name + h.reason,
-      .risk_delta = 1.5,
+.kind = ac::EventKind::Generic,
+.related_tier = ac::Tier::T1_SyscallSoft,
+.subject_pid = obs.pid,
+.object_pid = 0,
+.detail = obs.image_name + h.reason,
+.risk_delta = 1.5,
   });
 }
 
 // StagingWatch::scan_world: Walk World processes for staging residuals via StagingWatch.
 StagingScanResult StagingWatch::scan_world(const sim::World& w) {
   last_ = {};
-  for (const auto& [pid, p] : w.processes) {
+  for (const auto& [pid, p]: w.processes) {
     if (p.is_game || p.is_ac) {
       continue;
     }
@@ -51,17 +51,17 @@ StagingScanResult StagingWatch::scan_world(const sim::World& w) {
       StagingScanHit h;
       h.pid = pid;
       h.name = p.name;
-      h.reason = (stub ? "short_lived_stub" : "") +
-                 std::string(stub && rx ? "|" : "") + (rx ? "private_rx" : "");
-      h.risk = stub && rx ? 2.0 : 1.5;
+      h.reason = (stub ? "short_lived_stub": "") +
+                 std::string(stub && rx ? "|": "") + (rx ? "private_rx": "");
+      h.risk = stub && rx ? 2.0: 1.5;
       last_.hits.push_back(h);
       last_.hit = true;
       sink_.emit(ac::TelemetryEvent{
-          .kind = ac::EventKind::Generic,
-          .related_tier = ac::Tier::T1_SyscallSoft,
-          .subject_pid = pid,
-          .detail = p.name + "|" + h.reason,
-          .risk_delta = h.risk,
+.kind = ac::EventKind::Generic,
+.related_tier = ac::Tier::T1_SyscallSoft,
+.subject_pid = pid,
+.detail = p.name + "|" + h.reason,
+.risk_delta = h.risk,
       });
     }
   }

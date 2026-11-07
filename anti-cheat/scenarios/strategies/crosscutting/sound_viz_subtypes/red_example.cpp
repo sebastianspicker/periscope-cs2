@@ -16,7 +16,7 @@ RedResult apply(sim::World& w) {
   w.sound_viz_scope = 2;
   w.sound_viz_bomb_beep = 4;
   w.sound_viz_footstep = 5;
-  // Independent panel hits (product polish — not one catalog ID per panel).
+  // Independent panel hits (product polish, not one catalog ID per panel).
   w.sound_panel_reload_hit = w.sound_viz_reload > 0;
   w.sound_panel_scope_hit = w.sound_viz_scope > 0;
   w.sound_panel_bomb_beep_hit = w.sound_viz_bomb_beep > 0;

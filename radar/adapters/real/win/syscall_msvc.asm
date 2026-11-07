@@ -1,4 +1,4 @@
-; syscall_msvc.asm — MSVC MASM indirect syscall wrappers for x64
+; syscall_msvc.asm, MSVC MASM indirect syscall wrappers for x64
 ;
 ; Each function sets up the x64 syscall convention from the C calling-convention
 ; parameters, then JMPs to the runtime-resolved syscall gadget in ntdll.
@@ -32,20 +32,20 @@
 
 .code
 
-EXTERN g_syscall_gadget_ptr : qword
+EXTERN g_syscall_gadget_ptr: qword
 
 ;------------------------------------------------------------------------------
 ; NTSTATUS syscall_asm_4(int ssn, uint64_t arg1, uint64_t arg2,
 ;                        uint64_t arg3, uint64_t arg4)
 ;------------------------------------------------------------------------------
 syscall_asm_4 PROC
-    mov     r11, rcx            ; save ssn in r11
-    mov     rcx, rdx            ; arg1 → rcx  (1st NT arg)
-    mov     rdx, r8             ; arg2 → rdx  (2nd NT arg)
-    mov     r8, r9              ; arg3 → r8   (3rd NT arg)
-    mov     r9, [rsp+28h]       ; arg4 → r9   (4th NT arg)
-    mov     eax, r11d           ; ssn → eax   (syscall number)
-    mov     r10, rcx            ; r10 = arg1  (syscall convention)
+    mov     r11, rcx; save ssn in r11
+    mov     rcx, rdx; arg1 → rcx  (1st NT arg)
+    mov     rdx, r8; arg2 → rdx  (2nd NT arg)
+    mov     r8, r9; arg3 → r8   (3rd NT arg)
+    mov     r9, [rsp+28h]; arg4 → r9   (4th NT arg)
+    mov     eax, r11d; ssn → eax   (syscall number)
+    mov     r10, rcx; r10 = arg1  (syscall convention)
     jmp     qword ptr [g_syscall_gadget_ptr]
 syscall_asm_4 ENDP
 
@@ -54,15 +54,15 @@ syscall_asm_4 ENDP
 ;                        uint64_t arg3, uint64_t arg4, uint64_t arg5)
 ;------------------------------------------------------------------------------
 syscall_asm_5 PROC
-    mov     r11, rcx            ; save ssn in r11
-    mov     rcx, rdx            ; arg1 → rcx
-    mov     rdx, r8             ; arg2 → rdx
-    mov     r8, r9              ; arg3 → r8
-    mov     r9, [rsp+28h]       ; arg4 → r9
-    mov     r10, [rsp+30h]      ; arg5 → r10 (temp)
-    mov     [rsp+28h], r10      ; arg5 → stack (kernel expects at rsp+28h)
-    mov     eax, r11d           ; ssn → eax
-    mov     r10, rcx            ; r10 = arg1
+    mov     r11, rcx; save ssn in r11
+    mov     rcx, rdx; arg1 → rcx
+    mov     rdx, r8; arg2 → rdx
+    mov     r8, r9; arg3 → r8
+    mov     r9, [rsp+28h]; arg4 → r9
+    mov     r10, [rsp+30h]; arg5 → r10 (temp)
+    mov     [rsp+28h], r10; arg5 → stack (kernel expects at rsp+28h)
+    mov     eax, r11d; ssn → eax
+    mov     r10, rcx; r10 = arg1
     jmp     qword ptr [g_syscall_gadget_ptr]
 syscall_asm_5 ENDP
 
@@ -72,17 +72,17 @@ syscall_asm_5 ENDP
 ;                        uint64_t arg6)
 ;------------------------------------------------------------------------------
 syscall_asm_6 PROC
-    mov     r11, rcx            ; save ssn in r11
-    mov     rcx, rdx            ; arg1 → rcx
-    mov     rdx, r8             ; arg2 → rdx
-    mov     r8, r9              ; arg3 → r8
-    mov     r9, [rsp+28h]       ; arg4 → r9
-    mov     r10, [rsp+30h]      ; arg5 → r10 (temp)
-    mov     [rsp+28h], r10      ; arg5 → stack (kernel expects at rsp+28h)
-    mov     r10, [rsp+38h]      ; arg6 → r10 (temp)
-    mov     [rsp+30h], r10      ; arg6 → stack (kernel expects at rsp+30h)
-    mov     eax, r11d           ; ssn → eax
-    mov     r10, rcx            ; r10 = arg1
+    mov     r11, rcx; save ssn in r11
+    mov     rcx, rdx; arg1 → rcx
+    mov     rdx, r8; arg2 → rdx
+    mov     r8, r9; arg3 → r8
+    mov     r9, [rsp+28h]; arg4 → r9
+    mov     r10, [rsp+30h]; arg5 → r10 (temp)
+    mov     [rsp+28h], r10; arg5 → stack (kernel expects at rsp+28h)
+    mov     r10, [rsp+38h]; arg6 → r10 (temp)
+    mov     [rsp+30h], r10; arg6 → stack (kernel expects at rsp+30h)
+    mov     eax, r11d; ssn → eax
+    mov     r10, rcx; r10 = arg1
     jmp     qword ptr [g_syscall_gadget_ptr]
 syscall_asm_6 ENDP
 
@@ -92,19 +92,19 @@ syscall_asm_6 ENDP
 ;                        uint64_t arg6, uint64_t arg7)
 ;------------------------------------------------------------------------------
 syscall_asm_7 PROC
-    mov     r11, rcx            ; save ssn in r11
-    mov     rcx, rdx            ; arg1 → rcx
-    mov     rdx, r8             ; arg2 → rdx
-    mov     r8, r9              ; arg3 → r8
-    mov     r9, [rsp+28h]       ; arg4 → r9
-    mov     r10, [rsp+30h]      ; arg5 → r10 (temp)
-    mov     [rsp+28h], r10      ; arg5 → stack (kernel expects at rsp+28h)
-    mov     r10, [rsp+38h]      ; arg6 → r10 (temp)
-    mov     [rsp+30h], r10      ; arg6 → stack (kernel expects at rsp+30h)
-    mov     r10, [rsp+40h]      ; arg7 → r10 (temp)
-    mov     [rsp+38h], r10      ; arg7 → stack (kernel expects at rsp+38h)
-    mov     eax, r11d           ; ssn → eax
-    mov     r10, rcx            ; r10 = arg1
+    mov     r11, rcx; save ssn in r11
+    mov     rcx, rdx; arg1 → rcx
+    mov     rdx, r8; arg2 → rdx
+    mov     r8, r9; arg3 → r8
+    mov     r9, [rsp+28h]; arg4 → r9
+    mov     r10, [rsp+30h]; arg5 → r10 (temp)
+    mov     [rsp+28h], r10; arg5 → stack (kernel expects at rsp+28h)
+    mov     r10, [rsp+38h]; arg6 → r10 (temp)
+    mov     [rsp+30h], r10; arg6 → stack (kernel expects at rsp+30h)
+    mov     r10, [rsp+40h]; arg7 → r10 (temp)
+    mov     [rsp+38h], r10; arg7 → stack (kernel expects at rsp+38h)
+    mov     eax, r11d; ssn → eax
+    mov     r10, rcx; r10 = arg1
     jmp     qword ptr [g_syscall_gadget_ptr]
 syscall_asm_7 ENDP
 

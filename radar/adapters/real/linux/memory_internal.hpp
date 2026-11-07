@@ -1,4 +1,4 @@
-// memory_internal.hpp — Shared Linux memory helpers for multi-TU split.
+// memory_internal.hpp: Shared Linux memory helpers for multi-TU split.
 #pragma once
 
 #include "real/linux/memory.hpp"
@@ -20,7 +20,7 @@ namespace detail {
 
 #if LR_PLATFORM_LINUX
 inline int open_safe(const char* path, int flags, int mode = 0) {
-    int fd = mode ? ::open(path, flags, mode) : ::open(path, flags);
+    int fd = mode ? ::open(path, flags, mode):::open(path, flags);
     if (fd < 0) {
         std::printf("[linux:mem] open(%s) failed errno=%d\n", path, errno);
     }

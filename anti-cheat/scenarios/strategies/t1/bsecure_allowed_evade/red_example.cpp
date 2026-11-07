@@ -9,7 +9,7 @@ void Red::apply(sim::World& w) noexcept {
   const auto game = w.game_pid();
   auto* g = w.proc(game);
   if (game == 0 || g == nullptr) {
-    w.note("bsecure_allowed_evade: precondition failed — game missing");
+    w.note("bsecure_allowed_evade: precondition failed, game missing");
     return;
   }
 
@@ -35,7 +35,7 @@ void Red::apply(sim::World& w) noexcept {
   w.module_is_signed = true;  // inherits legit signature
   w.module_signature_date = 0x66800000;
   w.module_timestamp = 0x66800000;  // matches signature date (pass timestamp)
-  w.module_size = static_cast<std::uint32_t>(orig_size ? orig_size : 0x10000);
+  w.module_size = static_cast<std::uint32_t>(orig_size ? orig_size: 0x10000);
   w.expected_module_size = w.module_size;
   // Integrity residual on host still detectable
   host.text_hash = "stomped";

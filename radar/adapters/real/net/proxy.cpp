@@ -1,4 +1,4 @@
-// proxy.cpp — SOCKS5 and HTTP CONNECT proxy tunnels.
+// proxy.cpp: SOCKS5 and HTTP CONNECT proxy tunnels.
 
 #include "real/net/net_client.hpp"
 #include "real/net/net_internal.hpp"

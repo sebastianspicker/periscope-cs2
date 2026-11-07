@@ -1,4 +1,4 @@
-// host_sim_fpga.cpp — FpgaDevice (see host_sim_fpga.hpp).
+// host_sim_fpga.cpp: FpgaDevice (see host_sim_fpga.hpp).
 #include "host_sim_fpga.hpp"
 
 #include <cstdarg>

@@ -1,8 +1,8 @@
-// stack_spoof.hpp — Return-address / call-stack spoofing for stack walkers.
+// stack_spoof.hpp: Return-address / call-stack spoofing for stack walkers.
 //
 // RtlWalkFrameChain / CaptureStackBackTrace attribute the call to the
 // first non-spoofed return address. We:
-//   1. Locate a `jmp rbx` / `jmp rax` gadget inside ntdll .text
+//   1. Locate a `jmp rbx` / `jmp rax` gadget inside ntdll.text
 //   2. Locate legitimate `ret` gadgets for synthetic frames
 //   3. Provide a spoofed-call primitive that plants a fake ntdll frame
 //      before invoking a function pointer
@@ -25,7 +25,7 @@ struct StackSpoofGadgets {
   bool valid = false;
 };
 
-/// Scan ntdll .text for spoof gadgets. Cached after first success.
+/// Scan ntdll.text for spoof gadgets. Cached after first success.
 StackSpoofGadgets& stack_spoof_gadgets() noexcept;
 
 /// Plant `fake_ret` as the return address for the current frame, invoke

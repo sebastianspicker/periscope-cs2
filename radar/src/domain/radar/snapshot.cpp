@@ -1,4 +1,4 @@
-// snapshot.cpp — R1 protocol v1 serializer. See snapshot.hpp for provenance.
+// snapshot.cpp: R1 protocol v1 serializer. See snapshot.hpp for provenance.
 //
 // Implementation notes:
 //   - Stable field order (compare tiansongyu `web_radar_json.hpp`): the
@@ -80,13 +80,13 @@ void append_player(std::string& out, const PlayerState& player,
   out += int_to_json(player.team);
   out += ",\"name\":";
   out += options.include_player_names ? quoted(json_escape(player.name))
-                                      : std::string("\"\"");
+: std::string("\"\"");
   out += ",\"color\":";
   out += int_to_json(player.color);
   out += ",\"alive\":";
-  out += player.alive ? "true" : "false";
+  out += player.alive ? "true": "false";
   out += ",\"dormant\":";
-  out += player.dormant ? "true" : "false";
+  out += player.dormant ? "true": "false";
   out += ",\"pos\":";
   append_position(out, player.pos);
   out += ",\"yaw\":";
@@ -98,11 +98,11 @@ void append_player(std::string& out, const PlayerState& player,
   out += ",\"money\":";
   out += int_to_json(player.money);
   out += ",\"helmet\":";
-  out += player.helmet ? "true" : "false";
+  out += player.helmet ? "true": "false";
   out += ",\"defuser\":";
-  out += player.defuser ? "true" : "false";
+  out += player.defuser ? "true": "false";
   out += ",\"bomb\":";
-  out += player.has_bomb ? "true" : "false";
+  out += player.has_bomb ? "true": "false";
   out += ",\"weapon\":";
   out += int_to_json(player.weapon_id);
   out += ",\"ammo\":[";
@@ -147,13 +147,13 @@ void append_entity(std::string& out, const EntityEvent& entity) {
 
 void append_bomb(std::string& out, const BombState& bomb) {
   out += "{\"planted\":";
-  out += bomb.planted ? "true" : "false";
+  out += bomb.planted ? "true": "false";
   out += ",\"ticking\":";
-  out += bomb.ticking ? "true" : "false";
+  out += bomb.ticking ? "true": "false";
   out += ",\"being_defused\":";
-  out += bomb.being_defused ? "true" : "false";
+  out += bomb.being_defused ? "true": "false";
   out += ",\"dropped\":";
-  out += bomb.dropped ? "true" : "false";
+  out += bomb.dropped ? "true": "false";
   out += ",\"pos\":";
   append_position(out, bomb.pos);
   out += ",\"blow_time\":";
@@ -171,7 +171,7 @@ std::string json_escape(const std::string& text) {
   static constexpr char kHex[] = "0123456789abcdef";
   std::string out;
   out.reserve(text.size() + 2);
-  for (const char raw : text) {
+  for (const char raw: text) {
     const unsigned char c = static_cast<unsigned char>(raw);
     switch (c) {
       case '"': out += "\\\""; break;
@@ -200,7 +200,7 @@ std::string serialize_snapshot_v1(const GameSnapshot& snapshot,
   out.reserve(512 + snapshot.players.size() * 160);
   out += "{\"v\":1,\"seq\":";
   // seq/t_capture are u64 but realistic values fit int64; the cast keeps
-  // to_chars on the signed path (a >2^63 sequence would wrap negative —
+  // to_chars on the signed path (a >2^63 sequence would wrap negative -
   // ≈4.9 billion years of 60 Hz frames, an acceptable documented bound).
   out += int_to_json(static_cast<std::int64_t>(snapshot.seq));
   out += ",\"t_capture_ms\":";
@@ -218,9 +218,9 @@ std::string serialize_snapshot_v1(const GameSnapshot& snapshot,
   out += int_to_json(snapshot.local.team);
   out += ",\"name\":";
   out += options.include_player_names ? quoted(json_escape(snapshot.local.name))
-                                      : std::string("\"\"");
+: std::string("\"\"");
   out += ",\"alive\":";
-  out += snapshot.local.alive ? "true" : "false";
+  out += snapshot.local.alive ? "true": "false";
   out += ",\"pos\":";
   append_position(out, snapshot.local.pos);
   out += ",\"yaw\":";
@@ -232,9 +232,9 @@ std::string serialize_snapshot_v1(const GameSnapshot& snapshot,
   out += ",\"money\":";
   out += int_to_json(snapshot.local.money);
   out += ",\"defuser\":";
-  out += snapshot.local.has_defuser ? "true" : "false";
+  out += snapshot.local.has_defuser ? "true": "false";
   out += ",\"bomb\":";
-  out += snapshot.local.has_bomb ? "true" : "false";
+  out += snapshot.local.has_bomb ? "true": "false";
   out += ",\"weapon\":";
   out += int_to_json(snapshot.local.weapon_id);
   out += ",\"ammo\":[";

@@ -1,6 +1,6 @@
 # Lab application targets (S5): the sim-only demos, the ac_pipeline
 # application service, and the strategy_lab catalog runner. Everything here
-# links only ac_* lab libraries — no real adapter target may appear in this
+# links only ac_* lab libraries, no real adapter target may appear in this
 # file. Lab paths resolve against AC_SOURCE_DIR (defined by the includer: the
 # anti-cheat root CMakeLists or radar's).
 #

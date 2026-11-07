@@ -2,9 +2,9 @@
 
 Chains two ONNX models into a single pipeline:
 
-  1. **Vombit yolov10n-cs2** — YOLOv10n fine-tuned on 120+ CS2 matches,
+  1. **Vombit yolov10n-cs2**, YOLOv10n fine-tuned on 120+ CS2 matches,
      detecting ``ct / ct_head / t / t_head`` bounding boxes.
-  2. **EdgeSAM** — lightweight SAM variant from Microsoft. The encoder runs
+  2. **EdgeSAM**, lightweight SAM variant from Microsoft. The encoder runs
      once per frame, the decoder runs once per detected box.
 
 Pre-trained weights

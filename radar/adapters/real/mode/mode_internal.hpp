@@ -1,4 +1,4 @@
-// mode_internal.hpp — Shared probe helpers across mode_*.cpp TUs.
+// mode_internal.hpp: Shared probe helpers across mode_*.cpp TUs.
 #pragma once
 
 #include "real/mode/mode.hpp"

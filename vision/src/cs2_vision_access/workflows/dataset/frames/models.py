@@ -1,4 +1,4 @@
-"""Frame extraction data models — provenance, policy, summaries, and validation.
+"""Frame extraction data models, provenance, policy, summaries, and validation.
 
 Separated from ``extract.py`` so that model consumers do not depend on
 OpenCV or the extraction call chain.

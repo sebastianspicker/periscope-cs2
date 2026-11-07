@@ -1,4 +1,4 @@
-// thread_hide.hpp — Hide threads from debugger enumeration.
+// thread_hide.hpp: Hide threads from debugger enumeration.
 //
 // ThreadHideFromDebugger (ThreadInformationClass = 0x11) via
 // NtSetInformationThread. After this, debuggers cannot see or break on

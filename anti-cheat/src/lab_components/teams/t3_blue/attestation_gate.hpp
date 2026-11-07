@@ -1,4 +1,4 @@
-// attestation_gate.hpp — T3 blue ranked admission gate on AttestationQuote + TrustPolicy.
+// attestation_gate.hpp: T3 blue ranked admission gate on AttestationQuote + TrustPolicy.
 // Multi-reason: signature, PCR, host trust, personal HV, dual-view scars.
 
 #pragma once

@@ -1,8 +1,8 @@
 """Sanitized session recording and replay (ledger V2).
 
-Adapted from the research ledger: tiansongyu's snapshot-recorder doctrine —
+Adapted from the research ledger: tiansongyu's snapshot-recorder doctrine -
 opt-in, bounded, sanitized NDJSON with absolute-state records and a capture
-timestamp per record — applied to the Vision track's prediction stream.
+timestamp per record, applied to the Vision track's prediction stream.
 
 Design rules carried over:
 
@@ -76,7 +76,7 @@ def sanitize_source_label(label: str) -> str:
 
     Quotes, backslashes, slashes and control characters become spaces,
     whitespace runs collapse, and leading ``../`` traversal sequences are
-    removed — the label is metadata in a shareable file, not a path.
+    removed, the label is metadata in a shareable file, not a path.
     """
     cleaned = "".join(char if char.isprintable() and char not in '"\\/' else " " for char in label)
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
@@ -194,7 +194,7 @@ class SessionRecorder:
     ) -> bool:
         """Canonical entry point: one absolute record per pipeline frame.
 
-        Returns False when recording has stopped (cap reached) — callers keep
+        Returns False when recording has stopped (cap reached), callers keep
         running, the file just stops growing.
         """
         if self._stopped:
@@ -288,7 +288,7 @@ def _parse_frame(payload: dict[str, object]) -> ReplayFrame:
 
 class SessionReplay:
     """Reads a recording. Unknown record types are skipped (forward compat);
-    malformed frame records raise RecordingError — a corrupt file must never
+    malformed frame records raise RecordingError, a corrupt file must never
     look like an empty session."""
 
     def __init__(self, source: TextIO) -> None:

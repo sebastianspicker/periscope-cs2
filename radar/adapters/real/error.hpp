@@ -1,5 +1,5 @@
-// error.hpp — Real-backend error reporting.
-// Stack-only fixed-size error messages — no CRT heap dependency in the
+// error.hpp: Real-backend error reporting.
+// Stack-only fixed-size error messages, no CRT heap dependency in the
 // hot path. std::string is accepted at construction for convenience and
 // truncated into the fixed buffer.
 
@@ -13,7 +13,7 @@
 
 namespace real {
 
-// Fixed-size error message buffer — no heap allocation, no exception risk.
+// Fixed-size error message buffer, no heap allocation, no exception risk.
 struct FixedError {
     char buf[128]{};
     bool is_empty = true;
@@ -61,13 +61,13 @@ struct FixedError {
         return a + b.c_str();
     }
     friend std::string operator+(const char* a, const FixedError& b) {
-        return std::string(a ? a : "") + b.c_str();
+        return std::string(a ? a: "") + b.c_str();
     }
     friend std::string operator+(const FixedError& a, const std::string& b) {
         return std::string(a.c_str()) + b;
     }
     friend std::string operator+(const FixedError& a, const char* b) {
-        return std::string(a.c_str()) + (b ? b : "");
+        return std::string(a.c_str()) + (b ? b: "");
     }
 
 private:
@@ -92,10 +92,10 @@ struct Result<void> {
   bool ok = true;
 
   Result() = default;
-  explicit Result(const char* msg) : error_msg(msg), ok(false) {}
-  explicit Result(const FixedError& err) : error_msg(err), ok(false) {}
-  explicit Result(FixedError&& err) : error_msg(std::move(err)), ok(false) {}
-  explicit Result(const std::string& msg) : error_msg(msg), ok(false) {}
+  explicit Result(const char* msg): error_msg(msg), ok(false) {}
+  explicit Result(const FixedError& err): error_msg(err), ok(false) {}
+  explicit Result(FixedError&& err): error_msg(std::move(err)), ok(false) {}
+  explicit Result(const std::string& msg): error_msg(msg), ok(false) {}
 
   operator bool() const { return ok; }
 };
@@ -108,19 +108,19 @@ struct Result {
   bool ok = true;
 
   Result() = default;
-  Result(T v) : value(std::move(v)), ok(true) {}
+  Result(T v): value(std::move(v)), ok(true) {}
   Result(T v, const char* msg)
-      : value(std::move(v)), error_msg(msg), ok(false) {}
+: value(std::move(v)), error_msg(msg), ok(false) {}
   Result(T v, const FixedError& msg)
-      : value(std::move(v)), error_msg(msg), ok(false) {}
+: value(std::move(v)), error_msg(msg), ok(false) {}
   Result(T v, FixedError&& msg)
-      : value(std::move(v)), error_msg(std::move(msg)), ok(false) {}
+: value(std::move(v)), error_msg(std::move(msg)), ok(false) {}
   Result(T v, const std::string& msg)
-      : value(std::move(v)), error_msg(msg), ok(false) {}
+: value(std::move(v)), error_msg(msg), ok(false) {}
 
   // Allow `return os_error("...")` from functions that return Result<T>.
   Result(Result<void> err)
-      : value{}, error_msg(std::move(err.error_msg)), ok(err.ok) {}
+: value{}, error_msg(std::move(err.error_msg)), ok(err.ok) {}
 
   operator bool() const { return ok; }
   const T& operator*() const { return value; }

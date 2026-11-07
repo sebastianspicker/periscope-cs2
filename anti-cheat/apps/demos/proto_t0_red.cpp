@@ -1,4 +1,4 @@
-// T0 RED prototype — lab-only external RPM radar shape.
+// T0 RED prototype, lab-only external RPM radar shape.
 
 #include "ac/proto_log.hpp"
 #include "lab/fixture_process.hpp"
@@ -23,7 +23,7 @@ int main() {
 
   for (const auto& e : pipe.entities()) {
     std::printf("    entity id=%u team=%u alive=%d pos=(%.1f,%.1f,%.1f)\n",
-                e.id, e.team, e.alive ? 1 : 0, e.origin.x, e.origin.y,
+                e.id, e.team, e.alive ? 1: 0, e.origin.x, e.origin.y,
                 e.origin.z);
   }
 

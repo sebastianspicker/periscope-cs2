@@ -1,4 +1,4 @@
-// diagnostic_system.cpp — Educational CDllVerificationMonitor model.
+// diagnostic_system.cpp: Educational CDllVerificationMonitor model.
 
 #include "cs2/diagnostic_system.hpp"
 
@@ -27,7 +27,7 @@ uint32_t crc32(const uint8_t* bytes, size_t size) {
   for (size_t i = 0; i < size; ++i) {
     crc ^= bytes[i];
     for (int bit = 0; bit < 8; ++bit) {
-      crc = (crc >> 1) ^ ((crc & 1u) == 0 ? 0u : 0xEDB88320u);
+      crc = (crc >> 1) ^ ((crc & 1u) == 0 ? 0u: 0xEDB88320u);
     }
   }
   return ~crc;
@@ -37,7 +37,7 @@ uint32_t hash_name(const std::string& value) {
   // Mirrors the stable name hash used to index a collected module/ConVar record.
   // Name changes are a red artifact; blue compares the result with its baseline.
   uint32_t hash = 2166136261u;
-  for (unsigned char ch : value) hash = (hash ^ ch) * 16777619u;
+  for (unsigned char ch: value) hash = (hash ^ ch) * 16777619u;
   return hash;
 }
 
@@ -77,14 +77,14 @@ void append_u64(std::vector<uint8_t>& output, uint64_t value) {
 DllVerificationState DllVerificationState::from_world(const sim::World& world) {
   DllVerificationState state;
   const sim::Process* game = world.proc(world.game_pid());
-  state.process_id = game == nullptr ? 0 : game->pid;
+  state.process_id = game == nullptr ? 0: game->pid;
   state.has_focus = world.match_active;
   state.is_active = world.diagnostic_system_active || world.match_active;
   state.debugger_detected = world.analysis_host || world.diagnostic_state.debugger_attached ||
                             world.thread_hide_from_debugger;
   state.cpuid_vm_result = (world.trust.personal_hv_active || world.trust.platform_hv_active)
                               ? 1u
-                              : 0u;
+: 0u;
   state.pe_timestamps = {world.pe_timestamp_client_dll, world.pe_timestamp_cs2_exe,
                          world.pe_timestamp_kernel32, world.pe_timestamp_ntdll,
                          world.pe_timestamp_gameoverlay};
@@ -107,10 +107,10 @@ DllVerificationState DllVerificationState::from_world(const sim::World& world) {
       ThreadContextEntry thread;
       thread.thread_id = game->pid;
       thread.start_address = reinterpret_cast<void*>(static_cast<uintptr_t>(
-          game->base + (game->manual_mapped_region ? game->memory.size() : 0x1000)));
-      thread.module_handle = game->manual_mapped_region ? nullptr :
+          game->base + (game->manual_mapped_region ? game->memory.size(): 0x1000)));
+      thread.module_handle = game->manual_mapped_region ? nullptr:
           reinterpret_cast<void*>(static_cast<uintptr_t>(game->base));
-      thread.memory_protection = game->manual_mapped_region ? kPageExecuteReadWrite : kPageExecuteRead;
+      thread.memory_protection = game->manual_mapped_region ? kPageExecuteReadWrite: kPageExecuteRead;
       thread.return_address = thread.start_address;
       thread.allocation_base = thread.module_handle;
       thread.signature_size = static_cast<uint32_t>(std::min<size_t>(
@@ -131,9 +131,9 @@ DllVerificationState DllVerificationState::from_world(const sim::World& world) {
       VmtEntry snapshot;
       snapshot.address = entry.address;
       snapshot.usage_count = vmt_usage[entry.address];
-      snapshot.base_offset = entry.address >= game->base ? entry.address - game->base : 0;
+      snapshot.base_offset = entry.address >= game->base ? entry.address - game->base: 0;
       snapshot.anomalous = !entry.expected || snapshot.usage_count == 1;
-      (entry.entity_vmt ? state.entity_vmts : state.interface_vmts).push_back(snapshot);
+      (entry.entity_vmt ? state.entity_vmts: state.interface_vmts).push_back(snapshot);
     }
 
     for (const sim::Module& module : game->modules) {
@@ -153,7 +153,7 @@ DllVerificationState DllVerificationState::from_world(const sim::World& world) {
       observed.insert(observed.end(), module.text_hash.begin(), module.text_hash.end());
       analysis.checksum = crc32(observed.data(), observed.size());
       analysis.machine_type = kAmd64Machine;
-      analysis.section_count = module.headers_erased ? 0 : 5;
+      analysis.section_count = module.headers_erased ? 0: 5;
       for (size_t index = 0; index < sizeof(analysis.sha1_hash); ++index) {
         analysis.sha1_hash[index] = static_cast<uint8_t>(
             (analysis.checksum >> ((index % sizeof(analysis.checksum)) * 8)) ^ index);
@@ -282,7 +282,7 @@ std::vector<HandleTableEntry> scan_handle_table_for_game(const sim::World& world
     entries.push_back({handle.owner_pid,
                        (static_cast<uint64_t>(handle.owner_pid) << 32) | (index + 1),
                        access_mask,
-                       owner == nullptr ? "unknown" : owner->name});
+                       owner == nullptr ? "unknown": owner->name});
   }
   return entries;
 }

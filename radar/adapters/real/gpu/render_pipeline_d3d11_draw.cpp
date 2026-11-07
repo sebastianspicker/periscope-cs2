@@ -88,16 +88,16 @@ Result<void> D3D11RenderPipeline::end_frame()
       if (command.index_count == 0) continue;
       ctx_->IASetPrimitiveTopology(command.type == DrawCommand::TriangleList
           ? D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
-          : command.type == DrawCommand::LineStrip
+: command.type == DrawCommand::LineStrip
               ? D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP
-              : D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+: D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
       // Indices are stored as absolute offsets in the frame vertex buffer.
       ctx_->DrawIndexed(command.index_count, command.index_offset, 0);
     }
   }
 
   const HRESULT hr = swap_->Present(0, 0);  // no vsync wait in lab demos
-  return FAILED(hr) ? Result<void>("swap-chain present failed") : Result<void>();
+  return FAILED(hr) ? Result<void>("swap-chain present failed"): Result<void>();
 }
 
 Result<void> D3D11RenderPipeline::draw_radar_background(float cx, float cy, float radius,
@@ -133,7 +133,7 @@ Result<void> D3D11RenderPipeline::draw_health_bar(float x, float y, float width,
   const int clamped_health = std::clamp(health, 0, 100);
   const float percent = static_cast<float>(clamped_health) / 100.0f;
   const uint32_t color = clamped_health > 50 ? 0xFF00FF00
-                       : clamped_health > 25 ? 0xFFFF8800 : 0xFFFF0000;
+: clamped_health > 25 ? 0xFFFF8800: 0xFFFF0000;
   // Avoid pure black (color-keyed); use dark translucent slate.
   push_quad(x, y, x + width, y + height, 0x88202838);
   push_quad(x, y, x + width * percent, y + height, color);
@@ -145,7 +145,7 @@ Result<void> D3D11RenderPipeline::draw_health_ring(float x, float y, float radiu
 {
   const int hp = std::clamp(health, 0, 100);
   const int ar = std::clamp(armor, 0, 100);
-  const uint32_t hp_col = hp > 50 ? 0xFF33FF55 : hp > 25 ? 0xFFFFAA22 : 0xFFFF3333;
+  const uint32_t hp_col = hp > 50 ? 0xFF33FF55: hp > 25 ? 0xFFFFAA22: 0xFFFF3333;
   push_ring(x, y, radius, hp_col, 20);
   if (ar > 0) {
     push_ring(x, y, radius * 1.35f, 0xFF4488FF, 16);
@@ -232,9 +232,9 @@ Result<void> D3D11RenderPipeline::draw_radar_frame(const RadarFrame& frame)
 {
   constexpr float center_x = 0.0f;
   constexpr float center_y = 0.0f;
-  // In-game snap: blips only — never fill a dark disc over the minimap.
+  // In-game snap: blips only, never fill a dark disc over the minimap.
   const float radius =
-      (style_.anchor == OverlayStyle::Anchor::InGameRadar) ? 0.96f : 0.88f;
+      (style_.anchor == OverlayStyle::Anchor::InGameRadar) ? 0.96f: 0.88f;
   const float usable_radius = radius * 0.92f;
 
   // Hard-disable filled disc for InGameRadar (prevents dark plate if style drifts).
@@ -245,9 +245,9 @@ Result<void> D3D11RenderPipeline::draw_radar_frame(const RadarFrame& frame)
     // Never pure black (chroma-keyed / dark plate). Use translucent slate only
     // for non-snap lab modes.
     const std::uint32_t bg =
-        want_bg ? (style_.radar_bg == 0 ? 0x55202838u : style_.radar_bg)
-                : 0x00000000u;
-    std::uint32_t border = style_.draw_border ? style_.radar_border : 0x00000000u;
+        want_bg ? (style_.radar_bg == 0 ? 0x55202838u: style_.radar_bg)
+: 0x00000000u;
+    std::uint32_t border = style_.draw_border ? style_.radar_border: 0x00000000u;
     if (style_.debug_range_ring && border == 0) {
       border = 0x5533AACC;
     }

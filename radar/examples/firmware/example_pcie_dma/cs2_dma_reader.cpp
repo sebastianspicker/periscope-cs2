@@ -1,4 +1,4 @@
-// cs2_dma_reader.cpp — T4 CS2 entity list walk via PCIe DMA.
+// cs2_dma_reader.cpp: T4 CS2 entity list walk via PCIe DMA.
 //
 // Reads CS2 entity data entirely through PCIe DMA physical memory reads.
 // No OS calls, no kernel driver, no process handle.
@@ -6,7 +6,7 @@
 //
 // Flow:
 //   1. client.dll base PA is known (found via PEB walk in a real setup,
-//      or passed by the caller — host_sim demonstrates both paths).
+//      or passed by the caller, host_sim demonstrates both paths).
 //   2. Read the entity list pointer: physical read at
 //      client_base_pa + dwEntityList (client.dll image is mapped as an
 //      image; the RVA offset is a physical displacement in the PE).
@@ -26,7 +26,7 @@
 #include <cstring>
 
 // ═══════════════════════════════════════════════════════════════════════
-// Helpers — all reads are physical (DMA), all addresses are physical
+// Helpers, all reads are physical (DMA), all addresses are physical
 // ═══════════════════════════════════════════════════════════════════════
 
 namespace {
@@ -70,7 +70,7 @@ uint64_t Cs2DmaReader::resolve_pawn(
     if (!dma_read(phys_read_fn, entry_pa, pawn_ptr)) return 0;
     if (!pawn_ptr) return 0;
 
-    // pawn_ptr is a VA in the target process — translate to PA.
+    // pawn_ptr is a VA in the target process, translate to PA.
     return PageTableWalker::translate(pawn_ptr, cs2_cr3, phys_read_fn);
 }
 
@@ -190,7 +190,7 @@ size_t Cs2DmaReader::read_entities(
 
     // ── 1. Locate the entity list pointer ──
     // client_base_pa is the physical base of the client.dll image in the
-    // target. The dwEntityList symbol is an RVA — the pointer lives at
+    // target. The dwEntityList symbol is an RVA, the pointer lives at
     // client_base_pa + dwEntityList in physical memory.
     uint64_t entity_list_va = 0;
     if (!dma_read(phys_read_fn,

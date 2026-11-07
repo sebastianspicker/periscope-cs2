@@ -3,9 +3,9 @@
 Stages: ingest → prepare_data → label → validate → train → export → self_train → eval → report.
 
 Modes:
-  * ``session_split`` — whole-session YOLO splits; local ``train_and_export``
+  * ``session_split``, whole-session YOLO splits; local ``train_and_export``
     or a flattened cloud bundle for ``train.backend=cloud``
-  * ``flat_cloud`` — flat images/labels zip + cloud train path
+  * ``flat_cloud``, flat images/labels zip + cloud train path
 """
 
 from __future__ import annotations
@@ -154,7 +154,7 @@ def run_auto_train(
             if stage not in stage_runners:
                 raise AutoTrainError(f"unknown stage: {stage}")
 
-            # Human gate sits between validate and train — check before starting.
+            # Human gate sits between validate and train, check before starting.
             if stage == "train":
                 try:
                     stage_human_gate(config, state, paths)

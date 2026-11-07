@@ -148,10 +148,10 @@ void DrawList::box_2d(float x, float y, float w, float h, std::uint32_t color,
 void DrawList::entity_marker(float sx, float sy, std::uint8_t team, bool alive,
                              const std::string& label) {
   const std::uint32_t color = !alive ? 0xFF808080u
-                              : team == 2  ? 0xFF4040FFu
-                              : team == 3  ? 0xFFFFA040u
-                                           : 0xFF40FF40u;
-  circle(sx, sy, alive ? 5.0f : 3.0f, color);
+: team == 2  ? 0xFF4040FFu
+: team == 3  ? 0xFFFFA040u
+: 0xFF40FF40u;
+  circle(sx, sy, alive ? 5.0f: 3.0f, color);
   if (!label.empty()) text(sx + 6.0f, sy - 6.0f, label, color);
 }
 
@@ -175,7 +175,7 @@ ScreenPoint DrawList::world_to_screen(const ac::Vec3& world,
   out.depth = z * inv_w;
   out.x = (ndc_x * 0.5f + 0.5f) * screen_w;
   out.y = (1.0f - (ndc_y * 0.5f + 0.5f)) * screen_h;
-  // Accept a small epsilon beyond the clip planes — orthographic near/far
+  // Accept a small epsilon beyond the clip planes, orthographic near/far
   // edges and float error commonly land just outside exact [-1, 1].
   constexpr float kDepthEps = 1e-3f;
   out.on_screen = out.depth >= -1.0f - kDepthEps &&
@@ -210,7 +210,7 @@ DrawListStats DrawList::stats() const {
   oss << "cmds=" << s.total_commands << " circles=" << s.circles
       << " rects=" << (s.rects + s.filled_rects) << " texts=" << s.texts
       << " colors=" << s.unique_colors
-      << " esp=" << (s.looks_like_esp ? 1 : 0);
+      << " esp=" << (s.looks_like_esp ? 1: 0);
   s.detail = oss.str();
   return s;
 }

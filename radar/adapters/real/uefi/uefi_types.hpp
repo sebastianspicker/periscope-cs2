@@ -1,4 +1,4 @@
-// uefi_types.hpp — UEFI firmware structures and type definitions.
+// uefi_types.hpp: UEFI firmware structures and type definitions.
 //
 // Covers UEFI 2.9+ firmware table enumeration, ACPI+UEFI config tables,
 // runtime/boot services pointers, memory map, and Intel TXT.
@@ -106,7 +106,7 @@ struct alignas(8) EfiSystemTable {
 // UEFI Memory Map
 // ═══════════════════════════════════════════════════════════════════════
 
-enum class EfiMemoryType : uint32_t {
+enum class EfiMemoryType: uint32_t {
     Reserved = 0,
     LoaderCode,
     LoaderData,
@@ -154,7 +154,7 @@ namespace guid {
     constexpr uint64_t EfiAcpi20Table0 = 0x11D3E4F18868E871ULL;
     constexpr uint64_t EfiAcpi20Table1 = 0x81883CC7800022BCULL;
 
-    // 6C34322E-BE24-4E95-3CEC-20EB (partial historical) — TCG2 / TPM2
+    // 6C34322E-BE24-4E95-3CEC-20EB (partial historical), TCG2 / TPM2
     // Canonical TCG2 final events / EFI_TCG2_PROTOCOL not needed for ACPI TPM2.
 
     // Placeholder TPM config table halves (matched when present in systab walk)

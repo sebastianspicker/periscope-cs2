@@ -140,7 +140,7 @@ def open_capture(
     cv2 = _require_cv2()
 
     # Determine the OpenCV backend API preference.
-    # On Windows, default to DirectShow (CAP_DSHOW) — MSMF is flaky with many
+    # On Windows, default to DirectShow (CAP_DSHOW), MSMF is flaky with many
     # capture cards and webcams. On macOS, prefer AVFoundation.
     backend_map: dict[str, int | None] = {
         "auto": _default_backend(),

@@ -1,6 +1,6 @@
 #pragma once
 
-// T4 educational DMA residual defense — sim.
+// T4 educational DMA residual defense, sim.
 // Platform signal (weak) + structural fog (strong) + behavioral residual.
 
 #include "sim/world.hpp"

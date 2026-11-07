@@ -16,12 +16,12 @@ Per-project detail: [`anti-cheat/SECURITY.md`](anti-cheat/SECURITY.md), [`radar/
 ### Lens track posture (added 2026-11-06, ledger X6)
 
 The Lens subtree (`lens/`) is camera-first: the phone watches the same
-light a human watches; today the game PC runs nothing. Its
-output/actuation paths (HID gadget, PC agent - `lens/src/periscope_lens/output.py`,
-`lens/src/periscope_lens/policy.py`) compute motion deltas and are opt-in
-like radar's real backends; nothing is default-on, and hardware
-injectors (kmbox-class) are documented as compatible hardware and are not
-yet implemented here. See [`lens/docs/TOPOLOGY.md`](lens/docs/TOPOLOGY.md).
+light a human watches; today the game PC runs nothing. Its output and
+actuation paths (HID gadget, PC agent in `lens/src/periscope_lens/output.py`
+and `lens/src/periscope_lens/policy.py`) compute motion deltas and are opt-in
+like radar's real backends. Nothing is default-on. Hardware injectors
+(kmbox-class) are documented as compatible hardware and are not implemented
+here yet. See [`lens/docs/TOPOLOGY.md`](lens/docs/TOPOLOGY.md).
 
 ## Reporting
 
@@ -33,7 +33,7 @@ If the only channel is a public issue tracker, describe the repository-side bug 
 ## Radar: high-risk paths
 
 These exercise privileged OS and hardware paths. Run them where an incident
-(test-signing, driver load, DMA configuration) is acceptable - typically a
+(test-signing, driver load, DMA configuration) is acceptable, typically on a
 dedicated machine.
 
 | Path | Risk |

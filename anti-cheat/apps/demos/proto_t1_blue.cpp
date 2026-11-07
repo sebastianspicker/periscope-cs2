@@ -1,4 +1,4 @@
-// T1 BLUE prototype — detect syscall-path red even when usermode hooks are blind.
+// T1 BLUE prototype, detect syscall-path red even when usermode hooks are blind.
 
 #include "ac/proto_log.hpp"
 #include "ac/risk_score.hpp"
@@ -55,6 +55,6 @@ int main() {
   ac::proto_kv("T1_DETECTED", detected);
   std::puts(detected
                 ? "prototype ok (t1 surface caught without API hooks)"
-                : "prototype FAIL");
-  return detected ? 0 : 1;
+: "prototype FAIL");
+  return detected ? 0: 1;
 }

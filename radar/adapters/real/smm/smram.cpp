@@ -1,4 +1,4 @@
-// smram.cpp — SMRAM / TSEG discovery and lock-state probing.
+// smram.cpp: SMRAM / TSEG discovery and lock-state probing.
 //
 // TECHNIQUE: Intel host-bridge TSEGMB (PCI 0:0.0 + 0xB8), SMRR MSRs,
 // and FADT-derived platform hints. SMRAM holds SMI handlers (TSEG).
@@ -141,7 +141,7 @@ Result<SmramInfo> discover_smram() {
   std::printf("[smm] SMRAM base=0x%llx size=0x%llx locked=%d source=%s\n",
               static_cast<unsigned long long>(info.base),
               static_cast<unsigned long long>(info.size),
-              info.locked ? 1 : 0, info.source.c_str());
+              info.locked ? 1: 0, info.source.c_str());
   return info;
 
 #elif LR_PLATFORM_WINDOWS
@@ -187,7 +187,7 @@ Result<SmramInfo> discover_smram() {
         info.detail = "TSEGMB via WinRing0 PCI config";
       }
     }
-    ::CloseHandle(h);
+::CloseHandle(h);
   }
   return info;
 #else

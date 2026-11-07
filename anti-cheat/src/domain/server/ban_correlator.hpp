@@ -2,7 +2,7 @@
 
 // Server ban correlation for the educational lab: combine client risk with
 // residual server scores (info-advantage) into a multi-signal BanDecision.
-// Simulated policy glue — educational delayed-ban ladder only.
+// Simulated policy glue, educational delayed-ban ladder only.
 
 #include "ac/risk_score.hpp"
 #include "ac/telemetry.hpp"
@@ -14,7 +14,7 @@
 namespace server {
 
 // Action ladder for correlated residual enforcement (lab policy).
-enum class BanAction : std::uint8_t {
+enum class BanAction: std::uint8_t {
   None,
   FlagOverwatch,
   SoftRestrict,

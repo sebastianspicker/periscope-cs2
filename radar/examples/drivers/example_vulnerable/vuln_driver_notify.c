@@ -75,10 +75,10 @@ PVOID* GdrvFindNotifyArrayNear(PVOID start, ULONG scanLen) {
     __try {
         PUCHAR p = (PUCHAR)start;
         for (ULONG i = 0; i + 7 < scanLen; ++i) {
-            // 48 8D 0D xx xx xx xx  — lea rcx, [rip+disp32]
-            // 48 8D 15 xx xx xx xx  — lea rdx, [rip+disp32]
-            // 4C 8D 05 xx xx xx xx  — lea r8,  [rip+disp32]
-            // 4C 8D 0D xx xx xx xx  — lea r9,  [rip+disp32]
+            // 48 8D 0D xx xx xx xx, lea rcx, [rip+disp32]
+            // 48 8D 15 xx xx xx xx, lea rdx, [rip+disp32]
+            // 4C 8D 05 xx xx xx xx, lea r8,  [rip+disp32]
+            // 4C 8D 0D xx xx xx xx, lea r9,  [rip+disp32]
             BOOLEAN isLea =
                 (p[i] == 0x48 && p[i + 1] == 0x8D &&
                  (p[i + 2] == 0x0D || p[i + 2] == 0x15 ||
@@ -259,10 +259,10 @@ ULONG GdrvStripCmCallbacks(VOID) {
     // the system. We null the array-style path for process/thread/image and
     // for registry we attempt safe unregistration count reporting via walk.
     // Real removal of registry callbacks: walk list and zero Function pointers
-    // inside each entry at known offsets — version specific.
+    // inside each entry at known offsets, version specific.
     //
     // Implement best-effort: for each entry, zero the callback function pointer
-    // at offset +0x28 (common Win10+ CM_CALLBACK layout: List + cookie + ... + function).
+    // at offset +0x28 (common Win10+ CM_CALLBACK layout: List + cookie +... + function).
     LIST_ENTRY* head = GdrvFindCmCallbackList();
     if (!head) return 0;
     ULONG removed = 0;
@@ -344,7 +344,7 @@ NTSTATUS GdrvCallbackStrip(PVOID user_buffer, ULONG in_len, ULONG out_len) {
         if (!arr) {
             req.status_hint = 1;  // could not resolve array
             count = 0;
-            // Still success for query/count — report zero with hint
+            // Still success for query/count, report zero with hint
             if (req.action == GDRV_CB_ACTION_REMOVE_ALL)
                 status = STATUS_NOT_FOUND;
         } else if (req.action == GDRV_CB_ACTION_REMOVE_ALL) {

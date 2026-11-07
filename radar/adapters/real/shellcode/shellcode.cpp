@@ -23,7 +23,7 @@ namespace real::shellcode {
 namespace {
 
 // Offset of the 2-byte syscall site within the 101-byte blob.
-// Filled with multi-byte NOP (0F 1F 00 is 3 bytes — we use two NOPs 90 90)
+// Filled with multi-byte NOP (0F 1F 00 is 3 bytes, we use two NOPs 90 90)
 // until ArmSyscall patches to the real opcode pair via split writes.
 constexpr std::size_t kSyscallSite = 0;
 // Actual site is discovered during emit and stored in the high 16 bits of
@@ -73,7 +73,7 @@ std::size_t ShellcodeEngine::emit_plaintext(std::uint8_t* out,
         if (o < cap) out[o++] = b;
     };
     auto emit_n = [&](std::initializer_list<std::uint8_t> bytes) {
-        for (auto b : bytes) emit1(b);
+        for (auto b: bytes) emit1(b);
     };
     auto emit_u32 = [&](std::uint32_t v) {
         if (o <= cap && sizeof(v) <= cap - o) {
@@ -95,7 +95,7 @@ std::size_t ShellcodeEngine::emit_plaintext(std::uint8_t* out,
     // push rbx rsi rdi r12 r13 r14 r15
     emit_n({0x53, 0x56, 0x57, 0x41, 0x54, 0x41, 0x55, 0x41, 0x56, 0x41, 0x57});
 
-    // mov r12, imm64 ; &PayloadComm
+    // mov r12, imm64; &PayloadComm
     emit_n({0x49, 0xBC});
     emit_u64(reinterpret_cast<std::uint64_t>(SharedMemory()));
 
@@ -104,7 +104,7 @@ std::size_t ShellcodeEngine::emit_plaintext(std::uint8_t* out,
     // cmp eax, imm32 magic
     emit1(0x3D);
     emit_u32(kPayloadMagic);
-    // jne .fail (rel8) — displacement fixed after layout known; use short skip
+    // jne.fail (rel8), displacement fixed after layout known; use short skip
     emit_n({0x75, 0x30});
 
     // mov edx, [r12+4]
@@ -134,13 +134,13 @@ std::size_t ShellcodeEngine::emit_plaintext(std::uint8_t* out,
     emit_n({0x41, 0x89, 0x44, 0x24, 0x1C});
     // add rsp, 0x38
     emit_n({0x48, 0x83, 0xC4, 0x38});
-    // jmp .done
+    // jmp.done
     emit_n({0xEB, 0x08});
-    // .fail
+    //.fail
     emit_n({0x41, 0xC7, 0x44, 0x24, 0x1C, 0x01, 0x00, 0x00, 0xC0});
-    // .done pops
+    //.done pops
     emit_n({0x41, 0x5F, 0x41, 0x5E, 0x41, 0x5D, 0x41, 0x5C, 0x5F, 0x5E, 0x5B});
-    // xor eax,eax ; ret
+    // xor eax,eax; ret
     emit_n({0x31, 0xC0, 0xC3});
 
     // Stash syscall site in PayloadComm::reserved[0] for arming.

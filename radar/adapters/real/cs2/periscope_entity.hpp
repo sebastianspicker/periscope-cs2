@@ -1,4 +1,4 @@
-// periscope_entity.hpp — Periscope-level entity collector.
+// periscope_entity.hpp: Periscope-level entity collector.
 //
 // Dual-representation entity model matching CS2:
 //   CCSPlayerController -> lobby/scoreboard (team, name)

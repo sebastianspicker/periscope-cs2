@@ -1,4 +1,4 @@
-// false_positive_policy.cpp — FP policy knobs so legit tools are not auto-banned in lab.
+// false_positive_policy.cpp: FP policy knobs so legit tools are not auto-banned in lab.
 // Teaches multi-reason thresholds instead of single-handle ragebans.
 
 #include "t0_blue/false_positive_policy.hpp"

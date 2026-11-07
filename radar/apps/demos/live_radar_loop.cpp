@@ -1,4 +1,4 @@
-// live_radar_loop.cpp — main overlay frame loop for live_radar demo.
+// live_radar_loop.cpp: main overlay frame loop for live_radar demo.
 #include "demos/live_radar_support.hpp"
 #include "demos/radar_shared.hpp"
 #include "real/cs2/dead_reckoning.hpp"
@@ -59,11 +59,11 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   logf("[step 5] Loop...\n");
   logf("  throttle: scatter@20Hz local@45 far@6 | ladder=%s ui_detached=%d\n",
        real::cs2::stack::AttachLadder::stage_name(ladder.stage),
-       ladder.ui_detached ? 1 : 0);
+       ladder.ui_detached ? 1: 0);
   // Apply the GUI filter selector loaded from config (0 all, 1 enemies, 2 team).
   filter = (settings.filter == 1)   ? BlipFilter::EnemyOnly
-           : (settings.filter == 2) ? BlipFilter::TeamOnly
-                                    : BlipFilter::All;
+: (settings.filter == 2) ? BlipFilter::TeamOnly
+: BlipFilter::All;
   float smooth_yaw_deg = 0.f;
   bool have_smooth_yaw = false;
   auto last_layout_refresh = std::chrono::steady_clock::now();
@@ -84,8 +84,8 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   // `--full` starts pinned to full, `--strict-intel` starts pinned to hud-echo.
   real::cs2::stack::IntelPolicy intel_policy =
       a.full_intel ? real::cs2::stack::IntelPolicy::Full
-                   : (a.strict_intel ? real::cs2::stack::IntelPolicy::HudEcho
-                                     : real::cs2::stack::IntelPolicy::Auto);
+: (a.strict_intel ? real::cs2::stack::IntelPolicy::HudEcho
+: real::cs2::stack::IntelPolicy::Auto);
   real::cs2::stack::IntelMode intel_mode = real::cs2::stack::IntelMode::HudEcho;
   real::cs2::stack::BehaviorShaper shaper{};
   real::cs2::stack::DegradeLadder ladder_policy{};
@@ -106,7 +106,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   real::cs2::cache::EntityCache<real::cs2::Cs2PlayerEntity> entity_cache;
   real::cs2::cache::CacheSnapshot<real::cs2::Cs2PlayerEntity> entity_snapshot{};
   // Ledger E49/E54: spotted hysteresis and bounded far-entity extrapolation.
-  real::cs2::spot::SpotTtl spot_ttl(a.strict_intel ? 0 : 1000);
+  real::cs2::spot::SpotTtl spot_ttl(a.strict_intel ? 0: 1000);
   real::cs2::reckon::DeadReckoner reckoner;
   // Ledger E46: map-collision LOS. Loaded off-thread, swapped atomically.
   std::shared_ptr<const radar_domain::LosBvh> los_bvh;
@@ -140,7 +140,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   if (const char* env = std::getenv("LR_CS2_MAP_DIR"); env && *env) {
     map_dir = env;
   } else {
-    for (const char* candidate : {"data/maps", "../data/maps", "radar/data/maps"}) {
+    for (const char* candidate: {"data/maps", "../data/maps", "radar/data/maps"}) {
       if (std::filesystem::is_directory(candidate)) {
         map_dir = candidate;
         break;
@@ -181,8 +181,8 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       los_bvh = los_job.get();
       los_job_active = false;
       logf("[los] map=%s nodes=%zu triangles=%zu\n", los_map.c_str(),
-           los_bvh ? los_bvh->node_count() : 0,
-           los_bvh ? los_bvh->triangle_count() : 0);
+           los_bvh ? los_bvh->node_count(): 0,
+           los_bvh ? los_bvh->triangle_count(): 0);
     }
     if (los_job_active || map_dir.empty()) return;
 
@@ -230,7 +230,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       auto stl = renderer->overlay_style();
       stl.debug_range_ring = !stl.debug_range_ring;
       (void)renderer->apply_overlay_style(stl);
-      logf("[input] debug_range_ring=%d\n", stl.debug_range_ring ? 1 : 0);
+      logf("[input] debug_range_ring=%d\n", stl.debug_range_ring ? 1: 0);
     }
     if (key_r && !key_r_was) {
       logf("[input] force layout refresh\n");
@@ -254,12 +254,12 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       auto sc = real::cs2::stack::score_blue_dual(bcfg);
       logf("[blue-dual] composite=%d detect=%d reason=%s scar_owner=%s scar_pid=%u "
            "handle=%d vol=%d co=%d\n",
-           sc.composite, sc.would_detect ? 1 : 0, sc.primary_reason, sc.scar_owner,
+           sc.composite, sc.would_detect ? 1: 0, sc.primary_reason, sc.scar_owner,
            sc.scar_pid, sc.handle_score, sc.volume_score, sc.cooccur_score);
     }
     if (key_insert && !insert_was) {
       gui.toggle_open();
-      logf("[input] control_panel=%s\n", gui.is_open() ? "open" : "closed");
+      logf("[input] control_panel=%s\n", gui.is_open() ? "open": "closed");
     }
     if (key_i && !key_i_was) {
       intel_policy = real::cs2::stack::next_intel_policy(intel_policy);
@@ -295,7 +295,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
     now_ms = static_cast<std::uint64_t>(
         std::chrono::duration_cast<std::chrono::milliseconds>(
             now_steady.time_since_epoch())
-            .count());
+.count());
     maybe_load_los();
 
     // E47: optional live vphys2 world parse. An env-supplied world pointer is
@@ -352,9 +352,9 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
            (unsigned long long)schema_type_scope, hits,
            sizeof(targets) / sizeof(targets[0]));
     }
-    // HudRadar refresh: 5s (was 3s) — cuts IPC; map center is stable enough.
+    // HudRadar refresh: 5s (was 3s), cuts IPC; map center is stable enough.
     if (std::chrono::duration_cast<std::chrono::seconds>(now_steady - last_cvar_refresh)
-            .count() >= 5) {
+.count() >= 5) {
       last_cvar_refresh = now_steady;
       if (c_hud) {
         hud_ok = hud_reader.update_snapshot(c_hud, client_base, client_size, live_read,
@@ -362,9 +362,9 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       }
     }
     static auto last_full_cvar = std::chrono::steady_clock::now();
-    // Full cvar re-init is expensive over L2 IPC — every 30s.
+    // Full cvar re-init is expensive over L2 IPC, every 30s.
     if (c_hud && std::chrono::duration_cast<std::chrono::seconds>(now_steady - last_full_cvar)
-                         .count() >= 30) {
+.count() >= 30) {
       last_full_cvar = now_steady;
       cvars.initialize(engine_base, engine_size, tier0_base, tier0_size, client_base,
                        client_size, c_hud, live_read);
@@ -379,7 +379,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
     }
     // Periodic overlay re-layout (resize / resolution / settings).
     if (std::chrono::duration_cast<std::chrono::seconds>(now_steady - last_layout_refresh)
-            .count() >= 2) {
+.count() >= 2) {
       last_layout_refresh = now_steady;
       auto stl = renderer->overlay_style();
       real::cs2::apply_hud_settings_to_style(hud_settings, stl);
@@ -393,8 +393,8 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
 
     // GUI frame must wrap all widget calls; overlay px size from the style.
     const auto& gui_style = renderer->overlay_style();
-    gui.begin_frame(gui_style.width > 0 ? gui_style.width : 320,
-                    gui_style.height > 0 ? gui_style.height : 320);
+    gui.begin_frame(gui_style.width > 0 ? gui_style.width: 320,
+                    gui_style.height > 0 ? gui_style.height: 320);
 
     // Scattered index walk + priority throttle (all paths via live_read)
     const bool do_full = throttle.full_due(now_steady);
@@ -426,10 +426,10 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
             entities.entities, [](const real::cs2::Cs2PlayerEntity& e) {
               // E64: pawn handle survives a slot reuse; fall back to the
               // controller handle only when the pawn is unknown.
-              return e.pawn_handle != 0 ? e.pawn_handle : e.controller_handle;
+              return e.pawn_handle != 0 ? e.pawn_handle: e.controller_handle;
             });
       }
-      // Ledger E12: freshness is necessary but not sufficient — classify the
+      // Ledger E12: freshness is necessary but not sufficient, classify the
       // offsets once against live data and log the verdict (fail-open: the
       // posture ladder and hud-echo already bound what a wrong read can show).
       if (!offsets_validation_done && entities.read_successful &&
@@ -448,7 +448,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
               offsets = *recovered;
               auto second = real::cs2::validate_offsets_live(*a.reader, offsets);
               logf("[offsets] recovery=%s\n",
-                   second ? second->describe().c_str() : "unavailable");
+                   second ? second->describe().c_str(): "unavailable");
             } else {
               logf("[offsets] recovery failed: %s\n", recovered.error_msg.c_str());
             }
@@ -485,7 +485,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
 
     if (local && local->is_alive &&
         (entities.read_successful || !entity_snapshot.entities.empty())) {
-      float yaw_deg = have_view_yaw ? view_yaw_deg : local->eye_angles.y;
+      float yaw_deg = have_view_yaw ? view_yaw_deg: local->eye_angles.y;
       if (!std::isfinite(yaw_deg)) yaw_deg = 0.f;
       if (!have_smooth_yaw) {
         smooth_yaw_deg = yaw_deg;
@@ -498,11 +498,11 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
 
       const float cl_zoom = hud_settings.cl_radar_scale > 0.2f
                                 ? hud_settings.cl_radar_scale
-                                : 0.7f;
+: 0.7f;
       const float fallback_scale = radar_world_scale(cl_zoom);
       const float edge =
-          use_polar ? std::sqrt(hud_snap.maxVisibilitySquared) : fallback_scale;
-      const float rtts = use_polar ? hud_snap.mapTextureScale : 1.f;
+          use_polar ? std::sqrt(hud_snap.maxVisibilitySquared): fallback_scale;
+      const float rtts = use_polar ? hud_snap.mapTextureScale: 1.f;
 
       frame.local_yaw = yaw_rad;
       frame.local_origin = local->origin;
@@ -518,11 +518,11 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
           if (!ent.is_alive && !ent.is_bomb) return;
           if (!ent.is_local_player && !ent.is_bomb) {
             if (ent.dormant) return;
-            // HudEcho: hide unspotted enemies — exactly what the official
+            // HudEcho: hide unspotted enemies, exactly what the official
             // radar shows. Recently-spotted hysteresis (E49) keeps the blip
             // from flickering; strict mode has a zero TTL.
             const std::uint32_t key =
-                ent.pawn_handle != 0 ? ent.pawn_handle : ent.controller_handle;
+                ent.pawn_handle != 0 ? ent.pawn_handle: ent.controller_handle;
             spot_ttl.observe(key, ent.spotted_known, ent.spotted, now_ms);
             if (intel_mode == real::cs2::stack::IntelMode::HudEcho &&
                 ent.team != local_team) {
@@ -536,7 +536,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
         }
 
         const std::uint32_t key =
-            ent.pawn_handle != 0 ? ent.pawn_handle : ent.controller_handle;
+            ent.pawn_handle != 0 ? ent.pawn_handle: ent.controller_handle;
 
         // E54: extrapolate throttled far entities, then sample the fresh
         // observation. Local/bomb/world entities are not extrapolated.
@@ -574,7 +574,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
         blip.armor = ent.armor;
         blip.is_local = ent.is_local_player;
         blip.is_alive = ent.is_alive;
-        blip.is_visible = los_known ? los_visible : ent.spotted;
+        blip.is_visible = los_known ? los_visible: ent.spotted;
         blip.is_bomb = ent.is_bomb;
         blip.is_hostage = ent.is_hostage;
         blip.team = static_cast<std::uint8_t>(ent.team);
@@ -604,7 +604,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
             case real::cs2::WorldKind::Weapon:
               blip.color = 0xFF66CC66;
               std::snprintf(blip.label, sizeof(blip.label), "%s",
-                            ent.weapon.empty() ? "GUN" : ent.weapon.c_str());
+                            ent.weapon.empty() ? "GUN": ent.weapon.c_str());
               break;
             case real::cs2::WorldKind::Projectile:
               blip.color = 0xFF33AAFF;
@@ -697,12 +697,12 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
 
       if (first_frame) {
         logf("[frame0] entities=%d polar=%d edge=%.1f yaw=%.1f filter=%s blips=%zu\n",
-             entities.entity_count, use_polar ? 1 : 0, edge, yaw_deg,
+             entities.entity_count, use_polar ? 1: 0, edge, yaw_deg,
              filter_name(filter), frame.blips.size());
         logf("[frame0] intel round=%d bomb=%d site=%d defuse=%d blow=%.1f "
              "aliveT/CT=%d/%d spec=%d\n",
-             round_intel.is_round ? 1 : 0, round_intel.bomb_planted ? 1 : 0,
-             round_intel.bomb_site, round_intel.bomb_defusing ? 1 : 0,
+             round_intel.is_round ? 1: 0, round_intel.bomb_planted ? 1: 0,
+             round_intel.bomb_site, round_intel.bomb_defusing ? 1: 0,
              round_intel.bomb_blow_time, round_intel.alive_t, round_intel.alive_ct,
              round_intel.spectator_count);
         if (use_polar) {
@@ -743,15 +743,15 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
         hud_settings.cl_radar_scale = settings.radar_scale;
         // Map the GUI filter selector onto the frame filter.
         filter = (settings.filter == 1)   ? BlipFilter::EnemyOnly
-                 : (settings.filter == 2) ? BlipFilter::TeamOnly
-                                          : BlipFilter::All;
+: (settings.filter == 2) ? BlipFilter::TeamOnly
+: BlipFilter::All;
         logf("[gui] style applied alpha=%d topmost=%d click=%d radar_scale=%.2f "
              "filter=%d bg=%d border=%d cross=%d arrows=%d rings=%d\n",
-             settings.overlay_alpha, settings.overlay_topmost ? 1 : 0,
-             settings.overlay_clickthrough ? 1 : 0, settings.radar_scale,
-             settings.filter, settings.draw_bg ? 1 : 0,
-             settings.draw_border ? 1 : 0, settings.draw_crosshair ? 1 : 0,
-             settings.enemy_arrows ? 1 : 0, settings.health_rings ? 1 : 0);
+             settings.overlay_alpha, settings.overlay_topmost ? 1: 0,
+             settings.overlay_clickthrough ? 1: 0, settings.radar_scale,
+             settings.filter, settings.draw_bg ? 1: 0,
+             settings.draw_border ? 1: 0, settings.draw_crosshair ? 1: 0,
+             settings.enemy_arrows ? 1: 0, settings.health_rings ? 1: 0);
       }
     }
     gui.end_frame();
@@ -765,23 +765,23 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
     frame_count++;
     auto now = std::chrono::high_resolution_clock::now();
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time)
-                  .count();
+.count();
     if (entities.entity_count != last_entity_count) {
       last_entity_count = entities.entity_count;
       logf("[radar] entities=%d filter=%s polar=%d\n", entities.entity_count,
-           filter_name(filter), use_polar ? 1 : 0);
+           filter_name(filter), use_polar ? 1: 0);
     }
     if (ms >= 5000) {
       float fps = static_cast<float>(frame_count) / (ms / 1000.0f);
       logf("[radar] FPS: %.1f | entities: %d | local: %s | filter=%s | polar=%d\n",
            fps, entities.entity_count,
-           local && local->is_alive ? "alive" : "n/a", filter_name(filter),
-           use_polar ? 1 : 0);
+           local && local->is_alive ? "alive": "n/a", filter_name(filter),
+           use_polar ? 1: 0);
       if (hud_ok && hud_reader.snapshot().valid) {
         logf("[state] round=%d bomb=%d site=%d defuse=%d blow=%.1f "
              "aliveT/CT=%d/%d spec=%d vis=%.0f\n",
-             round_intel.is_round ? 1 : 0, round_intel.bomb_planted ? 1 : 0,
-             round_intel.bomb_site, round_intel.bomb_defusing ? 1 : 0,
+             round_intel.is_round ? 1: 0, round_intel.bomb_planted ? 1: 0,
+             round_intel.bomb_site, round_intel.bomb_defusing ? 1: 0,
              round_intel.bomb_blow_time, round_intel.alive_t, round_intel.alive_ct,
              round_intel.spectator_count, hud_reader.snapshot().visibilitySize);
       }
@@ -790,7 +790,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
     }
 
     if (std::chrono::duration_cast<std::chrono::seconds>(now_steady - last_blue_log)
-            .count() >= 5) {
+.count() >= 5) {
       last_blue_log = now_steady;
       const double win =
           std::chrono::duration<double>(now_steady - blue_window_start).count();
@@ -803,7 +803,7 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       bcfg.donor_pid = ladder.donor_pid;
       bcfg.rpm_reads = g_live_reads - blue_reads_mark;
       bcfg.rpm_bytes = g_live_bytes - blue_bytes_mark;
-      bcfg.window_sec = win > 0.5 ? win : 5.0;
+      bcfg.window_sec = win > 0.5 ? win: 5.0;
       bcfg.ui_holds_openprocess = ui_holds_cs2_handle;
       bcfg.has_hijack = ladder.hijack_handle;
       bcfg.has_worker = ladder.worker_ipc;
@@ -811,17 +811,17 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       auto sc = real::cs2::stack::score_blue_dual(bcfg);
       // Silent degrade: a rising composite steps the posture down (slower
       // scans, hud-echo intel) with no visible reaction; three clean windows
-      // relax it one rung. The step only chooses rates/mode for `auto` — a
+      // relax it one rung. The step only chooses rates/mode for `auto`, a
       // pinned policy still wins inside apply_posture.
       real::cs2::stack::ReadRates stepped{};
       ladder_policy.step(sc.composite, shaper.rates_at(now_steady, posture_floor),
                          stepped);
       logf("[blue] ladder=%s ui_detached=%d %s\n",
            real::cs2::stack::AttachLadder::stage_name(ladder.stage),
-           ladder.ui_detached ? 1 : 0, ladder.last_scar);
+           ladder.ui_detached ? 1: 0, ladder.last_scar);
       logf("[blue-dual] composite=%d detect=%d reason=%s scar_owner=%s scar_pid=%u "
            "handle=%d vol=%d co=%d policy=%s intel=%s posture=%d reads~%llu\n",
-           sc.composite, sc.would_detect ? 1 : 0, sc.primary_reason, sc.scar_owner,
+           sc.composite, sc.would_detect ? 1: 0, sc.primary_reason, sc.scar_owner,
            sc.scar_pid, sc.handle_score, sc.volume_score, sc.cooccur_score,
            real::cs2::stack::intel_policy_name(intel_policy),
            real::cs2::stack::intel_mode_name(intel_mode), ladder_policy.level,
@@ -831,14 +831,14 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
       blue_window_start = now_steady;
     }
 
-    // Ledger E15: hybrid pacing — sleep most of the inter-frame gap, spin
+    // Ledger E15: hybrid pacing, sleep most of the inter-frame gap, spin
     // the last ~2 ms for sub-tick precision. Idle (no entities for a while)
     // engages only after a debounce so one empty frame never pays the idle
     // latency. The anti-fingerprint jitter on the sleep is preserved.
     const bool idle_now = idle_debouncer.vote(entities.entity_count <= 0);
     if (a.max_fps > 0) {
-      const int period_ms = a.max_fps > 0 ? (1000 / (a.max_fps > 1000 ? 1000 : a.max_fps)) : 16;
-      real::win::fuzzed_sleep(period_ms - 2 < 1 ? 1 : period_ms - 2, 8);
+      const int period_ms = a.max_fps > 0 ? (1000 / (a.max_fps > 1000 ? 1000: a.max_fps)): 16;
+      real::win::fuzzed_sleep(period_ms - 2 < 1 ? 1: period_ms - 2, 8);
       const auto spin_until =
           std::chrono::steady_clock::now() + std::chrono::milliseconds(2);
       while (std::chrono::steady_clock::now() < spin_until) real::win::yield();
@@ -908,6 +908,6 @@ int run_live_radar_loop(LiveRadarLoopArgs& a) {
   cleanup();
   logf("Done. ladder=%s ui_detached=%d reads=%llu\n",
        real::cs2::stack::AttachLadder::stage_name(ladder.stage),
-       ladder.ui_detached ? 1 : 0, (unsigned long long)g_live_reads);
+       ladder.ui_detached ? 1: 0, (unsigned long long)g_live_reads);
   return 0;
 }

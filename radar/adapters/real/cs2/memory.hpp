@@ -1,4 +1,4 @@
-// memory.hpp — Real CS2 process memory reader.
+// memory.hpp: Real CS2 process memory reader.
 //
 // LESSON: Reading game memory from an external process is the core
 // operation of T0 radar cheats. Every read leaves a telemetry scar:
@@ -35,12 +35,12 @@ namespace real::cs2 {
 
 /// Backend preference: controls fallback behavior in attach().
 /// When PreferIoctl is set and the kernel IOCTL backend is available,
-/// CS2 reads go through the kernel driver ONLY — never RPM.
+/// CS2 reads go through the kernel driver ONLY, never RPM.
 /// RPM is only used for T0/T1 tiers where no kernel driver exists.
 ///
 /// V4-V1 / V4-V2 rationale:
 ///   RpmBackend duplicates a VM_READ handle into our process (visible
-///   in handle table enumeration — V4-V1) and calls
+///   in handle table enumeration, V4-V1) and calls
 ///   NtReadVirtualMemory which fires ETW Threat Intelligence events
 ///   (V4-V2). The kernel IOCTL path avoids both: no VM_READ handle
 ///   and no NtReadVirtualMemory syscall from usermode.
@@ -53,7 +53,7 @@ enum class MemoryBackendPreference {
 /// Created by MemoryReaderFactory based on the requested tier and mode.
 /// Automatically falls back through tiers when a backend is unavailable.
 /// When PreferIoctl is active, the IOCTL path is used for CS2 reads
-/// and RPM fallback is blocked — see MemoryBackendPreference.
+/// and RPM fallback is blocked, see MemoryBackendPreference.
 class Cs2MemoryReader {
 public:
   Cs2MemoryReader();

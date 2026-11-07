@@ -27,7 +27,7 @@ struct Detection {
   std::string summary;
 };
 
-// Multi-sensor educational blue agent `AcAgent` — reasons/risk on World scars.
+// Multi-sensor educational blue agent `AcAgent`, reasons/risk on World scars.
 class AcAgent {
  public:
   explicit AcAgent(sim::World& world, ac::ITelemetrySink& sink);
@@ -41,7 +41,7 @@ class AcAgent {
   /// Inject / foreign thread / manual map scars on game process.
   Detection scan_injection();
 
-  /// Game module .text / hook scars.
+  /// Game module.text / hook scars.
   Detection scan_module_integrity();
 
   /// External topmost overlay windows.

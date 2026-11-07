@@ -43,7 +43,7 @@ def materialize_held_out_split(
     Existing files in the four split dirs are removed first (``clear_existing``)
     so a re-run cannot leave a stem in both splits.
 
-    Returns ``{"train": [stems...], "val": [stems...]}``.
+    Returns ``{"train": [stems, ...], "val": [stems, ...]}``.
     """
     if not 0.0 < float(val_fraction) < 1.0:
         raise ValueError("val_fraction must be in (0, 1)")
@@ -171,7 +171,7 @@ def promote_cs2_10k_holdout_to_session_split(
         _clear_split_dirs(data_dir)
 
     val_set = set(val_stems)
-    # Flat pool only — never pull holdout stems into train.
+    # Flat pool only, never pull holdout stems into train.
     train_stems = [s for s in _list_image_stems(images_dir) if s not in val_set]
     images_val_dir = data_dir / "images_val"
 

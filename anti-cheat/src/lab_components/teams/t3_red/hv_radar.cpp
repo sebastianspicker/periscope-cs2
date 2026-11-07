@@ -1,4 +1,4 @@
-// hv_radar.cpp — T3 red HV path using World.trust posture flags.
+// hv_radar.cpp: T3 red HV path using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #include "t3_red/hv_radar.hpp"
@@ -11,7 +11,7 @@ namespace t3_red {
 
 // HvRadar::HvRadar: T3 red HV radar orchestrator.
 HvRadar::HvRadar(sim::World& world, std::string ui)
-    : world_(world), ui_name_(std::move(ui)) {
+: world_(world), ui_name_(std::move(ui)) {
   ui_pid_ = world_.spawn(ui_name_);
   game_pid_ = world_.game_pid();
 }
@@ -69,7 +69,7 @@ AttachResult HvRadar::attach_best() {
   }
   active_ = BackendKind::UsermodeRpm;
   return {false, BackendKind::UsermodeRpm,
-          "HV unavailable — fall back externally"};
+          "HV unavailable, fall back externally"};
 }
 
 // HvRadar::apply_stealth: Apply EPT/stealth residual flags.
@@ -106,7 +106,7 @@ void HvRadar::plant_smm_read_channel() {
   last_.smm_read_channel = true;
   world_.note(reuses_acpi_pm_timer
                   ? "t3 HvRadar SMM channel reused ACPI PM timer"
-                  : "t3 HvRadar SMM channel created lab SMI vector");
+: "t3 HvRadar SMM channel created lab SMI vector");
 }
 
 void HvRadar::trigger_smm_read() {
@@ -304,11 +304,11 @@ HvRadarReport HvRadar::run_full_loop(const std::string& vendor, bool stealth) {
   }
   std::ostringstream oss;
   oss << "full_loop entities=" << last_.entity_count
-      << " no_handle=" << (last_.no_game_handle ? 1 : 0)
-      << " hv=" << (last_.hv_started ? 1 : 0)
-      << " bridge=" << (last_.bridge_open ? 1 : 0)
-      << " ept=" << (last_.ept_hide ? 1 : 0)
-      << " timing=" << (last_.timing_spoof ? 1 : 0)
+      << " no_handle=" << (last_.no_game_handle ? 1: 0)
+      << " hv=" << (last_.hv_started ? 1: 0)
+      << " bridge=" << (last_.bridge_open ? 1: 0)
+      << " ept=" << (last_.ept_hide ? 1: 0)
+      << " timing=" << (last_.timing_spoof ? 1: 0)
       << " vendor=" << last_.vendor;
   last_.detail = oss.str();
   world_.note("t3 HvRadar " + last_.detail);

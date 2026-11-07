@@ -1,5 +1,5 @@
 #pragma once
-// world.hpp — sim::World arena: fields + method declarations.
+// world.hpp: sim::World arena: fields + method declarations.
 // Types live in sim/world_types.hpp (included here for single-include compat).
 // Field bodies are split into world_fields_*.inc to stay under the 600-line cap.
 

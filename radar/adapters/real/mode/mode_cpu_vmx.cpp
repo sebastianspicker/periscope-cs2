@@ -1,4 +1,4 @@
-// mode_cpu_vmx.cpp — Embedded x64 CPUID / VMX / SVM probes for T3.
+// mode_cpu_vmx.cpp: Embedded x64 CPUID / VMX / SVM probes for T3.
 
 #include "real/mode/mode_internal.hpp"
 
@@ -24,8 +24,8 @@ void cpuid_leaf(std::uint32_t leaf, std::uint32_t* a, std::uint32_t* b,
   *d = static_cast<std::uint32_t>(info[3]);
 #else
   __asm__ volatile("cpuid"
-                   : "=a"(*a), "=b"(*b), "=c"(*c), "=d"(*d)
-                   : "a"(leaf));
+: "=a"(*a), "=b"(*b), "=c"(*c), "=d"(*d)
+: "a"(leaf));
 #endif
 }
 

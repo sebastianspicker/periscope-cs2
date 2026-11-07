@@ -27,7 +27,7 @@ BlueResult detect(sim::World& w) {
     }
   }
 
-  // Independent sensors — not a single OverlayDetector flag echo.
+  // Independent sensors, not a single OverlayDetector flag echo.
   if (present_hooked || w.steam_present_hooked || w.vtable_present_hook_fallback) {
     result.reasons.emplace_back("strategy scar: DXGI Present detour on game module");
     result.risk += 0.35;
@@ -71,7 +71,7 @@ BlueResult detect(sim::World& w) {
                   " risk=" + std::to_string(result.risk);
 
   std::printf("[T0 dxgi_present_hook] BLUE signals=%d risk=%.2f detected=%s\n",
-              result.signals, result.risk, result.detected ? "true" : "false");
+              result.signals, result.risk, result.detected ? "true": "false");
   for (const auto& reason : result.reasons) {
     std::printf("[T0 dxgi_present_hook]   %s\n", reason.c_str());
   }

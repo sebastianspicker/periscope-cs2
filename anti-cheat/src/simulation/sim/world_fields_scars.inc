@@ -1,18 +1,18 @@
-// world_fields_scars.inc — wave/scar residual members (included inside struct World).
-  // T3: SMM (System Management Mode) read channel — red plants an SMM
+// world_fields_scars.inc: wave/scar residual members (included inside struct World).
+  // T3: SMM (System Management Mode) read channel, red plants an SMM
   // handler that reads game memory at SMI request. Bypasses all HV-level
   // protections because SMM runs at the highest privilege level.
   bool smm_read_channel_planted = false;
   // Number of successful SMM memory reads.
   int smm_read_ops = 0;
 
-  // T3: TPM measurement spoofing — red manipulates TPM PCR values to
+  // T3: TPM measurement spoofing, red manipulates TPM PCR values to
   // present fake attestation measurements, bypassing remote attestation.
   bool tpm_measurement_spoofed = false;
   // Which PCR bank was spoofed (PCR 0-7 for firmware/BIOS).
   int spoofed_pcr_bank = 0;
 
-  // T3: EPT violation side-channel evasion — red monitors EPT violation
+  // T3: EPT violation side-channel evasion, red monitors EPT violation
   // timing to detect when AC is scanning game memory pages. Evades reads
   // only during AC scan windows, minimizing exposure. Uses INVEPT to
   // flush EPT caches and force VM exits on AC access.
@@ -22,7 +22,7 @@
   // Whether INVEPT was used to flush EPT cached mappings.
   bool invept_tlb_flush_used = false;
 
-  // T3: VM-exit keylog capture — red intercepts VM exits caused by
+  // T3: VM-exit keylog capture, red intercepts VM exits caused by
   // external interrupts (including keyboard IRQs) to capture keystrokes.
   // Works even without any game process modifications because VM exits
   // are hypervisor-level events invisible to the guest.
@@ -30,7 +30,7 @@
   // Number of keystrokes captured via VM-exit interception.
   int vmexit_keys_captured = 0;
 
-  // T4: FPGA smart DMA (PCILeech pattern) — FPGA-based DMA with
+  // T4: FPGA smart DMA (PCILeech pattern), FPGA-based DMA with
   // automated scatter-gather entity scanning. Unlike basic dma_read,
   // this does per-page scatter reads that avoid bulk DMA detection.
   bool fpga_smart_dma_active = false;
@@ -39,7 +39,7 @@
   // Whether FPGA does hidden re-scans (not burst).
   bool fpga_hidden_rescan = false;
 
-  // T4: IOMMU bypass via PCIe config — manipulates PCIe configuration
+  // T4: IOMMU bypass via PCIe config, manipulates PCIe configuration
   // space ATS/ACS to route DMA around IOMMU. Allows dma_read even when
   // IOMMU is nominally enabled.
   bool iommu_bypass_active = false;
@@ -58,7 +58,7 @@
   bool pcr_value_tampered = false;
   std::vector<TpmEventLogEntry> tpm_event_log_entries;
 
-  // T4: PCIe peer-to-peer DMA — red uses two PCIe devices to transfer
+  // T4: PCIe peer-to-peer DMA, red uses two PCIe devices to transfer
   // data directly without involving host memory or CPU. One device reads
   // target physical memory and the other exfiltrates it. Bypasses IOMMU
   // because peer-to-peer transactions may not be translated.
@@ -70,7 +70,7 @@
 
   // ── Wave 11: Deep red team evasion scars (round 2 depth) ──
 
-  // T0: Process hollowing — spawn a legitimate process (e.g. svchost.exe), hollow it,
+  // T0: Process hollowing, spawn a legitimate process (e.g. svchost.exe), hollow it,
   // map cheat code into its address space, and transfer execution. Harder to detect
   // than manual_map because the original image name is clean.
   bool process_hollowing_active = false;
@@ -78,105 +78,105 @@
   std::uint32_t hollowed_pid = 0;
   // The original image path before hollowing.
   std::string hollowed_original_image;
-  // APC injection active — red uses QueueUserAPC to inject code into an existing
+  // APC injection active, red uses QueueUserAPC to inject code into an existing
   // game thread. Leaves no CreateRemoteThread scar.
   bool apc_injection_active = false;
   // Number of APC injections performed.
   int apc_injection_count = 0;
-  // Named pipe / LPC IPC — red uses named pipes or LPC ports for inter-process
+  // Named pipe / LPC IPC, red uses named pipes or LPC ports for inter-process
   // entity relay instead of shared sections. Harder for blue to attribute.
   bool named_pipe_ipc_active = false;
   // Number of named pipe messages sent for entity relay.
   int named_pipe_message_count = 0;
-  // Registry-persisted configuration — red stores cheat configuration in the
+  // Registry-persisted configuration, red stores cheat configuration in the
   // Windows registry (e.g. HKCU\Software\Microsoft\Windows\CurrentVersion\Run).
   bool registry_persisted_config = false;
   // Registry key path used for persistence.
   std::string registry_key_path;
-  // Binary padding / size manipulation — red pads the cheat binary with null bytes
+  // Binary padding / size manipulation, red pads the cheat binary with null bytes
   // or appends junk data to alter its hash. Evades hash-based blocklists.
   bool binary_padding_applied = false;
   // New size after padding (bytes).
   std::size_t padded_binary_size = 0;
 
-  // T1: ROP chain syscall — red constructs a ROP chain to execute syscalls without
+  // T1: ROP chain syscall, red constructs a ROP chain to execute syscalls without
   // ever calling ntdll functions directly. Defeats ntdll hooking even if the
   // clean-copy approach fails.
   bool rop_chain_syscall_active = false;
   // Number of ROP gadgets used in the chain.
   int rop_gadget_count = 0;
-  // Hardware breakpoint evasion — red clears/monitors debug registers (DR0-DR7)
+  // Hardware breakpoint evasion, red clears/monitors debug registers (DR0-DR7)
   // to detect and evade hardware breakpoint-based detection.
   bool hw_breakpoint_evasion_active = false;
   // Whether debug registers were cleared.
   bool debug_registers_cleared = false;
-  // VEH control-flow patched — red patches the VEH chain to bypass
+  // VEH control-flow patched, red patches the VEH chain to bypass
   // control-flow guard (CFG) checks. /GUARD:CF bypass.
   bool veh_cf_patched = false;
   // Number of VEH handlers modified.
   int veh_handlers_modified = 0;
-  // Dynamic import resolution — red resolves all imports at runtime via
+  // Dynamic import resolution, red resolves all imports at runtime via
   // LoadLibrary/GetProcAddress manually. PE import table is empty.
   bool dynamic_import_resolution = false;
   // Number of APIs resolved dynamically.
   int dynamic_import_count = 0;
 
-  // T2: HAL heap exploitation — red uses the HAL heap (HalPrivateDispatchTable or
+  // T2: HAL heap exploitation, red uses the HAL heap (HalPrivateDispatchTable or
   // similar) for kernel-mode memory allocation. Evades pool scanner detection.
   bool hal_heap_exploit_active = false;
   // Whether HAL heap was used for payload execution.
   bool hal_heap_payload_executed = false;
-  // Kernel NULL pointer dereference — red allocates kernel memory at NULL,
+  // Kernel NULL pointer dereference, red allocates kernel memory at NULL,
   // then triggers a NULL deref to gain execution with SYSTEM privileges.
   bool null_ptr_deref_exploit_active = false;
-  // DPC (Deferred Procedure Call) execution — red queues a DPC to execute
+  // DPC (Deferred Procedure Call) execution, red queues a DPC to execute
   // kernel-mode code at DISPATCH_LEVEL. Evades thread-level detection.
   bool dpc_execution_active = false;
   // Number of DPCs queued for execution.
   int dpc_queue_count = 0;
-  // Kernel module shadowing — red loads a driver then unlinks it from
+  // Kernel module shadowing, red loads a driver then unlinks it from
   // PsLoadedModuleList. Evades module enumeration.
   bool module_shadowing_active = false;
   // The name of the shadowed driver.
   std::string shadowed_driver_name;
 
-  // T3: EPT nested paging hide — red manipulates EPT nested page tables beyond
+  // T3: EPT nested paging hide, red manipulates EPT nested page tables beyond
   // basic EPT page hiding. Creates shadow EPT structures that blue HV probes
   // cannot easily enumerate.
   bool ept_nested_hide_active = false;
   // Number of shadow EPT page table levels created.
   int ept_shadow_levels = 0;
-  // MSR hooking — red hooks model-specific registers (IA32_LSTAR for syscall,
+  // MSR hooking, red hooks model-specific registers (IA32_LSTAR for syscall,
   // IA32_SYSENTER_EIP for sysenter) to intercept OS operations invisibly.
   bool msr_hooking_active = false;
   // Which MSRs were hooked: "lstar", "sysenter", "star", "cstar".
   std::string hooked_msr_list;
-  // Guest OS time dilation — red manipulates the guest's perception of time
+  // Guest OS time dilation, red manipulates the guest's perception of time
   // (TSC, HPET, ACPI timer) to evade timing-based detections.
   bool guest_time_dilation_active = false;
   // Time dilation factor (1.0 = normal, 0.5 = half speed perception).
   double time_dilation_factor = 1.0;
-  // Hyper-V enlightenment interface exploitation — red uses Hyper-V
+  // Hyper-V enlightenment interface exploitation, red uses Hyper-V
   // enlightenment interfaces (e.g. hypercalls via hvcall instruction) to
   // read protected process memory even under VBS.
   bool hyperv_enlightenment_exploit = false;
   // The enlightenment number used.
   int hyperv_enlightenment_call = 0;
 
-  // T4: Thunderbolt DMA — red uses Thunderbolt PCIe hotplug to attach a DMA
+  // T4: Thunderbolt DMA, red uses Thunderbolt PCIe hotplug to attach a DMA
   // device without opening the system chassis. More accessible than internal PCIe.
   bool thunderbolt_dma_active = false;
   // Whether Thunderbolt security was bypassed (e.g. SecurityLevel=0).
   bool thunderbolt_security_bypassed = false;
-  // PCIe BAR MMIO manipulation — red reconfigures PCIe BAR (Base Address
+  // PCIe BAR MMIO manipulation, red reconfigures PCIe BAR (Base Address
   // Register) to map physical memory into MMIO space for direct reads.
   bool pcie_bar_mmio_active = false;
   // Number of PCIe BARs remapped.
   int pcie_bar_remap_count = 0;
-  // ACPI DSDT override — red overrides the ACPI DSDT (Differentiated System
+  // ACPI DSDT override, red overrides the ACPI DSDT (Differentiated System
   // Description Table) to persist SMM code across reboots.
   bool acpi_dsdt_override_active = false;
-  // USB Device Firmware Upgrade (DFU) class DMA — red uses a USB device's
+  // USB Device Firmware Upgrade (DFU) class DMA, red uses a USB device's
   // DFU interface to perform DMA into host memory.
   bool usb_dfu_dma_active = false;
   // The USB device VID:PID used.
@@ -184,26 +184,26 @@
 
   // ── Cross-cutting red team depth (round 2) ──
 
-  // Adaptive strategy — red probes blue sensors and dynamically selects which
+  // Adaptive strategy, red probes blue sensors and dynamically selects which
   // evasion techniques to apply. Improves evasion success probability.
   bool adaptive_strategy_active = false;
   // Number of blue sensors profiled.
   int blue_sensors_profiled = 0;
   // Per-technique evasion probability against current blue sensor set (0.0-1.0).
   double current_evasion_probability = 0.0;
-  // Multi-tick operational security — red varies its behaviour patterns across
+  // Multi-tick operational security, red varies its behaviour patterns across
   // World ticks (read order, timing, IPC method). Defeats temporal correlation.
   bool multi_tick_opsec_active = false;
   // Current opsec pattern variant (changes each tick).
   int opsec_pattern_variant = 0;
   // Number of distinct opsec patterns available.
   int opsec_pattern_count = 0;
-  // C2 domain fronting — red routes C2 traffic through a legitimate CDN
+  // C2 domain fronting, red routes C2 traffic through a legitimate CDN
   // (Cloudflare, Akamai) to hide the true C2 endpoint.
   bool c2_domain_fronting_active = false;
   // The CDN hostname used for fronting.
   std::string c2_fronting_host;
-  // C2 fallback chain — red maintains multiple C2 endpoints with ordered
+  // C2 fallback chain, red maintains multiple C2 endpoints with ordered
   // fallback. If one is blocked, the next is tried.
   bool c2_fallback_chain_active = false;
   // Number of C2 endpoints in the fallback chain.
@@ -212,7 +212,7 @@
   bool c2_out_of_band_active = false;
   // The out-of-band channel type: "dns", "icmp", "http", "websocket".
   std::string c2_oob_channel;
-  // Stealth exfiltration — red exfiltrates data through low-and-slow
+  // Stealth exfiltration, red exfiltrates data through low-and-slow
   // techniques (DNS queries, HTTP timings) instead of bulk uploads.
   bool stealth_exfiltration_active = false;
   // Bytes exfiltrated via stealth channel.
@@ -220,7 +220,7 @@
 
   // ── Wave 12: CS2 built-in anti-cheat diagnostic system (real CS2 AC) ──
 
-  // CDllVerificationMonitor state — simulates CS2's built-in diagnostic
+  // CDllVerificationMonitor state, simulates CS2's built-in diagnostic
   // data collection with 40+ fields, module scanning, VMT integrity,
   // exception monitoring, and counter-strafe analysis.
   cs2::DiagnosticTelemetryState diagnostic_state;
@@ -270,9 +270,9 @@
   double cs_average_tick_delta = 0.0;
 
   // ── Wave 14: Self-patching and exception analysis ──
-  // Simulates CS2's VEH self-healing mechanism where game writes to .text
+  // Simulates CS2's VEH self-healing mechanism where game writes to.text
   // via access violations that the VEH handler silently fixes.
-  bool game_self_patching_active = false;    // Game code writes to .text via AV
+  bool game_self_patching_active = false;    // Game code writes to.text via AV
   int game_self_patch_count = 0;             // Number of self-patches performed
   bool red_hiding_behind_self_patch = false; // Red exploits same AV mechanism
 
@@ -299,123 +299,123 @@
 
   // ── Wave 15: New strategy pair scars (IDs 124-147) ──
 
-  // 124: handle_hijack_proxy_donor — Donor hijack via NtQSI + DuplicateHandle
+  // 124: handle_hijack_proxy_donor, Donor hijack via NtQSI + DuplicateHandle
   bool donor_hijack_active = false;
   std::uint32_t donor_hijack_donor_pid = 0;
   std::uint32_t donor_hijack_consumer_pid = 0;
   bool donor_handle_duplicated = false;
 
-  // 125: wda_exclude_capture — SetWindowDisplayAffinity EXCLUDEFROMCAPTURE
+  // 125: wda_exclude_capture, SetWindowDisplayAffinity EXCLUDEFROMCAPTURE
   bool wda_exclude_updated = false;
   int wda_exclude_count = 0;
 
-  // 126: dxgi_output_duplication — IDXGIOutputDuplication output composite
+  // 126: dxgi_output_duplication, IDXGIOutputDuplication output composite
   bool dxgi_output_dup_active = false;
   int dxgi_output_frames_acquired = 0;
   bool dxgi_output_composite_rendered = false;
 
-  // 127: hud_radar_parsing — CCSGO_HudRadar BST walk + snapshot
+  // 127: hud_radar_parsing, CCSGO_HudRadar BST walk + snapshot
   bool hud_radar_snapshot_taken = false;
   int hud_radar_entity_count = 0;
   int hud_radar_bst_nodes_walked = 0;
 
-  // 128: cvar_walk_resolve — 4-tier CVar resolution cascade
+  // 128: cvar_walk_resolve, 4-tier CVar resolution cascade
   bool cvar_walk_resolved = false;
   int cvar_walk_tier_reached = 0;
   int cvar_walk_entries_found = 0;
 
-  // 130: batch_read_obfuscation — Batch reads with Fisher-Yates shuffle + jitter
+  // 130: batch_read_obfuscation, Batch reads with Fisher-Yates shuffle + jitter
   bool batch_read_obfuscated = false;
   int batch_read_count = 0;
   bool batch_read_shuffled = false;
   bool batch_read_jittered = false;
 
-  // 131: temporal_phase_evasion — 4-phase temporal jitter engine
+  // 131: temporal_phase_evasion, 4-phase temporal jitter engine
   bool temporal_phase_active = false;
   int temporal_phase_index = 0;
   int temporal_phase_transitions = 0;
   int temporal_phase_ticks_in_phase = 0;
 
-  // 132: decoy_render_ml_evasion — ML behavioral confusion via decoy render
+  // 132: decoy_render_ml_evasion, ML behavioral confusion via decoy render
   bool decoy_render_active = false;
   int decoy_frame_count = 0;
   bool ml_confusion_active = false;
   int ml_decoy_patterns_generated = 0;
 
-  // 134: stack_spoof_syscall — Return address spoofing for syscalls
+  // 134: stack_spoof_syscall, Return address spoofing for syscalls
   bool stack_spoof_syscall_active = false;
   int stack_spoof_call_depth = 0;
   bool stack_spoof_ret_addr_forged = false;
 
-  // 135: callback_shadow_kernel — Kernel callback strip for BYOVD
+  // 135: callback_shadow_kernel, Kernel callback strip for BYOVD
   bool callback_kernel_shadow_active = false;
   std::size_t callback_kernel_process_notify_restored = 0;
   std::size_t callback_kernel_image_notify_restored = 0;
   bool callback_kernel_stripped_during_ioctl = false;
 
-  // 136: ept_memory_hiding — EPT-based physical memory hiding
+  // 136: ept_memory_hiding, EPT-based physical memory hiding
   bool ept_memory_hiding_active = false;
   int ept_hidden_page_count = 0;
   bool ept_invept_used = false;
 
-  // 137: dma_page_table_walk — Physical memory page table walk via DMA
+  // 137: dma_page_table_walk, Physical memory page table walk via DMA
   bool dma_page_table_walked = false;
   std::uint64_t dma_page_table_base_pfn = 0;
   int dma_page_entries_found = 0;
   int dma_page_levels_walked = 0;
 
-  // 138: shellcode_inject_donor — Obfuscated shellcode injection into donor
+  // 138: shellcode_inject_donor, Obfuscated shellcode injection into donor
   bool shellcode_donor_active = false;
   std::uint32_t shellcode_donor_pid = 0;
   bool shellcode_obfuscated = false;
   bool shellcode_xor_key_applied = false;
 
-  // 139: helper_ticket_protocol — Shared memory helper ticket protocol
+  // 139: helper_ticket_protocol, Shared memory helper ticket protocol
   bool helper_ticket_active = false;
   std::uint32_t helper_ticket_id = 0;
   bool helper_ticket_shared_memory_created = false;
   bool helper_ticket_claimed = false;
 
-  // 140: runtime_health_ladder — 3-level healing ladder
+  // 140: runtime_health_ladder, 3-level healing ladder
   int health_ladder_level = 0;
   int health_ladder_transition_count = 0;
   int health_ladder_ticks_at_level = 0;
   bool health_ladder_self_heal_armed = false;
 
-  // 141: accept_readiness_gate — 7-condition session readiness gate
+  // 141: accept_readiness_gate, 7-condition session readiness gate
   bool accept_gate_open = false;
   int accept_conditions_met = 0;
   int accept_conditions_total = 7;
   bool accept_session_ready = false;
 
-  // 142: hw_monitor_disguise — RTSS/Afterburner decoy OSD display
+  // 142: hw_monitor_disguise, RTSS/Afterburner decoy OSD display
   bool hw_monitor_disguise_active = false;
   bool hw_monitor_decoy_osd_active = false;
   bool hw_monitor_rtss_hijack = false;
 
-  // 143: forensic_cleanup_exit — Prefetch/Registry/Recent cleanup on exit
+  // 143: forensic_cleanup_exit, Prefetch/Registry/Recent cleanup on exit
   bool forensic_cleanup_active = false;
   int forensic_cleanup_steps_completed = 0;
   bool forensic_prefetch_cleared = false;
   bool forensic_recent_cleared = false;
 
-  // 144: peb_spoof_hide — PEB BeingDebugged/NtGlobalFlag clearing
+  // 144: peb_spoof_hide, PEB BeingDebugged/NtGlobalFlag clearing
   bool peb_spoof_active = false;
   bool peb_being_debugged_cleared = false;
   bool peb_nt_global_flag_cleared = false;
 
-  // 145: page_oscillation_mem — Code page oscillation for VAS walk
+  // 145: page_oscillation_mem, Code page oscillation for VAS walk
   bool page_oscillation_active = false;
   int page_oscillation_cycles = 0;
   bool code_page_flipped_to_rw = false;
   bool code_page_flipped_to_rx = false;
 
-  // 146: normalized_hash_evade — VAC normalized PE hash evasion
+  // 146: normalized_hash_evade, VAC normalized PE hash evasion
   bool normalized_hash_evade_active = false;
   bool pe_hash_normalized = false;
   int pe_section_entries_altered = 0;
 
-  // 147: vas_walk_evade_phase — VAS walk phase detection + page hiding
+  // 147: vas_walk_evade_phase, VAS walk phase detection + page hiding
   bool vas_walk_evade_phase_active = false;
   int vas_walk_evasion_count = 0;
   bool vas_page_hidden = false;
@@ -423,15 +423,15 @@
 
   // ── Remaining Wave 6–12 IDs (added later, placed here for ordering) ──
 
-  // 116: etw_dual_provider — ETW dual provider counter-blinding
+  // 116: etw_dual_provider, ETW dual provider counter-blinding
   bool etw_secondary_active = false;
 
-  // 117: thread_4kb_signature — Thread 4KB signature buffer evasion
+  // 117: thread_4kb_signature, Thread 4KB signature buffer evasion
   bool thread_start_in_legitimate_module = false;
   std::vector<std::uint8_t> thread_start_4kb;
   std::string thread_memory_protection;
 
-  // 118: bsecure_allowed_evade — BSecureAllowed trust chain evasion
+  // 118: bsecure_allowed_evade, BSecureAllowed trust chain evasion
   bool module_loaded = false;
   bool module_is_stomped = false;
   bool module_is_signed = false;
@@ -440,7 +440,7 @@
   std::size_t module_size = 0;
   std::size_t expected_module_size = 0;
 
-  // 121: ret_addr_spoof — Return address chain spoofing
+  // 121: ret_addr_spoof, Return address chain spoofing
   bool thread_start_clean = false;
   bool return_address_chain_clean = false;
   std::vector<std::uint64_t> thread_return_chain;
@@ -481,7 +481,7 @@
 
   // ── Wave 18: assessment-ledger pairs E18–E28 (IDs 154–164) ──
 
-  // 154: handle_rights_strip — ObRegisterCallbacks-style handle-rights strip
+  // 154: handle_rights_strip, ObRegisterCallbacks-style handle-rights strip
   // on protected pids vs kernel-attach reads that never need a handle.
   bool ob_handle_rights_strip_active = false;  // blue strips rights on protected pids
   std::uint32_t rights_strip_target_pid = 0;   // pid protected by the strip
@@ -489,7 +489,7 @@
   bool kernel_attach_read_active = false;      // red attach-based read scar
   int kernel_attach_read_ops = 0;              // successful attach-context reads
 
-  // 155: cpuid_hypercall_channel — CPUID-magic-key hypercall covert channel.
+  // 155: cpuid_hypercall_channel, CPUID-magic-key hypercall covert channel.
   bool cpuid_hypercall_channel_active = false;
   int cpuid_leaf_probes = 0;                   // abnormal CPUID leaf-probing count
   int hypercall_channel_reads = 0;             // reads through the covert channel
@@ -497,7 +497,7 @@
   bool cpuid_channel_unauthenticated = false;  // any local process may use the channel
   std::uint32_t cpuid_channel_consumer_pid = 0;
 
-  // 156: eprocess_derivation — runtime structural offset derivation probes.
+  // 156: eprocess_derivation, runtime structural offset derivation probes.
   bool structural_derivation_active = false;
   int derivation_probe_reads = 0;
   bool derivation_list_cycle_ok = false;     // list-cycle invariant
@@ -505,7 +505,7 @@
   bool derivation_peb_ldr_cycle_ok = false;  // PEB Ldr cyclic-list invariant
   int derivation_churn_rescans = 0;          // re-derivations after layout churn
 
-  // 157: auditor_introspection_spoof — red lies to the in-game auditor scan.
+  // 157: auditor_introspection_spoof, red lies to the in-game auditor scan.
   bool auditor_crc_report_spoofed = false;      // reported module CRC rewritten
   int auditor_crc_rewrites = 0;
   bool diagnostic_dump_nulled_overlap = false;  // dumps overlapping red nulled
@@ -514,7 +514,7 @@
   bool auditor_crc_of_crc_checked = false;      // blue: verify the CRC report itself
   bool auditor_second_path_prologue_read = false;  // blue: second-path prologue read
 
-  // 158: loader_addr_registry — loader-resolved encrypted address registry.
+  // 158: loader_addr_registry, loader-resolved encrypted address registry.
   bool encrypted_addr_registry_active = false;  // addresses resolved out-of-process
   bool addr_registry_section_encrypted = true;  // registry section stays encrypted
   int registry_decode_ops = 0;                  // decode-time accesses
@@ -522,7 +522,7 @@
   bool offset_drift_recovered = false;          // sub-scenario: drift resilience
   int registry_drift_recoveries = 0;
 
-  // 159: dual_view_shadow_pages — execute-view patched / read-view pristine.
+  // 159: dual_view_shadow_pages, execute-view patched / read-view pristine.
   bool dual_view_shadow_active = false;
   bool dual_view_exec_patched = false;    // execute view carries the patch
   bool dual_view_read_pristine = true;    // read view still reports pristine bytes
@@ -530,7 +530,7 @@
   double dual_view_probe_delta_ns = 0.0;  // timing probe delta between views
   int dual_view_tlb_effects = 0;          // INVEPT/ITC flush effects observed
 
-  // 160: zero_run_carving — code placed in verified zero pages, no allocation API.
+  // 160: zero_run_carving, code placed in verified zero pages, no allocation API.
   bool zero_run_carve_active = false;
   int zero_run_pages_carved = 0;
   int zero_run_bytes_written = 0;
@@ -538,14 +538,14 @@
   int zero_run_vad_mismatch_pages = 0;        // PTE-valid pages with no VAD entry
   bool zero_run_allocation_api_used = false;  // red path uses no allocation API
 
-  // 161: torn_snapshot_artifacts — multi-transaction reads produce torn records.
+  // 161: torn_snapshot_artifacts, multi-transaction reads produce torn records.
   bool torn_multi_read_active = false;
   int torn_read_transactions = 0;
   int torn_implausible_records = 0;
   bool single_transaction_read_done = false;  // red control comparison
   std::vector<ac::EntitySnapshot> torn_read_records;  // records red assembled
 
-  // 162: dirty_bitmap_invalidation — selective flush vs broadcast-storm intel.
+  // 162: dirty_bitmap_invalidation, selective flush vs broadcast-storm intel.
   bool dirty_bitmap_invalidation_active = false;  // blue: only flagged consumers flush
   int dirty_selective_flushes = 0;
   int dirty_flagged_consumers = 0;
@@ -555,7 +555,7 @@
   int storm_observations = 0;
   std::uint32_t storm_observer_pid = 0;
 
-  // 163: stale_chunk_cache — memoized container chunks vs blue churn pressure.
+  // 163: stale_chunk_cache, memoized container chunks vs blue churn pressure.
   bool chunk_cache_memoized = false;
   int memoized_chunk_ptrs = 0;
   std::uint32_t memoized_chunk_generation = 0;  // list generation at memoize time
@@ -565,7 +565,7 @@
   int stale_generation_reads = 0;               // blue-observed generation mismatches
   bool chunk_generation_tagged = false;         // blue tags chunks with generations
 
-  // 164: escalation_cost_curve — access rungs leave priced mutation footprints.
+  // 164: escalation_cost_curve, access rungs leave priced mutation footprints.
   bool escalation_ladder_used = false;
   int escalation_rungs = 0;                  // 1=RPM 2=syscall 3=kernel driver
   bool escalation_driver_loaded = false;
@@ -576,25 +576,25 @@
 
   // ── Wave 19: second-pass external assessment pairs (IDs 165–168) ──
 
-  // 165: handle_origin_chain — duplicated handles hide the true origin
+  // 165: handle_origin_chain, duplicated handles hide the true origin
   // behind a relay hop; blue must walk the duplicate chain, not the owner.
   int handle_chain_depth = 0;
   int handle_origin_trace_hops = 0;
   bool handle_origin_misattributed = false;
 
-  // 166: section_entropy_probe — encrypted registry decoded to registers
+  // 166: section_entropy_probe, encrypted registry decoded to registers
   // only (no data-section patch), so blue measures section entropy instead.
   bool section_entropy_probe_active = false;
   int section_entropy_score = 0;       // 0..100, non-image section entropy
   bool decode_register_only = false;   // no decode-time data-section write
 
-  // 167: byovd_service_diff — SCM/registry cleaned after use, module hash
+  // 167: byovd_service_diff, SCM/registry cleaned after use, module hash
   // stays in PsLoadedModuleList; blue hashes modules and diffs the service DB.
   bool byovd_service_cleaned = false;
   bool loaded_module_hash_orphan = false;
   int service_db_diff_count = 0;
 
-  // 168: capture_exclusion_diff — overlay excluded from capture; blue diffs
+  // 168: capture_exclusion_diff, overlay excluded from capture; blue diffs
   // the captured frame against the presented frame and finds nothing.
   int capture_frame_diff_pixels = 0;
   bool capture_exclusion_observed = false;

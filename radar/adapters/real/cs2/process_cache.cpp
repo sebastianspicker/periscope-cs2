@@ -46,8 +46,8 @@ struct SystemProcessInfo {
 #endif
 
 // Three-slot ring of process lists. s_activeSlot names the list readers use;
-// a refresher fills slot (active + 2) % 3 — the slot readers have held the
-// longest, never one they still reference — then publishes by repointing
+// a refresher fills slot (active + 2) % 3, the slot readers have held the
+// longest, never one they still reference, then publishes by repointing
 // s_activeSlot. Refreshers serialize on s_refreshMutex; a failed refresh
 // keeps the old active and stamps s_lastRefreshMs so retries are bounded by
 // the TTL instead of hammering NtQSI on every call.
@@ -114,7 +114,7 @@ const std::vector<ProcessCacheEntry>& get_cached_process_list() {
     }
 
     if (ok) {
-        // Fill the slot two ahead in the ring — readers never hold a
+        // Fill the slot two ahead in the ring, readers never hold a
         // reference to it, so it is safe to overwrite in place.
         std::vector<ProcessCacheEntry> next;
         uint8_t* pos = buffer.data();

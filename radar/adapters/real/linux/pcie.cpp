@@ -1,4 +1,4 @@
-// pcie.cpp — Linux PCIe sysfs enumeration, BAR mmap, config, port I/O.
+// pcie.cpp: Linux PCIe sysfs enumeration: BAR mmap, config, port I/O.
 
 #include "real/linux/pcie.hpp"
 #include "real/platform.hpp"
@@ -37,7 +37,7 @@ std::string readlink_basename(const std::string& path) {
     if (len <= 0) return {};
     target[len] = '\0';
     const char* slash = std::strrchr(target, '/');
-    return slash ? std::string(slash + 1) : std::string(target);
+    return slash ? std::string(slash + 1): std::string(target);
 #else
     (void)path;
     return {};
@@ -116,7 +116,7 @@ Result<std::vector<PciDevice>> enumerate() noexcept {
         finalize_device(dev);
         devices.push_back(std::move(dev));
     }
-    ::closedir(dir);
+::closedir(dir);
     std::printf("[linux:pcie] Enumerated %zu devices\n", devices.size());
     return devices;
 #else
@@ -162,18 +162,18 @@ Result<std::vector<uint8_t>> bar_read(const PciDevice& dev, unsigned bar_index,
         return Result<std::vector<uint8_t>>({}, "Cannot open " + path);
     }
     long ps = ::sysconf(_SC_PAGESIZE);
-    size_t page_size = ps > 0 ? static_cast<size_t>(ps) : 4096;
+    size_t page_size = ps > 0 ? static_cast<size_t>(ps): 4096;
     size_t map_size = ((offset + size + page_size - 1) / page_size) * page_size;
     void* map =
-        ::mmap(nullptr, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+::mmap(nullptr, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (map == MAP_FAILED) {
-        ::close(fd);
+::close(fd);
         return Result<std::vector<uint8_t>>({}, "mmap of " + path + " failed");
     }
     std::vector<uint8_t> result(size);
     std::memcpy(result.data(), static_cast<uint8_t*>(map) + offset, size);
-    ::munmap(map, map_size);
-    ::close(fd);
+::munmap(map, map_size);
+::close(fd);
     return result;
 #else
     (void)dev;
@@ -197,18 +197,18 @@ Result<void> bar_write(const PciDevice& dev, unsigned bar_index, uint64_t offset
     int fd = ::open(path.c_str(), O_RDWR | O_SYNC);
     if (fd < 0) return Result<void>("Cannot open " + path);
     long ps = ::sysconf(_SC_PAGESIZE);
-    size_t page_size = ps > 0 ? static_cast<size_t>(ps) : 4096;
+    size_t page_size = ps > 0 ? static_cast<size_t>(ps): 4096;
     size_t map_size =
         ((offset + data.size() + page_size - 1) / page_size) * page_size;
     void* map =
-        ::mmap(nullptr, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+::mmap(nullptr, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (map == MAP_FAILED) {
-        ::close(fd);
+::close(fd);
         return Result<void>("mmap failed");
     }
     std::memcpy(static_cast<uint8_t*>(map) + offset, data.data(), data.size());
-    ::munmap(map, map_size);
-    ::close(fd);
+::munmap(map, map_size);
+::close(fd);
     return Result<void>();
 #else
     (void)dev;
@@ -239,8 +239,8 @@ Result<std::vector<uint8_t>> config_read(const PciDevice& dev, uint64_t offset,
     }
     std::vector<uint8_t> result(size);
     ssize_t bytes =
-        ::pread(fd, result.data(), size, static_cast<off_t>(offset));
-    ::close(fd);
+::pread(fd, result.data(), size, static_cast<off_t>(offset));
+::close(fd);
     if (bytes < 0 || static_cast<size_t>(bytes) != size) {
         return Result<std::vector<uint8_t>>({}, "Short config read");
     }
@@ -260,8 +260,8 @@ Result<void> config_write(const PciDevice& dev, uint64_t offset,
     int fd = ::open(conf_path.c_str(), O_RDWR);
     if (fd < 0) return Result<void>("Cannot open " + conf_path);
     ssize_t bytes =
-        ::pwrite(fd, data.data(), data.size(), static_cast<off_t>(offset));
-    ::close(fd);
+::pwrite(fd, data.data(), data.size(), static_cast<off_t>(offset));
+::close(fd);
     if (bytes < 0 || static_cast<size_t>(bytes) != data.size()) {
         return Result<void>("Short config write");
     }
@@ -277,7 +277,7 @@ Result<void> config_write(const PciDevice& dev, uint64_t offset,
 Result<bool> ioport_accessible() noexcept {
 #if LR_PLATFORM_LINUX && (defined(__i386__) || defined(__x86_64__))
     if (::iopl(3) == 0) {
-        ::iopl(0);
+::iopl(0);
         return true;
     }
     return Result<bool>(false, "iopl(3) failed (need root)");
@@ -318,22 +318,22 @@ Result<void> port_write(uint16_t port,
                         const std::vector<uint8_t>& data) noexcept {
 #if LR_PLATFORM_LINUX && (defined(__i386__) || defined(__x86_64__))
     if (::iopl(3) < 0 &&
-        ::ioperm(port, static_cast<unsigned>(data.size()), 1) < 0) {
+::ioperm(port, static_cast<unsigned>(data.size()), 1) < 0) {
         return Result<void>("ioperm failed (need root)");
     }
     for (size_t i = 0; i < data.size();) {
         if (data.size() - i >= 4) {
             uint32_t v;
             std::memcpy(&v, data.data() + i, 4);
-            ::outl(v, static_cast<unsigned short>(port + i));
+::outl(v, static_cast<unsigned short>(port + i));
             i += 4;
         } else if (data.size() - i >= 2) {
             uint16_t v;
             std::memcpy(&v, data.data() + i, 2);
-            ::outw(v, static_cast<unsigned short>(port + i));
+::outw(v, static_cast<unsigned short>(port + i));
             i += 2;
         } else {
-            ::outb(data[i], static_cast<unsigned short>(port + i));
+::outb(data[i], static_cast<unsigned short>(port + i));
             ++i;
         }
     }

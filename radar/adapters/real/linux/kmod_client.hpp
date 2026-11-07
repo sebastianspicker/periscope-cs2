@@ -1,4 +1,4 @@
-// kmod_client.hpp — Userspace client library for /dev/aclab.
+// kmod_client.hpp: Userspace client library for /dev/aclab.
 //
 // Wraps all ACLAB IOCTLs. SCAR: open of /dev/aclab is visible in lsof,
 // /proc/self/fd, audit. IOCTLs logged by the module to dmesg.

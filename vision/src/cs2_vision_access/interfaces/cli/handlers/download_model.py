@@ -1,9 +1,9 @@
-"""download-model subcommand — download real ONNX weights and create manifests.
+"""download-model subcommand, download real ONNX weights and create manifests.
 
 Downloads a named model from either:
 
-* ``_DOWNLOADABLE_MODELS`` — Ultralytics ``.pt`` checkpoints, exported to ONNX
-* ``MODEL_REGISTRY`` — recommended teachers (Vombit, EdgeSAM, …); ONNX-direct
+* ``_DOWNLOADABLE_MODELS``, Ultralytics ``.pt`` checkpoints, exported to ONNX
+* ``MODEL_REGISTRY``, recommended teachers (Vombit, EdgeSAM, …); ONNX-direct
   entries download the ``.onnx`` file and skip Ultralytics export
 
 Then writes a SHA-256 checksum manifest when class metadata is available.
@@ -275,7 +275,7 @@ def _handle_download_model(arguments: argparse.Namespace) -> int:
         # Non-ONNX registry entry with a pt-like URL: treat like downloadable.
         if registry_info.get("pt_url") or str(registry_info.get("url", "")).endswith(".pt"):
             return _handle_registry_pt(model_name, registry_info, arguments)
-        print(f"error: registry model {model_name!r} is not ONNX-direct and has no .pt URL")
+        print(f"error: registry model {model_name!r} is not ONNX-direct and has no.pt URL")
         return 2
 
     if downloadable_info is not None:
@@ -300,7 +300,7 @@ def _handle_pt_download(model_name: str, arguments: argparse.Namespace) -> int:
         _verify_or_remove(pt_path, expected_sha256=expected_sha)
         print(f"  {pt_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Downloading {model_info['pt_url']} ...")
+        print(f"  Downloading {model_info['pt_url']}...")
         try:
             _download_https(model_info["pt_url"], pt_path, expected_sha256=expected_sha)
         except Exception as error:
@@ -310,7 +310,7 @@ def _handle_pt_download(model_name: str, arguments: argparse.Namespace) -> int:
     if onnx_path.exists() and not arguments.overwrite:
         print(f"  {onnx_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Exporting {pt_path.name} to ONNX (imgsz={arguments.image_size}) ...")
+        print(f"  Exporting {pt_path.name} to ONNX (imgsz={arguments.image_size})...")
         _export_onnx(
             pt_path,
             onnx_path,
@@ -324,7 +324,7 @@ def _handle_pt_download(model_name: str, arguments: argparse.Namespace) -> int:
     if manifest_path.exists() and not arguments.overwrite:
         print(f"  {manifest_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Creating manifest {manifest_path.name} ...")
+        print(f"  Creating manifest {manifest_path.name}...")
         _create_manifest(
             onnx_path,
             manifest_path,
@@ -345,7 +345,7 @@ def _handle_registry_pt(
     registry_info: dict[str, Any],
     arguments: argparse.Namespace,
 ) -> int:
-    """Registry entry that still needs Ultralytics .pt → ONNX export."""
+    """Registry entry that still needs Ultralytics.pt → ONNX export."""
     pt_url = str(registry_info.get("pt_url") or registry_info.get("url") or "")
     expected_sha = _required_registry_sha256(model_name, registry_info)
     model_info = {
@@ -367,7 +367,7 @@ def _handle_registry_pt(
         _verify_or_remove(pt_path, expected_sha256=expected_sha)
         print(f"  {pt_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Downloading {pt_url} ...")
+        print(f"  Downloading {pt_url}...")
         try:
             _download_https(pt_url, pt_path, expected_sha256=expected_sha)
         except Exception as error:
@@ -377,7 +377,7 @@ def _handle_registry_pt(
     if onnx_path.exists() and not arguments.overwrite:
         print(f"  {onnx_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Exporting {pt_path.name} to ONNX (imgsz={image_size}) ...")
+        print(f"  Exporting {pt_path.name} to ONNX (imgsz={image_size})...")
         _export_onnx(pt_path, onnx_path, image_size=image_size, device=arguments.device)
         print(f"  Saved {onnx_path}")
 
@@ -386,13 +386,13 @@ def _handle_registry_pt(
         classes = _registry_classes_as_list(registry_info)
 
     # When neither --classes nor registry classes are available, create_manifest
-    # falls back to COCO 80 defaults (classes=None) — intended for .pt teachers.
+    # falls back to COCO 80 defaults (classes=None), intended for.pt teachers.
     license_name = arguments.license or str(registry_info.get("license") or "AGPL-3.0-only")
     origin = arguments.origin or pt_url
     if manifest_path.exists() and not arguments.overwrite:
         print(f"  {manifest_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Creating manifest {manifest_path.name} ...")
+        print(f"  Creating manifest {manifest_path.name}...")
         _create_manifest(
             onnx_path,
             manifest_path,
@@ -436,7 +436,7 @@ def _handle_onnx_direct(
         _verify_or_remove(onnx_path, expected_sha256=expected_sha)
         print(f"  {onnx_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Downloading {url} ...")
+        print(f"  Downloading {url}...")
         try:
             _download_https(url, onnx_path, expected_sha256=expected_sha)
         except Exception as error:
@@ -476,14 +476,14 @@ def _handle_onnx_direct(
 
     if classes is None:
         # ONNX-direct entries with no class metadata skip the manifest entirely;
-        # unlike the .pt paths, create_manifest(classes=None) must NOT apply COCO
-        # defaults here — these models (EdgeSAM etc.) have no COCO task mapping.
+        # unlike the.pt paths, create_manifest(classes=None) must NOT apply COCO
+        # defaults here, these models (EdgeSAM etc.) have no COCO task mapping.
         print("  Skipping manifest (no classes in registry; pass --classes to create one)")
         manifest_to_print = None
     elif manifest_path.exists() and not arguments.overwrite:
         print(f"  {manifest_path.name} already exists (use --overwrite to replace)")
     else:
-        print(f"  Creating manifest {manifest_path.name} ...")
+        print(f"  Creating manifest {manifest_path.name}...")
         _create_manifest(
             onnx_path,
             manifest_path,

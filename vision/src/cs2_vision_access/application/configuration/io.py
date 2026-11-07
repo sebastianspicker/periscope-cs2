@@ -1,4 +1,4 @@
-"""Configuration file I/O — discovery, loading, saving, and serialisation.
+"""Configuration file I/O, discovery, loading, saving, and serialisation.
 
 Separated from data models so that model consumers do not depend on
 file-system modules (json, os, tempfile).
@@ -71,7 +71,7 @@ def _validate_config_path(path: Path, *, for_write: bool) -> Path:
     This prevents a GUI/CLI save from replacing an unrelated target.
     """
     if path.suffix.lower() != ".json":
-        raise ConfigError("config path must use the .json extension")
+        raise ConfigError("config path must use the.json extension")
     if for_write:
         if path.is_symlink():
             raise ConfigError("config destination must not be a symlink")

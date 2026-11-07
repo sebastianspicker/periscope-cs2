@@ -1,4 +1,4 @@
-/// radar_t3.cpp — T3: Hyper-V hypercall radar (theoretical live mode).
+/// radar_t3.cpp: T3: Hyper-V hypercall radar (theoretical live mode).
 #include "demos/radar_shared.hpp"
 #if LR_HAS_REAL_PLATFORM && LR_PLATFORM_WINDOWS
 #include "real/win/api_table.hpp"
@@ -12,12 +12,12 @@
 #pragma comment(linker, "/SUBSYSTEM:CONSOLE")
 #endif
 
-#define TIER_NAME "T3 — Hypervisor (Hyper-V / VMX)"
-#define TIER_TECH "vmcall via Hyper-V hypercall HvCallReadVirtualMemory — no kernel involvement"
+#define TIER_NAME "T3, Hypervisor (Hyper-V / VMX)"
+#define TIER_TECH "vmcall via Hyper-V hypercall HvCallReadVirtualMemory, no kernel involvement"
 #define TIER_SCAR "CR4.VMXE bit set, VMCS region in physical memory, CPUID timing anomaly"
 #define TIER_DET  "VBS locks VMX, CPUID.1:ECX[31] hypervisor present bit, timing analysis"
 #define TIER_MIT  "Virtualization-Based Security (VBS), HVCI, Nested Virtualization"
-#define TIER_CODE "adapters/real/vmx/{lifecycle,ept,hyperv}.cpp :: vmx_read_physical() / hyperv_hypercall()"
+#define TIER_CODE "adapters/real/vmx/{lifecycle,ept,hyperv}.cpp:: vmx_read_physical() / hyperv_hypercall()"
 
 using Clock = std::chrono::steady_clock;
 
@@ -29,25 +29,25 @@ int main() {
     // THEORETICAL LIVE MODE: Requires a hypervisor (Hyper-V with VBS, or custom VMX driver).
     //   Hyper-V: HvCallReadVirtualMemory hypercall reads any physical memory
     //   VMX:     EPT page tables map guest physical → host physical
-    //   Result:  NO handles, NO syscalls, NO driver IOCTLs — zero OS artifacts
+    //   Result:  NO handles, NO syscalls, NO driver IOCTLs, zero OS artifacts
     //
     // PRACTICAL: In simulation mode we demonstrate T0 entities.
 
 #if LR_HAS_REAL_PLATFORM
     auto attach = real::cs2::attach_to_cs2();
     bool live = attach.attached;
-    std::printf("[%s]\n", live ? "CS2 FOUND — would use HV path" : "SIMULATION");
+    std::printf("[%s]\n", live ? "CS2 FOUND, would use HV path": "SIMULATION");
 
-    std::printf("  CPU: %s\n", live ? attach.describe().c_str() : "(simulation)");
+    std::printf("  CPU: %s\n", live ? attach.describe().c_str(): "(simulation)");
 #if defined(LR_HAS_REAL_VMX)
     auto caps = real::vmx::get_vmx_capabilities();
     if (caps) {
         std::printf("  VMX: %s  EPT: %s  VPID: %s\n",
-                    caps->vmx_enabled ? "YES" : "no",
-                    caps->ept_supported ? "YES" : "no",
-                    caps->vpid_supported ? "YES" : "no");
+                    caps->vmx_enabled ? "YES": "no",
+                    caps->ept_supported ? "YES": "no",
+                    caps->vpid_supported ? "YES": "no");
         std::printf("  HV hypercalls available: %s\n",
-                    real::vmx::hyperv_hypercalls_available() ? "YES" : "no");
+                    real::vmx::hyperv_hypercalls_available() ? "YES": "no");
     }
 #else
     std::printf("  VMX backend not built (enable -DLR_ENABLE_REAL_VMX=ON)\n");
@@ -126,7 +126,7 @@ int main() {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - report_started).count();
         if (elapsed >= 1000) {
             std::printf("\r[T3] FPS: %.1f | entities: %d | %s   ",
-                        window_frames / (elapsed / 1000.0), last_ents, live ? "LIVE" : "SIM");
+                        window_frames / (elapsed / 1000.0), last_ents, live ? "LIVE": "SIM");
             fflush(stdout); window_frames = 0; report_started = Clock::now();
         }
 } while (0);

@@ -1,4 +1,4 @@
-// seller_fusion.cpp — depth analytics: multi-sample / fusion scoring for blue.
+// seller_fusion.cpp: depth analytics: multi-sample / fusion scoring for blue.
 // Educational scorers over World residuals.
 
 #include "depth/seller_fusion.hpp"
@@ -28,12 +28,12 @@ SellerSignalSnapshot SellerFusionCorrelator::snapshot(
       ++s.high_report_accounts;
     }
   }
-  for (const auto& [_, c] : hwid_count) {
+  for (const auto& [_, c]: hwid_count) {
     if (c >= 2) {
       ++s.shared_hwid_clusters;
     }
   }
-  for (const auto& [_, c] : pay_count) {
+  for (const auto& [_, c]: pay_count) {
     if (c >= 2) {
       ++s.shared_payment_clusters;
     }
@@ -50,7 +50,7 @@ SellerSignalSnapshot SellerFusionCorrelator::snapshot(
   // VPN family
   if (w.vpn_proxy_active) {
     s.vpn_proxy_accounts = static_cast<int>(std::max<std::size_t>(
-        1, w.accounts.empty() ? 1 : w.accounts.size() / 2));
+        1, w.accounts.empty() ? 1: w.accounts.size() / 2));
   }
 
   // C2 / SaaS network family
@@ -143,7 +143,7 @@ SellerFusionResult SellerFusionCorrelator::evaluate(const sim::World& w) const {
       << " reports=" << r.snap.high_report_accounts
       << " builds=" << r.snap.unique_build_ids
       << " action=" << static_cast<int>(r.action)
-      << " cluster=" << (r.cluster_detected ? 1 : 0);
+      << " cluster=" << (r.cluster_detected ? 1: 0);
   r.detail = oss.str();
   return r;
 }
@@ -151,7 +151,7 @@ SellerFusionResult SellerFusionCorrelator::evaluate(const sim::World& w) const {
 // SellerFusionCorrelator::plant_seller_cluster: Plant multi-account seller cluster for fusion demos.
 void SellerFusionCorrelator::plant_seller_cluster(sim::World& w) {
   // Multi-family seller residual (≥3 required for cluster_detected):
-  //  1) account/HWID/payment graph — shared HWID + shared payment across buyers
+  //  1) account/HWID/payment graph, shared HWID + shared payment across buyers
   //  2) VPN/proxy fabric on the cluster
   //  3) offset-C2 + radar SaaS network flows
   //  4) high report velocity on buyer accounts

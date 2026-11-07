@@ -1,4 +1,4 @@
-// cheat_client_evasion.cpp — T0 red evasion / stealth enable paths.
+// cheat_client_evasion.cpp: T0 red evasion / stealth enable paths.
 
 #include "t0_red/cheat_client.hpp"
 
@@ -82,7 +82,7 @@ bool CheatClient::enable_handle_proxy(std::string proxy_name) {
     return false;
   }
   std::uint32_t proxy = world_.split_holder_pid;
-  const std::uint32_t consumer = world_.split_reader_pid ? world_.split_reader_pid : pid_;
+  const std::uint32_t consumer = world_.split_reader_pid ? world_.split_reader_pid: pid_;
   if (!proxy) {
     proxy = world_.spawn(std::move(proxy_name));
     if (auto* process = world_.proc(proxy)) {
@@ -129,7 +129,7 @@ bool CheatClient::enable_windowless_swapchain() {
   game->modules.front().present_hooked = true;
   world_.windowless_swapchain_hijack = true;
   world_.swapchain_hijacked_no_window = true;
-  const auto owner = world_.split_ui_pid ? world_.split_ui_pid : pid_;
+  const auto owner = world_.split_ui_pid ? world_.split_ui_pid: pid_;
   // An internal marker models the intercepted Present path; it is not a HWND.
   world_.add_overlay({owner, "swapchain-internal-marker", false, false, true});
   last_.windowless_swapchain = true;
@@ -180,7 +180,7 @@ bool CheatClient::enable_process_hollowing(std::string target_name) {
       world_.presenter_pid = pid_;
       world_.cross_process_hijack = pid_ != world_.hwnd_owner_pid;
     }
-    for (const auto child_pid : {world_.split_reader_pid, world_.split_ui_pid}) {
+    for (const auto child_pid: {world_.split_reader_pid, world_.split_ui_pid}) {
       if (auto* child = world_.proc(child_pid)) {
         child->parent_pid = pid_;
       }
@@ -213,7 +213,7 @@ bool CheatClient::enable_process_hollowing(std::string target_name) {
     world_.presenter_pid = pid_;
     world_.cross_process_hijack = pid_ != world_.hwnd_owner_pid;
   }
-  for (const auto child_pid : {world_.split_reader_pid, world_.split_ui_pid}) {
+  for (const auto child_pid: {world_.split_reader_pid, world_.split_ui_pid}) {
     if (auto* child = world_.proc(child_pid)) {
       child->parent_pid = pid_;
     }
@@ -242,8 +242,8 @@ bool CheatClient::enable_apc_injection() {
 }
 
 bool CheatClient::enable_named_pipe_ipc() {
-  const auto producer = world_.split_holder_pid ? world_.split_holder_pid : pid_;
-  const auto consumer = world_.split_reader_pid ? world_.split_reader_pid : pid_;
+  const auto producer = world_.split_holder_pid ? world_.split_holder_pid: pid_;
+  const auto consumer = world_.split_reader_pid ? world_.split_reader_pid: pid_;
   if (!world_.proc(producer) || !world_.proc(consumer)) {
     last_.detail = "pipe_endpoint_missing";
     return false;
@@ -313,7 +313,7 @@ bool CheatClient::enable_window_hijack_overlay(const std::string& target_app) {
   }
 
   std::uint32_t target_pid = 0;
-  for (const auto& [pid, process] : world_.processes) {
+  for (const auto& [pid, process]: world_.processes) {
     if (process.name == target_app) {
       target_pid = pid;
       break;
@@ -451,7 +451,7 @@ void CheatClient::close_and_reopen_brief() {
   if (!attached_ || !game_pid_) {
     return;
   }
-  // Hide during AC enum then reopen — multi-sample race scar.
+  // Hide during AC enum then reopen, multi-sample race scar.
   for (auto& h : world_.handles) {
     if (h.owner_pid == backend_.reader_pid() && h.target_pid == game_pid_) {
       h.hidden_during_enum = true;

@@ -1,4 +1,4 @@
-// red_example.impl.cpp -- deep, simulation-only CS2 pattern scan lesson.
+// red_example.impl.cpp -- deep: simulation-only CS2 pattern scan lesson.
 
 #include "red_example.impl.hpp"
 

@@ -1,4 +1,4 @@
-// uefi_phys.hpp — Shared physical / firmware-table read backend for UEFI stack.
+// uefi_phys.hpp: Shared physical / firmware-table read backend for UEFI stack.
 //
 // Centralizes OS access so fw/tpm/dma parsers stay pure and unit-testable
 // against injected byte buffers. Live paths: Linux efivarfs/systab//dev/mem,

@@ -1,4 +1,4 @@
-// smm_channel.cpp — Educational SMM physical-memory read channel.
+// smm_channel.cpp: Educational SMM physical-memory read channel.
 //
 // TECHNIQUE: Plant a request in a shared buffer, raise SW-SMI, let a
 // pre-installed SMM handler (lab residual) copy physical memory into

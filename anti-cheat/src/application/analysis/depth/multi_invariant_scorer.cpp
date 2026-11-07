@@ -1,4 +1,4 @@
-// multi_invariant_scorer.cpp — depth analytics: multi-sample / fusion scoring for blue.
+// multi_invariant_scorer.cpp: depth analytics: multi-sample / fusion scoring for blue.
 // Educational scorers over World residuals.
 
 #include "depth/multi_invariant_scorer.hpp"

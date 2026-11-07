@@ -1,4 +1,4 @@
-// Split from periscope_hud.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_hud.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/cs2/periscope_hud.hpp"
 #include "real/cs2/periscope_scanner.hpp"
 
@@ -53,7 +53,7 @@ float CvarManager::probe_float(uint64_t convarAddr,
     float bestValue = fallback;
     float bestScore = -1.0f;
 
-    for (auto [offset, weight] : kProbes) {
+    for (auto [offset, weight]: kProbes) {
         float value = 0.0f;
         if (!readFn(convarAddr + offset, &value, sizeof(value)))
             continue;
@@ -76,7 +76,7 @@ float CvarManager::probe_float(uint64_t convarAddr,
     }
 
     // Only return a value if we found a reasonable candidate (score > 0)
-    return (bestScore > 0.0f) ? bestValue : fallback;
+    return (bestScore > 0.0f) ? bestValue: fallback;
 }
 
 bool CvarManager::try_warm_cache_path() noexcept {
@@ -86,7 +86,7 @@ bool CvarManager::try_warm_cache_path() noexcept {
 
 namespace {
 
-// Resolve an export from a *remote* module via PE EAT (small RPM reads only —
+// Resolve an export from a *remote* module via PE EAT (small RPM reads only -
 // not a full-module PE/AOB string scan).
 uint64_t resolve_remote_export(uint64_t moduleBase, size_t moduleSize,
                                const char* funcName,
@@ -260,7 +260,7 @@ uint64_t find_interface_reg_head(uint64_t createInterfaceFn,
             if (readFn(loaded, &thru, 8) && thru) heads[1] = thru;
         }
 
-        for (uint64_t head : heads) {
+        for (uint64_t head: heads) {
             if (!head || !looks_like_user_ptr(head)) continue;
             if (!interface_reg_looks_valid(head, readFn)) continue;
             uint64_t namePtr = 0;
@@ -286,7 +286,7 @@ uint64_t resolve_create_fn_singleton(uint64_t createFn,
     // Common stubs:
     //   48 8B 05 xx xx xx xx  C3     mov rax,[rip+d]; ret
     //   48 8D 05 xx xx xx xx  C3     lea rax,[rip+d]; ret
-    //   48 8B 05 xx xx xx xx  48 85 C0 ... (with null check)
+    //   48 8B 05 xx xx xx xx  48 85 C0, ... (with null check)
     for (size_t i = 0; i + 7 < sizeof(code); ++i) {
         if (code[i] != 0x48) continue;
         if (code[i + 1] != 0x8B && code[i + 1] != 0x8D) continue;
@@ -343,7 +343,7 @@ bool CvarManager::try_list_path(uint64_t tier0Base, size_t tier0Size,
     bool (*readFn)(uint64_t addr, void* buf, size_t size)) noexcept
 {
     // Path 2: True ICVar list walk via tier0 CreateInterface (EAT only).
-    // No full-module PE/AOB string scan. Falls back to nothing here — caller
+    // No full-module PE/AOB string scan. Falls back to nothing here, caller
     // may try HUD mem / xref paths next.
     //
     // ConVar (Source2 approximate):
@@ -356,7 +356,7 @@ bool CvarManager::try_list_path(uint64_t tier0Base, size_t tier0Size,
     if (!readFn) return false;
 
     // tier0 is the true home of CreateInterface / VEngineCvar. engine2 also
-    // exports CreateInterface for other factories — try both (no AOB scan).
+    // exports CreateInterface for other factories, try both (no AOB scan).
     uint64_t icvar = resolve_icvar_via_create_interface(tier0Base, tier0Size, readFn);
     if (!icvar && clientBase && clientSize)
         icvar = resolve_icvar_via_create_interface(clientBase, clientSize, readFn);
@@ -415,7 +415,7 @@ bool CvarManager::try_list_path(uint64_t tier0Base, size_t tier0Size,
             if (!readFn(namePtr, name, sizeof(name) - 1)) continue;
             if (name[0] < 33 || name[0] > 126) continue;
 
-            for (const char* t : targets) {
+            for (const char* t: targets) {
                 if (std::strcmp(name, t) != 0) continue;
                 float value = read_cvar_float(convar, -9999.f);
                 if (value > -9000.f) {
@@ -458,7 +458,7 @@ bool CvarManager::try_list_path(uint64_t tier0Base, size_t tier0Size,
     // Legacy linked-list fallback (older builds / alternate layouts).
     if (bestResolved < 2) {
         const int kHeadOffs[] = {0x40, 0x48, 0x50, 0x58, 0x60, 0x68, 0x70, 0x80};
-        for (int headOff : kHeadOffs) {
+        for (int headOff: kHeadOffs) {
             uint64_t head = 0;
             if (!readFn(icvar + static_cast<uint64_t>(headOff), &head, 8) || !head)
                 continue;
@@ -468,7 +468,7 @@ bool CvarManager::try_list_path(uint64_t tier0Base, size_t tier0Size,
                 uint64_t namePtr = 0;
                 char name[64]{};
                 bool gotName = false;
-                for (int no : {0x00, 0x18, 0x10, 0x20}) {
+                for (int no: {0x00, 0x18, 0x10, 0x20}) {
                     if (!readFn(node + static_cast<uint64_t>(no), &namePtr, 8) ||
                         !namePtr)
                         continue;
@@ -478,7 +478,7 @@ bool CvarManager::try_list_path(uint64_t tier0Base, size_t tier0Size,
                     break;
                 }
                 if (gotName) {
-                    for (const char* t : targets) {
+                    for (const char* t: targets) {
                         if (std::strcmp(name, t) == 0) {
                             float value = read_cvar_float(node, -9999.f);
                             if (value > -9000.f) {
@@ -559,4 +559,3 @@ template bool CvarManager::get<bool>(uint32_t hash, bool fallback) const noexcep
 template uint32_t CvarManager::get<uint32_t>(uint32_t hash, uint32_t fallback) const noexcept;
 
 } // namespace real::cs2::periscope
-

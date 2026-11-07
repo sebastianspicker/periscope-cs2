@@ -1,4 +1,4 @@
-// uefi_fw.hpp — UEFI firmware table scanning and ACPI walk.
+// uefi_fw.hpp: UEFI firmware table scanning and ACPI walk.
 //
 // Walks RSDP -> XSDT/RSDT -> all ACPI tables and UEFI configuration
 // table entries. Used for DMA remapping detection, TXT boot analysis,

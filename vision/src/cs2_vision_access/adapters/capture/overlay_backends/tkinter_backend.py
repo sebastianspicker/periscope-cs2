@@ -46,7 +46,7 @@ _HOTKEY_ACTION_KEYS: dict[str, str] = {
 
 
 class TkinterOverlayBackend:
-    """Tkinter borderless window — best-effort transparency."""
+    """Tkinter borderless window, best-effort transparency."""
 
     def __init__(self) -> None:
         self._root: Any = None

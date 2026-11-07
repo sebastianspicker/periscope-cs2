@@ -20,7 +20,7 @@ BlueResult detect(sim::World& w) {
   BlueResult r;
   r.reasons = d.reasons;
 
-  // Independent reasons beyond agent summary — not single-flag echo.
+  // Independent reasons beyond agent summary, not single-flag echo.
   if (d.syscall_handles > 0) {
     r.reasons.emplace_back("syscall-path handles=" + std::to_string(d.syscall_handles));
   }
@@ -45,7 +45,7 @@ BlueResult detect(sim::World& w) {
   if (r.mitigated) w.ranked_access_denied = true;
   r.detail = d.summary.empty()
                  ? ("signals=" + std::to_string(r.signals))
-                 : d.summary + " signals=" + std::to_string(r.signals);
+: d.summary + " signals=" + std::to_string(r.signals);
 
   std::printf(
       "[blue:indirect_syscall] detected=%d mitigated=%d handles=%d "

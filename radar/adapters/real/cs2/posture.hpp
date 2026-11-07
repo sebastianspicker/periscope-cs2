@@ -1,4 +1,4 @@
-// posture.hpp — Intel exposure + read-shaping policy (pure, host-testable).
+// posture.hpp: Intel exposure + read-shaping policy (pure: host-testable).
 //
 // Two independent concerns live here on purpose:
 //
@@ -12,7 +12,7 @@
 //
 // Ordering matters and is enforced by `apply_posture`: event shaping raises the
 // floor, then the ladder caps it. Capping last is what makes a degrade survive
-// the next frame — the per-frame shaper alone would overwrite it.
+// the next frame, the per-frame shaper alone would overwrite it.
 //
 // Nothing here touches Windows, the process, or the clock domain beyond what
 // the caller passes in, so radar/tests can drive it directly.
@@ -29,15 +29,15 @@ namespace real::cs2::stack {
 // always, enemies only while the team spotting mask covers them. That keeps the
 // pre-aim / info-advantage residual at zero. Full shows every enemy including
 // unspotted ones.
-enum class IntelMode : int { HudEcho = 0, Full = 1 };
+enum class IntelMode: int { HudEcho = 0, Full = 1 };
 
 // Auto lets the degrade ladder move intel; HudEcho and Full pin it. A pinned
-// mode is never silently overridden — that is the difference between "stealth
+// mode is never silently overridden, that is the difference between "stealth
 // by default" and "stealth whether or not you asked".
-enum class IntelPolicy : int { Auto = 0, HudEcho = 1, Full = 2 };
+enum class IntelPolicy: int { Auto = 0, HudEcho = 1, Full = 2 };
 
 inline const char* intel_mode_name(IntelMode m) noexcept {
-  return m == IntelMode::Full ? "full" : "hud-echo";
+  return m == IntelMode::Full ? "full": "hud-echo";
 }
 
 inline const char* intel_policy_name(IntelPolicy p) noexcept {
@@ -126,7 +126,7 @@ struct BehaviorShaper {
   }
 
  private:
-  static int min_cap(int value, int cap) noexcept { return value < cap ? value : cap; }
+  static int min_cap(int value, int cap) noexcept { return value < cap ? value: cap; }
 };
 
 // ── Silent degrade ────────────────────────────────────────────────
@@ -160,7 +160,7 @@ struct DegradeLadder {
       clean_windows = 0;
     }
     out = capped(base);
-    return level >= 1 ? IntelMode::HudEcho : IntelMode::Full;
+    return level >= 1 ? IntelMode::HudEcho: IntelMode::Full;
   }
 
   /// Rates for the current level. Level 0 only trims to the historical
@@ -191,7 +191,7 @@ struct DegradeLadder {
   }
 
  private:
-  static int min_cap(int value, int cap) noexcept { return value < cap ? value : cap; }
+  static int min_cap(int value, int cap) noexcept { return value < cap ? value: cap; }
 };
 
 // ── Composition ───────────────────────────────────────────────────
@@ -207,10 +207,10 @@ inline Posture apply_posture(const BehaviorShaper& shaper, const DegradeLadder& 
                              const ReadRates& floor) noexcept {
   Posture p;
   p.rates = shaper.rates_at(now, floor);
-  IntelMode ladder_mode = ladder.level >= 1 ? IntelMode::HudEcho : IntelMode::Full;
+  IntelMode ladder_mode = ladder.level >= 1 ? IntelMode::HudEcho: IntelMode::Full;
   p.rates = ladder.capped(p.rates);
   IntelMode pinned{};
-  p.mode = policy_pins_mode(policy, pinned) ? pinned : ladder_mode;
+  p.mode = policy_pins_mode(policy, pinned) ? pinned: ladder_mode;
   return p;
 }
 

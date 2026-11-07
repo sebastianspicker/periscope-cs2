@@ -1,7 +1,7 @@
-// vuln_driver.h — Shared state/API for educational gdrv multi-TU split.
+// vuln_driver.h: Shared state/API for educational gdrv multi-TU split.
 #pragma once
 
-// vuln_driver.c — Full gdrv.sys v1.0.6.9 BYOVD driver + T2 extensions.
+// vuln_driver.c: Full gdrv.sys v1.0.6.9 BYOVD driver + T2 extensions.
 //
 // MATCHES REVERSE-ENGINEERED gdrv.sys (Gigabyte) v1.0.6.9
 // CVE-2020-15368: arbitrary physical memory read/write via IOCTL

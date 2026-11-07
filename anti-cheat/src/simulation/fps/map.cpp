@@ -1,4 +1,4 @@
-// map.cpp — dusty_yard layout: named areas + bomb sites A/B with plant radii.
+// map.cpp: dusty_yard layout: named areas + bomb sites A/B with plant radii.
 
 #include "fps/map.hpp"
 

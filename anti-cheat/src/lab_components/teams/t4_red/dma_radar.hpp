@@ -1,6 +1,6 @@
 #pragma once
 
-// T4 educational DMA residual — sim. 
+// T4 educational DMA residual, sim.
 // Off-box path: marks dma_device_present, forces iommu off, dma_read without
 // a local reader process or game handle. Process list stays clean.
 
@@ -59,7 +59,7 @@ struct DmaRadarReport {
 };
 
 /// Simulated second-machine / FPGA radar: marks DMA present, weak IOMMU,
-/// never opens a process handle to the game. sim — 
+/// never opens a process handle to the game. sim,
 class DmaRadar {
  public:
   explicit DmaRadar(sim::World& world);

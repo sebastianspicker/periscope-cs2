@@ -14,7 +14,7 @@ BlueResult detect(sim::World& w) {
 
   std::printf("[blue:inmatch_only] sensor 1: sample during match window\n");
   if (!in_match) {
-    r.reasons.emplace_back("match inactive — lobby-only sample may miss attach");
+    r.reasons.emplace_back("match inactive, lobby-only sample may miss attach");
   }
 
   std::printf("[blue:inmatch_only] sensor 2: foreign VM_READ during match\n");
@@ -47,7 +47,7 @@ BlueResult detect(sim::World& w) {
   r.detected = r.signals >= 2;
   r.mitigated = r.detected && in_match;
   if (r.risk >= 0.8) w.ranked_access_denied = true;
-  r.detail = "in_match=" + std::string(in_match ? "1" : "0") +
+  r.detail = "in_match=" + std::string(in_match ? "1": "0") +
              " handles=" + std::to_string(foreign_vm_read) +
              " reader_active=" + std::to_string(reader_active_hits);
   std::printf("[blue:inmatch_only] %s detected=%d mitigated=%d\n", r.detail.c_str(),

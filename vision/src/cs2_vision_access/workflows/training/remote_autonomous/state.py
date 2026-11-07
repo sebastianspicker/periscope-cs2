@@ -53,7 +53,7 @@ def _rank_and_write_uncertain_review(
         n = len(payload) if isinstance(payload, list) else 0
         print(f"  Uncertain review queue: {n} frame(s) -> {Path(progress_dir).name}/")
         return n
-    except Exception as exc:  # noqa: BLE001 — soft; never break autonomous loop
+    except Exception as exc:  # noqa: BLE001, soft; never break autonomous loop
         msg = f"uncertain_queue rank skipped: {exc}"
         print(f"  ({msg})")
         if notes is not None:

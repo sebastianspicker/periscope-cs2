@@ -1,4 +1,4 @@
-// api_integrity.hpp — Real-path API pointer and prologue integrity checks.
+// api_integrity.hpp: Real-path API pointer and prologue integrity checks.
 //
 // Verifies that resolved function pointers land inside the expected module
 // image and that prologues are not inline-hooked (jmp/call/push-ret).
@@ -12,7 +12,7 @@
 
 namespace real::win {
 
-enum class HookKind : std::uint8_t {
+enum class HookKind: std::uint8_t {
   None = 0,
   InlineJmp,
   InlineCall,

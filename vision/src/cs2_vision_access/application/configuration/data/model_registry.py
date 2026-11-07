@@ -5,7 +5,7 @@ SHA-256 pin, class mapping, recommended usage, and search tags. The
 ``tags`` key powers ``list_models(tag=...)``; the pinned ``sha256`` enables
 post-download integrity verification in ``_handle_onnx_direct``.
 
-The registry is versioned — entries may be added over time but existing
+The registry is versioned, entries may be added over time but existing
 entries are never removed without a major version bump.
 """
 
@@ -16,7 +16,7 @@ from typing import Any
 MODEL_REGISTRY: dict[str, dict[str, Any]] = {
     # ── YOLO11n-seg (COCO, generic person detection) ──────────────────
     "yolo11n-seg": {
-        "description": "YOLO11 nano instance segmentation — COCO person class",
+        "description": "YOLO11 nano instance segmentation, COCO person class",
         "format": "onnx",
         "url": "https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n-seg.onnx",
         "sha256": "0bc32bc92e985b881141ef9bd2216e2a746f70519d0d24da9fc85decc4428cf4",
@@ -29,7 +29,7 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
     },
     # ── Vombit CS2 detector ──────────────────────────────────────────
     "vombit-yolov10n": {
-        "description": "Vombit YOLOv10n — CS2 player detection (FP32)",
+        "description": "Vombit YOLOv10n, CS2 player detection (FP32)",
         "format": "onnx",
         "url": "https://huggingface.co/Vombit/yolov10n_cs2/resolve/main/yolov10n_cs2.onnx",
         "sha256": "62fd816a1218cf77725ed85692ae2e4df2a204dc14554fdf82b973ff5b47ea00",
@@ -41,7 +41,7 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
         "tags": ["cs2", "vombit", "yolov10", "detect", "fast"],
     },
     "vombit-yolov10n-fp16": {
-        "description": "Vombit YOLOv10n — CS2 player detection (FP16, 2× faster GPU)",
+        "description": "Vombit YOLOv10n, CS2 player detection (FP16, 2× faster GPU)",
         "format": "onnx",
         "url": "https://huggingface.co/Vombit/yolov10n_cs2/resolve/main/yolov10n_cs2_fp16.onnx",
         "sha256": "d49d03099ff9aa75b8caa23f9268153b7c84e75dc555eb1475510b22b12213bd",
@@ -53,7 +53,7 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
         "tags": ["cs2", "vombit", "yolov10", "detect", "fp16", "fast"],
     },
     "vombit-yolov10s": {
-        "description": "Vombit YOLOv10s — CS2 player detection (small, more accurate)",
+        "description": "Vombit YOLOv10s, CS2 player detection (small, more accurate)",
         "format": "onnx",
         "url": "https://huggingface.co/Vombit/yolov10s_cs2/resolve/main/yolov10s_cs2.onnx",
         "sha256": "13fa954ebcc75917760be8d7916cb799ffcec8a9b8152e020e074d7887d3cd84",

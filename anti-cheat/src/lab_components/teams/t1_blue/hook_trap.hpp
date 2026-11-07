@@ -1,7 +1,7 @@
 #pragma once
 
 // Naive blue: only watches usermode API hooks (ntdll OpenProcess/RPM stubs).
-// Correct blue for T1: handle truth — path (syscall vs winapi) is irrelevant.
+// Correct blue for T1: handle truth, path (syscall vs winapi) is irrelevant.
 
 #include "sim/world.hpp"
 

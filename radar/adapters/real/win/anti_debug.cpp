@@ -55,7 +55,7 @@ void clear_debug_flags() noexcept {
   // adjacent region varies). Clear both the classic 0x68 and 0xBC slots.
   *reinterpret_cast<std::uint32_t*>(peb + 0xBC) &=
       ~static_cast<std::uint32_t>(0x70);  // heap tail/free/validate bits
-  // Some toolchains still document 0x68 for NtGlobalFlag on x64 — clear if set.
+  // Some toolchains still document 0x68 for NtGlobalFlag on x64, clear if set.
   *reinterpret_cast<std::uint32_t*>(peb + 0x68) &=
       ~static_cast<std::uint32_t>(0x70);
 
@@ -122,7 +122,7 @@ bool check_debugger_ntqsi() noexcept {
     return true;
   }
 
-  // ProcessDebugFlags (31) — 0 means debugger present
+  // ProcessDebugFlags (31), 0 means debugger present
   ULONG debugFlags = 1;
   status =
       api.NtQueryInformationProcess(self, 31, &debugFlags, sizeof(debugFlags), nullptr);

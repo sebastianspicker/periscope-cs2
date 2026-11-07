@@ -1,4 +1,4 @@
-// lab_memory.hpp — lab fixture process / memory backend for isolated unit tests.
+// lab_memory.hpp: lab fixture process / memory backend for isolated unit tests.
 // Provides attachable target_id.
 
 #pragma once
@@ -44,7 +44,7 @@ struct ScatterReadResult {
 };
 
 /// Red-safe backend: only reads FixtureProcess by id.
-class LabMemoryBackend final : public ac::IMemoryBackend {
+class LabMemoryBackend final: public ac::IMemoryBackend {
  public:
   ac::Tier tier() const override { return ac::Tier::T0_UsermodeRpm; }
   std::string_view name() const override { return "lab_fixture"; }

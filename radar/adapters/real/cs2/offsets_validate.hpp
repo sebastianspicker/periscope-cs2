@@ -1,14 +1,14 @@
-// offsets_validate.hpp — Pure functional validation of resolved offsets
+// offsets_validate.hpp: Pure functional validation of resolved offsets
 // (assessment ledger E12).
 //
 // Freshness checks (snapshot mtime, dump timestamp) prove *when* an offset
 // set was produced, not that it is *semantically sane*. This header classifies
-// a live observation — the field values actually read through candidate
-// offsets — into one of three states:
+// a live observation, the field values actually read through candidate
+// offsets, into one of three states:
 //
 //   Ok         offsets produced plausible, self-consistent entity data
 //   NoPlayers  offsets are probably fine; the walk simply saw no players
-//              (empty server, lobby, main menu) — not an offset failure
+//              (empty server, lobby, main menu), not an offset failure
 //   Wrong      the offsets produced implausible data (bogus reads, values
 //              outside sanity ranges) and must not be trusted
 //
@@ -55,12 +55,12 @@ inline constexpr double kMaxBogusRatio = 0.5;
 inline OffsetsValidation classify(const Observation& obs) {
   // Not a single controller resolved anywhere: either the entity-list
   // pointer itself is wrong or there is genuinely nobody enumerated. Distinguish
-  // by whether reads succeeded at all — systematic read failure with zero
+  // by whether reads succeeded at all, systematic read failure with zero
   // resolutions is an offset/address problem, a clean walk with zero players
   // is a lobby.
   if (obs.players_seen == 0) {
     return obs.failed_reads > 0 ? OffsetsValidation::Wrong
-                                : OffsetsValidation::NoPlayers;
+: OffsetsValidation::NoPlayers;
   }
   if (obs.pawns_resolved == 0) {
     // Controllers resolve but no pawn chain does: the controller→pawn offset
@@ -76,11 +76,11 @@ inline OffsetsValidation classify(const Observation& obs) {
     }
   }
   if (obs.plausible_fields == 0 && obs.bogus_fields == 0) {
-    // Players and pawns resolved but no field observations were recorded —
+    // Players and pawns resolved but no field observations were recorded -
     // the caller's walk never reached the field stage; treat as Ok only when
     // reads did not fail. Otherwise inconclusive data is treated as Wrong to
     // force a re-check.
-    return obs.failed_reads > 0 ? OffsetsValidation::Wrong : OffsetsValidation::Ok;
+    return obs.failed_reads > 0 ? OffsetsValidation::Wrong: OffsetsValidation::Ok;
   }
   return OffsetsValidation::Ok;
 }

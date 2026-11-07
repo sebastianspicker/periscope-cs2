@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""relay_server.py — R6 public-radar relay server (stdlib asyncio + RFC6455).
+"""relay_server.py: R6 public-radar relay server (stdlib asyncio + RFC6455).
 
 Wires the pure policy core (relay_core.py) to sockets:
 
@@ -7,7 +7,7 @@ Wires the pure policy core (relay_core.py) to sockets:
         |  WS /api/v1/publish                        ^
         |  Authorization: Bearer <producer token>    |  WS /api/v1/stream
         v                                            |  ?room=..&token=..
-  Caddy :443 (TLS, WS proxy) -> relay_server         |
+  Caddy:443 (TLS, WS proxy) -> relay_server         |
                                                      + session minting:
                                      POST /api/v1/session (producer token)
 
@@ -104,7 +104,7 @@ class RelayServer:
                                                  FrameRateLimiter]]] = {}
         self._sequences: dict[str, int] = {}
         # Producer rate limiting is per connection (built from the room's own
-        # policy in _run_producer) — a shared limiter would let one room's
+        # policy in _run_producer), a shared limiter would let one room's
         # producer starve another's.
         self._producer_violations: dict[str, int] = {}
 
@@ -211,7 +211,7 @@ class RelayServer:
             session_room, expiry = entry
             if expiry < time.monotonic():
                 # Expired sessions are retired at use, not only at the next
-                # mint — a quiet relay must not keep stale sessions alive.
+                # mint, a quiet relay must not keep stale sessions alive.
                 del self._sessions[session]
             elif session_room != room_id:
                 return False, "session does not match room"
@@ -241,7 +241,7 @@ class RelayServer:
         writer.write(
             f"HTTP/1.1 {code} {reason}\r\nContent-Type: application/json\r\n"
             f"Content-Length: {len(payload)}\r\nConnection: close\r\n\r\n"
-            .encode() + payload
+.encode() + payload
         )
         await writer.drain()
 
@@ -251,7 +251,7 @@ class RelayServer:
             await writer.drain()
         except (ConnectionError, RuntimeError):
             # The peer is already gone (ConnectionError) or the transport is
-            # closing under us (RuntimeError) — nothing to close politely.
+            # closing under us (RuntimeError), nothing to close politely.
             pass
         writer.close()
 

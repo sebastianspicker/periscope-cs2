@@ -1,4 +1,4 @@
-// obf.hpp — Self-contained compile-time XOR string obfuscation.
+// obf.hpp: Self-contained compile-time XOR string obfuscation.
 //
 // Drop-in replacement for the repository's real/win/xorstr.hpp so that this
 // firmware example builds standalone (no dependency on radar/adapters includes).
@@ -87,7 +87,7 @@ private:
 template<typename CharT, std::size_t N>
 encrypted_string(const CharT (&)[N]) -> encrypted_string<CharT, N - 1>;
 
-// Convenience macro — usage: OBF("string") returns const char*
+// Convenience macro, usage: OBF("string") returns const char*
 #define OBF(str)                                                           \
     ([]() -> const char* {                                                 \
         static auto _obf_ = ::obf::encrypted_string<                       \
@@ -115,7 +115,7 @@ encrypted_string(const CharT (&)[N]) -> encrypted_string<CharT, N - 1>;
                 static_cast<unsigned long long>(_enc_s_.data()[_i_s_]) ^    \
                 (kXorKeySeed +                                              \
                  static_cast<unsigned long long>(_i_s_) *                   \
-                 ::obf::kGoldenRatio));                                     \
+::obf::kGoldenRatio));                                     \
         }                                                                   \
         _buf_s_[sizeof(str) - 1] = 0;                                       \
         return _buf_s_;                                                     \
@@ -127,6 +127,6 @@ encrypted_string(const CharT (&)[N]) -> encrypted_string<CharT, N - 1>;
 // win::obf::encrypted_string still compiles when this folder is consumed
 // inside the full repository build.
 namespace win::obf {
-    using ::obf::encrypted_string;
-    using ::obf::kGoldenRatio;
+    using::obf::encrypted_string;
+    using::obf::kGoldenRatio;
 }

@@ -1,4 +1,4 @@
-// periscope_scanner.cpp — Periscope-level pattern scanner implementation.
+// periscope_scanner.cpp: Periscope-level pattern scanner implementation.
 
 #include "real/cs2/periscope_scanner.hpp"
 #include "real/win/xorstr.hpp"

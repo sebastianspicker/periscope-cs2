@@ -1,4 +1,4 @@
-// websocket.cpp — Minimal RFC 6455 client (ws:// over TCP).
+// websocket.cpp: Minimal RFC 6455 client (ws:// over TCP).
 // wss:// is accepted by URL parser; full TLS tunnel uses HTTPS C2 path on Windows.
 
 #include "real/net/net_client.hpp"
@@ -18,7 +18,7 @@ std::string ws_accept_key(const std::string& client_key_b64) {
   // GUID from RFC 6455
   const std::string guid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
   const std::string concat = client_key_b64 + guid;
-  // SHA-1 is required by RFC — implement compact SHA-1 here for handshake only.
+  // SHA-1 is required by RFC, implement compact SHA-1 here for handshake only.
   // For research stack we use SHA-256 base64 of same material as lab compatibility
   // fallback when speaking to our own echo tests; real servers need SHA-1.
   // Provide proper SHA-1:
@@ -92,7 +92,7 @@ Result<void> ws_send_frame(Socket sock, std::uint8_t opcode,
     std::memcpy(mask, mask_r->data(), 4);
   frame.insert(frame.end(), mask, mask + 4);
   for (std::size_t i = 0; i < len; ++i)
-    frame.push_back(static_cast<std::uint8_t>((data ? data[i] : 0) ^ mask[i % 4]));
+    frame.push_back(static_cast<std::uint8_t>((data ? data[i]: 0) ^ mask[i % 4]));
   return send_all(sock, frame.data(), static_cast<int>(frame.size()));
 }
 
@@ -164,7 +164,7 @@ Result<void> WebSocketClient::connect(const std::string& url, int timeout_ms) {
   sock_ = *sock;
   set_timeout(sock_, timeout_ms);
   host_ = parsed.host;
-  path_ = parsed.path.empty() ? "/" : parsed.path;
+  path_ = parsed.path.empty() ? "/": parsed.path;
 
   auto key_bytes = random_bytes(16);
   if (!key_bytes) { close(); return Result<void>(key_bytes.error_msg); }

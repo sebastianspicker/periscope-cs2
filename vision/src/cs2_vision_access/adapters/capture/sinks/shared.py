@@ -1,16 +1,16 @@
-"""Shared-memory ring sink — contours out to another process on device 2.
+"""Shared-memory ring sink, contours out to another process on device 2.
 
 The compositor (the fullscreen presenter, an external renderer, or a recording
 tool) can live in a second process. A named shared-memory ring carries the
 rendered frames across without touching the filesystem, so there is nothing to
 poll, nothing to lock, and nothing left behind when the producer dies.
 
-Wire format (little-endian, packed — no padding), HEADER_FORMAT:
+Wire format (little-endian, packed, no padding), HEADER_FORMAT:
 
     magic u32 "CV1S", version u32, width u32, height u32, stride u32,
     channels u32, fps_hint u32, frame_index u64, timestamp_ns u64, state u32
 
-That is 7 u32, then 2 u64, then 1 u32 — 48 bytes total (frame_index at
+That is 7 u32, then 2 u64, then 1 u32, 48 bytes total (frame_index at
 offset 28, timestamp_ns at 36, state at 44). It is followed by
 ``slots`` frames of ``stride * height`` bytes each. The producer never waits:
 ``send`` writes the slot frame_index would land on and flips the header to
@@ -34,7 +34,7 @@ INDEX_OFFSET = struct.calcsize("<7I")  # packed: frame_index sits at 28, not 32
 assert HEADER_SIZE == 48, "header layout changed (packed: idx 28, ts 36, state 44)"
 MAGIC = 0x4356_3153  # big-endian spelling of "CV1S"; wire bytes read "S1VC"
 # (little-endian). Pre-existing wire contract, guarded by
-# test_contour_pipeline.py::test_ring_header_wire_contract — header_to_json
+# test_contour_pipeline.py::test_ring_header_wire_contract, header_to_json
 # derives its display text with the big-endian spelling so docs, mirror and
 # constant agree on the *name* while the wire bytes stay untouched.
 VERSION = 1
@@ -135,7 +135,7 @@ class SharedFrameSink:
     def send(self, frame: np.ndarray, frame_index: int) -> None:
         """Publish one RGBA frame. Never blocks; the oldest slot is recycled.
 
-        Transfer contract (ledger E32): exactly **one** bulk copy per frame —
+        Transfer contract (ledger E32): exactly **one** bulk copy per frame -
         the payload is made contiguous once and written into its slot in a
         single slice assignment; there are no per-element or per-channel
         transfers. ``frame_index`` is the pipeline's 0-based frame counter;
@@ -185,7 +185,7 @@ def negotiate_protocol(version: int) -> int:
 
     Both sides call this with the version they found on the wire (readers)
     or intend to write (producers). Unknown versions are a loud, typed
-    failure — the A3 incident class was silent byte-level misreads.
+    failure, the A3 incident class was silent byte-level misreads.
     """
     if version in KNOWN_PROTOCOL_VERSIONS:
         return version
@@ -197,7 +197,7 @@ def negotiate_protocol(version: int) -> int:
 def header_to_json(header: SharedFrameHeader) -> str:
     """Canonical JSON mirror of a decoded header (tooling/test contract).
 
-    Fixed field order, integer types only — the mirror must be byte-stable
+    Fixed field order, integer types only, the mirror must be byte-stable
     for golden comparisons and must never contain frame payload bytes. The
     magic text is derived from the wire constant so the two cannot drift.
     """

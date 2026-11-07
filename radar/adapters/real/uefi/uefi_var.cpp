@@ -1,4 +1,4 @@
-// uefi_var.cpp — UEFI variable access implementation.
+// uefi_var.cpp: UEFI variable access implementation.
 //
 // Linux: /sys/firmware/efi/efivars (efivarfs).
 // Windows: GetFirmwareEnvironmentVariable(Ex)A / SetFirmwareEnvironmentVariable(Ex)A
@@ -107,11 +107,11 @@ Result<void> write_efivar_windows(const std::string& name,
     BOOL ok = FALSE;
     if (pSetEx) {
         ok = pSetEx(name.c_str(), guid.c_str(),
-                    data.empty() ? nullptr : const_cast<uint8_t*>(data.data()),
+                    data.empty() ? nullptr: const_cast<uint8_t*>(data.data()),
                     static_cast<DWORD>(data.size()), attributes);
     } else {
         ok = SetFirmwareEnvironmentVariableA(name.c_str(), guid.c_str(),
-                    data.empty() ? nullptr : const_cast<uint8_t*>(data.data()),
+                    data.empty() ? nullptr: const_cast<uint8_t*>(data.data()),
                     static_cast<DWORD>(data.size()));
     }
     if (!ok) {
@@ -244,7 +244,7 @@ Result<std::vector<EfiVariable>> enumerate_variables() {
         "BootOrder", "BootCurrent", "Timeout",
         "PlatformLang", "Lang", "SignatureSupport",
     };
-    for (const char* n : kKnown) {
+    for (const char* n: kKnown) {
         auto data = read_efivar_windows(n, h0, h1);
         if (!data) continue;
         EfiVariable var;
@@ -313,10 +313,10 @@ Result<SecureBootState> get_secure_boot_state() {
 
     std::printf("[uefi] Secure Boot: %s, Setup Mode: %s, Audit: %s, Deployed: %s "
                 "(PK=%zu KEK=%zu db=%zu dbx=%zu)\n",
-                state.secure_boot_enabled ? "ON" : "OFF",
-                state.setup_mode ? "ON" : "OFF",
-                state.audit_mode ? "ON" : "OFF",
-                state.deployed_mode ? "ON" : "OFF",
+                state.secure_boot_enabled ? "ON": "OFF",
+                state.setup_mode ? "ON": "OFF",
+                state.audit_mode ? "ON": "OFF",
+                state.deployed_mode ? "ON": "OFF",
                 state.pk.size(), state.kek.size(), state.db.size(), state.dbx.size());
 
     if (!any) {
@@ -346,7 +346,7 @@ Result<void> spoof_secure_boot_variable(const std::string& name,
 
     auto r = write_variable(name, h0, h1, attrs, forged_data);
     if (!r) {
-        // Honest failure — do not claim success
+        // Honest failure, do not claim success
         return Result<void>(std::string("spoof_secure_boot_variable failed: ") +
                             r.error_msg.c_str());
     }

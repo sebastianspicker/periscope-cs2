@@ -17,7 +17,7 @@ RedResult apply(sim::World& w) {
   w.present_path_has_overlay = true;
   w.capture_sees_overlays = false;
   w.desktop_duplication = true;  // hardware/API residual for capture sensor
-  // Red does not activate AC capture sensor — blue will.
+  // Red does not activate AC capture sensor, blue will.
   w.capture_sensor_active = false;
   w.capture_vs_present_mismatch = false;
   r.achieved = w.present_path_has_overlay && !w.capture_sees_overlays &&

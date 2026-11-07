@@ -1,4 +1,4 @@
-// radar_pipeline.cpp — Complete radar frame pipeline implementation.
+// radar_pipeline.cpp: Complete radar frame pipeline implementation.
 //
 // ALL 15+ ac_sim features are integrated here. Previously each was
 // fully implemented but NEVER instantiated or called from any pipeline.
@@ -49,7 +49,7 @@ bool FramePipeline::run_frame() noexcept {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  shutdown()  —  delegates to InitOrchestrator::shutdown_all()
+//  shutdown(),  delegates to InitOrchestrator::shutdown_all()
 // ══════════════════════════════════════════════════════════════════════
 
 bool FramePipeline::pre_frame() noexcept {
@@ -69,10 +69,10 @@ bool FramePipeline::pre_frame() noexcept {
                        static_cast<int>(m_temporal.phase())));
     }
 
-    // 3. Batch engine — set temporal-aware rate limiting
-    m_batch.set_rate_limit(m_temporal.phase() == sim::TemporalPhase::Alpha ? 48 : 120);
+    // 3. Batch engine, set temporal-aware rate limiting
+    m_batch.set_rate_limit(m_temporal.phase() == sim::TemporalPhase::Alpha ? 48: 120);
 
-    // 4. Self-verify (periodic: every 500 frames) — drives heartbeat gate bit.
+    // 4. Self-verify (periodic: every 500 frames), drives heartbeat gate bit.
     if (m_frameLoop.frame_index == 1 || m_frameLoop.frame_index % 500 == 0) {
         auto svResult = m_selfVerify.verify();
         m_selfVerifyOk = svResult.passed;
@@ -83,7 +83,7 @@ bool FramePipeline::pre_frame() noexcept {
         }
     }
 
-    // 5. API integrity check (frame 1 and every 1000 frames) — real verify_all.
+    // 5. API integrity check (frame 1 and every 1000 frames), real verify_all.
     if (m_frameLoop.frame_index == 1 || m_frameLoop.frame_index % 1000 == 0) {
         auto results = m_apiIntegrity.verify_all();
         bool hookFree = !results.empty();
@@ -118,7 +118,7 @@ bool FramePipeline::pre_frame() noexcept {
                    hookFree
                        ? ("API integrity: OK checks=" +
                           std::to_string(results.size()))
-                       : ("API integrity: FAIL failed=" +
+: ("API integrity: FAIL failed=" +
                           std::to_string(failed) +
                           " checks=" + std::to_string(results.size())));
     }
@@ -141,7 +141,7 @@ bool FramePipeline::pre_frame() noexcept {
     }
 
 #if LR_PLATFORM_WINDOWS
-    // 8. WDA capture exclusion — only called periodically, not every frame
+    // 8. WDA capture exclusion, only called periodically, not every frame
     if (m_useReal) {
         static uint64_t wda_frame_counter = 0;
         ++wda_frame_counter;
@@ -166,7 +166,7 @@ bool FramePipeline::pre_frame() noexcept {
         if (++anti_debug_counter >= 300) {
             anti_debug_counter = 0;
             if (real::win::check_debugger_ntqsi()) {
-                // Debugger detected — could set a flag or take evasive action
+                // Debugger detected, could set a flag or take evasive action
             }
         }
 
@@ -186,7 +186,7 @@ bool FramePipeline::pre_frame() noexcept {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-//  collect_frame()  —  entity / HUD / CVar reads
+//  collect_frame(),  entity / HUD / CVar reads
 // ══════════════════════════════════════════════════════════════════════
 
 bool FramePipeline::post_frame() noexcept {
@@ -202,7 +202,7 @@ bool FramePipeline::post_frame() noexcept {
                    " action=" + actionNames[static_cast<int>(healthAction)]);
     }
 
-    // 2. Accept readiness gate — metrics derived from live pipeline state.
+    // 2. Accept readiness gate, metrics derived from live pipeline state.
     // Never hardcode all-true GateConditions (that was theater).
     sim::GateMetrics gm{};
     gm.chunkCount = m_chunkCount;
@@ -222,7 +222,7 @@ bool FramePipeline::post_frame() noexcept {
                    ready
                        ? ("ACCEPT: ready (" + std::to_string(m_gate.met_count()) +
                           "/" + std::to_string(m_gate.required_count()) + ")")
-                       : ("ACCEPT: " + std::to_string(m_gate.met_count()) + "/" +
+: ("ACCEPT: " + std::to_string(m_gate.met_count()) + "/" +
                           std::to_string(m_gate.required_count()) +
                           " met mask=0x" +
                           std::to_string(m_gate.failed_mask())));

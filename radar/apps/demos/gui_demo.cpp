@@ -1,8 +1,8 @@
-// gui_demo.cpp — Self-contained GUI radar demo (no CS2 required).
+// gui_demo.cpp: Self-contained GUI radar demo (no CS2 required).
 // Educational anti-cheat lab: simulated entities + immediate-mode control panel.
 //
 // Build: cmake -S . -B build
-// Run:   ./build/gui_demo
+// Run: ./build/gui_demo
 // Keys:  INSERT=toggle control panel  END/ESC=quit
 //
 // Features: radar blips from make_sim_entities(), live RadarPanelSettings
@@ -47,8 +47,8 @@ real::gpu::RadarFrame build_sim_frame(const std::vector<PlayerEntity>& ents,
   for (const auto& e : ents) {
     if (e.is_local) { local = &e; break; }
   }
-  const ac::Vec3 origin = local ? local->origin : ac::Vec3{};
-  const int local_team = local ? static_cast<int>(local->team) : 2;
+  const ac::Vec3 origin = local ? local->origin: ac::Vec3{};
+  const int local_team = local ? static_cast<int>(local->team): 2;
   frame.local_origin = origin;
 
   for (const auto& e : ents) {
@@ -81,13 +81,13 @@ real::gpu::RadarFrame build_sim_frame(const std::vector<PlayerEntity>& ents,
     b.screen_x = rx;
     b.screen_y = ry;
     b.angle = 0.f;
-    b.color = (e.team == 3) ? 0xFF4488CC : 0xFFCC6644;
+    b.color = (e.team == 3) ? 0xFF4488CC: 0xFFCC6644;
     b.health = e.health;
     b.team = e.team;
     b.is_alive = true;
     b.is_visible = true;
 
-    const char* side = (e.team == 3) ? "CT" : "T";
+    const char* side = (e.team == 3) ? "CT": "T";
     if (s.esp_health) {
       std::snprintf(b.label, sizeof(b.label), "%s%u %dhp", side, e.id, e.health);
     } else {
@@ -112,8 +112,8 @@ void draw_sim_radar(real::gpu::RenderPipeline* rp,
   const float usable = kRadarRadius * 0.92f;
 
   if (s.draw_bg || s.draw_border) {
-    const std::uint32_t bg = s.draw_bg ? s.radar_bg : 0x00000000;
-    const std::uint32_t border = s.draw_border ? s.radar_border : 0x00000000;
+    const std::uint32_t bg = s.draw_bg ? s.radar_bg: 0x00000000;
+    const std::uint32_t border = s.draw_border ? s.radar_border: 0x00000000;
     rp->draw_radar_background(0.f, 0.f, kRadarRadius, bg, border);
   }
 
@@ -253,8 +253,8 @@ int main() {
 #endif
 
     const auto& st = renderer->overlay_style();
-    const int win_w = st.width > 0 ? st.width : style.width;
-    const int win_h = st.height > 0 ? st.height : style.height;
+    const int win_w = st.width > 0 ? st.width: style.width;
+    const int win_h = st.height > 0 ? st.height: style.height;
 
     if (auto r = renderer->begin_frame(); !r) break;
     gui.begin_frame(win_w, win_h);

@@ -1,7 +1,7 @@
 #pragma once
 
 // Structural kill depth: partial fog, delayed origin, stream crypto + key exfil.
-// Blue mitigation is multi-step scoring — not only toggling full-replication.
+// Blue mitigation is multi-step scoring, not only toggling full-replication.
 
 #include "server/interest_mgmt.hpp"
 #include "sim/world.hpp"
@@ -12,7 +12,7 @@
 
 namespace depth {
 
-enum class FogPolicy : std::uint8_t {
+enum class FogPolicy: std::uint8_t {
   FullReplication = 0,  // red-friendly: all enemy origins
   StrictRadius = 1,     // classic interest management
   PartialLeak = 2,      // buggy fog: fraction of far entities still sent

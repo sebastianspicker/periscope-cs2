@@ -16,7 +16,7 @@ public:
     void apply(sim::World& w) noexcept;
     static constexpr const char* kDescription =
         "Creates a child process that inherits the game handle. "
-        "No OpenProcess needed in the child — handle inheritance bypasses handle scans on the child.";
+        "No OpenProcess needed in the child, handle inheritance bypasses handle scans on the child.";
 };
 
 } // namespace

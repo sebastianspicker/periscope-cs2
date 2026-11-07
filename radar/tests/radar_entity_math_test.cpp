@@ -1,13 +1,13 @@
-// radar_entity_math_test.cpp — Host tests for the pure, platform-neutral
+// radar_entity_math_test.cpp: Host tests for the pure: platform-neutral
 // headers introduced by the external-repo assessment ledger:
 //
-//   E11 entity_layout.hpp  — bulk-read window math, bounds-checked
+//   E11 entity_layout.hpp, bulk-read window math, bounds-checked
 //                            extraction, batch planning, sanity gates
-//   E12 offsets_validate.hpp — functional offset validation classifier
-//   E14 entity_cache.hpp   — event-diff cache + torn-free triple buffer
-//   E13 schema_layout.hpp  — FNV-1a, schema walk plan, bounded memo
-//   E15 frame_pacing.hpp   — sleep/spin split, idle debounce
-//   E16 eprocess_derive.hpp — EPROCESS offset derivation over a synthetic
+//   E12 offsets_validate.hpp, functional offset validation classifier
+//   E14 entity_cache.hpp, event-diff cache + torn-free triple buffer
+//   E13 schema_layout.hpp, FNV-1a, schema walk plan, bounded memo
+//   E15 frame_pacing.hpp, sleep/spin split, idle debounce
+//   E16 eprocess_derive.hpp, EPROCESS offset derivation over a synthetic
 //                            memory image (full derivation + list walk)
 //
 // Nothing here links a real adapter or touches a live process.
@@ -65,7 +65,7 @@ struct FakeMemory {
     std::size_t copied = 0;
     while (copied < size) {
       bool found = false;
-      for (const auto& [start, bytes] : pages) {
+      for (const auto& [start, bytes]: pages) {
         const std::uint64_t at = address + copied;
         if (at >= start && at < start + bytes.size()) {
           const std::size_t offset = static_cast<std::size_t>(at - start);
@@ -199,7 +199,7 @@ static void test_triple_buffer_torn_free_under_rapid_publish() {
   };
   TripleBuffer<Payload> buffer;
   // Single writer, many publishes: a load that races a publish must either
-  // see an intact older value or fail — never a torn hybrid.
+  // see an intact older value or fail, never a torn hybrid.
   for (int frame = 0; frame < 1000; ++frame) {
     Payload p;
     p.frame = frame;
@@ -259,7 +259,7 @@ static void test_entity_cache_sync_full_walk() {
     bool local = false;
   };
   EntityCache<Entity> cache;
-  const auto key = [](const Entity& e) { return e.local ? 1u : e.health; };
+  const auto key = [](const Entity& e) { return e.local ? 1u: e.health; };
 
   // Walk 1: two entities.
   std::vector<Entity> walk1 = {Entity{100, true}, Entity{80, false}};
@@ -268,14 +268,14 @@ static void test_entity_cache_sync_full_walk() {
   CHECK_EQ(cache.last_diff().added.size(), 2u);
   CHECK_EQ(cache.last_diff().removed.size(), 0u);
 
-  // Walk 2: one left, one joined — the absent handle is a removal event.
+  // Walk 2: one left, one joined, the absent handle is a removal event.
   std::vector<Entity> walk2 = {Entity{100, true}, Entity{55, false}};
   snap = cache.sync(walk2, key);
   CHECK_EQ(snap.entities.size(), 2u);
   CHECK_EQ(cache.last_diff().added.size(), 1u);
   CHECK_EQ(cache.last_diff().removed.size(), 1u);
 
-  // Walk 3: same as walk 2 — no diffs, generation still advanced by upserts.
+  // Walk 3: same as walk 2, no diffs, generation still advanced by upserts.
   snap = cache.sync(walk2, key);
   CHECK_EQ(cache.last_diff().added.size(), 0u);
   CHECK_EQ(cache.last_diff().removed.size(), 0u);
@@ -371,7 +371,7 @@ static void test_chunked_read_planner() {
   // Zero total / zero chunk: empty plan.
   CHECK(plan_chunked_read(0x1000, 0, 512).empty());
   CHECK(plan_chunked_read(0x1000, 512, 0).empty());
-  // Overflow: the range would wrap — refuse the whole read.
+  // Overflow: the range would wrap, refuse the whole read.
   CHECK(plan_chunked_read(0xFFFFFFFFFFFFFF00ull, 0x200, 0x100).empty());
   // Sanity: a normal range passes the overflow check.
   CHECK(chunk_range_ok(0x1000, 512, 512));
@@ -471,7 +471,7 @@ struct SyntheticKernel {
     // model: both DTBs point at page tables whose PML4 shares the entry.
     // Use one shared lower structure: point each process DTB's PML4 slot at
     // the same PDPT by making the process PML4 a copy of a shared table.
-    for (std::uint64_t dtb : {system_dtb, neighbour_dtb}) {
+    for (std::uint64_t dtb: {system_dtb, neighbour_dtb}) {
       // Copy the single relevant PML4 entry into each process PML4.
       write_pte(dtb & real::kernel::derive::kPteFrameMask, pml4_index, pml4_entry);
     }
@@ -520,7 +520,7 @@ static void test_eprocess_derivation_full() {
   CHECK(visited >= 2);
   bool found_system = false;
   bool found_neighbour = false;
-  for (std::uint32_t pid : pids) {
+  for (std::uint32_t pid: pids) {
     found_system = found_system || pid == 4;
     found_neighbour = found_neighbour || pid == 4242;
   }

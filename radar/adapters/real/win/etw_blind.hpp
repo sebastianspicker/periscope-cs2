@@ -1,4 +1,4 @@
-// etw_blind.hpp — Blind usermode ETW providers by patching ntdll writers.
+// etw_blind.hpp: Blind usermode ETW providers by patching ntdll writers.
 //
 // Targets (resolved via PEB+EAT, never IAT):
 //   - EtwEventWrite

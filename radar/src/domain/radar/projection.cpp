@@ -1,4 +1,4 @@
-// projection.cpp — R4 fixed north-up map projection. See projection.hpp.
+// projection.cpp: R4 fixed north-up map projection. See projection.hpp.
 
 #include "radar/projection.hpp"
 

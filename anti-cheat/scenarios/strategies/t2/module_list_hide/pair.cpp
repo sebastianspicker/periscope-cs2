@@ -1,4 +1,4 @@
-// module_list_hide — multi-step PEB unlink; multi-reason PE/Ldr sensors.
+// module_list_hide, multi-step PEB unlink; multi-reason PE/Ldr sensors.
 
 #include "strategies/framework.hpp"
 

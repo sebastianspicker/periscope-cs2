@@ -91,7 +91,7 @@ def load_yolo_polygons(
 ) -> tuple[PolygonInstance, ...]:
     """Load YOLO segmentation labels and convert to pixel-space polygons.
 
-    Format per non-empty line: ``class_id x1 y1 x2 y2 ...`` with coordinates
+    Format per non-empty line: ``class_id x1 y1 x2 y2...`` with coordinates
     normalized to ``[0, 1]``. Empty files are valid (no instances).
     """
     if image_width <= 0 or image_height <= 0:
@@ -210,7 +210,7 @@ def match_instances(
     gt_masks: dict[int, np.ndarray] = {}
     pred_masks: dict[int, np.ndarray] = {}
 
-    # Bounding boxes are computed once per polygon from its vertices — orders
+    # Bounding boxes are computed once per polygon from its vertices, orders
     # of magnitude cheaper than rasterization (ledger V4). A pair with
     # disjoint bounding boxes has IoU 0 by construction, so both rasterizations
     # are skipped; the match output is bit-identical to the unfiltered path.

@@ -84,16 +84,16 @@ def bootstrap_with_edgesam(
 ) -> EdgesamBootstrapResult:
     """Resolve EdgeSAM assets and label image directories under *data_dir*.
 
-    Soft-failure API: returns ``ok=False`` with notes instead of raising when
-    assets are missing or prepare fails, so callers can fall back (e.g. COCO).
+        Soft-failure API: returns ``ok=False`` with notes instead of raising when
+        assets are missing or prepare fails, so callers can fall back (e.g. COCO).
 
-    1. Resolve assets: *explicit_assets*, else
-       :func:`ensure_edgesam_assets`(*artifacts_dir*, download=*download*)
-       (discover-only when *download* is False).
-    2. For each images dir (or :func:`candidate_image_dirs_for_labeling` when
-       *images_dirs* is None), run :func:`run_cs2_sam_prepare`.
-    3. Return total labeled frames + notes; ``ok=True`` when assets resolved and
-       prepare completed without error (even if zero frames were labeled).
+        1. Resolve assets: *explicit_assets*, else
+    :func:`ensure_edgesam_assets`(*artifacts_dir*, download=*download*)
+           (discover-only when *download* is False).
+        2. For each images dir (or :func:`candidate_image_dirs_for_labeling` when
+           *images_dirs* is None), run :func:`run_cs2_sam_prepare`.
+        3. Return total labeled frames + notes; ``ok=True`` when assets resolved and
+           prepare completed without error (even if zero frames were labeled).
     """
     data_path = Path(data_dir)
     notes: list[str] = []
@@ -114,7 +114,7 @@ def bootstrap_with_edgesam(
             art = Path(artifacts_dir) if artifacts_dir is not None else data_path / "edgesam_assets"
             assets = ensure_edgesam_assets(art, download=bool(download))
         notes.append("edgesam assets: " + ", ".join(f"{k}={v.name}" for k, v in assets.items()))
-    except Exception as exc:  # noqa: BLE001 — soft for callers
+    except Exception as exc:  # noqa: BLE001, soft for callers
         notes.append(f"edgesam assets failed: {exc}")
         return EdgesamBootstrapResult(
             labeled_frames=0,
@@ -166,7 +166,7 @@ def bootstrap_with_edgesam(
                 f"  EdgeSAM labeled {result.labeled_frames} under {img_dir} "
                 f"(write_root={result.write_root})"
             )
-    except Exception as exc:  # noqa: BLE001 — soft for callers
+    except Exception as exc:  # noqa: BLE001, soft for callers
         notes.append(f"edgesam prepare failed: {exc}")
         return EdgesamBootstrapResult(
             labeled_frames=total,

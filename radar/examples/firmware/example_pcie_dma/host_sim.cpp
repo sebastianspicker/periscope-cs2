@@ -1,4 +1,4 @@
-// host_sim.cpp — FPGA DMA T4 CS2 entity simulator entry + self-check.
+// host_sim.cpp: FPGA DMA T4 CS2 entity simulator entry + self-check.
 
 #include "host_sim_fpga.hpp"
 #include "host_sim_memory.hpp"
@@ -27,7 +27,7 @@ static int run_self_check() {
     };
 
     auto check = [&failures](bool cond, const char* what) {
-        printf("%s %s\n", cond ? "PASS" : "FAIL", what);
+        printf("%s %s\n", cond ? "PASS": "FAIL", what);
         if (!cond) failures++;
     };
 
@@ -86,7 +86,7 @@ static int run_self_check() {
     }
 
     printf("\nSelf-check: %d failure(s)\n", failures);
-    return failures == 0 ? 0 : 1;
+    return failures == 0 ? 0: 1;
 }
 
 // ═══════════════════════════════════════════════════════════════════════

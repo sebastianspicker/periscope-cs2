@@ -130,7 +130,7 @@ JsonNumberState json_get_unique_u64(const std::string& text, const char* key,
     out = value;
     found = true;
   }
-  return found ? JsonNumberState::Valid : JsonNumberState::Missing;
+  return found ? JsonNumberState::Valid: JsonNumberState::Missing;
 }
 
 bool distinct_nonzero(std::initializer_list<std::uint64_t> values) {
@@ -155,7 +155,7 @@ bool load_snapshot_json_text(const std::string& text, Cs2Offsets& fields_only) {
       {"m_hPlayerPawn", &parsed.entity_controller_pawn},
       {"entity_identity_stride", &parsed.entity_list_entry},
   }};
-  for (const auto& [key, destination] : required) {
+  for (const auto& [key, destination]: required) {
     if (json_get_unique_u64(text, key, *destination) != JsonNumberState::Valid) return false;
   }
   // Optional identity/visibility fields: Missing is fine (older dumps), an
@@ -172,7 +172,7 @@ bool load_snapshot_json_text(const std::string& text, Cs2Offsets& fields_only) {
       {"m_iItemDefinitionIndex", &parsed.item_def_index},
       {"m_hObserverTarget", &parsed.observer_target},
   }};
-  for (const auto& [key, destination] : optional) {
+  for (const auto& [key, destination]: optional) {
     if (json_get_unique_u64(text, key, *destination) == JsonNumberState::Invalid) {
       return false;
     }
@@ -240,7 +240,7 @@ std::string read_runtime_snapshot(const char* path) {
   if (!in) return {};
   std::string text(static_cast<std::size_t>(size), '\0');
   in.read(text.data(), static_cast<std::streamsize>(text.size()));
-  return in && in.gcount() == static_cast<std::streamsize>(text.size()) ? text : std::string{};
+  return in && in.gcount() == static_cast<std::streamsize>(text.size()) ? text: std::string{};
 }
 
 }  // namespace
@@ -248,7 +248,7 @@ std::string read_runtime_snapshot(const char* path) {
 std::string ResolvedOffset::describe() const {
   std::ostringstream output;
   output << name << " = 0x" << std::hex << value << std::dec
-         << (resolved ? " (resolved)" : " (unresolved)");
+         << (resolved ? " (resolved)": " (unresolved)");
   return output.str();
 }
 
@@ -257,8 +257,8 @@ Pattern Pattern::from_bytes(const std::string& name,
                             std::int32_t add_offset, bool is_relative) {
   Pattern result{name, pattern, {}, add_offset, is_relative};
   result.mask.reserve(pattern.size());
-  for (const std::uint8_t byte : pattern) {
-    result.mask += byte == 0 ? '?' : 'x';
+  for (const std::uint8_t byte: pattern) {
+    result.mask += byte == 0 ? '?': 'x';
   }
   return result;
 }
@@ -330,7 +330,7 @@ Result<Cs2Offsets> resolve_offsets(std::uint32_t cs2_pid, std::uint64_t cs2_base
                                    std::size_t cs2_image_size) {
   (void)cs2_pid;
   (void)cs2_image_size;
-  // With a module base, dump RVAs are authoritative — no scanning needed.
+  // With a module base, dump RVAs are authoritative, no scanning needed.
   if (cs2_base != 0) {
     return Result<Cs2Offsets>(offsets_from_snapshot(cs2_base));
   }
@@ -374,7 +374,7 @@ bool find_module_by_basename(std::uint32_t cs2_pid, std::uint64_t process_handle
 
 bool find_client_module(std::uint32_t cs2_pid, std::uint64_t process_handle,
                         std::uint64_t& out_base, std::size_t& out_size) {
-  // Exact basename only — never suffix-match (*client.dll).
+  // Exact basename only, never suffix-match (*client.dll).
   return find_module_by_basename(cs2_pid, process_handle, "client.dll", out_base,
                                  out_size);
 }
@@ -387,29 +387,29 @@ Cs2Offsets offsets_from_snapshot(std::uint64_t client_base) {
   // Prefer runtime JSON globals if loaded; else embedded snapshot.
   // Per-key fallback: the runtime file may omit optional keys (view matrix /
   // angles / sensitivity are allowed-missing by load_runtime_globals), and a
-  // zero RVA would resolve to client_base + 0 — the DOS header.
+  // zero RVA would resolve to client_base + 0, the DOS header.
   const std::uint64_t ent_rva = g_runtime_globals.valid
                                     ? g_runtime_globals.dwEntityList
-                                    : encoded::decode(snapshot::globals::dwEntityList);
+: encoded::decode(snapshot::globals::dwEntityList);
   const std::uint64_t pawn_rva = g_runtime_globals.valid
                                      ? g_runtime_globals.dwLocalPlayerPawn
-                                     : encoded::decode(snapshot::globals::dwLocalPlayerPawn);
+: encoded::decode(snapshot::globals::dwLocalPlayerPawn);
   // view/angles/sensitivity are optional in the runtime JSON; a missing or
   // zero entry keeps the embedded snapshot RVA instead of falling to 0.
   const auto pick = [](std::uint64_t runtime, std::uint64_t embedded) {
-    return runtime ? runtime : embedded;
+    return runtime ? runtime: embedded;
   };
   const std::uint64_t vm_rva = pick(
-      g_runtime_globals.valid ? g_runtime_globals.dwViewMatrix : 0,
+      g_runtime_globals.valid ? g_runtime_globals.dwViewMatrix: 0,
       encoded::decode(snapshot::globals::dwViewMatrix));
   const std::uint64_t va_rva = pick(
-      g_runtime_globals.valid ? g_runtime_globals.dwViewAngles : 0,
+      g_runtime_globals.valid ? g_runtime_globals.dwViewAngles: 0,
       encoded::decode(snapshot::globals::dwViewAngles));
   const std::uint64_t sens_rva = pick(
-      g_runtime_globals.valid ? g_runtime_globals.dwSensitivity : 0,
+      g_runtime_globals.valid ? g_runtime_globals.dwSensitivity: 0,
       encoded::decode(snapshot::globals::dwSensitivity));
   const std::uint64_t gv_rva = pick(
-      g_runtime_globals.valid ? g_runtime_globals.dwGlobalVars : 0,
+      g_runtime_globals.valid ? g_runtime_globals.dwGlobalVars: 0,
       encoded::decode(snapshot::globals::dwGlobalVars));
 
   if (client_base != 0) {
@@ -466,7 +466,7 @@ bool try_load_runtime_snapshot_file(Cs2Offsets& out_fields_only) {
       "../data/cs2/offsets_snapshot.json",
       "../../data/cs2/offsets_snapshot.json",
   };
-  for (const char* path : candidates) {
+  for (const char* path: candidates) {
     if (load_candidate(path)) return true;
   }
   return false;
@@ -487,7 +487,7 @@ Result<Cs2Offsets> resolve_offsets_for_process(std::uint32_t cs2_pid,
   const bool found_client_dll =
       find_client_module(cs2_pid, process_handle, client_base, client_size);
   if (!found_client_dll) {
-    // Fall back to main module (usually cs2.exe) — dump RVAs will not match.
+    // Fall back to main module (usually cs2.exe), dump RVAs will not match.
     client_base = main_base;
   }
 
@@ -588,9 +588,9 @@ std::string OffsetsValidationReport::describe() const {
   std::ostringstream out;
   const char* name = validation == validate::OffsetsValidation::Ok
                          ? "ok"
-                         : (validation == validate::OffsetsValidation::NoPlayers
+: (validation == validate::OffsetsValidation::NoPlayers
                                 ? "no_players"
-                                : "wrong");
+: "wrong");
   out << "validation=" << name << " players=" << observation.players_seen
       << " pawns=" << observation.pawns_resolved
       << " plausible=" << observation.plausible_fields
@@ -633,7 +633,7 @@ Result<OffsetsValidationReport> validate_offsets_live(Cs2MemoryReader& reader,
   const std::uint64_t chunk_table = snapshot::constants::entity_chunk_table_offset;
   const std::uint64_t stride = offsets.entity_list_entry != 0
                                    ? offsets.entity_list_entry
-                                   : snapshot::constants::entity_identity_stride;
+: snapshot::constants::entity_identity_stride;
 
   constexpr int kMaxControllers = 64;
   for (int index = 1; index <= kMaxControllers; ++index) {

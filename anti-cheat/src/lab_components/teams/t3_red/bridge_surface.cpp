@@ -1,4 +1,4 @@
-// bridge_surface.cpp — T3 red HV path using World.trust posture flags.
+// bridge_surface.cpp: T3 red HV path using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #include "t3_red/bridge_surface.hpp"

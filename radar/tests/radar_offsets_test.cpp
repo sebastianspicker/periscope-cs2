@@ -1,4 +1,4 @@
-// radar_offsets_test.cpp — R9: runtime offsets fallback parser and merger.
+// radar_offsets_test.cpp: R9: runtime offsets fallback parser and merger.
 
 #include "radar/offset_overrides.hpp"
 

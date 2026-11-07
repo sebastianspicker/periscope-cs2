@@ -1,4 +1,4 @@
-// nt_decls.hpp — NT function declarations for educational/demo code.
+// nt_decls.hpp: NT function declarations for educational/demo code.
 // These create IAT entries in any translation unit that includes this
 // header. Production code in adapters/real/ MUST NOT include this file.
 // Production code resolves NT functions through peb_util.hpp + eat_util.hpp

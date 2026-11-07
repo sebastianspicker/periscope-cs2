@@ -1,4 +1,4 @@
-// net_internal.hpp — Internal helpers shared across net split files.
+// net_internal.hpp: Internal helpers shared across net split files.
 #pragma once
 
 #include "real/net/net_client.hpp"

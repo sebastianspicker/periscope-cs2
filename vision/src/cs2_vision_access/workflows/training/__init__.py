@@ -1,4 +1,4 @@
-"""CS2 model training pipeline — local and cloud."""
+"""CS2 model training pipeline, local and cloud."""
 
 from cs2_vision_access.workflows.training.local import (
     DEFAULT_BATCH,

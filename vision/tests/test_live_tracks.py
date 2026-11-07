@@ -188,7 +188,7 @@ def test_animator_class_change_starts_new_track_old_fades() -> None:
     assert diag.active_tracks == 2
     # The old track's fade window (1 frame) exhausts; the new track persists
     # until its identity memory (max_gap_frames=4) is exhausted. One update
-    # per inferred frame — the animator counts updates, not index gaps.
+    # per inferred frame, the animator counts updates, not index gaps.
     for frame in range(2, 8):
         _later, diag_later = animator.update((), frame_index=frame)
     assert diag_later.fading_count == 0

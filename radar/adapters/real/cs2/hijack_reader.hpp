@@ -1,4 +1,4 @@
-// hijack_reader.hpp — Handle bridge reader.
+// hijack_reader.hpp: Handle bridge reader.
 //
 // Uses handle duplication from a donor process to obtain a reference
 // handle to the target process. This avoids directly opening the target
@@ -49,7 +49,7 @@ public:
     ///
     /// @param bootstrapCs2Handle Optional existing handle to CS2 (e.g. from
     ///        educational attach). Used only to learn the kernel Object*
-    ///        for precise donor matching — not retained for reads.
+    ///        for precise donor matching, not retained for reads.
     bool setup(uint32_t cs2Pid, void* bootstrapCs2Handle = nullptr) noexcept;
 
     /// Single read via hijack (re-duplicates handle if closed).
@@ -81,11 +81,11 @@ public:
 
     /// Expose the duplicated CS2 handle for use by backends that need
     /// a raw HANDLE for ReadProcessMemory or similar.
-    /// The handle is owned by HijackReader — do NOT close it externally.
+    /// The handle is owned by HijackReader, do NOT close it externally.
     void* cs2_handle() const noexcept { return reinterpret_cast<void*>(m_cs2Handle); }
 
 private:
-    void set_error(const char* msg) noexcept { m_lastError = msg ? msg : ""; }
+    void set_error(const char* msg) noexcept { m_lastError = msg ? msg: ""; }
     uint32_t m_cs2Pid{};
     uint32_t m_donorPid{};
     uint64_t m_donorProcHandle{};   // Donor process handle (DUP_HANDLE only)

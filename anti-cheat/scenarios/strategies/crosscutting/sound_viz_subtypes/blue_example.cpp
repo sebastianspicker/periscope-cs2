@@ -7,7 +7,7 @@ namespace examples::sound_viz_subtypes {
 
 BlueResult detect(sim::World& w) {
   BlueResult r;
-  // Independent scoring paths — each subtype is its own residual reason.
+  // Independent scoring paths, each subtype is its own residual reason.
   r.hit_reload =
       w.sound_panel_reload_hit || w.sound_viz_reload > 0;
   r.hit_scope = w.sound_panel_scope_hit || w.sound_viz_scope > 0;
@@ -16,8 +16,8 @@ BlueResult detect(sim::World& w) {
   r.hit_footstep =
       w.sound_panel_footstep_hit || w.sound_viz_footstep > 0;
 
-  r.independent_hits = (r.hit_reload ? 1 : 0) + (r.hit_scope ? 1 : 0) +
-                       (r.hit_bomb_beep ? 1 : 0) + (r.hit_footstep ? 1 : 0);
+  r.independent_hits = (r.hit_reload ? 1: 0) + (r.hit_scope ? 1: 0) +
+                       (r.hit_bomb_beep ? 1: 0) + (r.hit_footstep ? 1: 0);
 
   r.detected = w.sound_viz_subtypes_active && r.independent_hits >= 2;
   // Mitigate only when multi-subtype product is clear (not single panel UI).
@@ -32,10 +32,10 @@ BlueResult detect(sim::World& w) {
   }
   std::ostringstream oss;
   oss << "sound_viz_subtypes blue independent_hits=" << r.independent_hits
-      << " reload=" << (r.hit_reload ? 1 : 0)
-      << " scope=" << (r.hit_scope ? 1 : 0)
-      << " bomb_beep=" << (r.hit_bomb_beep ? 1 : 0)
-      << " footstep=" << (r.hit_footstep ? 1 : 0)
+      << " reload=" << (r.hit_reload ? 1: 0)
+      << " scope=" << (r.hit_scope ? 1: 0)
+      << " bomb_beep=" << (r.hit_bomb_beep ? 1: 0)
+      << " footstep=" << (r.hit_footstep ? 1: 0)
       << " finer_than_sound_esp_38=1";
   r.detail = oss.str();
   w.note(r.detail);

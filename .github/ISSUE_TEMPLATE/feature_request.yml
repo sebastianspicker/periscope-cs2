@@ -60,4 +60,4 @@ body:
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Optional — workarounds, related issues, prior art in-repo.
+      description: Optional, workarounds, related issues, prior art in-repo.

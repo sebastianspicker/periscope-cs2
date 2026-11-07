@@ -1,4 +1,4 @@
-// evasion_advanced.cpp — composed T0 simulation lesson; never uses OS APIs.
+// evasion_advanced.cpp: composed T0 simulation lesson; never uses OS APIs.
 //
 // NOTE: The per-feature evasion methods (enable_temporal_jitter, etc.) set
 // sim::World flags for educational lessons. For production evasion, use

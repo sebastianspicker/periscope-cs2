@@ -64,13 +64,13 @@ void BatchEngine::set_rate_limit(int rps) noexcept {
 }
 
 void BatchEngine::set_jitter_params(float baseMs, float varianceMs) noexcept {
-    m_jitterBaseMs = baseMs < 0.f ? 0.f : baseMs;
-    m_jitterVarianceMs = varianceMs < 0.f ? 0.f : varianceMs;
+    m_jitterBaseMs = baseMs < 0.f ? 0.f: baseMs;
+    m_jitterVarianceMs = varianceMs < 0.f ? 0.f: varianceMs;
 }
 
 void BatchEngine::set_decoy_ratio(float ratio) noexcept {
     if (ratio < 0.f) ratio = 0.f;
-    if (ratio > 0.5f) ratio = 0.5f; // hard cap — too many decoys is a signal
+    if (ratio > 0.5f) ratio = 0.5f; // hard cap, too many decoys is a signal
     m_decoyRatio = ratio;
 }
 
@@ -86,7 +86,7 @@ void BatchEngine::inject_decoys() noexcept {
     const std::size_t want =
         static_cast<std::size_t>(static_cast<float>(m_count) * m_decoyRatio + 0.5f);
     const std::size_t room = kMaxBatchSize - m_count;
-    const std::size_t n = want < room ? want : room;
+    const std::size_t n = want < room ? want: room;
     for (std::size_t i = 0; i < n; ++i) {
         stage_decoy(0, nullptr, 8);
     }
@@ -116,7 +116,7 @@ void BatchEngine::adaptive_delay() noexcept {
     if (m_jitterBaseMs > 0.f) {
         periodMs = m_jitterBaseMs;
     }
-    const float span = m_jitterVarianceMs > 0.f ? m_jitterVarianceMs : periodMs * 0.2f;
+    const float span = m_jitterVarianceMs > 0.f ? m_jitterVarianceMs: periodMs * 0.2f;
     const float u = static_cast<float>(next_u64() & 0xFFFF) / 65535.0f; // [0,1]
     const float jitter = (u - 0.5f) * 2.0f * span;
     float delayMs = periodMs + jitter;

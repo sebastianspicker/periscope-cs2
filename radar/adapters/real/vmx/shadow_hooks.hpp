@@ -1,4 +1,4 @@
-// shadow_hooks.hpp — SLAT shadow-hook bookkeeping (E68).
+// shadow_hooks.hpp: SLAT shadow-hook bookkeeping (E68).
 //
 // Models the donor's hook-entry list without installing anything: a fixed
 // 16-byte entry, at most 256 entries per 4 KiB page, original PTE state kept

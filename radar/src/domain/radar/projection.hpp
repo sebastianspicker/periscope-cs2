@@ -1,4 +1,4 @@
-// projection.hpp — R4: fixed north-up map projection (Source overview coords).
+// projection.hpp: R4: fixed north-up map projection (Source overview coords).
 //
 // Adapted from the research notes (R4):
 //   - tiansongyu/cs2_cheat web-radar design (MIT): canonical projection,

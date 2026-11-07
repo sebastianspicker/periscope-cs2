@@ -1,6 +1,6 @@
 #pragma once
 
-// Self-verify engine — CRC32 of image header / .text prologue and page
+// Self-verify engine, CRC32 of image header /.text prologue and page
 // permission scan (flags unexpected RWX regions).
 //
 // CC-ledger CC.15
@@ -41,7 +41,7 @@ public:
     std::uint32_t expected_crc() const noexcept { return m_expectedCrc; }
     bool has_baseline() const noexcept { return m_hasBaseline; }
 
-    /// Public CRC helper — pure function used by initialize/verify and tests.
+    /// Public CRC helper, pure function used by initialize/verify and tests.
     static std::uint32_t crc32(const void* data, std::size_t size) noexcept;
 
 private:

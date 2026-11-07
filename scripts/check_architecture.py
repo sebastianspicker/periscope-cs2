@@ -130,7 +130,7 @@ def check_vision(errors: list[str]) -> None:
                     )
                 if not imported.startswith(prefix):
                     continue
-                imported_layer = imported[len(prefix) :].split(".", 1)[0]
+                imported_layer = imported[len(prefix):].split(".", 1)[0]
                 if imported_layer in forbidden:
                     errors.append(
                         f"{path.relative_to(ROOT)} imports forbidden layer {imported_layer}: {imported}"
@@ -167,7 +167,7 @@ def check_vision(errors: list[str]) -> None:
             for imported in python_imports(path):
                 if not imported.startswith(prefix):
                     continue
-                imported_root = imported[len(prefix) :].split(".", 1)[0]
+                imported_root = imported[len(prefix):].split(".", 1)[0]
                 if imported_root in legacy_roots:
                     errors.append(
                         f"{path.relative_to(ROOT)} reaches a legacy compatibility facade: {imported}"
@@ -212,7 +212,7 @@ def check_radar(errors: list[str]) -> None:
                 errors.append(f"{path.relative_to(ROOT)} contains a disabled implementation block")
 
     # Domain purity: the radar domain (radar modules) may not import outer
-    # layers — including the lab's own domain vocabulary (plain `ac/…`), so
+    # layers, including the lab's own domain vocabulary (plain `ac/…`), so
     # radar's domain stays self-contained. (The lab domain rule lives in
     # check_anti_cheat; Python's alternation backtracking keeps `ac_sim`
     # matching ahead of the plain `ac` alternative.)
@@ -368,8 +368,8 @@ def check_anti_cheat(errors: list[str]) -> None:
     # Windows/real flags set (split ledger non-negotiable 2). Test
     # exception: anti-cheat/tests/stack_posture_test.cpp deliberately
     # includes "real/cs2/posture.hpp" from the radar tree (via the
-    # test-only LR_RADAR_DIR include root) — it audits the real stack's
-    # posture from the lab side — so the no-real scan below scopes to
+    # test-only LR_RADAR_DIR include root), it audits the real stack's
+    # posture from the lab side, so the no-real scan below scopes to
     # src + scenarios + apps and deliberately excludes anti-cheat/tests.
     source_roots = (
         ANTI_CHEAT_ROOT / "src",
@@ -392,7 +392,7 @@ def check_anti_cheat(errors: list[str]) -> None:
                 errors.append(f"{path.relative_to(ROOT)} contains a disabled implementation block")
 
     # Domain purity: the lab domain (ac, server) may not import outer layers.
-    # Plain `ac/…` includes stay fine — ac is the lab's own domain.
+    # Plain `ac/…` includes stay fine, ac is the lab's own domain.
     domain_root = ANTI_CHEAT_ROOT / "src" / "domain"
     if not domain_root.exists():
         errors.append(f"missing domain layer: {domain_root.relative_to(ROOT)}")

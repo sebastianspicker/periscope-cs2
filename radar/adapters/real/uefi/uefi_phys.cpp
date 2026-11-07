@@ -1,4 +1,4 @@
-// uefi_phys.cpp — Shared physical / firmware-table read backend.
+// uefi_phys.cpp: Shared physical / firmware-table read backend.
 
 #include "real/uefi/uefi_phys.hpp"
 
@@ -284,7 +284,7 @@ Result<std::vector<uint8_t>> read_acpi_table_bytes(const char* signature) {
             cache_firmware_blob(signature, data);
             return Result<std::vector<uint8_t>>(std::move(data));
         }
-        // SSDT may have numeric suffixes SSDT1, SSDT2...
+        // SSDT may have numeric suffixes SSDT1, SSDT2, ...
         if (std::memcmp(signature, "SSDT", 4) == 0) {
             for (int i = 1; i < 64; ++i) {
                 std::snprintf(path, sizeof(path), "/sys/firmware/acpi/tables/SSDT%d", i);

@@ -1,6 +1,6 @@
 #pragma once
 
-// Handle table model — tracks handle creation, visibility, and lifecycle.
+// Handle table model, tracks handle creation, visibility, and lifecycle.
 // Blue's HandleTableSensor uses this to detect processes holding handles to the game.
 // Critical insight: handle table entries are visible regardless of how the handle
 // was obtained (syscall/IAT hiding doesn't help).

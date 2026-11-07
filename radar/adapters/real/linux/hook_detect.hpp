@@ -1,4 +1,4 @@
-// hook_detect.hpp — Usermode hook / injection scar detection on Linux.
+// hook_detect.hpp: Usermode hook / injection scar detection on Linux.
 //
 // BLUE sensors for:
 //   LD_PRELOAD / LD_LIBRARY_PATH environment
@@ -30,7 +30,7 @@ Result<HookReport> inspect_self() noexcept;
 /// Pure: split LD_PRELOAD-style colon/space list.
 std::vector<std::string> split_preload_list(const std::string& value);
 
-/// Pure: return true if pathname looks like an injected .so (heuristic).
+/// Pure: return true if pathname looks like an injected.so (heuristic).
 bool pathname_suspicious(const std::string& pathname,
                          const std::vector<std::string>& allow_suffixes);
 

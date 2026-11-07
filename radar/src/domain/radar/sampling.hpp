@@ -1,11 +1,11 @@
-// sampling.hpp — R2: player-sample hygiene policies.
+// sampling.hpp: R2: player-sample hygiene policies.
 //
 // Ported from tiansongyu/cs2_cheat `radar_player_sample.hpp` (MIT license,
 // NOTICE recorded). Semantics preserved; naming follows this tree.
 //
 // These policies decide what a sampled player *means*. They are pure
 // functions over sampled values so every branch is table-testable without a
-// process, a game, or a clock — see tests/radar_domain_sampling_test.cpp.
+// process, a game, or a clock, see tests/radar_domain_sampling_test.cpp.
 //
 // The six documented decisions:
 //   1. Identity = (player_id, controller, pawn, pawn handle, team). A failed

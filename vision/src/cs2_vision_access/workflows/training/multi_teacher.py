@@ -2,9 +2,9 @@
 
 Pure geometry utilities for pseudo-label fusion:
 
-* :func:`consensus_boxes` — keep detections agreed on by multiple teachers
+*:func:`consensus_boxes`, keep detections agreed on by multiple teachers
   via axis-aligned box IoU matching.
-* :func:`filter_temporally_unstable` — drop instance tracks that do not
+*:func:`filter_temporally_unstable`, drop instance tracks that do not
   persist across consecutive frames for ``min_persist`` frames.
 """
 
@@ -271,7 +271,7 @@ def filter_temporally_unstable(
     if n_frames == 0:
         return []
     if min_persist <= 1:
-        # Nothing to filter — every appearance is already long enough.
+        # Nothing to filter, every appearance is already long enough.
         return frames
 
     # track_id assignment: each (frame_i, instance_j) → track_id

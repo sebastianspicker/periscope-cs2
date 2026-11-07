@@ -1,4 +1,4 @@
-// process.hpp — Linux process enumeration and deep inspection via /proc.
+// process.hpp: Linux process enumeration and deep inspection via /proc.
 
 #pragma once
 

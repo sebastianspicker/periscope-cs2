@@ -35,7 +35,7 @@ inline constexpr unsigned long long kCompileSalt = @COMPILE_SALT@ULL;
 #define OBF_SECTION_STRINGIFY_IMPL(x) #x
 #define OBF_SECTION_STRINGIFY(x) OBF_SECTION_STRINGIFY_IMPL(x)
 
-// OBF_SECTION_NAME macro — defines a section name string with per-build obfuscation
+// OBF_SECTION_NAME macro, defines a section name string with per-build obfuscation
 #define OBF_SECTION_NAME(name) \
     ([]() -> const char* { \
         static const char s[] = ".ac" name "@" OBF_SECTION_STRINGIFY(@SECTION_SEED@); \

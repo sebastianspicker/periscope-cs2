@@ -67,41 +67,41 @@ def run_cs2_sam_prepare(
 ) -> PrepareResult:
     """Run Vombit+EdgeSAM prepare into a flat images/labels dataset.
 
-    Exactly one of *video* or *images_dir* must be set.
+        Exactly one of *video* or *images_dir* must be set.
 
-    * **video** — sample frames, write ``frame_XXXXXXXX.jpg`` + labels under
-      ``resolve_write_root(output_dir, session_id)``.
-    * **images_dir** — label existing images in place; only missing or empty
-      label files are filled (non-empty labels are left unchanged). Labels are
-      written to *labels_dir* when set, else a sibling ``labels/`` (or
-      ``labels/<split>`` for ``images/<split>`` session layouts).
+        * **video**, sample frames, write ``frame_XXXXXXXX.jpg`` + labels under
+          ``resolve_write_root(output_dir, session_id)``.
+        * **images_dir**, label existing images in place; only missing or empty
+          label files are filled (non-empty labels are left unchanged). Labels are
+          written to *labels_dir* when set, else a sibling ``labels/`` (or
+          ``labels/<split>`` for ``images/<split>`` session layouts).
 
-    Args:
-        detector / manifest / encoder / decoder: Model asset paths (must exist).
-        output_dir: Dataset root (or parent of session staging).
-        video: Gameplay video path.
-        images_dir: Directory of existing frames to label.
-        session_id: Optional staging id under *output_dir* (video mode).
-        device: ONNX Runtime device string.
-        confidence: Detector confidence threshold.
-        sample_rate: Video frames per second to sample.
-        max_frames: Cap on labeled frames written (0 = unlimited).
-        max_players: Cap detections per frame (0 = unlimited).
-        collapse_to_player: Map Vombit classes via :data:`VOMBIT_TO_PLAYER`.
-        keep_negatives: Write empty-label negatives when no instances remain.
-        negative_every_n: Keep every Nth empty attempt when *keep_negatives*.
-        min_mask_area: Drop instances with polygon area (px) below this.
-        min_confidence: Optional post-predict confidence floor.
-        write_yaml: Write ``dataset.yaml`` under the write root.
-        class_names: Optional class name map for yaml (overrides collapse default).
+        Args:
+            detector / manifest / encoder / decoder: Model asset paths (must exist).
+            output_dir: Dataset root (or parent of session staging).
+            video: Gameplay video path.
+            images_dir: Directory of existing frames to label.
+            session_id: Optional staging id under *output_dir* (video mode).
+            device: ONNX Runtime device string.
+            confidence: Detector confidence threshold.
+            sample_rate: Video frames per second to sample.
+            max_frames: Cap on labeled frames written (0 = unlimited).
+            max_players: Cap detections per frame (0 = unlimited).
+            collapse_to_player: Map Vombit classes via :data:`VOMBIT_TO_PLAYER`.
+            keep_negatives: Write empty-label negatives when no instances remain.
+            negative_every_n: Keep every Nth empty attempt when *keep_negatives*.
+            min_mask_area: Drop instances with polygon area (px) below this.
+            min_confidence: Optional post-predict confidence floor.
+            write_yaml: Write ``dataset.yaml`` under the write root.
+            class_names: Optional class name map for yaml (overrides collapse default).
 
-    Returns:
-        :class:`PrepareResult` with counts and write root.
+        Returns:
+    :class:`PrepareResult` with counts and write root.
 
-    Raises:
-        FileNotFoundError: Required path missing.
-        ValueError: Invalid source combination or empty paths.
-        RuntimeError: Video cannot be opened (from ``_from_video``).
+        Raises:
+            FileNotFoundError: Required path missing.
+            ValueError: Invalid source combination or empty paths.
+            RuntimeError: Video cannot be opened (from ``_from_video``).
     """
     notes: list[str] = []
     detector_p = _require_file(Path(detector), "detector")
@@ -250,10 +250,10 @@ def _from_images_dir(
 ) -> int:
     """Label existing images that lack a non-empty label file.
 
-    Uses the same stem for ``labels/{stem}.txt`` and does not rewrite images.
-    When images live under a standard ``images/`` folder, delegates to
+        Uses the same stem for ``labels/{stem}.txt`` and does not rewrite images.
+        When images live under a standard ``images/`` folder, delegates to
     :func:`_process_frame` with ``write_image=False`` so filter logic stays
-    shared with video prepare.
+        shared with video prepare.
     """
     image_files = sorted(
         p

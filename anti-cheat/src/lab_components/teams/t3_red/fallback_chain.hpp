@@ -1,4 +1,4 @@
-// fallback_chain.hpp — implements FallbackChain (T3 red).
+// fallback_chain.hpp: implements FallbackChain (T3 red).
 // Multi-step T3→T2→T1/T0 attach chain; blue must keep all detectors live.
 
 #pragma once

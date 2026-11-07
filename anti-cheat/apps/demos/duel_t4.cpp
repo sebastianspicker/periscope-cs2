@@ -1,4 +1,4 @@
-// T4 Duel — off-box DMA residual. Client process list clean; server residual.
+// T4 Duel, off-box DMA residual. Client process list clean; server residual.
 
 #include "server/info_advantage.hpp"
 #include "server/interest_mgmt.hpp"
@@ -12,7 +12,7 @@
 int main() {
   sim::Narrator n;
   n.say(sim::Side::Lesson,
-        "T4: hardware residual. Often no local cheat process — blue leans on "
+        "T4: hardware residual. Often no local cheat process, blue leans on "
         "platform policy + server authority.");
 
   auto world = sim::make_arena();
@@ -24,11 +24,11 @@ int main() {
   std::printf(
       "    hardware=%d clean=%d offbox_read=%d entities=%d iommu_probe=%d "
       "dma_ops=%d residuals(cap=%d desk=%d clone=%d)\n",
-      red_r.hardware_enabled ? 1 : 0, red_r.process_list_clean ? 1 : 0,
-      red_r.offbox_read_ok ? 1 : 0, red_r.entity_count,
-      red_r.iommu_blocked_probe ? 1 : 0, red_r.dma_ops,
-      red_r.capture_residual ? 1 : 0, red_r.desktop_dup ? 1 : 0,
-      red_r.external_clone ? 1 : 0);
+      red_r.hardware_enabled ? 1: 0, red_r.process_list_clean ? 1: 0,
+      red_r.offbox_read_ok ? 1: 0, red_r.entity_count,
+      red_r.iommu_blocked_probe ? 1: 0, red_r.dma_ops,
+      red_r.capture_residual ? 1: 0, red_r.desktop_dup ? 1: 0,
+      red_r.external_clone ? 1: 0);
   n.say(sim::Side::Red, red_r.detail);
 
   n.counter(sim::Side::Blue, "Multi-sensor platform + residual scan",
@@ -41,9 +41,9 @@ int main() {
   std::printf(
       "    platform=%d dma=%d fog=%d iommu_enf=%d structural=%d ia=%.1f risk=%.1f "
       "reasons=%zu\n",
-      scan.platform_signal ? 1 : 0, scan.dma_device ? 1 : 0,
-      scan.fog_applied ? 1 : 0, scan.iommu_enforced ? 1 : 0,
-      scan.structural_kill ? 1 : 0, scan.ia_score, scan.risk,
+      scan.platform_signal ? 1: 0, scan.dma_device ? 1: 0,
+      scan.fog_applied ? 1: 0, scan.iommu_enforced ? 1: 0,
+      scan.structural_kill ? 1: 0, scan.ia_score, scan.risk,
       scan.reasons.size());
   n.say(sim::Side::Blue, scan.detail);
 
@@ -75,7 +75,7 @@ int main() {
            "constrain the residual.");
 
   n.say(sim::Side::Lesson,
-        "Curriculum: client AC is nearly blind here — design for server-side "
+        "Curriculum: client AC is nearly blind here, design for server-side "
         "authority. Re-run strategy_lab 06_dma_hardware.");
-  return blue_wins ? 0 : 1;
+  return blue_wins ? 0: 1;
 }

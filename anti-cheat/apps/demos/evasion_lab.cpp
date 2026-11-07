@@ -1,5 +1,5 @@
 // Optional narrated lab: a few representative xc evasion pairs on sim::World.
-// Educational demo — multi-step red scars vs multi-reason blue.
+// Educational demo, multi-step red scars vs multi-reason blue.
 
 #include "sim/world.hpp"
 #include "sim/narrative.hpp"
@@ -17,7 +17,7 @@
 int main() {
   sim::Narrator n;
   n.say(sim::Side::Lesson,
-        "Evasion lab — multi-step red scars vs multi-reason blue on sim::World.");
+        "Evasion lab, multi-step red scars vs multi-reason blue on sim::World.");
 
   int blue_hits = 0;
   int rounds = 0;
@@ -31,7 +31,7 @@ int main() {
     auto rr = examples::hwid_spoof::apply(w);
     n.say(sim::Side::Red, rr.detail);
     std::printf("[hwid] now=%s accounts=%zu achieved=%d actor=%u\n",
-                w.trust.hwid.c_str(), w.accounts.size(), rr.achieved ? 1 : 0,
+                w.trust.hwid.c_str(), w.accounts.size(), rr.achieved ? 1: 0,
                 rr.actor_pid);
     n.counter(sim::Side::Blue, "payment/ip cluster",
               "HWID alone is soft; graph on payment_fp + ip_class.");
@@ -49,7 +49,7 @@ int main() {
     auto rr = examples::staged_loader::apply(w);
     n.say(sim::Side::Red, rr.detail);
     std::printf("[staged] actor=%u net=%zu achieved=%d\n", rr.actor_pid,
-                w.net.size(), rr.achieved ? 1 : 0);
+                w.net.size(), rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "runtime + net",
               "Disk YARA blind; private RX + C2 hit.");
     auto br = examples::staged_loader::detect(w);
@@ -89,7 +89,7 @@ int main() {
 
   const bool all = blue_hits == rounds;
   n.result(all, all ? "All blue multi-reason detectors fired."
-                    : "Some blue detectors missed (lesson bug).");
+: "Some blue detectors missed (lesson bug).");
   std::printf("evasion_lab: blue_hits=%d/%d\n", blue_hits, rounds);
-  return all ? 0 : 1;
+  return all ? 0: 1;
 }

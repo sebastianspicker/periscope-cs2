@@ -11,7 +11,7 @@ void fuzzed_sleep(int32_t base_ms, int32_t jitter_pct) noexcept {
   if (base_ms <= 0) return;
 
   // Simple PRNG seeded once. __rdtscp writes the processor id through
-  // its argument — never pass a null pointer (MSVC AV at runtime).
+  // its argument, never pass a null pointer (MSVC AV at runtime).
   unsigned int aux = 0;
   static uint64_t s_rng = __rdtscp(&aux);
   s_rng ^= s_rng << 13;
@@ -34,7 +34,7 @@ void fuzzed_sleep(int32_t base_ms, int32_t jitter_pct) noexcept {
   if (api.NtDelayExecution) {
     api.NtDelayExecution(FALSE, &interval);
   } else {
-    ::Sleep(static_cast<DWORD>(actual_ms));
+::Sleep(static_cast<DWORD>(actual_ms));
   }
 }
 
@@ -44,7 +44,7 @@ void yield() noexcept {
     LARGE_INTEGER zero = {};
     api.NtDelayExecution(FALSE, &zero);
   } else {
-    ::Sleep(0);
+::Sleep(0);
   }
 }
 
@@ -57,7 +57,7 @@ NtSetTimerResolutionFn timer_resolution_fn() {
     HMODULE ntdll = ::GetModuleHandleW(L"ntdll.dll");
     if (ntdll == nullptr) return nullptr;
     return reinterpret_cast<NtSetTimerResolutionFn>(
-        ::GetProcAddress(ntdll, "NtSetTimerResolution"));
+::GetProcAddress(ntdll, "NtSetTimerResolution"));
   }();
   return fn;
 }

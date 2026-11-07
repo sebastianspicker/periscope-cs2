@@ -81,7 +81,7 @@ FirmwareReport analyze_firmware() {
             report.dma.fpga_dma_present = *fpga;
         } else {
             report.dma.fpga_dma_present = false;
-            // absence is normal — keep message in detail only
+            // absence is normal, keep message in detail only
             report.dma.detail += std::string(" | FPGA: ") + fpga.error_msg.c_str();
         }
     } else {
@@ -143,7 +143,7 @@ void print_report(const FirmwareReport& r) {
     std::printf("═══════════════════════════════════════════════\n\n");
 
     std::printf("  RSDP:          %s (PA=0x%llx rev=%d)\n",
-                r.rsdp.found ? "FOUND" : "NOT FOUND",
+                r.rsdp.found ? "FOUND": "NOT FOUND",
                 static_cast<unsigned long long>(r.rsdp.pa), r.rsdp.revision);
     std::printf("  ACPI tables:   %d (%s)\n", r.acpi.sdt_count, r.acpi.detail.c_str());
     if (r.acpi.has_dmar) std::printf("    - DMAR (VT-d IOMMU table)\n");
@@ -153,21 +153,21 @@ void print_report(const FirmwareReport& r) {
     if (r.acpi.has_ssdt) std::printf("    - SSDT present\n");
 
     std::printf("  UEFI System:   %s\n",
-                r.uefi.system_table_found ? "FOUND" : "NOT FOUND");
+                r.uefi.system_table_found ? "FOUND": "NOT FOUND");
     if (r.uefi.runtime_services_pa)
         std::printf("    RT services: 0x%llx\n",
                     static_cast<unsigned long long>(r.uefi.runtime_services_pa));
     std::printf("    Config table: %d entries\n", r.uefi.config_table_entries);
 
-    std::printf("  DMA Protection: %s\n", r.dma.active ? "ACTIVE" : "OFF/UNKNOWN");
+    std::printf("  DMA Protection: %s\n", r.dma.active ? "ACTIVE": "OFF/UNKNOWN");
     if (!r.dma.detail.empty())
         std::printf("    Detail:      %s\n", r.dma.detail.c_str());
     if (r.dma.drhd_count) std::printf("    DRHD/IVHD:   %d\n", r.dma.drhd_count);
     if (r.dma.address_width) std::printf("    Addr width:  %d bits\n", r.dma.address_width);
-    std::printf("    Thunderbolt:  %s\n", r.dma.thunderbolt_dma ? "DMA CAPABLE" : "Protected/Absent");
-    std::printf("    FPGA device:  %s\n", r.dma.fpga_dma_present ? "PRESENT" : "Not found");
+    std::printf("    Thunderbolt:  %s\n", r.dma.thunderbolt_dma ? "DMA CAPABLE": "Protected/Absent");
+    std::printf("    FPGA device:  %s\n", r.dma.fpga_dma_present ? "PRESENT": "Not found");
 
-    std::printf("  Secure Boot:    %s\n", r.secure_boot.secure_boot_on ? "ON" : "OFF");
+    std::printf("  Secure Boot:    %s\n", r.secure_boot.secure_boot_on ? "ON": "OFF");
     if (r.secure_boot.setup_mode)
         std::printf("    Setup Mode (PK not enrolled)\n");
     if (r.secure_boot.audit_mode)

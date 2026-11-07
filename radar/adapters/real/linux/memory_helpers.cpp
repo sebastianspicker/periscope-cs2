@@ -1,4 +1,4 @@
-// memory_helpers.cpp — Physical memory + pagemap helpers for Linux stack.
+// memory_helpers.cpp: Physical memory + pagemap helpers for Linux stack.
 
 #include "real/linux/memory_internal.hpp"
 
@@ -17,7 +17,7 @@ namespace real::linux::mem {
 uint64_t host_page_size() noexcept {
 #if LR_PLATFORM_LINUX
     long ps = ::sysconf(_SC_PAGESIZE);
-    return ps > 0 ? static_cast<uint64_t>(ps) : pagemap::kDefaultPageSz;
+    return ps > 0 ? static_cast<uint64_t>(ps): pagemap::kDefaultPageSz;
 #else
     return pagemap::kDefaultPageSz;
 #endif
@@ -51,13 +51,13 @@ Result<std::vector<uint8_t>> read_physical_devmem(uint64_t phys_addr,
     if (map == MAP_FAILED) {
         // Some kernels allow pread on /dev/mem even when mmap fails.
         auto via_pread = detail::pread_all(fd, phys_addr, size);
-        ::close(fd);
+::close(fd);
         return via_pread;
     }
     std::vector<uint8_t> result(size);
     std::memcpy(result.data(), static_cast<uint8_t*>(map) + offset, size);
-    ::munmap(map, map_size);
-    ::close(fd);
+::munmap(map, map_size);
+::close(fd);
     return result;
 #else
     (void)phys_addr;
@@ -78,7 +78,7 @@ Result<std::vector<uint8_t>> read_physical_crash(uint64_t phys_addr,
             {}, "Cannot access physical memory: /dev/crash unavailable");
     }
     auto r = detail::pread_all(fd, phys_addr, size);
-    ::close(fd);
+::close(fd);
     return r;
 #else
     (void)phys_addr;
@@ -116,12 +116,12 @@ Result<void> write_physical(uint64_t phys_addr,
     void* map = ::mmap(nullptr, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
                        static_cast<off_t>(page_start));
     if (map == MAP_FAILED) {
-        ::close(fd);
+::close(fd);
         return Result<void>("mmap /dev/mem for write failed");
     }
     std::memcpy(static_cast<uint8_t*>(map) + offset, data.data(), data.size());
-    ::munmap(map, map_size);
-    ::close(fd);
+::munmap(map, map_size);
+::close(fd);
     return Result<void>();
 #else
     (void)phys_addr;
@@ -150,7 +150,7 @@ Result<pagemap::Entry> read_pagemap_entry(uint32_t pid,
         static_cast<off_t>(pagemap::entry_file_offset(virt_addr, page_size));
     uint64_t raw = 0;
     ssize_t n = ::pread(fd, &raw, sizeof(raw), off);
-    ::close(fd);
+::close(fd);
     if (n != static_cast<ssize_t>(sizeof(raw))) {
         return Result<pagemap::Entry>({}, "pagemap read failed");
     }

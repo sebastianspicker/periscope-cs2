@@ -1,4 +1,4 @@
-// mini_radar.hpp — R12: view-relative mini-radar math.
+// mini_radar.hpp: R12: view-relative mini-radar math.
 //
 // Ported from staromodny/miata `src/main.cpp` (license verified per-tree;
 // see NOTICE): the complete ~100-line rotation/clamp projection used for a

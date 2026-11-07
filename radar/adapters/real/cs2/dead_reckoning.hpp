@@ -1,4 +1,4 @@
-// dead_reckoning.hpp — Capped position extrapolation for throttled entities
+// dead_reckoning.hpp: Capped position extrapolation for throttled entities
 // (E54).
 //
 // The live read throttle samples far/dormant entities at ~8 Hz. Rendering
@@ -31,7 +31,7 @@ struct ReckonConfig {
 
 class DeadReckoner {
  public:
-  explicit DeadReckoner(ReckonConfig config = {}) : config_(config) {}
+  explicit DeadReckoner(ReckonConfig config = {}): config_(config) {}
 
   /// Record a fresh sample (position and velocity in world units).
   void sample(std::uint32_t handle, const ac::Vec3& position,

@@ -1,4 +1,4 @@
-// byovd_blocklist.cpp — T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
+// byovd_blocklist.cpp: T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_blue/byovd_blocklist.hpp"
@@ -8,7 +8,7 @@
 namespace t2_blue {
 
 // ByovdBlocklist::ByovdBlocklist: Known-bad driver blocklist for lab BYOVD.
-ByovdBlocklist::ByovdBlocklist(ac::ITelemetrySink& sink) : sink_(sink) {
+ByovdBlocklist::ByovdBlocklist(ac::ITelemetrySink& sink): sink_(sink) {
   // Default lab catalog entry.
   blocked_.insert("lab_byovd_hash_001");
   blocked_.insert("sha-byovd-bad");
@@ -31,12 +31,12 @@ bool ByovdBlocklist::check_and_emit(const std::string& sha256_hex,
     return false;
   }
   sink_.emit(ac::TelemetryEvent{
-      .kind = ac::EventKind::ByovdBlocked,
-      .related_tier = ac::Tier::T2_KernelByovd,
-      .subject_pid = 0,
-      .object_pid = 0,
-      .detail = image,
-      .risk_delta = 8.0,
+.kind = ac::EventKind::ByovdBlocked,
+.related_tier = ac::Tier::T2_KernelByovd,
+.subject_pid = 0,
+.object_pid = 0,
+.detail = image,
+.risk_delta = 8.0,
   });
   return true;
 }

@@ -1,4 +1,4 @@
-// memory.cpp — Complete cross-platform memory operations.
+// memory.cpp: Complete cross-platform memory operations.
 // Educational framework per function: TECHNIQUE, SCAR, BLUE, MITIGATION
 
 #include "real/memory.hpp"
@@ -69,7 +69,7 @@ Result<std::vector<uint8_t>> read_physical(uint64_t phys_addr, size_t size) {
   // never be compiled into usermode code. Windows 8+ blocks it anyway, and
   // kernel driver (T2+) is the only supported approach.
   static_assert(true,
-      "PhysicalMemory requires kernel driver on Windows — \\\\.\\PhysicalMemory path is BLOCKED from usermode");
+      "PhysicalMemory requires kernel driver on Windows, \\\\.\\PhysicalMemory path is BLOCKED from usermode");
   (void)phys_addr; (void)size;
   return Result<std::vector<uint8_t>>({},
       std::string("Physic") + "alMem" + "ory requires kernel driver (T2+) on Windows");
@@ -141,7 +141,7 @@ Result<void> unmap_physical(MappedRegion region) {
 // Blue sensors in t0_blue/handle_graph_monitor.cpp.
 //
 // WARNING: This function opens the target process DIRECTLY via OpenProcess.
-// It must NOT be used for CS2 in production — doing so creates an
+// It must NOT be used for CS2 in production, doing so creates an
 // immediately-detectable handle in the system handle table.
 // In the T0 model, all CS2 handles come from HijackReader (handle duplication).
 // This function is educational only: it demonstrates the basic RPM technique
@@ -182,7 +182,7 @@ Result<std::vector<uint8_t>> read_virtual(uint32_t pid, uint64_t addr,
   buf.resize(n);
   return buf;
 #elif defined(__APPLE__)
-  if (size > std::numeric_limits<mach_msg_type_number_t>::max()) {
+  if (size > std::numeric_limits<mach_msg_type_number_t> ::max()) {
     return Result<std::vector<uint8_t>>({}, "Requested virtual read is too large");
   }
   mach_port_t task = MACH_PORT_NULL;
@@ -197,7 +197,7 @@ Result<std::vector<uint8_t>> read_virtual(uint32_t pid, uint64_t addr,
   mach_msg_type_number_t bytes_read = 0;
   status = ::mach_vm_read(task, static_cast<mach_vm_address_t>(addr),
                           static_cast<mach_vm_size_t>(size), &data, &bytes_read);
-  ::mach_port_deallocate(::mach_task_self(), task);
+::mach_port_deallocate(::mach_task_self(), task);
   if (status != KERN_SUCCESS) {
     return Result<std::vector<uint8_t>>({},
         std::string("mach_vm_read failed: ") + ::mach_error_string(status));
@@ -205,7 +205,7 @@ Result<std::vector<uint8_t>> read_virtual(uint32_t pid, uint64_t addr,
 
   std::vector<uint8_t> buf(reinterpret_cast<const uint8_t*>(data),
                            reinterpret_cast<const uint8_t*>(data) + bytes_read);
-  ::vm_deallocate(::mach_task_self(), data, bytes_read);
+::vm_deallocate(::mach_task_self(), data, bytes_read);
   return buf;
 #else
   (void)pid; (void)addr;
@@ -228,7 +228,7 @@ Result<std::vector<uint8_t>> read_virtual(uint32_t pid, uint64_t addr,
 // Kernel callbacks (PsSetLoadImageNotifyRoutine) detect thread starts.
 //
 // WARNING: This function opens the target process DIRECTLY via OpenProcess.
-// It must NOT be used for CS2 in production — the handle is detectable.
+// It must NOT be used for CS2 in production, the handle is detectable.
 // In the T0 model, all CS2 handles come from HijackReader (handle duplication).
 // This function is educational only: it demonstrates direct syscall technique
 // but opens CS2 directly, which is a detection risk.

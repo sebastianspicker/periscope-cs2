@@ -1,4 +1,4 @@
-/// donor_worker.cpp — Lab L2 pure donor (helper_ticket_protocol).
+/// donor_worker.cpp: Lab L2 pure donor (helper_ticket_protocol).
 /// Holds CS2 OpenProcess VM_READ; publishes module bases so UI never opens CS2.
 /// Disguise: optional MpsSvcHost title. Forensic: END wipes IPC payload.
 
@@ -49,7 +49,7 @@ int main() {
   std::printf("CS2 pid=%u handle=0x%llx (SCAR on THIS process only)\n", att.pid,
               (unsigned long long)att.handle);
 
-  // Module discovery — UI will consume these without OpenProcess.
+  // Module discovery, UI will consume these without OpenProcess.
   std::uint64_t client = 0, eng = 0, tier0 = 0;
   std::size_t csz = 0, esz = 0, tsz = 0;
   real::cs2::find_client_module(att.pid, att.handle, client, csz);
@@ -100,7 +100,7 @@ int main() {
   }
 
   std::printf("IPC ready map=%s worker=%u modules_ready=%d\n", kDonorMapName,
-              hdr->worker_pid, (hdr->flags & kDonorFlagModulesReady) ? 1 : 0);
+              hdr->worker_pid, (hdr->flags & kDonorFlagModulesReady) ? 1: 0);
   std::printf("Serving until CS2 exit or END...\n");
 
   HANDLE hCs2 = reinterpret_cast<HANDLE>(static_cast<uintptr_t>(att.handle));

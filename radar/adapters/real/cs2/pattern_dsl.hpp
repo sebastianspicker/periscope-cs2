@@ -1,4 +1,4 @@
-// pattern_dsl.hpp — Explicit signature DSL for AOB scanning (E56 / S1).
+// pattern_dsl.hpp: Explicit signature DSL for AOB scanning (E56 / S1).
 //
 // The old `Pattern::from_bytes` treats every `0x00` byte as a wildcard, so a
 // literal zero byte can never be matched, and `relative_displacement_offset`
@@ -28,7 +28,7 @@
 
 namespace real::cs2::sig {
 
-enum class ResolveOp : std::uint8_t {
+enum class ResolveOp: std::uint8_t {
   Direct,
   RelCall,
   RipRelative,
@@ -46,7 +46,7 @@ struct ParsedPattern {
 
   bool ok() const { return error.empty() && !bytes.empty(); }
   bool has_wildcards() const {
-    for (const bool w : wildcard) {
+    for (const bool w: wildcard) {
       if (w) return true;
     }
     return false;
@@ -123,7 +123,7 @@ inline bool parse_pattern(std::string_view text, ParsedPattern& out,
         out.error = "post-offset without digits";
         return false;
       }
-      out.post_offset = negate ? -value : value;
+      out.post_offset = negate ? -value: value;
       continue;
     }
     if (c == '?') {
@@ -219,7 +219,7 @@ inline std::uint64_t resolve_match(const std::uint8_t* chunk, std::size_t size,
       const std::int32_t relative = static_cast<std::int32_t>(raw);
       result = static_cast<std::uint64_t>(
           static_cast<std::int64_t>(match_address + pattern.op_offset +
-                                    (pattern.op == ResolveOp::RelCall ? 5 : 4)) +
+                                    (pattern.op == ResolveOp::RelCall ? 5: 4)) +
           relative);
     }
   }

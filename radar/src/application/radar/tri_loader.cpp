@@ -1,4 +1,4 @@
-// tri_loader.cpp — R11 `.tri` collision file format. See tri_loader.hpp.
+// tri_loader.cpp: R11 `.tri` collision file format. See tri_loader.hpp.
 
 #include "radar/tri_loader.hpp"
 

@@ -1,4 +1,4 @@
-"""Fill strategies for rendered instance masks — tint overlay and halo glow.
+"""Fill strategies for rendered instance masks, tint overlay and halo glow.
 
 Extracted from ``draw.py`` so the ``OutlineRenderer`` class focuses on
 contour acceptance and rendering dispatch, not compositing arithmetic.
@@ -54,7 +54,7 @@ def apply_halo_fill(
     contours: list[np.ndarray],
     style: OutlineStyle,
 ) -> np.ndarray:
-    """Soft static glow — rasterize, dilate, blur, composite outer color.
+    """Soft static glow, rasterize, dilate, blur, composite outer color.
 
     ``fill_opacity`` is glow strength in [0, 0.35].  Dual-stroke outlines
     are drawn separately on top by the caller.

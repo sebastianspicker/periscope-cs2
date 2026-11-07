@@ -230,7 +230,7 @@ def run_self_train_iteration(
         try:
             predictions = tuple(segmenter.predict(frame, frame_index=0))
         except Exception:
-            # Fail closed on backend errors for this frame — do not write labels.
+            # Fail closed on backend errors for this frame, do not write labels.
             hard_fails += 1
             rejected_empty += 1
             continue

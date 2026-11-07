@@ -21,7 +21,7 @@ Patchable symbols used by phases live on :mod:`.deps`. Prefer::
 from __future__ import annotations
 
 from . import deps
-from .deps import (  # noqa: F401 — public / historical re-exports for patches
+from .deps import (  # noqa: F401, public / historical re-exports for patches
     YOLO,
     bootstrap_labels_with_yolo_person,
     bootstrap_with_edgesam,

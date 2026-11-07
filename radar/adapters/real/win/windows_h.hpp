@@ -1,4 +1,4 @@
-// windows_h.hpp — Single point for <windows.h> inclusion.
+// windows_h.hpp: Single point for <windows.h> inclusion.
 // All real/win/ sources include this instead of <windows.h> directly.
 // Defines necessary WIN32_LEAN_AND_MEAN and version macros once.
 

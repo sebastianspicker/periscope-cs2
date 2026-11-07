@@ -45,7 +45,7 @@ void set_overlay_bounds(void* hwnd, int x, int y, int w, int h, bool topmost) {
 #if LR_PLATFORM_WINDOWS
   if (!hwnd || w <= 0 || h <= 0) return;
   SetWindowPos(static_cast<HWND>(hwnd),
-               topmost ? HWND_TOPMOST : HWND_NOTOPMOST, x, y, w, h,
+               topmost ? HWND_TOPMOST: HWND_NOTOPMOST, x, y, w, h,
                SWP_NOACTIVATE | SWP_SHOWWINDOW);
 #else
   (void)hwnd;
@@ -68,7 +68,7 @@ void place_overlay_corner(void* hwnd, int width, int height, int margin_px,
     work.right = GetSystemMetrics(SM_CXSCREEN);
     work.bottom = GetSystemMetrics(SM_CYSCREEN);
   }
-  const int m = margin_px < 0 ? 0 : margin_px;
+  const int m = margin_px < 0 ? 0: margin_px;
   int x = work.left + m;
   int y = work.top + m;
   switch (corner) {
@@ -145,7 +145,7 @@ float env_float(const char* name, float fallback) {
   if (!v || !*v) return fallback;
   char* end = nullptr;
   const float f = std::strtof(v, &end);
-  return (end && end != v) ? f : fallback;
+  return (end && end != v) ? f: fallback;
 }
 
 int env_int(const char* name, int fallback) {
@@ -153,7 +153,7 @@ int env_int(const char* name, int fallback) {
   if (!v || !*v) return fallback;
   char* end = nullptr;
   const long n = std::strtol(v, &end, 10);
-  return (end && end != v) ? static_cast<int>(n) : fallback;
+  return (end && end != v) ? static_cast<int>(n): fallback;
 }
 }  // namespace
 #endif
@@ -249,13 +249,13 @@ InGameRadarLayout compute_ingame_radar_layout(void* game_hwnd,
   // Manual overrides (calibration / env).
   const int force_size = style.force_size > 0
                              ? style.force_size
-                             : env_int("LR_RADAR_SIZE", 0);
+: env_int("LR_RADAR_SIZE", 0);
   const bool env_has_x = std::getenv("LR_RADAR_X") != nullptr;
   const bool env_has_y = std::getenv("LR_RADAR_Y") != nullptr;
   const int force_x = style.force_pos ? style.force_x
-                                      : (env_has_x ? env_int("LR_RADAR_X", 0) : 0);
+: (env_has_x ? env_int("LR_RADAR_X", 0): 0);
   const int force_y = style.force_pos ? style.force_y
-                                      : (env_has_y ? env_int("LR_RADAR_Y", 0) : 0);
+: (env_has_y ? env_int("LR_RADAR_Y", 0): 0);
   const bool use_force_x = style.force_pos || env_has_x;
   const bool use_force_y = style.force_pos || env_has_y;
 
@@ -299,7 +299,7 @@ InGameRadarLayout compute_ingame_radar_layout(void* game_hwnd,
   const int edge_inset = static_cast<int>(
       std::lround(2.0f * res_scale * hud_scaling * cl_hud));
 
-  // Equal SE bias — resolution table (24 @ 800p) unless env/style override.
+  // Equal SE bias, resolution table (24 @ 800p) unless env/style override.
   int nudge = style.center_nudge_px;
   if (const int env_n = env_int("LR_RADAR_NUDGE", -1); env_n >= 0) {
     nudge = env_n;
@@ -314,10 +314,10 @@ InGameRadarLayout compute_ingame_radar_layout(void* game_hwnd,
 
   int inset_x =
       style.extra_inset_x >= 0 ? style.extra_inset_x
-                               : env_int("LR_RADAR_INSET_X", edge_inset);
+: env_int("LR_RADAR_INSET_X", edge_inset);
   int inset_y =
       style.extra_inset_y >= 0 ? style.extra_inset_y
-                               : env_int("LR_RADAR_INSET_Y", edge_inset);
+: env_int("LR_RADAR_INSET_Y", edge_inset);
 
   // Equal SE bias: +nudge right AND +nudge down.
   int x = tl.x + static_cast<int>(std::lround(pad_x)) + inset_x + nudge;
@@ -377,12 +377,12 @@ void configure_overlay_transparency(void* hwnd, std::uint8_t content_alpha) {
   LONG_PTR ex = GetWindowLongPtrA(h, GWL_EXSTYLE);
   SetWindowLongPtrA(h, GWL_EXSTYLE, ex | WS_EX_LAYERED);
 
-  // Prefer color-key without DWM glass fill — DwmExtend(-1) + pure-black key
+  // Prefer color-key without DWM glass fill, DwmExtend(-1) + pure-black key
   // intermittently leaves an opaque dark radar plate on Win10/11.
   MARGINS margins{0, 0, 0, 0};
   DwmExtendFrameIntoClientArea(h, &margins);
 
-  const BYTE a = content_alpha == 0 ? BYTE{1} : content_alpha;
+  const BYTE a = content_alpha == 0 ? BYTE{1}: content_alpha;
   // Near-black magenta chroma key (never used by blips). Matches clear color.
   const COLORREF key = RGB(16, 0, 16);
   SetLayeredWindowAttributes(h, key, a, LWA_COLORKEY | LWA_ALPHA);
@@ -408,7 +408,7 @@ Result<void*> create_overlay_window(int width, int height, const char* title,
 #if LR_PLATFORM_WINDOWS
   // PEB-based HINSTANCE retrieval (avoids GetModuleHandleA hooking)
   auto* peb = real::win::peb::get_peb();
-  HINSTANCE instance = peb ? static_cast<HINSTANCE>(peb->ImageBaseAddress) : nullptr;
+  HINSTANCE instance = peb ? static_cast<HINSTANCE>(peb->ImageBaseAddress): nullptr;
 
   // Generate class name from OBF'd base + build key hash
   static const char* class_name = []() {
@@ -433,7 +433,7 @@ Result<void*> create_overlay_window(int width, int height, const char* title,
   if (topmost) extended_style |= WS_EX_TOPMOST;
   if (clickthrough) extended_style |= WS_EX_TRANSPARENT;
   // TOOLWINDOW keeps it off the taskbar for a "HUD" feel; APPWINDOW was used
-  // earlier for anti-signature demos — prefer clean floating radar UX here.
+  // earlier for anti-signature demos, prefer clean floating radar UX here.
   (void)transparent;
 
   // Default window title from OBF'd base + PRNG (never literal "Radar")
@@ -451,7 +451,7 @@ Result<void*> create_overlay_window(int width, int height, const char* title,
   }
 
   HWND hwnd = CreateWindowExA(extended_style, class_name,
-                              title ? title : default_title_buf,
+                              title ? title: default_title_buf,
                               WS_POPUP, 0, 0, width, height, nullptr, nullptr, instance, nullptr);
   if (!hwnd) return Result<void*>(nullptr, "CreateWindowEx failed");
 

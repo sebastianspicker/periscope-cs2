@@ -1,7 +1,7 @@
 """Ledger V4 tests: bounding-box prefilter in ``match_instances``.
 
 The prefilter must be behavior-preserving (bit-identical match output) while
-skipping rasterization for bbox-disjoint class-matched pairs — the "seen, not
+skipping rasterization for bbox-disjoint class-matched pairs, the "seen, not
 ranked" audit note about G×P full-frame rasterization, made structural.
 """
 

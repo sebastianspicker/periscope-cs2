@@ -7,7 +7,7 @@
 // NOTE: entities.cpp / live_radar_stack.cpp require the full FIELD_MAP set
 // (core + armor, dormant, spotted, bomb, observer). emit_hpp emits every key.
 //
-// PINNED DUMP — November 2026. Refresh with
+// PINNED DUMP, November 2026. Refresh with
 // radar/scripts/update_cs2_signatures.py; `--check` reports drift read-only.
 // Never hand-edit values here: the updater regenerates this file wholesale.
 

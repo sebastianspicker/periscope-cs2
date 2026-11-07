@@ -82,7 +82,7 @@ Result<std::vector<PciDevice>> enum_pci_devices() {
       if (length > 0) {
         target[length] = '\0';
         const char* name = strrchr(target, '/');
-        dev.driver = name ? name + 1 : target;
+        dev.driver = name ? name + 1: target;
       }
     }
 
@@ -94,7 +94,7 @@ Result<std::vector<PciDevice>> enum_pci_devices() {
         if (sscanf(line, "0x%llx 0x%llx 0x%llx", &start, &end, &flags) < 2)
           continue;
         const size_t length =
-            end > start ? static_cast<size_t>(end - start + 1) : 0;
+            end > start ? static_cast<size_t>(end - start + 1): 0;
         if (bar == 0) {
           dev.bar0 = start;
           dev.bar0_size = length;
@@ -103,7 +103,7 @@ Result<std::vector<PciDevice>> enum_pci_devices() {
           dev.bar1 = start;
           dev.bar1_size = length;
         }
-        // IORESOURCE_MEM | IORESOURCE_PREFETCH-ish — any non-zero memory BAR
+        // IORESOURCE_MEM | IORESOURCE_PREFETCH-ish, any non-zero memory BAR
         // marks DMA-relevant devices for lab enumeration.
         if (start > 0 && length > 0) dev.is_dma_capable = true;
       }
@@ -172,7 +172,7 @@ Result<std::vector<PciDevice>> enum_pci_devices() {
       RES_DES prev_rd = 0;
       RES_DES rd = 0;
       int mem_index = 0;
-      while (CM_Get_Next_Res_Des(&rd, prev_rd ? prev_rd : log_conf,
+      while (CM_Get_Next_Res_Des(&rd, prev_rd ? prev_rd: log_conf,
                                  ResType_Mem, nullptr, 0) == CR_SUCCESS) {
         if (prev_rd) CM_Free_Res_Des_Handle(prev_rd);
         prev_rd = rd;
@@ -190,7 +190,7 @@ Result<std::vector<PciDevice>> enum_pci_devices() {
         const uint64_t end =
             (static_cast<uint64_t>(mem->MEM_Header.MD_Alloc_End));
         const size_t length =
-            end >= start ? static_cast<size_t>(end - start + 1) : 0;
+            end >= start ? static_cast<size_t>(end - start + 1): 0;
         if (mem_index == 0) {
           dev.bar0 = start;
           dev.bar0_size = length;
@@ -300,7 +300,7 @@ Result<std::vector<uint8_t>> pcie_bar_read(uint64_t phys_addr, size_t size,
     int fd = open(path, O_RDWR | O_SYNC);
     if (fd < 0) {
       // Try without domain prefix variants already covered; try resource0 via
-      // domain wildcard by scanning if needed — fall through to error.
+      // domain wildcard by scanning if needed, fall through to error.
       return Result<std::vector<uint8_t>>({}, "Cannot open PCIe resource0");
     }
 
@@ -348,14 +348,14 @@ Result<std::vector<uint8_t>> pcie_bar_read(uint64_t phys_addr, size_t size,
       DWORD got = 0;
       std::vector<uint8_t> result(size);
       if (SetFilePointerEx(phys, li, nullptr, FILE_BEGIN) &&
-          ::ReadFile(phys, result.data(), static_cast<DWORD>(size), &got,
+::ReadFile(phys, result.data(), static_cast<DWORD>(size), &got,
                      nullptr) &&
           got > 0) {
         result.resize(got);
-        ::CloseHandle(phys);
+::CloseHandle(phys);
         return result;
       }
-      ::CloseHandle(phys);
+::CloseHandle(phys);
     }
 
     // Fallback: one-shot physmem_read covering the requested range.
@@ -462,7 +462,7 @@ Result<std::vector<uint8_t>> pcie_peer_read(uint64_t phys_addr, size_t size,
                           MAP_SHARED, reader_fd, 0);
   if (reader_map != MAP_FAILED) {
     // Write a minimal "P2P complete" marker at offset 0 if the BAR is large
-    // enough — educational scar for AC detectors.
+    // enough, educational scar for AC detectors.
     if (reader.bar0_size >= 4) {
       volatile uint32_t* reg = static_cast<volatile uint32_t*>(reader_map);
       *reg = 0xD2A00001u;
@@ -488,7 +488,7 @@ Result<std::vector<uint8_t>> pcie_peer_read(uint64_t phys_addr, size_t size,
   // Best-effort write into writer BAR via physmem path is not generally
   // available; return the staged buffer as the educational P2P result and
   // also attempt BAR read of writer if mapped.
-  auto bar_probe = pcie_bar_read(writer.bar0, xfer > 16 ? 16 : xfer, writer);
+  auto bar_probe = pcie_bar_read(writer.bar0, xfer > 16 ? 16: xfer, writer);
   (void)bar_probe;
   (void)reader;
   return std::move(*target_data);

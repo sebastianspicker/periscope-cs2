@@ -1,4 +1,4 @@
-// rpm_backend.cpp — T0 IMemoryBackend over sim World open_process/read_mem scars.
+// rpm_backend.cpp: T0 IMemoryBackend over sim World open_process/read_mem scars.
 // Educational RPM stand-in; never touches real process memory.
 
 #include "t0_red/rpm_backend.hpp"
@@ -43,10 +43,10 @@ ac::Status RpmBackend::attach_world(sim::World& world, std::uint32_t reader_pid,
   target_id_ = game_pid;
   mode_ = Mode::World;
   attached_ = true;
-  name_ = syscall_path ? "t0_rpm_world_syscall" : "t0_rpm_world_winapi";
+  name_ = syscall_path ? "t0_rpm_world_syscall": "t0_rpm_world_winapi";
   world.note("t0 RpmBackend attach_world reader=" + std::to_string(reader_pid) +
              " game=" + std::to_string(game_pid) +
-             (syscall_path ? " path=syscall" : " path=winapi"));
+             (syscall_path ? " path=syscall": " path=winapi"));
   return ac::Status::Ok;
 }
 

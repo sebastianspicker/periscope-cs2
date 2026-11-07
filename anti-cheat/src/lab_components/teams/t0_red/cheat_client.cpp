@@ -1,4 +1,4 @@
-// cheat_client.cpp — T0 red client: attach, RPM read path, entity pull for radar.
+// cheat_client.cpp: T0 red client: attach: RPM read path, entity pull for radar.
 // Orchestrates backend + EntityPipeline on sim::World.
 // Enhanced with real backend paths (Hijack, Rpm).
 
@@ -13,7 +13,7 @@ namespace t0_red {
 // CheatClient::CheatClient: Bind T0 red client to a sim World and process name.
 CheatClient::CheatClient(sim::World& world, std::string process_name,
                          MemoryBackend backend_type)
-    : world_(world), name_(std::move(process_name)),
+: world_(world), name_(std::move(process_name)),
       backend_type_(backend_type) {
   pid_ = world_.spawn(name_);
   ui_.set_title(name_);
@@ -43,7 +43,7 @@ bool CheatClient::attach_to_game(bool syscall_path) {
   attached_ = (st == ac::Status::Ok);
   last_.attached = attached_;
   last_.foreign_vm_read_handles = count_own_vm_read_();
-  last_.detail = attached_ ? "attached_vm_read" : "attach_failed";
+  last_.detail = attached_ ? "attached_vm_read": "attach_failed";
   return attached_;
 }
 

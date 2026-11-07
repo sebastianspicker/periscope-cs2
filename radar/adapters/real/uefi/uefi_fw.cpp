@@ -1,4 +1,4 @@
-// uefi_fw.cpp — UEFI firmware table scanning and ACPI walk (runtime I/O).
+// uefi_fw.cpp: UEFI firmware table scanning and ACPI walk (runtime I/O).
 
 #include "real/uefi/uefi_fw.hpp"
 #include "real/uefi/uefi_phys.hpp"
@@ -81,7 +81,7 @@ Result<uint64_t> find_rsdp_pa() {
         {0xE0000, 0x20000},   // BIOS area
     };
     uint8_t buf[0x1000];
-    for (auto r : scan_regions) {
+    for (auto r: scan_regions) {
         for (uint64_t off = 0; off < r[1]; off += 0x1000) {
             if (!read_physical(r[0] + off, buf, sizeof(buf))) continue;
             for (size_t i = 0; i + 20 <= sizeof(buf); i += 16) {
@@ -98,7 +98,7 @@ Result<uint64_t> find_rsdp_pa() {
     }
 
 #if LR_PLATFORM_WINDOWS
-    // Windows usermode: no RSDP PA — mediate via firmware table APIs.
+    // Windows usermode: no RSDP PA, mediate via firmware table APIs.
     auto sigs = list_acpi_signatures();
     if (sigs && !sigs->empty()) {
         std::printf("[uefi] RSDP PA unavailable; using OS-mediated ACPI (%zu tables)\n",
@@ -208,7 +208,7 @@ Result<std::vector<AcpiTableEntry>> enumerate_acpi_tables(uint64_t rsdp_pa) {
 
     auto& rsdp = *rsdp_result;
     const bool use_xsdt = (rsdp.revision >= 2 && rsdp.xsdt_address != 0);
-    uint64_t sdt_pa = use_xsdt ? rsdp.xsdt_address : rsdp.rsdt_address;
+    uint64_t sdt_pa = use_xsdt ? rsdp.xsdt_address: rsdp.rsdt_address;
     if (!sdt_pa)
         return Result<std::vector<AcpiTableEntry>>({}, "No RSDT/XSDT address in RSDP");
 
@@ -226,7 +226,7 @@ Result<std::vector<AcpiTableEntry>> enumerate_acpi_tables(uint64_t rsdp_pa) {
     if (!addrs) return Result<std::vector<AcpiTableEntry>>({}, addrs.error_msg);
 
     std::vector<AcpiTableEntry> tables;
-    for (uint64_t table_pa : *addrs) {
+    for (uint64_t table_pa: *addrs) {
         AcpiSdtHeader hdr{};
         if (!read_physical(table_pa, &hdr, sizeof(hdr))) continue;
         if (hdr.length < sizeof(AcpiSdtHeader) || hdr.length > 0x1000000) continue;
@@ -304,7 +304,7 @@ Result<EfiSystemTable> read_efi_system_table(uint64_t /*rsdp_pa*/) {
         {0x100000, 0xA00000},
         {0x7F000000, 0x1000000},
     };
-    for (auto r : scan_ranges) {
+    for (auto r: scan_ranges) {
         uint8_t buf[4096];
         for (uint64_t off = 0; off < r[1]; off += 0x1000) {
             if (!read_physical(r[0] + off, buf, sizeof(buf))) continue;
@@ -374,7 +374,7 @@ Result<DmarInfo> read_dmar_table() {
     if (!info) return info;
     info->detail += " pa=0x" + std::to_string(table->phys_addr);
     std::printf("[uefi] DMAR: %d DRHD units, remap=%s, addr_width=%d\n",
-                info->drhd_count, info->dma_remap_active ? "active" : "absent",
+                info->drhd_count, info->dma_remap_active ? "active": "absent",
                 info->host_address_width);
     return info;
 }
@@ -411,12 +411,12 @@ Result<std::vector<MemoryRegion>> get_memory_map(uint64_t /*rsdp_pa*/) {
         while (std::fgets(line, sizeof(line), map)) {
             unsigned long long start = 0, end = 0;
             char type_str[128] = {};
-            if (std::sscanf(line, "%llx-%llx : %127[^\n]", &start, &end, type_str) >= 2) {
+            if (std::sscanf(line, "%llx-%llx: %127[^\n]", &start, &end, type_str) >= 2) {
                 // trim type_str
                 MemoryRegion r;
                 r.phys_start = start;
                 r.phys_end = end;
-                r.num_pages = (end >= start) ? ((end - start + 1) / 4096) : 0;
+                r.num_pages = (end >= start) ? ((end - start + 1) / 4096): 0;
                 r.is_available = (std::strstr(type_str, "System RAM") != nullptr);
                 r.is_mmio = (std::strstr(type_str, "PCI") != nullptr ||
                              std::strstr(type_str, "MMIO") != nullptr);
@@ -453,4 +453,3 @@ Result<std::vector<MemoryRegion>> get_memory_map(uint64_t /*rsdp_pa*/) {
 }
 
 } // namespace real::uefi
-

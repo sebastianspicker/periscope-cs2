@@ -1,4 +1,4 @@
-// interest_mgmt.cpp — server interest management / fog-of-war filter for entity stream.
+// interest_mgmt.cpp: server interest management / fog-of-war filter for entity stream.
 // Structural kill: do not full-replicate unobservable enemies to client.
 
 #include "server/interest_mgmt.hpp"
@@ -87,10 +87,10 @@ std::vector<WorldEntity> InterestManager::filter_for_client_stats(
   oss << "alive=" << stats.truth_alive << " rep=" << stats.replicated
       << " culled=" << stats.enemies_culled << " team=" << stats.teammates
       << " near_enemy=" << near_enemies << " dead_skip=" << dead_skipped
-      << " keep_team=" << (kept_team ? 1 : 0)
-      << " keep_enemy=" << (kept_enemy ? 1 : 0)
-      << " cull=" << (culled_enemy ? 1 : 0)
-      << " multi=" << (stats.multi_reason ? 1 : 0)
+      << " keep_team=" << (kept_team ? 1: 0)
+      << " keep_enemy=" << (kept_enemy ? 1: 0)
+      << " cull=" << (culled_enemy ? 1: 0)
+      << " multi=" << (stats.multi_reason ? 1: 0)
       << " radius=" << radius;
   if (stats.multi_reason) {
     oss << " reasons=keep+cull";

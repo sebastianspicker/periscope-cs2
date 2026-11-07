@@ -8,7 +8,7 @@ namespace examples::build_watermark {
 
 // Contract: the watermark text, the per-build build id, and the section
 // provenance are three SEPARATE representations. Repeated section names are
-// one representation no matter how many records carry them — repetition must
+// one representation no matter how many records carry them, repetition must
 // not inflate the count into an extra representation.
 BlueResult detect(sim::World& w) {
   BlueResult r;
@@ -42,8 +42,8 @@ BlueResult detect(sim::World& w) {
 
   std::ostringstream oss;
   oss << "build_watermark blue signals=" << r.signals
-      << " detected=" << (r.detected ? 1 : 0)
-      << " mitigated=" << (r.mitigated ? 1 : 0)
+      << " detected=" << (r.detected ? 1: 0)
+      << " mitigated=" << (r.mitigated ? 1: 0)
       << "; repeated sections count once, provenance survives rebranding";
   r.detail = oss.str();
   w.note(r.detail);

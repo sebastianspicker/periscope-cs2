@@ -2,7 +2,7 @@
 
 // Multi-reason blue detector builder.
 // Pairs accumulate weighted SignalHits; finish() produces a BlueOutcome
-// with detected/mitigated thresholds. Fully deterministic — no stubs.
+// with detected/mitigated thresholds. Fully deterministic, no stubs.
 
 #include "sim/world.hpp"
 #include "strategies/strategy_types.hpp"

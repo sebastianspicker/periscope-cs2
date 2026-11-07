@@ -12,7 +12,7 @@ RedResult apply(sim::World& w) {
   w.schema_cache_version = "saas-pin:build-xyz";
   w.add_net(sim::NetFlow{r.actor_pid, "schema.valthrun-like.example:443",
                          /*looks_like_offset_c2=*/true, false});
-  // Not a full AOB walk product — SaaS layout product residual.
+  // Not a full AOB walk product, SaaS layout product residual.
   r.achieved = w.schema_saas_product && !w.schema_saas_endpoint.empty() &&
                w.schema_cache_file_hits >= 1 && w.schema_version_pin;
   std::ostringstream oss;

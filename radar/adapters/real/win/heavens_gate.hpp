@@ -1,9 +1,9 @@
-// heavens_gate.hpp — Heaven's Gate (WOW64 32→64 transition) helpers.
+// heavens_gate.hpp: Heaven's Gate (WOW64 32→64 transition) helpers.
 //
 // Classic Heaven's Gate: a 32-bit process far-jumps to 64-bit CS to execute
 // x64 syscalls while bypassing 32-bit ntdll wrappers.
 //
-// On native x64 builds the transition is unnecessary — indirect syscalls
+// On native x64 builds the transition is unnecessary, indirect syscalls
 // already bypass usermode hooks. This module still provides:
 //   - WOW64 process detection
 //   - Gate availability probe

@@ -120,7 +120,7 @@ def _draw_jfa_outline(
 
     Rasterizes the instance mask, seeds filled pixels (exterior field) and
     empty pixels (interior field), runs pure-numpy JFA for each, then paints
-    outer then inner color bands near the edge — same band model as the
+    outer then inner color bands near the edge, same band model as the
     ``distance`` kernel, but the field is Jump Flood rather than
     ``cv2.distanceTransform``. Static: same inputs → same pixels.
     """

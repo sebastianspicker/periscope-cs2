@@ -9,7 +9,7 @@ void Red::apply(sim::World& w) noexcept {
   const auto game = w.game_pid();
   auto* g = w.proc(game);
   if (game == 0 || g == nullptr) {
-    w.note("ret_addr_spoof: precondition failed — game missing");
+    w.note("ret_addr_spoof: precondition failed, game missing");
     return;
   }
 
@@ -44,16 +44,16 @@ void Red::apply(sim::World& w) noexcept {
   // Frames inside known modules
   w.thread_return_chain.push_back(0x7ffa12345678ull);  // kernel32
   w.thread_return_chain.push_back(0x7ffa87654321ull);  // ntdll
-  // Frames in RWX private memory (no module) — red residual
+  // Frames in RWX private memory (no module), red residual
   w.thread_return_chain.push_back(0x100000000000ull);
   w.thread_return_chain.push_back(0x7ffa12345678ull);
   w.thread_return_chain.push_back(0x100000000001ull);
 
   std::printf("[red:ret_addr_spoof] step 5: verify chain residual\n");
   int suspicious = 0;
-  for (const auto addr : w.thread_return_chain) {
+  for (const auto addr: w.thread_return_chain) {
     bool in_mod = false;
-    for (const auto& [pid, proc] : w.processes) {
+    for (const auto& [pid, proc]: w.processes) {
       for (const auto& mod : proc.modules) {
         if (addr >= mod.base && addr < mod.base + mod.size) {
           in_mod = true;

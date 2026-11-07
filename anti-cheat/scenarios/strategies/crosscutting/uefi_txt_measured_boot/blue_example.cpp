@@ -62,7 +62,7 @@ BlueResult Blue::mitigate(sim::World& w) noexcept {
   auto result = detect(w);
   if (result.detected) {
     w.note("Blue: TPM event log integrity check FAILED");
-    w.note("Blue: failing remote attestation — component flagged");
+    w.note("Blue: failing remote attestation, component flagged");
     w.trust.attestation_valid = false;
     w.trust.measured_launch_hidden = false;
     w.pcr_value_tampered = false;

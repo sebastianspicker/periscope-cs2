@@ -1,4 +1,4 @@
-// hook_detect.cpp — LD_PRELOAD / maps injection scar detection.
+// hook_detect.cpp: LD_PRELOAD / maps injection scar detection.
 
 #include "real/linux/hook_detect.hpp"
 #include "real/linux/maps_parse.hpp"
@@ -16,7 +16,7 @@ namespace real::linux::hook_detect {
 std::vector<std::string> split_preload_list(const std::string& value) {
     std::vector<std::string> out;
     std::string cur;
-    for (char c : value) {
+    for (char c: value) {
         if (c == ':' || c == ' ' || c == '\t' || c == '\n') {
             if (!cur.empty()) {
                 out.push_back(cur);
@@ -38,7 +38,7 @@ bool pathname_suspicious(const std::string& pathname,
         "/tmp/", "/dev/shm/", "/home/", "memfd:", "(deleted)",
         "/var/tmp/", "/run/user/",
     };
-    for (const char* r : kRisk) {
+    for (const char* r: kRisk) {
         if (pathname.find(r) != std::string::npos) {
             // Allow-list suffix override
             for (const auto& a : allow_suffixes) {
@@ -77,7 +77,7 @@ Result<HookReport> inspect_self() noexcept {
                                 std::istreambuf_iterator<char>());
             // ignore whitespace-only
             bool nonempty = false;
-            for (char c : content) {
+            for (char c: content) {
                 if (c != ' ' && c != '\n' && c != '\t' && c != '\r') {
                     nonempty = true;
                     break;

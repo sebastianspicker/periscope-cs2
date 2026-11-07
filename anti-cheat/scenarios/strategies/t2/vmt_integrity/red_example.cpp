@@ -27,7 +27,7 @@ bool vmt_integrity_red_apply(sim::World& w, sim::Narrator& n) {
       for (std::size_t i = 0; i < sizeof(e.address); ++i) {
         crc ^= bytes[i];
         for (int bit = 0; bit != 8; ++bit)
-          crc = (crc >> 1) ^ ((crc & 1u) ? 0xEDB88320u : 0u);
+          crc = (crc >> 1) ^ ((crc & 1u) ? 0xEDB88320u: 0u);
       }
     }
     baseline_crc = ~crc;
@@ -40,7 +40,7 @@ bool vmt_integrity_red_apply(sim::World& w, sim::Narrator& n) {
   vmts[17].module_name = "foreign_vmt_stub";
   vmts[17].expected = false;
 
-  n.say(sim::Side::Red, "step 4: plant co-scar — secondary unexpected entity slot");
+  n.say(sim::Side::Red, "step 4: plant co-scar, secondary unexpected entity slot");
   vmts[42].address = base + 0x910000;
   vmts[42].owner = "EntityListProxy";
   vmts[42].module_name = "foreign_vmt_stub";

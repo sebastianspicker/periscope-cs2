@@ -1,9 +1,9 @@
-// entity_cache.hpp — Event-diff entity cache with torn-free publish
+// entity_cache.hpp: Event-diff entity cache with torn-free publish
 // (assessment ledger E14).
 //
 // Two portable primitives:
 //
-// 1. TripleBuffer<T> — single-writer / multi-reader lock-free publication.
+// 1. TripleBuffer<T>, single-writer / multi-reader lock-free publication.
 //    The writer rotates through three buffers (0→1→2→0…), never writing the
 //    currently-published one; a reader copies the published buffer and
 //    re-checks the published index afterwards. This is the failure mode
@@ -13,7 +13,7 @@
 //    the reader's buffer is untouched for two more publishes, and the
 //    post-copy re-check proves stability.
 //
-// 2. EntityCache — event-diff cache keyed by stable entity handle:
+// 2. EntityCache, event-diff cache keyed by stable entity handle:
 //    upsert/remove events maintain a live set; each publish records which
 //    handles were added and removed since the previous publish, and a
 //    per-handle generation counter is bumped on every upsert. Consumers
@@ -22,8 +22,8 @@
 //
 // Educational framing (strategy pair E27): memoized container pointers plus
 // list reallocation is a classic TOCTOU class. This cache makes the
-// invalidation *explicit* — removals propagate as events, generations expose
-// staleness — which is exactly the blue-side counter the catalog pair models.
+// invalidation *explicit*, removals propagate as events, generations expose
+// staleness, which is exactly the blue-side counter the catalog pair models.
 //
 // Pure and host-testable: standard-library only.
 
@@ -47,7 +47,7 @@ class TripleBuffer {
   void publish(const T& value) {
     const std::size_t current = index_.load(std::memory_order_relaxed);
     const std::size_t write =
-        (current == kNoIndex) ? 0 : (current + 1) % 3;
+        (current == kNoIndex) ? 0: (current + 1) % 3;
     buffers_[write] = value;
     index_.store(write, std::memory_order_release);
   }
@@ -99,7 +99,7 @@ template <typename Entity>
 class EntityCache {
  public:
   /// Insert or refresh one entity (the "add_entity / state tick" event).
-  /// Returns the diff accumulated so far via take_diff semantics? No —
+  /// Returns the diff accumulated so far via take_diff semantics? No -
   /// diffs accumulate until ``publish``; call ``publish`` once per walk.
   void upsert(std::uint32_t handle, const Entity& entity) {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -133,19 +133,19 @@ class EntityCache {
     snapshot.generation = generation_;
     snapshot.entities.reserve(live_.size());
     EntityDiff diff;
-    for (const auto& [handle, slot] : live_) {
+    for (const auto& [handle, slot]: live_) {
       snapshot.entities.push_back(slot.entity);
       if (published_.find(handle) == published_.end()) {
         diff.added.push_back(handle);
       }
     }
-    for (std::uint32_t handle : removed_pending_) {
+    for (std::uint32_t handle: removed_pending_) {
       if (published_.find(handle) != published_.end()) {
         diff.removed.push_back(handle);
       }
     }
     published_ = touched_;
-    for (std::uint32_t handle : removed_pending_) published_.erase(handle);
+    for (std::uint32_t handle: removed_pending_) published_.erase(handle);
     removed_pending_.clear();
     last_diff_ = diff;
     latest_.publish(snapshot);
@@ -170,7 +170,7 @@ class EntityCache {
       slot.generation = ++generation_;
       touched_.insert(handle);
     }
-    for (const auto& [handle, slot] : live_) {
+    for (const auto& [handle, slot]: live_) {
       (void)slot;
       if (present.find(handle) == present.end() &&
           removed_pending_.find(handle) == removed_pending_.end()) {
@@ -178,7 +178,7 @@ class EntityCache {
       }
     }
     // Absent handles leave the live set now; the diff records the event.
-    for (const std::uint32_t handle : removed_pending_) {
+    for (const std::uint32_t handle: removed_pending_) {
       live_.erase(handle);
     }
     return publish_locked();

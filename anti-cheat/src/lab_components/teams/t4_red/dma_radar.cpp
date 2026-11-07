@@ -1,4 +1,4 @@
-// dma_radar.cpp — T4 red DMA/off-box path on World.trust.dma_* and structural fog.
+// dma_radar.cpp: T4 red DMA/off-box path on World.trust.dma_* and structural fog.
 // Simulated PCIe/DMA hardware residuals.
 
 #include "t4_red/dma_radar.hpp"
@@ -29,7 +29,7 @@ struct RawEntity {
 // T4 educational DMA residual client on sim::World only.
 // Off-box path: dma_device_present, iommu off, dma_read without local reader.
 
-DmaRadar::DmaRadar(sim::World& world) : world_(world) {}
+DmaRadar::DmaRadar(sim::World& world): world_(world) {}
 
 // DmaRadar::enable_hardware_path: Enable sim DMA hardware path on World.trust.
 void DmaRadar::enable_hardware_path() {
@@ -291,8 +291,8 @@ DmaRadarReport DmaRadar::run_full_loop(bool residuals) {
   }
   std::ostringstream oss;
   oss << "dma_full entities=" << last_.entity_count
-      << " clean=" << (last_.process_list_clean ? 1 : 0)
-      << " offbox=" << (last_.offbox_read_ok ? 1 : 0)
+      << " clean=" << (last_.process_list_clean ? 1: 0)
+      << " offbox=" << (last_.offbox_read_ok ? 1: 0)
       << " ops=" << last_.dma_ops;
   last_.detail = oss.str();
   world_.note("t4 DmaRadar " + last_.detail);
@@ -320,7 +320,7 @@ DmaRadarReport DmaRadar::run_full_stealth_loop() {
   oss << "dma_full_stealth entities=" << last_.entity_count
       << " scatter=" << last_.fpga_scatter_count
       << " peer_txns=" << last_.pcie_peer_txns
-      << " clean=" << (last_.process_list_clean ? 1 : 0);
+      << " clean=" << (last_.process_list_clean ? 1: 0);
   last_.detail = oss.str();
   world_.note("t4 DmaRadar " + last_.detail);
   return last_;

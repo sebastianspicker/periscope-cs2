@@ -1,4 +1,4 @@
-// fixture_process.hpp — lab fixture process / memory backend for isolated unit tests.
+// fixture_process.hpp: lab fixture process / memory backend for isolated unit tests.
 // Provides attachable target_id.
 
 #pragma once

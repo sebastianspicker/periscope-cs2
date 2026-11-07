@@ -1,4 +1,4 @@
-"""ONNX model optimisation utilities — FP16 conversion, graph optimisation, input sizing.
+"""ONNX model optimisation utilities, FP16 conversion, graph optimisation, input sizing.
 
 All operations are idempotent and produce new files alongside the originals.
 Original models are never modified in place.
@@ -68,7 +68,7 @@ def convert_to_fp16(
     )
 
     if output_path.is_file():
-        logger.info("FP16 model already exists at %s — skipping conversion", output_path)
+        logger.info("FP16 model already exists at %s, skipping conversion", output_path)
         return output_path
 
     logger.info("Converting %s to FP16 → %s", onnx_path, output_path)
@@ -130,7 +130,7 @@ def optimize_onnx_model(
     output_path = onnx_path.with_suffix(".ort") if output_path is None else Path(output_path)
 
     if output_path.is_file():
-        logger.info("Optimized model already exists at %s — skipping", output_path)
+        logger.info("Optimized model already exists at %s, skipping", output_path)
         return output_path
 
     logger.info("Optimizing %s → %s (level=%s)", onnx_path, output_path, optimization_level)
@@ -165,9 +165,9 @@ def optimize_for_gpu(
 
     Produces up to three files alongside the original:
 
-    - ``<stem>-fp16.onnx`` — FP16-converted model.
-    - ``<stem>.ort`` — Graph-optimised ORT-format model (from original).
-    - ``<stem>-fp16.ort`` — Graph-optimised ORT-format model (from FP16).
+    - ``<stem>-fp16.onnx``, FP16-converted model.
+    - ``<stem>.ort``, Graph-optimised ORT-format model (from original).
+    - ``<stem>-fp16.ort``, Graph-optimised ORT-format model (from FP16).
 
     Args:
         onnx_path: Source FP32 ONNX model.
@@ -177,7 +177,7 @@ def optimize_for_gpu(
         output_dir: Output directory (default: same as source).
 
     Returns:
-        ``{"fp16": Path, "ort": Path, "fp16_ort": Path}`` — only includes
+        ``{"fp16": Path, "ort": Path, "fp16_ort": Path}``, only includes
         keys for files that were produced.
     """
     src = Path(onnx_path)

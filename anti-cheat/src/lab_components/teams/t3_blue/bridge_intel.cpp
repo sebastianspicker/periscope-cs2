@@ -1,4 +1,4 @@
-// bridge_intel.cpp — T3 blue platform/HV sensor using World.trust posture flags.
+// bridge_intel.cpp: T3 blue platform/HV sensor using World.trust posture flags.
 // Simulated personal HV / attestation fields
 
 #include "t3_blue/bridge_intel.hpp"
@@ -11,7 +11,7 @@ namespace t3_blue {
 // Owns DriverGuard/DeviceWatch when constructed from a telemetry sink.
 
 BridgeIntel::BridgeIntel(ac::ITelemetrySink& sink)
-    : sink_(sink),
+: sink_(sink),
       owned_drivers_(sink),
       owned_devices_(sink),
       drivers_(&owned_drivers_),
@@ -21,7 +21,7 @@ BridgeIntel::BridgeIntel(ac::ITelemetrySink& sink)
 
 BridgeIntel::BridgeIntel(ac::ITelemetrySink& sink, t2_blue::DriverGuard& drivers,
                          t2_blue::DeviceWatch& devices)
-    : sink_(sink),
+: sink_(sink),
       owned_drivers_(sink),
       owned_devices_(sink),
       drivers_(&drivers),

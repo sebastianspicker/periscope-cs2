@@ -1,4 +1,4 @@
-// radar_scatter_test.cpp — R10: scatter-batch discipline against a simulated
+// radar_scatter_test.cpp: R10: scatter-batch discipline against a simulated
 // device with latency injection (no hardware, portable).
 
 #include "radar/scatter_batch.hpp"

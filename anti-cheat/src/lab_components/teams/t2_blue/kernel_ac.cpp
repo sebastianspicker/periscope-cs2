@@ -1,4 +1,4 @@
-// kernel_ac.cpp — T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
+// kernel_ac.cpp: T2 blue kernel/BYOVD sensor on sim::World drivers/devices/callbacks.
 // load_driver/create_device scars
 
 #include "t2_blue/kernel_ac.hpp"
@@ -9,7 +9,7 @@ namespace t2_blue {
 
 // KernelAc::KernelAc: T2 blue kernel AC: drivers, devices, callbacks.
 KernelAc::KernelAc(sim::World& world, ac::ITelemetrySink& sink)
-    : world_(world),
+: world_(world),
       sink_(sink),
       blocklist_(sink),
       drivers_(sink),
@@ -98,7 +98,7 @@ KernelDetection KernelAc::full_scan() {
   if (d.callback_tamper) {
     d.reasons.push_back(ca.detail);
     risk_.ingest({ac::EventKind::Generic, ac::Tier::T2_KernelByovd, 0, 0,
-                  ca.detail, ca.risk > 0 ? ca.risk : 4.0});
+                  ca.detail, ca.risk > 0 ? ca.risk: 4.0});
   }
 
   // 6) Extra residual scars

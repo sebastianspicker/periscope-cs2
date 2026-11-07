@@ -1,4 +1,4 @@
-// api_table_pe.cpp — PE/EAT parsing, OBF name table, batch resolution helpers.
+// api_table_pe.cpp: PE/EAT parsing: OBF name table, batch resolution helpers.
 
 #include "real/win/api_table_internal.hpp"
 
@@ -49,7 +49,7 @@ void* resolve_eat(uintptr_t moduleBase, const char* funcName) noexcept {
 
     auto& dir = nt->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
     if (dir.Size == 0 || dir.VirtualAddress == 0) {
-        // No exports — try forwarded (e.g., some kernel32 exports from ntdll)
+        // No exports, try forwarded (e.g., some kernel32 exports from ntdll)
         return nullptr;
     }
 
@@ -82,7 +82,7 @@ void* resolve_eat(uintptr_t moduleBase, const char* funcName) noexcept {
             if (ca != cb) { cmp = ca - cb; break; }
             ++a; ++b;
         }
-        if (!cmp) cmp = (*a ? 1 : (*b ? -1 : 0));
+        if (!cmp) cmp = (*a ? 1: (*b ? -1: 0));
         if (cmp == 0) {
             WORD ordIdx = ordinals[mid];
             DWORD funcRva = functions[ordIdx];
@@ -333,7 +333,7 @@ void resolve_module_batch(uintptr_t moduleBase, BatchEntry* entries,
                 if (ca != cb) { cmp = ca - cb; break; }
                 ++a; ++b;
             }
-            if (!cmp) cmp = (*a ? 1 : (*b ? -1 : 0));
+            if (!cmp) cmp = (*a ? 1: (*b ? -1: 0));
 
             if (cmp == 0) {
                 WORD ordIdx = ordinals[mid];

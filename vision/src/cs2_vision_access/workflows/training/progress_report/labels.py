@@ -74,7 +74,7 @@ def _parse_label_line(
         y2 = yc + h / 2.0
         return cls, xc, yc, w, h, x1, y1, x2, y2
 
-    # Segmentation: class x1 y1 x2 y2 ... (even number of coordinate tokens)
+    # Segmentation: class x1 y1 x2 y2, ... (even number of coordinate tokens)
     coords = tokens[1:]
     if len(coords) < 6 or len(coords) % 2 != 0:
         return None
@@ -103,7 +103,7 @@ def analyze_labels(
     """Parse YOLO-seg or YOLO-det ``.txt`` labels under ``labels_dir``.
 
     - det: ``class xc yc w h``
-    - seg: ``class x1 y1 x2 y2 ...`` → bbox from min/max
+    - seg: ``class x1 y1 x2 y2...`` → bbox from min/max
 
     Bad lines are skipped. Coordinates are expected normalized in ``[0, 1]``.
 
@@ -287,7 +287,7 @@ def plot_dataset_analysis(
         ax_sizes.text(0.5, 0.5, "no sizes", ha="center", va="center", transform=ax_sizes.transAxes)
 
     fig.suptitle(
-        f"Dataset labels — files={analysis.n_files}, empty={analysis.n_empty}, "
+        f"Dataset labels, files={analysis.n_files}, empty={analysis.n_empty}, "
         f"instances={sum(analysis.class_counts.values())}",
         fontsize=11,
     )

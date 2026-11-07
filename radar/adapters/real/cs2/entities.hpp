@@ -1,4 +1,4 @@
-// entities.hpp — Real CS2 entity list reader.
+// entities.hpp: Real CS2 entity list reader.
 //
 // LESSON: Reading the entity list is the primary data source for radar
 // cheats. Red reads player positions, team, health, and other state
@@ -32,7 +32,7 @@ namespace real::cs2 {
 
 /// Broad classification for non-player entities found by the optional world
 /// scan (E53). `None` is a player/controller.
-enum class WorldKind : std::uint8_t {
+enum class WorldKind: std::uint8_t {
   None = 0,
   Weapon,
   Projectile,

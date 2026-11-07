@@ -18,7 +18,7 @@
 int main() {
   sim::Narrator n;
   n.say(sim::Side::Lesson,
-        "Features lab — multi-step red scars vs multi-reason blue on sim::World.");
+        "Features lab, multi-step red scars vs multi-reason blue on sim::World.");
 
   int blue_hits = 0;
   int rounds = 0;
@@ -33,8 +33,8 @@ int main() {
     n.say(sim::Side::Red, rr.detail);
     std::printf(
         "[aim] rage=%d soft_inhuman=%d soft_n=%d radar=%d achieved=%d\n",
-        rr.achieved ? 1 : 0, rr.achieved ? 1 : 0, rr.achieved,
-        rr.achieved ? 1 : 0, rr.achieved ? 1 : 0);
+        rr.achieved ? 1: 0, rr.achieved ? 1: 0, rr.achieved,
+        rr.achieved ? 1: 0, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "snap + residual",
               "Snap catches rage; soft slips; residual_hit is the counter.");
     auto br = examples::aim_humanization::detect(w);
@@ -53,8 +53,8 @@ int main() {
     n.say(sim::Side::Red, rr.detail);
     std::printf(
         "[silent] silent=%d desync_n=%d samples=%d challenge_fail=%d achieved=%d\n",
-        rr.achieved ? 1 : 0, rr.achieved, rr.achieved,
-        rr.achieved, rr.achieved ? 1 : 0);
+        rr.achieved ? 1: 0, rr.achieved, rr.achieved,
+        rr.achieved, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "camera/server aim",
               "Flag silent + angle desync + challenge fails (multi_reason).");
     auto br = examples::silent_aim_desync::detect(w);
@@ -72,8 +72,8 @@ int main() {
     n.say(sim::Side::Red, rr.detail);
     std::printf(
         "[input] memory_clean=%d bad_events=%d mixed=%d hook=%d achieved=%d\n",
-        rr.achieved ? 1 : 0, rr.achieved, rr.achieved ? 1 : 0,
-        rr.achieved ? 1 : 0, rr.achieved ? 1 : 0);
+        rr.achieved ? 1: 0, rr.achieved, rr.achieved ? 1: 0,
+        rr.achieved ? 1: 0, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "input provenance",
               "Bad source + multi_sample/mixed residual (not single-event).");
     auto br = examples::input_synthesis::detect(w);
@@ -91,8 +91,8 @@ int main() {
     n.say(sim::Side::Red, rr.detail);
     std::printf(
         "[overlay] owner=%u handle=%d overlays=%zu second=%d achieved=%d\n",
-        rr.achieved, rr.achieved ? 1 : 0, w.overlays.size(),
-        rr.achieved ? 1 : 0, rr.achieved ? 1 : 0);
+        rr.achieved, rr.achieved ? 1: 0, w.overlays.size(),
+        rr.achieved ? 1: 0, rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "overlay + handle",
               "Composition ∧ foreign VmRead (overlays need a data path).");
     auto br = examples::overlay_esp::detect(w);
@@ -110,8 +110,8 @@ int main() {
     n.say(sim::Side::Red, rr.detail);
     std::printf(
         "[web] reader=%u handle=%d saas=%d no_overlay=%d net=%zu achieved=%d\n",
-        rr.achieved, rr.achieved ? 1 : 0, rr.achieved ? 1 : 0,
-        rr.achieved ? 1 : 0, w.net.size(), rr.achieved ? 1 : 0);
+        rr.achieved, rr.achieved ? 1: 0, rr.achieved ? 1: 0,
+        rr.achieved ? 1: 0, w.net.size(), rr.achieved ? 1: 0);
     n.counter(sim::Side::Blue, "handle + saas",
               "Phone is UX; PC still has handle + radar SaaS domain.");
     auto br = examples::web_phone_radar::detect(w);
@@ -121,7 +121,7 @@ int main() {
 
   const bool all = blue_hits == rounds;
   n.result(all, all ? "All blue multi-reason detectors fired (soft aim residual noted)."
-                    : "Some blue detectors missed (lesson bug).");
+: "Some blue detectors missed (lesson bug).");
   std::printf("features_lab: blue_hits=%d/%d\n", blue_hits, rounds);
-  return all ? 0 : 1;
+  return all ? 0: 1;
 }

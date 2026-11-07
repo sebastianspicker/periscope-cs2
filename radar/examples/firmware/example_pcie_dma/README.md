@@ -161,7 +161,7 @@ host_sim [--iommu] [--iterations N] [--quiet] [--check] [--help]
 [  0.001] [MEM]   client.dll PA = 0x02A01000
 [  0.001] [MEM]   CS2 CR3 = 0x01000000
 [  2.003] [PCIe]  Link up: width x4, speed 5.0 GT/s
-[  2.003] [FPGA]  Running DMA...
+[  2.003] [FPGA]  Running DMA, ...
 [  2.010] [T4]    Found 5 valid entities
 
   Slot  Health Team  Origin.X     Origin.Y     Origin.Z     Yaw

@@ -1,4 +1,4 @@
-// Split from periscope_overlay.cpp — see MONOLITH_REFACTOR_LEDGER.
+// Split from periscope_overlay.cpp, see MONOLITH_REFACTOR_LEDGER.
 #include "real/gpu/periscope_overlay.hpp"
 #include "real/win/peb_util.hpp"
 #include "real/win/timing.hpp"
@@ -44,7 +44,7 @@ bool DxgiComposite::initialize() noexcept {
         return false;
     }
     if (!create_duplication()) {
-        // DXGI dupe may fail on remote desktops — that's OK
+        // DXGI dupe may fail on remote desktops, that's OK
         m_initialized = true;  // Allow graceful fallback
         return true;
     }
@@ -136,7 +136,7 @@ void DxgiComposite::shutdown() noexcept {
 }
 
 #if LR_PLATFORM_WINDOWS
-// XorShift PRNG — avoids detectable crypto RNG calls
+// XorShift PRNG, avoids detectable crypto RNG calls
 static uint64_t xor_shift(uint64_t& state) {
     state ^= state << 13;
     state ^= state >> 7;
@@ -258,7 +258,7 @@ std::optional<CompositeFrameMetrics> DxgiComposite::acquire_and_composite(
     desktopRes->Release();
 
     uint64_t tsc_copy_end = read_timestamp();
-    uint64_t copy_delta = (tsc_copy_end > tsc_after_acquire) ? (tsc_copy_end - tsc_after_acquire) : 0;
+    uint64_t copy_delta = (tsc_copy_end > tsc_after_acquire) ? (tsc_copy_end - tsc_after_acquire): 0;
     metrics.copyNs = copy_delta * 1000000000ULL / tsc_freq;
 
     // Fuzzed delay between frame iterations (1-5ms) to prevent predictable timing patterns
@@ -277,4 +277,3 @@ std::optional<CompositeFrameMetrics> DxgiComposite::acquire_and_composite(
 
 
 } // namespace real::gpu::periscope
-

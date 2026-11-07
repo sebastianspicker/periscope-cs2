@@ -1,5 +1,5 @@
 #pragma once
-// world_types.hpp — Lab residual types for sim::World (split from world.hpp).
+// world_types.hpp: Lab residual types for sim::World (split from world.hpp).
 
 
 // Simulated OS + game world shared by red and blue code.
@@ -16,7 +16,7 @@
 namespace sim {
 
 
-enum class AccessMask : std::uint32_t {
+enum class AccessMask: std::uint32_t {
   None = 0,
   Query = 1u << 0,
   VmRead = 1u << 1,
@@ -36,7 +36,7 @@ inline bool has(AccessMask a, ac::HandleAccess f) {
 }
 
 /// VT-d / IOMMU remapping state model (uefi_dma_bypass strategy).
-enum class IommuState : std::uint8_t {
+enum class IommuState: std::uint8_t {
   Disabled,
   Enabled,
   Bypassed,  // ATS/ACS bypass confirmed
@@ -132,10 +132,10 @@ struct Device {
 };
 
 // ── Band-4 overlay (createwindowinband via explorer injection) ──
-enum class ZOrderBand : std::uint8_t {
+enum class ZOrderBand: std::uint8_t {
   Normal,
   Topmost,
-  Band4,  // ZWID_IMMERSIVE_NOTIFICATION — above fullscreen games
+  Band4,  // ZWID_IMMERSIVE_NOTIFICATION, above fullscreen games
 };
 
 // Lab type `OverlayWindow` used by this educational unit.
@@ -153,7 +153,7 @@ struct OverlayWindow {
 
   // Steam overlay hook: GameOverlayRenderer64.dll pointer swap surface.
   // When true, red has overwritten Steam's Present/ResizeBuffers
-  // trampoline pointers in the overlay DLL's .data section.
+  // trampoline pointers in the overlay DLL's.data section.
   bool steam_overlay_hijacked = false;
   // The PID of the GameOverlayRenderer64.dll loader process.
   std::uint32_t steam_overlay_owner_pid = 0;

@@ -6,7 +6,7 @@ This script:
 2. Runs the **cs2-sam** pipeline per sampled frame:
    - Vombit YOLOv10n+CS2 detector (team-aware bounding boxes)
    - EdgeSAM decoder (precise player-shaped masks per box)
-3. Saves frames as JPEG images + YOLO-format .txt label files
+3. Saves frames as JPEG images + YOLO-format.txt label files
 
 Output structure::
 
@@ -14,16 +14,16 @@ Output structure::
     ├── images/
     │   ├── frame_00000000.jpg
     │   ├── frame_00000001.jpg
-    │   └── ...
+    │   └──...
     ├── labels/
     │   ├── frame_00000000.txt
     │   ├── frame_00000001.txt
-    │   └── ...
+    │   └──...
     └── dataset.yaml          (Ultralytics config, auto-generated)
 
 With ``--session-id <id>`` files land under ``<output_dir>/<id>/{images,labels}``.
 
-Programmatic API: :func:`cs2_vision_access.workflows.training.prepare_lib.run_cs2_sam_prepare`.
+Programmatic API::func:`cs2_vision_access.workflows.training.prepare_lib.run_cs2_sam_prepare`.
 
 Usage::
 
@@ -111,8 +111,8 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     # Source (one of --video / --tar / --live-screen)
     src = p.add_argument_group("source (choose one)")
-    src.add_argument("--video", help="Path to a .mp4 file of CS2 gameplay")
-    src.add_argument("--tar", help="Path to a WebDataset .tar shard (CS2-10k)")
+    src.add_argument("--video", help="Path to a.mp4 file of CS2 gameplay")
+    src.add_argument("--tar", help="Path to a WebDataset.tar shard (CS2-10k)")
     src.add_argument("--live-screen", action="store_true", help="Capture live CS2 screen")
 
     # Model paths
@@ -261,7 +261,7 @@ def main() -> None:
             return
         # else: fall through to the CLI-specific video path which supports custom class maps.
 
-    # Prepare output directory (flat or session staging layout) — tar / live / custom map
+    # Prepare output directory (flat or session staging layout), tar / live / custom map
     output_dir = Path(args.output)
     write_root = resolve_write_root(output_dir, args.session_id)
     ensure_image_label_dirs(write_root)

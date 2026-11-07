@@ -1,4 +1,4 @@
-// radar_pipeline.hpp — Complete radar frame pipeline wiring ALL features.
+// radar_pipeline.hpp: Complete radar frame pipeline wiring ALL features.
 //
 // This is the integration point that connects every orphaned ac_sim and
 // periscope feature into a coherent radar frame loop. All 15+ ac_sim
@@ -161,7 +161,7 @@ private:
     uint64_t m_emptyEntityFrames{0};
     uint64_t m_entitySampleFrames{0};
 
-    // ── Subsystem init/shutdown stubs (static, defined in .cpp) ─────
+    // ── Subsystem init/shutdown stubs (static, defined in.cpp) ─────
     static bool  init_rng() noexcept;
     static bool  init_temporal() noexcept;
     static bool  init_batch() noexcept;
@@ -206,7 +206,7 @@ private:
     /// The handle is looked up in m_handles; used by the shutdown stubs.
     static void mark_handle_shutdown(const char* name) noexcept;
 
-    // ── Frame phase stubs (static, defined in .cpp) ─────────────────
+    // ── Frame phase stubs (static, defined in.cpp) ─────────────────
     static bool  pre_phase_stub(uint64_t frame) noexcept;
     static bool  collect_phase_stub(uint64_t frame) noexcept;
     static bool  post_phase_stub(uint64_t frame) noexcept;

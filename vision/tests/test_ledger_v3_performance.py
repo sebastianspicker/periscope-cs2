@@ -53,7 +53,7 @@ def test_latency_window_statistics_and_bounds() -> None:
         (3_000_000_000, 3_050_000_000),  # 50 ms
         (4_000_000_000, 4_045_000_000),  # 45 ms
         (5_000_000_000, 5_055_000_000),  # 55 ms
-        (6_000_000_000, 6_070_000_000),  # 70 ms — evicts the 40 ms sample
+        (6_000_000_000, 6_070_000_000),  # 70 ms, evicts the 40 ms sample
     ]:
         assert window.record(capture, present)
     assert window.count == 5

@@ -1,4 +1,4 @@
-// evasion_t3_advanced.cpp — multi-step T3 HV stealth orchestration on sim::World.
+// evasion_t3_advanced.cpp: multi-step T3 HV stealth orchestration on sim::World.
 // max_hv_stealth: Wave 10 host-trust residuals after HV+bridge+entities.
 // deep_hv_stealth: Wave 10 + Wave 11 nested/EPT/MSR/time/Hyper-V residuals.
 
@@ -8,7 +8,7 @@
 
 namespace t3_red {
 
-EvasionT3Advanced::EvasionT3Advanced(sim::World& world) : radar_(world) {}
+EvasionT3Advanced::EvasionT3Advanced(sim::World& world): radar_(world) {}
 
 // Wave 10 path: clear trust → personal HV → bridge → attach → base stealth →
 // SMM channel, TPM spoof, EPT side-channel, VM-exit keylog, CI/FeatureControl,
@@ -19,7 +19,7 @@ HvRadarReport EvasionT3Advanced::max_hv_stealth(const std::string& vendor) {
     return radar_.last_report();
   }
 
-  // Ordered Wave 10 residual plant — each mutates World + report fields.
+  // Ordered Wave 10 residual plant, each mutates World + report fields.
   radar_.plant_smm_read_channel();
   radar_.trigger_smm_read();
   radar_.spoof_tpm_measurements(7);
@@ -65,7 +65,7 @@ HvRadarReport EvasionT3Advanced::deep_hv_stealth(const std::string& vendor) {
   std::ostringstream oss;
   oss << "deep_hv_stealth entities=" << out.entity_count
       << " ept_shadow=" << out.ept_shadow_levels
-      << " msr=" << (out.msr_hooking ? 1 : 0)
+      << " msr=" << (out.msr_hooking ? 1: 0)
       << " dilation=" << out.time_dilation_factor
       << " hyperv_call=0x4001"
       << " vendor=" << vendor;

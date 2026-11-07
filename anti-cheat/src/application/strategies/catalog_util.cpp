@@ -21,7 +21,7 @@ bool ieq_local(const char* a, const char* b) {
   return *a == *b;
 }
 
-// Local family label — mirrors family_name without depending on registry TU.
+// Local family label, mirrors family_name without depending on registry TU.
 const char* family_label(Family f) {
   switch (f) {
     case Family::Delivery:
@@ -161,7 +161,7 @@ std::vector<std::string> list_ids(const std::vector<StrategyEntry>& cat) {
   std::vector<std::string> ids;
   ids.reserve(cat.size());
   for (const auto& e : cat) {
-    ids.emplace_back(e.meta.id ? e.meta.id : "");
+    ids.emplace_back(e.meta.id ? e.meta.id: "");
   }
   return ids;
 }

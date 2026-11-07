@@ -1,10 +1,10 @@
 package dev.periscope.lens
 
 /**
- * L6 wire-protocol encoder (ledger L6) — the phone-side encoder mirror of
+ * L6 wire-protocol encoder (ledger L6), the phone-side encoder mirror of
  * `lens/src/periscope_lens/transport.py`.
  *
- * Frame layout (little-endian, packed — `<` structs have no alignment
+ * Frame layout (little-endian, packed, `<` structs have no alignment
  * padding): `u8 version, u8 type, u32 payloadLength, payload`.
  *
  * Hello payload: `u16 appBuild, u32 flags` (6 bytes). Targets head:
@@ -84,7 +84,7 @@ object TargetsEncoder {
         putU32(java.lang.Float.floatToIntBits(value).toLong(), out, offset)
 
     /** Encodes a `Targets` frame. `tCaptureNs` MUST be the Camera2
-     * `sensorTimestamp` — L7 compensation depends on it, never on send time. */
+     * `sensorTimestamp`, L7 compensation depends on it, never on send time. */
     fun encode(targets: Targets): ByteArray {
         val body = ByteArray(HEAD_BYTES + targets.boxes.size * BOX_BYTES)
         putU64(targets.frameId, body, 0)

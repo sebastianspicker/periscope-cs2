@@ -72,7 +72,7 @@ def sync_stream(stream_id: int) -> None:
 # ---------------------------------------------------------------------------
 
 
-class on_stream:  # noqa: N801 — lowercase for context-manager ergonomics
+class on_stream:  # noqa: N801, lowercase for context-manager ergonomics
     """Context manager that runs CuPy operations on a specific stream.
 
     Usage::
@@ -114,9 +114,9 @@ class PipelineSync:
     Usage::
 
         sync = PipelineSync()
-        # ... start stage 1 ...
+        # ... start stage 1...
         sync.done(0)         # stage 0 complete
-        # ... start stage 1 ...
+        # ... start stage 1...
         sync.await_stage(1)  # wait until stage 1 is done
     """
 

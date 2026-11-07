@@ -380,7 +380,7 @@ def _from_live_screen(
                     write_index += 1
                     print(f"  Saved frame {labeled}")
                 else:
-                    print("  No players detected in this frame — not saved")
+                    print("  No players detected in this frame, not saved")
                 if max_frames > 0 and labeled >= max_frames:
                     print(f"Reached max frames ({max_frames})")
                     break
