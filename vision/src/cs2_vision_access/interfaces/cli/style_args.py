@@ -175,6 +175,42 @@ def _outline_style(arguments: argparse.Namespace) -> OutlineStyle:
     preferences: OutlinePreferences | None = None
     if getattr(arguments, "prefs", None) is not None:
         preferences = load_outline_preferences(arguments.prefs)
+        # Documented order is preset, prefs, CLI. Config values were merged
+        # into the namespace, so drop the non-explicit ones when a prefs file
+        # is present and let prefs win.
+        explicit = getattr(arguments, "_cli_style_explicit", None)
+        if explicit is None:
+            explicit = {
+                name: getattr(arguments, name) is not None
+                for name in (
+                    "outline_preset",
+                    "inner_color",
+                    "outer_color",
+                    "inner_width",
+                    "outer_width",
+                    "fill_opacity",
+                    "stroke_pattern",
+                    "dash_period",
+                    "fill_mode",
+                    "halo_blur",
+                    "outline_kernel",
+                )
+            }
+        for name in (
+            "outline_preset",
+            "inner_color",
+            "outer_color",
+            "inner_width",
+            "outer_width",
+            "fill_opacity",
+            "stroke_pattern",
+            "dash_period",
+            "fill_mode",
+            "halo_blur",
+            "outline_kernel",
+        ):
+            if not explicit.get(name, False):
+                setattr(arguments, name, None)
 
     return resolve_style_with_preferences(
         preferences,

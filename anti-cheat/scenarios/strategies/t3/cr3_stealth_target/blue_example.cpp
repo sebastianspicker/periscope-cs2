@@ -14,8 +14,9 @@ BlueResult detect(sim::World& w) {
     sim::strategy_example::add_signal(outcome, "unexpected hypervisor is active", 0.45);
   }
   std::printf("[blue:cr3_stealth_target] signal 3: corroborate independent residual\n");
-  if (w.proc(w.game_pid()) != nullptr && w.proc(w.game_pid())->cr3 != 0) {
-    sim::strategy_example::add_signal(outcome, "game has an abnormal CR3 token", 0.35);
+  const auto* game = w.proc(w.game_pid());
+  if (game != nullptr && game->cr3 != 0x1A2B0000ull + w.game_pid()) {
+    sim::strategy_example::add_signal(outcome, "game CR3 differs from the spawn baseline", 0.35);
   }
   outcome = sim::strategy_example::finish_blue("cr3_stealth_target", std::move(outcome));
   BlueResult r{false, 0, {}, 0.0, false, ""};

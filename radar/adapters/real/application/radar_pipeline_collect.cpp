@@ -107,7 +107,12 @@ bool FramePipeline::collect_frame() noexcept {
         s_cachedGameHwnd = nullptr;
     }
     if (!s_cachedGameHwnd) {
-        s_cachedGameHwnd = ::FindWindowA("Valve001", nullptr);
+        // Borderless CS2 uses SDL_app; the older Valve001 class still exists
+        // in some builds. Keep both so the focus gate is not inert.
+        s_cachedGameHwnd = ::FindWindowA("SDL_app", nullptr);
+        if (!s_cachedGameHwnd) {
+            s_cachedGameHwnd = ::FindWindowA("Valve001", nullptr);
+        }
     }
     if (s_cachedGameHwnd && ::GetForegroundWindow() != s_cachedGameHwnd) {
         // Game not focused, skip entity reads to avoid focus correlation detection
@@ -175,6 +180,18 @@ bool FramePipeline::collect_frame() noexcept {
     static uint64_t s_localPawnSlot = 0;
     static bool     s_targetsResolved = false;
     static uint64_t s_resolveRetryCounter = 0;
+    static std::uint32_t s_resolvedPid = 0;
+
+    // A CS2 restart changes the PID and module base. Drop every cached
+    // address instead of reading the old process space forever.
+    if (s_targetsResolved && s_resolvedPid != m_cs2Pid) {
+        s_clientBase = s_clientSize = 0;
+        s_engine2Base = s_engine2Size = 0;
+        s_tier0Base = s_tier0Size = 0;
+        s_entityListSlot = s_cHudSlot = s_localPawnSlot = 0;
+        s_targetsResolved = false;
+        s_resolveRetryCounter = 0;
+    }
 
     if (!s_targetsResolved) {
         ++s_resolveRetryCounter;
@@ -208,6 +225,7 @@ bool FramePipeline::collect_frame() noexcept {
                     }
                 }
                 s_targetsResolved = true;
+                s_resolvedPid = m_cs2Pid;
                 ETL_RECORD(sim::EtlEventType::PatternScan,
                            "client base resolved, patterns scanned");
             } else {

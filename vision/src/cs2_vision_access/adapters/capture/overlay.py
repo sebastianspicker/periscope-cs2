@@ -65,11 +65,12 @@ class OverlayWindow:
     # -- Lifecycle -----------------------------------------------------------
 
     def open(self, width: int, height: int, *, x: int = 0, y: int = 0) -> None:
-        """Create and show the overlay window."""
+        """Create and show the overlay window. Idempotent."""
+        if self.is_open:
+            return
         self._x = x
         self._y = y
         if self._backend is not None:
-            # open() is idempotent per backend, callers may call it multiple times
             self._backend.open(width, height, self._title, x, y)
 
     def move(self, x: int, y: int) -> None:

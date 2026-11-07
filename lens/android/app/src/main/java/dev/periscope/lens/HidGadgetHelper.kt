@@ -29,17 +29,23 @@ object HidGadgetHelper {
     fun probe(): Boolean {
         val root = File(GADGET_CONFIG_DIR)
         if (!root.isDirectory) return false
-        if (!root.canWrite()) return false
-        // A gadget function directory we can create and remove is the probe.
+        // configfs keeps functions under a gadget directory, not at the
+        // subsystem root. Pick the first gadget and require a functions dir.
+        val gadget = root.listFiles()?.firstOrNull { it.isDirectory } ?: return false
+        val functions = File(gadget, "functions")
+        if (!functions.isDirectory) return false
+        // A create/remove probe is conclusive; if mkdir is denied (root-owned
+        // configfs) an existing functions dir is reported as available so the
+        // caller can still try to write and degrade on the real error.
         return try {
-            val probe = File(root, "functions/hid.periscope_probe")
+            val probe = File(functions, "hid.periscope_probe")
             val created = probe.mkdirs()
-            if (created) probe.delete() else probe.isDirectory
-            created || probe.isDirectory
+            if (created) probe.delete()
+            true
         } catch (_: SecurityException) {
-            false
+            true
         } catch (_: IOException) {
-            false
+            true
         }
     }
 

@@ -247,3 +247,11 @@ def test_assemble_interrupted_swap_restores_previous_dataset(
 
     assert _snapshot(output) == before
     assert sorted(p.name for p in tmp_path.iterdir()) == ["dataset", "staging"]
+
+
+def test_every_downloadable_model_has_a_sha256_pin() -> None:
+    assert download_model._DOWNLOADABLE_MODELS
+    for name, info in download_model._DOWNLOADABLE_MODELS.items():
+        pin = info.get("sha256", "")
+        assert len(pin) == 64 and all(c in "0123456789abcdef" for c in pin), name
+        assert info["pt_url"].startswith("https://"), name

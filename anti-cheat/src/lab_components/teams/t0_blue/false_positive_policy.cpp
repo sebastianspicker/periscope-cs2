@@ -56,10 +56,9 @@ FpDecision FalsePositivePolicy::evaluate_edge(const sim::Handle& h,
   // Name allowlist alone is a weak, spoofable signal; track it separately from
   // independent reputation so a signer-allowlisted process can still suppress.
   d.name_allowlisted = names_.count(p->name) > 0;
-  // Independent reputation: looks_reputable OR signer-allowlisted, and NOT
-  // merely a classic FP name (masquerade war: names are spoofable, signers are not).
-  d.reputation_safe =
-      (p->looks_reputable || is_signer_allowlisted(*p)) && !d.name_allowlisted;
+  // Independent reputation: looks_reputable OR signer-allowlisted. A name hit
+  // must not cancel a signer hit; names are spoofable, signers are not.
+  d.reputation_safe = p->looks_reputable || is_signer_allowlisted(*p);
 
   if (d.reputation_safe) {
     // Still alert if handle is hidden / brief_reopen (evasion scar).

@@ -6,8 +6,10 @@ training / notebook side effects so it can be imported without Ultralytics.
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
+import tempfile
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -107,8 +109,12 @@ def validate_zip_members(
         raise ValueError(f"Dataset zip has too many members (maximum {limits.max_members}).")
 
     total_uncompressed_bytes = 0
+    seen_names: set[str] = set()
     for info in members:
         name = info.filename
+        if name in seen_names:
+            raise ValueError(f"duplicate zip member: {name!r}")
+        seen_names.add(name)
         if is_os_metadata_member(name):
             continue  # Finder debris: skipped, never extracted
         if is_unsafe_zip_member(name):
@@ -148,15 +154,33 @@ def safe_extract_zip(
 ) -> None:
     """Extract zip members into ``dest`` after a complete safety preflight."""
     dest = dest.resolve()
+    dest.parent.mkdir(parents=True, exist_ok=True)
     members = zf.infolist()
     validate_zip_members(zf, limits)
+    staging = Path(tempfile.mkdtemp(prefix=f".{dest.name}.", dir=dest.parent))
+    try:
+        _extract_into(zf, staging, dest, members)
+        if dest.exists():
+            shutil.rmtree(dest)
+        os.replace(staging, dest)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+
+
+def _extract_into(
+    zf: zipfile.ZipFile,
+    staging: Path,
+    dest: Path,
+    members: list[zipfile.ZipInfo],
+) -> None:
     for info in members:
         name = info.filename
         if is_os_metadata_member(name):
             continue  # Finder debris: skipped, never extracted
-        target = (dest / name).resolve()
+        target = (staging / name).resolve()
         try:
-            target.relative_to(dest)
+            target.relative_to(staging)
         except ValueError as exc:
             raise ValueError(
                 f"Refusing to extract zip member outside destination: {name!r}"
@@ -165,8 +189,11 @@ def safe_extract_zip(
             target.mkdir(parents=True, exist_ok=True)
             continue
         target.parent.mkdir(parents=True, exist_ok=True)
-        with zf.open(info, "r") as src, open(target, "wb") as out:
-            shutil.copyfileobj(src, out)
+        try:
+            with zf.open(info, "r") as src, open(target, "wb") as out:
+                shutil.copyfileobj(src, out)
+        except zipfile.BadZipFile as error:
+            raise ValueError(f"corrupt zip member {name!r}: {error}") from error
 
 
 def count_images(images_dir: Path) -> int:

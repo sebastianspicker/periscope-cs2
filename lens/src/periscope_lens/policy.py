@@ -22,13 +22,48 @@ from __future__ import annotations
 
 import math
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from periscope_lens.transport import TargetBox
+from periscope_lens.transport import TargetBox, Targets
 
 
 class PolicyError(ValueError):
     """Policy parameters violated the contract."""
+
+
+def scale_targets(targets: Targets, screen_width: int, screen_height: int) -> Targets:
+    """Convert capture-frame boxes to screen pixels.
+
+    ``Targets`` declares its coordinate space; a mismatch with the screen is
+    scaled linearly so FOV and motion math use one unit. Zero metadata leaves
+    the boxes untouched.
+    """
+    if (
+        targets.frame_width <= 0
+        or targets.frame_height <= 0
+        or screen_width <= 0
+        or screen_height <= 0
+        or (targets.frame_width == screen_width and targets.frame_height == screen_height)
+    ):
+        return targets
+    sx = screen_width / targets.frame_width
+    sy = screen_height / targets.frame_height
+    boxes = tuple(
+        replace(
+            box,
+            cx=box.cx * sx,
+            cy=box.cy * sy,
+            width=box.width * sx,
+            height=box.height * sy,
+        )
+        for box in targets.boxes
+    )
+    return replace(
+        targets,
+        boxes=boxes,
+        frame_width=screen_width,
+        frame_height=screen_height,
+    )
 
 
 @dataclass(frozen=True)
@@ -140,6 +175,6 @@ def motion_delta(
     step_x *= soft
     step_y *= soft
 
-    if math.hypot(step_x, step_y) >= policy.large_step_px:
+    if distance >= policy.large_step_px:
         state.cooldown = policy.cooldown_frames_after_large_step
     return (step_x, step_y)

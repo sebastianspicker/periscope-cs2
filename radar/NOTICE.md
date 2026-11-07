@@ -13,8 +13,8 @@ Adapted upstream designs and code (2026-11-05 research pass):
 - cs2-dma/CS2-DMA - Apache-2.0. The snapshot-ring/scene-watermark
   concurrency design (R3), the web-radar service shape and runtime stats
   (R5), and the offset-sync workflow hardening (R8) are adapted from its
-  sources. Apache-2.0 NOTICE obligations are honored here.
-- staromodny/miata - license verified per-tree before code reuse. The
+  sources. Apache-2.0 text is included at `LICENSES/Apache-2.0.txt`.
+- staromodny/miata - MIT. The
   view-relative mini-radar math (R12) is a port of `src/main.cpp`.
 - avitran0/deadlocked, dkrutsko/oasis, chao-shushu/CS2-DMA,
   Read1dno/vesta - designs referenced; verify each LICENSE before any

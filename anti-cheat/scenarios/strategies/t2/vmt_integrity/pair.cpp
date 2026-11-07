@@ -10,6 +10,7 @@ StrategyResult run(sim::World& w, sim::Narrator& n) {
   result.red_achieved = vmt_integrity_red_apply(w, n);
   result.blue_detected = vmt_integrity_blue_detect(w, n);
   result.blue_mitigated = result.blue_detected;
+  if (result.blue_mitigated) w.ranked_access_denied = true;
   result.summary = result.blue_detected
       ? "Multi-reason VMT inventory/CRC/foreign-owner residual"
       : "VMT inventory did not find multi-reason altered targets";

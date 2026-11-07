@@ -12,6 +12,7 @@
 #include <chrono>
 #include <cstdint>
 #include <functional>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -103,6 +104,7 @@ struct DonorIpcHeader {
   std::uint32_t cs2_pid = 0;
   std::uint32_t worker_pid = 0;
   std::uint32_t ticket = 0;
+  std::uint32_t ack_ticket = 0;  // worker echo; guards late responses
   std::uint32_t status = 0;      // 0 idle 1 busy 2 ok 3 err
   std::uint64_t req_addr = 0;
   std::uint32_t req_size = 0;
@@ -124,8 +126,9 @@ struct DonorIpcHeader {
 constexpr std::uint32_t kDonorMagic = 0x57444C52u;
 constexpr std::uint32_t kDonorVersion = 2;
 constexpr std::uint32_t kDonorFlagModulesReady = 1u;
-// Must cover pattern-scan chunk (0x10000) for c_hud AOB over IPC.
-constexpr std::uint32_t kDonorMaxPayload = 0x10000;
+// Must cover the pattern-scan chunk plus a full pattern tail
+// (kChunkSize + max pattern length), not just the chunk.
+constexpr std::uint32_t kDonorMaxPayload = 0x10000 + 0x100;
 constexpr const char* kDonorMapName = "Local\\LR_DonorWorker_v2";
 constexpr const char* kDonorEventReq = "Local\\LR_DonorWorker_Req_v2";
 constexpr const char* kDonorEventRsp = "Local\\LR_DonorWorker_Rsp_v2";
@@ -159,6 +162,7 @@ class DonorIpcClient {
   void* mapped_ = nullptr;
   void* evt_req_ = nullptr;
   void* evt_rsp_ = nullptr;
+  mutable std::mutex read_mu_;
 };
 
 std::uint32_t spawn_donor_worker() noexcept;

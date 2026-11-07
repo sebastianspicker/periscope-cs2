@@ -35,9 +35,9 @@ uv run pytest tests/ -q
 
 CI installs with `uv sync --frozen --extra dev` (optional-dependencies, not a uv group). Local `ruff format` without `--check` is fine before you commit; CI requires the check form. Matrix: Ubuntu, Python 3.11–3.13 for lint/typecheck, a single 3.12 job for tests.
 
-`vision/tests/` is currently listed in the root `.gitignore`, so the suite only
-exists in checkouts that already have it. Do not be surprised by a fresh clone
-with no `tests/` directory.
+`vision/tests/test_*.py` files are tracked through the root `.gitignore`
+allowlist, so a fresh clone has the suite. Other fixture files under `tests/`
+stay ignored.
 
 ## Layout
 

@@ -25,6 +25,7 @@ def _nms_cpu(
     boxes: np.ndarray,
     scores: np.ndarray,
     iou_threshold: float = 0.5,
+    class_ids: np.ndarray | None = None,
 ) -> list[int]:
     """Non-maximum suppression on CPU (NumPy).
 
@@ -33,6 +34,15 @@ def _nms_cpu(
     """
     if len(boxes) == 0:
         return []
+    if class_ids is not None:
+        # Class-aware: a head box must not suppress a body box of another class.
+        class_keep: list[int] = []
+        for class_id in np.unique(class_ids):
+            index = np.flatnonzero(class_ids == class_id)
+            class_keep.extend(
+                index[j] for j in _nms_cpu(boxes[index], scores[index], iou_threshold)
+            )
+        return sorted(class_keep, key=lambda i: -float(scores[i]))
 
     order = np.argsort(-scores)
 
@@ -55,7 +65,8 @@ def _nms_cpu(
         yy2 = np.minimum(y2[i], y2[remaining])
 
         inter = (xx2 - xx1).clip(0) * (yy2 - yy1).clip(0)
-        ovr = inter / (areas[i] + areas[remaining] - inter)
+        denom = np.maximum(areas[i] + areas[remaining] - inter, 1e-12)
+        ovr = inter / denom
         remaining = [remaining[j] for j in range(len(remaining)) if ovr[j] <= iou_threshold]
 
     return keep
@@ -70,6 +81,7 @@ def nms(
     boxes: np.ndarray,
     scores: np.ndarray,
     iou_threshold: float = 0.5,
+    class_ids: np.ndarray | None = None,
 ) -> list[int]:
     """Run Non-Maximum Suppression on bounding boxes.
 
@@ -79,6 +91,7 @@ def nms(
         boxes: ``[N, 4]`` array of ``(x1, y1, x2, y2)`` boxes.
         scores: ``[N]`` array of confidence scores (higher is better).
         iou_threshold: Boxes with IoU above this threshold are suppressed.
+        class_ids: Optional ``[N]`` class labels; suppression is per class.
 
     Returns:
         List of kept box indices (sorted by descending score).
@@ -88,7 +101,7 @@ def nms(
 
         boxes = cp.asnumpy(boxes)
         scores = cp.asnumpy(scores)
-    return _nms_cpu(boxes, scores, iou_threshold)
+    return _nms_cpu(boxes, scores, iou_threshold, class_ids)
 
 
 __all__ = ["nms"]

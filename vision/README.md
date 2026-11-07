@@ -16,7 +16,7 @@ Help low-vision accessibility research by outlining visible player models on CS2
 - Live capture and OS overlay (`live`), plus a tkinter desktop dashboard (`gui`)
 - Optional off-screen edge cues for tracked players (`--edge-cues`), and a
   read-only radar bridge contract with a validated loader (not yet consumed
-  by the live loop; `docs/decisions/0003-radar-vision-bridge.md`)
+  by the live loop; `../docs/decisions/0003-radar-vision-bridge.md`)
 - Second-device contour composite: capture-card fourcc negotiation, bounded reconnect with stale-frame drain, `--max-capture-age-ms` latency bound, shared-memory frame ring (`--output-stream shm:<name>`), and a 1:1 fullscreen presenter (`docs/CONTOUR_PIPELINE.md`)
 - Dataset staging, validation, audit, session-split assembly, box import, draft mask review
 - Fine-tune and export of YOLO-seg ONNX models with checksum manifests (`train`)
@@ -131,7 +131,7 @@ uv run cs2-vision setup --auto
 | `configs/train-auto.self-train.example.json` | post-export self-train |
 | `configs/train-auto.unattended.example.json` | multi-iter unattended |
 
-Stages (see `training/auto/state.py`):
+Stages (see `src/cs2_vision_access/workflows/training/auto/state.py`):
 
 ```text
 ingest → prepare_data → label → validate → train → export → self_train → eval → report

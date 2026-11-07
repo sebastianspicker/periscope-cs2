@@ -20,7 +20,9 @@ RedResult apply(sim::World& w) {
   }
   ++r.steps;
   std::printf("[red:cr3_stealth_target] step %d: apply isolated strategy residual\n", r.steps);
-  if (auto* game = w.proc(w.game_pid())) game->cr3 = 0xC3A50000ull; w.trust.personal_hv_active = true;
+  w.trust.vbs = false; w.trust.hvci = false;
+  (void)w.try_start_personal_hv("lab");
+  if (auto* game = w.proc(w.game_pid())) game->cr3 = 0xC3A50000ull;
   if (!(w.trust.personal_hv_active)) {
     return {false, r.steps, "strategy residual was not recorded"};
   }

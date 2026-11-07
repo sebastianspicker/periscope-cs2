@@ -57,11 +57,34 @@ class ProtocolVersionError(ValueError):
     """
 
 
-def _open_shm(name: str, size: int) -> Any:
-    """Open a POSIX shared-memory segment, creating it when absent."""
+def _open_shm(name: str, size: int, width: int, height: int) -> Any:
+    """Open a POSIX shared-memory segment, creating or reclaiming it.
+
+    A crashed producer leaves the segment behind. Reclaim it only when its
+    size or ring geometry does not match; otherwise attach to the live one.
+    """
     import multiprocessing.shared_memory as shared_memory
 
-    return shared_memory.SharedMemory(name=name, create=True, size=size)
+    try:
+        return shared_memory.SharedMemory(name=name, create=True, size=size)
+    except FileExistsError:
+        existing = shared_memory.SharedMemory(name=name)
+        compatible = existing.size >= size
+        if compatible:
+            buffer = existing.buf
+            if buffer is None:
+                compatible = False
+            else:
+                try:
+                    _, _, old_width, old_height, *_ = struct.unpack_from(HEADER_FORMAT, buffer, 0)
+                    compatible = (old_width, old_height) == (width, height)
+                except struct.error:
+                    compatible = False
+        if compatible:
+            return existing
+        existing.close()
+        existing.unlink()
+        return shared_memory.SharedMemory(name=name, create=True, size=size)
 
 
 @dataclass(frozen=True)
@@ -101,8 +124,9 @@ class SharedFrameSink:
         self._slots = int(slots)
         self._fps_hint = int(max(1.0, fps_hint))
         self._closed = False
+        self._published = False
         size = HEADER_SIZE + self._slots * self._stride * height
-        self._shm = _open_shm(name, size)
+        self._shm = _open_shm(name, size, self._width, self._height)
         # Zero the header so a consumer attaching before the first frame sees
         # idle state rather than garbage.
         self._publish(frame_index=0, timestamp_ns=0, state=STATE_IDLE)
@@ -150,7 +174,20 @@ class SharedFrameSink:
             raise ValueError("shared sink expects RGBA frames of shape (H, W, 4)")
         h, w = frame.shape[:2]
         if (w, h) != (self._width, self._height):
-            raise ValueError(f"frame {w}x{h} does not match the ring {self._width}x{self._height}")
+            if self._published:
+                raise ValueError(
+                    f"frame {w}x{h} does not match the ring {self._width}x{self._height}"
+                )
+            # The first frame is authoritative: capture hints are only
+            # preferences and a card may negotiate another size.
+            self._shm.close()
+            with contextlib.suppress(FileNotFoundError):
+                self._shm.unlink()
+            self._width, self._height = w, h
+            self._stride = w * 4
+            size = HEADER_SIZE + self._slots * self._stride * h
+            self._shm = _open_shm(self._name, size, w, h)
+            self._publish(frame_index=0, timestamp_ns=0, state=STATE_IDLE)
         contiguous = np.ascontiguousarray(frame, dtype=np.uint8)
         publish = int(frame_index) + 1
         slot = publish % self._slots
@@ -161,6 +198,7 @@ class SharedFrameSink:
             timestamp_ns=time.time_ns(),
             state=STATE_READY,
         )
+        self._published = True
 
     def close(self) -> None:
         """Mark the ring gone and release this process's mapping."""

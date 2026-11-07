@@ -1,0 +1,1 @@
+{"schema_version": 2, "preset": "maximum-visibility", "inner_color": "#00FF00", "outer_color": "#000000", "inner_width": 2, "outer_width": 4, "fill_opacity": 0.0, "scale_with_frame": true, "stroke_pattern": "solid", "dash_period_px": 12, "fill_mode": "tint", "halo_blur": 7, "adapt_width_to_area": false, "outline_kernel": "polyline"}

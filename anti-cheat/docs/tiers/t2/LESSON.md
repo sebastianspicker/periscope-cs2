@@ -39,7 +39,7 @@ Use `t2_blue::KernelAc` and pair blue_example sensors for multi-reason detect an
 ## Run
 
 ```bash
-./anti-cheat/build/dev/strategy_lab run --tier T2
+./anti-cheat/build/dev/strategy_lab all --tier T2
 ./anti-cheat/build/dev/duel_t2   # if built
 ```
 

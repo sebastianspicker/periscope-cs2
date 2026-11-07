@@ -26,6 +26,10 @@ def test_scrcpy_command_composition() -> None:
     assert ["--serial", "ABCD123"] in [command[i : i + 2] for i in range(len(command) - 1)]
     assert "--camera-id=2" in command
     assert "--max-size=1280" in command and "--max-fps=60" in command
+    assert "--record=raw_video.h264" in command
+    sink = build_scrcpy_command(v4l2_sink="/dev/video2", record_path="run.h264")
+    assert "--v4l2-sink=/dev/video2" in sink
+    assert "--record=run.h264" in sink
 
 
 def test_scrcpy_command_validation() -> None:
@@ -142,3 +146,23 @@ def test_missing_cv2_has_actionable_error(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.setitem(sys.modules, "cv2", None)
     with pytest.raises(PhoneSourceError, match="capture"):
         _import_cv2()
+
+
+def test_reconnect_rebuilds_reader_and_resets() -> None:
+    source, _ = _source([(False, None)] * 10, failures_allowed=3)
+    for index in range(3):
+        source.read(index)
+    assert source.should_reconnect()
+
+    frame = np.zeros((4, 8, 3), dtype=np.uint8)
+    opened: list[int] = []
+
+    def factory():
+        opened.append(1)
+        return lambda _index: (True, frame, "")
+
+    source.reopen = factory
+    assert source.reconnect()
+    assert opened == [1]
+    assert source.consecutive_failures == 0
+    assert source.read(4)[0]

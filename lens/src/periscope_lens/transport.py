@@ -27,7 +27,7 @@ import struct
 from dataclasses import dataclass
 from typing import Any
 
-PROTOCOL_VERSION = 1
+PROTOCOL_VERSION = 2
 MAX_FRAME_BYTES = 512 * 1024
 HEADER = struct.Struct("<BBI")  # version, type, payload length (u32)
 
@@ -43,7 +43,7 @@ _KNOWN_VERSIONS = frozenset({PROTOCOL_VERSION})
 
 _HELLO = struct.Struct("<HI")  # app_build, flags
 _PING = struct.Struct("<Q")  # t0_ns
-_TARGETS_HEAD = struct.Struct("<QQB")  # frame_id, t_capture_ns, count
+_TARGETS_HEAD = struct.Struct("<QQBHH")  # frame_id, t_capture_ns, count, w, h
 _TARGET_BOX = struct.Struct("<Bfffff")  # class_id, conf, cx, cy, w, h
 _CALIB = struct.Struct("<9fQf")  # h[9], t_ns, rms
 _STATE = struct.Struct("<HHHHHHB")  # fps_meas, fps_tgt, roi, flags
@@ -74,6 +74,10 @@ class Targets:
     frame_id: int
     t_capture_ns: int
     boxes: tuple[TargetBox, ...]
+    # Coordinate space for box cx/cy/w/h: capture-frame pixels. The receiver
+    # scales to screen pixels when the two sizes differ.
+    frame_width: int = 0
+    frame_height: int = 0
 
 
 @dataclass(frozen=True)
@@ -131,6 +135,8 @@ def encode(message: Hello | Targets | Ping | Calib | State) -> bytes:
             _check_u("frame_id", message.frame_id, 0xFFFFFFFFFFFFFFFF),
             _check_u("t_capture_ns", message.t_capture_ns, 0xFFFFFFFFFFFFFFFF),
             len(message.boxes),
+            _check_u("frame_width", message.frame_width, 0xFFFF),
+            _check_u("frame_height", message.frame_height, 0xFFFF),
         )
         body = b"".join(
             _pack(
@@ -191,7 +197,16 @@ class Decoder:
 
     def feed(self, chunk: bytes) -> None:
         self._buffer += chunk
-        if len(self._buffer) > MAX_FRAME_BYTES * 2:
+        # The cap is per frame, not per call: a chunk may carry many frames.
+        # Only an incomplete head frame can overrun.
+        if len(self._buffer) < HEADER.size:
+            return
+        _, _, length = HEADER.unpack_from(self._buffer, 0)
+        if (
+            length <= MAX_FRAME_BYTES
+            and len(self._buffer) > HEADER.size + MAX_FRAME_BYTES
+            and len(self._buffer) < HEADER.size + length
+        ):
             raise ProtocolError("decoder buffer overrun")
 
     def messages(self) -> list[Hello | Targets | Ping | Calib | State | None]:
@@ -237,7 +252,9 @@ def _decode_payload(message_type: int, payload: bytes) -> Hello | Targets | Ping
         return Hello(app_build, flags)
     if message_type == TYPE_TARGETS:
         try:
-            frame_id, t_capture_ns, count = _TARGETS_HEAD.unpack_from(payload, 0)
+            frame_id, t_capture_ns, count, frame_width, frame_height = _TARGETS_HEAD.unpack_from(
+                payload, 0
+            )
         except struct.error as error:
             raise ProtocolError("truncated targets head") from error
         expected = _TARGETS_HEAD.size + count * _TARGET_BOX.size
@@ -248,7 +265,7 @@ def _decode_payload(message_type: int, payload: bytes) -> Hello | Targets | Ping
             offset = _TARGETS_HEAD.size + index * _TARGET_BOX.size
             class_id, confidence, cx, cy, width, height = _TARGET_BOX.unpack_from(payload, offset)
             boxes.append(TargetBox(class_id, confidence, cx, cy, width, height))
-        return Targets(frame_id, t_capture_ns, tuple(boxes))
+        return Targets(frame_id, t_capture_ns, tuple(boxes), frame_width, frame_height)
     if message_type in (TYPE_PING, TYPE_PONG):
         (t0_ns,) = _unpack(_PING, payload)
         return Ping(t0_ns, is_reply=message_type == TYPE_PONG)

@@ -59,7 +59,7 @@ class RoundTrip:
         if self._samples_ms:
             ordered = sorted(self._samples_ms)
             median = ordered[len(ordered) // 2]
-            if rtt_ms > median * _OUTLIER_FACTOR:
+            if rtt_ms > max(median * _OUTLIER_FACTOR, median + 2.0):
                 self._consecutive_rejects += 1
                 if self._consecutive_rejects < 2:
                     return False
@@ -140,6 +140,8 @@ class LatencyBreakdown:
     transport_ms: float
     transport_measured: bool
     assumed_total_ms: float
+    assumed_capture_ms: float = 40.0
+    assumed_transport_ms: float = 40.0
 
     @property
     def compensation_ms(self) -> float:
@@ -150,9 +152,11 @@ class LatencyBreakdown:
             measured += self.capture_to_detect_ms
         if self.transport_measured:
             measured += self.transport_ms
-        if self.capture_to_detect_measured and self.transport_measured:
-            return measured
-        return max(measured, self.assumed_total_ms)
+        if not self.capture_to_detect_measured:
+            measured += self.assumed_capture_ms
+        if not self.transport_measured:
+            measured += self.assumed_transport_ms
+        return measured
 
 
 def breakdown(

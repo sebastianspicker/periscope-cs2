@@ -7,7 +7,12 @@
 namespace strategies {
 namespace {
 StrategyResult run(sim::World& w, sim::Narrator& n) {
-  const auto red = examples::pattern_offset_scan::apply(w);
+  examples::pattern_offset_scan::ScannerSession session;
+  auto red = examples::pattern_offset_scan::apply(w, session);
+  if (red.achieved) {
+    (void)w.mutate_lab_pattern_layout(w.game_pid(), 0x2C0, 0x80);
+    red = examples::pattern_offset_scan::refresh(w, session);
+  }
   const auto blue = examples::pattern_offset_scan::detect(w);
   StrategyResult result;
   result.red_achieved = red.achieved;

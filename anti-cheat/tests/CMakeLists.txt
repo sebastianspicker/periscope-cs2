@@ -17,3 +17,12 @@ if(AC_HAVE_RADAR)
   target_include_directories(stack_posture_test PRIVATE "${LR_RADAR_DIR}/adapters")
   add_test(NAME stack_posture_test COMMAND stack_posture_test)
 endif()
+
+# Registry integrity always runs, radar checkout or not.
+add_executable(catalog_test "${AC_SOURCE_DIR}/tests/catalog_test.cpp")
+target_link_libraries(catalog_test PRIVATE ac_strategies ac_strategy_core)
+add_test(NAME catalog_test COMMAND catalog_test)
+
+# Full catalog smoke run. Every pair must reach a blue verdict (or a red
+# failure is now a failure, not a pass).
+add_test(NAME strategy_catalog_all COMMAND strategy_lab all --quiet)

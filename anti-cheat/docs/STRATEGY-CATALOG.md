@@ -31,10 +31,10 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `09_overlay_esp` | Overlay ESP | T0-T1 | Feature | Draw boxes via overlay/hijack + data handle | Composition + handle correlation (not OR alone) |
 | `10_web_phone_radar` | Web/phone radar feed | T0-T2 | Feature | Stream entities to phone UI via PC reader + SaaS | Detect PC reader path ∧ SaaS (overlay clean narrative) |
 | `11_aim_humanization` | Aim humanization | all | Feature | Soft aim distributions look human | Don't rely on snap-only ML; add info-advantage |
-| `12_staged_loader` | Staged loader | T1-T3 | Evasion | Stub downloads/maps real logic | Runtime memory + launch lineage + C2 intel |
-| `13_obfuscation_crypto` | Obfuscation & crypto | all | Evasion | Encrypt strings/offsets; VMProtect; polymorphic builds | Never depend on static alone; hunt scars |
+| `111_staged_loader` | Staged loader | T1-T3 | Evasion | Stub downloads/maps real logic | Runtime memory + launch lineage + C2 intel |
+| `106_obfuscation_crypto` | Obfuscation & crypto | all | Evasion | Encrypt strings/offsets; VMProtect; polymorphic builds | Never depend on static alone; hunt scars |
 | `14_offset_c2` | Offset / schema C2 | all | Evasion | Post-patch encrypted offset delivery | Detect readers; C2 is supportive intel |
-| `15_hwid_spoof` | HWID spoofing | all | Evasion | Change hardware identity after ban | Cluster payment/IP/social; soft HWID |
+| `110_hwid_spoof` | HWID spoofing | all | Evasion | Change hardware identity after ban | Cluster payment/IP/social; soft HWID |
 | `16_callback_strip` | Kernel callback strip | T2 | Evasion | Tamper notify chains to blind AC | Continuous callback chain integrity |
 | `17_handle_minimize` | Handle access minimization | T0-T1 | Evasion | Narrow rights / brief reopen | Continuous handle sampling still sees edges |
 | `18_read_throttle` | Sparse/throttled reads | T0-T2 | Evasion | Lower read rate and field set | Attribute reads to foreign principal, not volume alone |
@@ -71,7 +71,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `49_efi_boot_entry` | Unexpected EFI boot entry | T3 | Structural | Plant cheat-loader.efi; often Secure Boot off | Detect unexpected_efi_entry; ranked policy deny |
 | `50_dual_boot_posture` | Dual-boot posture | T4 | Delivery | Dual-boot cheat OS + PCR + DMA residual | Multi-sensor dual_boot/PCR/DMA; fog + ranked deny |
 | `51_report_velocity` | Report velocity | all | Detection | ≥3 accounts same payment high reports + clean control | multi_reason high_report_accounts&&payment_cluster |
-| `52_anti_re_canary` | Anti-RE canary | all | Evasion | Trip canary on analysis_host; refuse/decoy payload | Detect analysis_host || canary_tripped |
+| `108_anti_re_canary` | Anti-RE canary | all | Evasion | Trip canary on analysis_host; refuse/decoy payload | Detect analysis_host || canary_tripped |
 | `53_thread_hijack` | Thread hijack / APC scar | T0 | Evasion | Spawn helper; mark game thread_hijacked + has_foreign_thread (optional handle) | Any is_game with thread_hijacked || has_foreign_thread (non-AC context) |
 | `54_module_stomp` | Module stomping | T1 | Evasion | Stomp client.dll .text (text_hash=stomped) inside game process | Detect known modules (client.dll/game.exe) with text_hash != clean |
 | `55_process_hollow` | Process hollowing | T1 | Evasion | Hollow svchost.exe (looks_reputable), map region, open VM_READ | Detect hollowed or (reputable + manual_mapped + foreign VM_READ) |
@@ -94,7 +94,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `72_desktop_duplication` | Desktop duplication residual | T4 | Delivery | DXGI desktop dup + clean process; no OpenProcess | Multi-reason desktop_dup+clean; fog mitigate |
 | `55_network_multibox_aim` | Network multibox aim | T4 | Delivery | Remote aim stream + multi-sample serial/kmbox + net residual | Multi-reason multibox or net+HID correlation; fog |
 | `74_overwatch_queue` | Overwatch delayed queue | all | Detection | Mild handle + no_rage + second weak (vpn/report) | weak_handle + multi-invariant; multi_reason handle&&overwatch |
-| `75_polymorphic_build` | Polymorphic per-buyer build | all | Evasion | Unique binary_build_id + buyer process + handle + wm/c2 | Hash miss; multi-reason handle+(poly_cluster|wm) - not hash-only |
+| `107_polymorphic_build` | Polymorphic per-buyer build | all | Evasion | Unique binary_build_id + buyer process + handle + wm/c2 | Hash miss; multi-reason handle+(poly_cluster|wm) - not hash-only |
 | `76_gdi_bitblt` | GDI BitBlt screen capture | T0 | Feature | gdi_bitblt_capture=true; no OpenProcess to game | Detect gdi_bitblt_capture; fog mitigate optional |
 | `77_wh_mouse_hook` | WH_MOUSE / mouse hook scar | T0 | Feature | wh_mouse_hook=true; optional inject inputs | Detect wh_mouse_hook |
 | `78_thread_hide_dbg` | ThreadHideFromDebugger / PEB spoof | T1 | Evasion | thread_hide_from_debugger=true, peb_being_debugged_spoofed=true; may open handle | Detect either thread_hide_from_debugger or peb_being_debugged_spoofed |
@@ -106,7 +106,7 @@ Path-oriented index: `scenarios/strategies/CATALOG.md`.
 | `54_lag_switch` | Lag switch residual | T4 | Delivery | lag_switch_active + net residual; distinct from packet_loss | Detect lag; disambig vs packet_loss; fog mitigate |
 | `85_external_clone_display` | External clone display residual | T4 | Delivery | external_display_clone + clean process; no OpenProcess | Multi-reason clone+clean; fog mitigate |
 | `86_vpn_proxy_graph` | VPN / proxy account graph | all | Detection | vpn_proxy_active; ≥3 accounts share vpn_res_1; optional payment | multi_reason vpn_flag&&ip_cluster |
-| `87_build_watermark` | Per-buyer build watermark | all | Evasion | wm_buyer_deadbeef + unique id; handle or account link | Multi-reason watermark && (handle || poly_link) - not wm alone |
+| `109_build_watermark` | Per-buyer build watermark | all | Evasion | wm_buyer_deadbeef + unique id; handle or account link | Multi-reason watermark && (handle || poly_link) - not wm alone |
 | `88_printwindow` | PrintWindow screen capture | T0 | Feature | printwindow_capture=true; no OpenProcess to game | Detect printwindow_capture; fog mitigate optional |
 | `89_block_input` | BlockInput session lock | T0 | Feature | block_input_active=true | Detect block_input_active |
 | `90_sedebug_priv` | SeDebugPrivilege enable | T1 | Evasion | sedebug_privilege=true; may open handle | Detect sedebug_privilege |

@@ -99,38 +99,21 @@ void apply_schema_fields(Cs2Offsets& o) {
 
 enum class JsonNumberState { Missing, Valid, Invalid };
 
-bool is_json_number_delimiter(char c) {
-  return c == ',' || c == '}' || std::isspace(static_cast<unsigned char>(c));
-}
-
 JsonNumberState json_get_unique_u64(const std::string& text, const char* key,
                                     std::uint64_t& out) {
   const std::string needle(key);
   bool found = false;
   for (const json::KeyLocation& location : json::key_locations(text, needle)) {
     if (!json::key_shape_ok(location)) continue;
-    std::size_t pos = location.pos + needle.size();
-    while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos]))) ++pos;
-    if (pos >= text.size() || text[pos] != ':') return JsonNumberState::Invalid;
-    ++pos;
-    while (pos < text.size() && std::isspace(static_cast<unsigned char>(text[pos]))) ++pos;
-    if (pos >= text.size() || text[pos] == '-' || text[pos] == '+' || text[pos] == '"') {
-      return JsonNumberState::Invalid;
-    }
-
-    const char* first = text.data() + pos;
-    const char* last = text.data() + text.size();
     std::uint64_t value = 0;
-    const auto [end, error] = std::from_chars(first, last, value, 10);
-    if (error != std::errc{} || end == first ||
-        (end != last && !is_json_number_delimiter(*end))) {
+    if (!json::number_after(text, location, needle.size(), value)) {
       return JsonNumberState::Invalid;
     }
     if (found) return JsonNumberState::Invalid;
     out = value;
     found = true;
   }
-  return found ? JsonNumberState::Valid: JsonNumberState::Missing;
+  return found ? JsonNumberState::Valid : JsonNumberState::Missing;
 }
 
 bool distinct_nonzero(std::initializer_list<std::uint64_t> values) {

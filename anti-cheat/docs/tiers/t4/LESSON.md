@@ -34,7 +34,7 @@ Use `t4_blue::DmaDefense` and pair blue_example sensors for multi-reason detect 
 ## Run
 
 ```bash
-./anti-cheat/build/dev/strategy_lab run --tier T4
+./anti-cheat/build/dev/strategy_lab all --tier T4
 ./anti-cheat/build/dev/duel_t4   # if built
 ```
 

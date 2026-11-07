@@ -20,7 +20,9 @@ RedResult apply(sim::World& w) {
   }
   ++r.steps;
   std::printf("[red:ept_hide_ac] step %d: apply isolated strategy residual\n", r.steps);
-  w.trust.personal_hv_active = true; w.trust.ept_hide_ac_pages = true; w.trust.guest_ac_view_clean = true;
+  w.trust.vbs = false; w.trust.hvci = false;
+  (void)w.try_start_personal_hv("lab");
+  w.trust.ept_hide_ac_pages = true; w.trust.guest_ac_view_clean = true;
   if (!(w.trust.ept_hide_ac_pages)) {
     return {false, r.steps, "strategy residual was not recorded"};
   }

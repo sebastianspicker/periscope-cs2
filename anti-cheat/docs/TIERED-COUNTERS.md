@@ -67,7 +67,7 @@ Red does X; blue counters with Y. Software-first. DMA residual at T4.
 
 | Red theme | Blue theme | Example IDs |
 |-----------|------------|-------------|
-| Staged loader / manual map | Runtime RX + C2 | 12_staged_loader |
+| Staged loader / manual map | Runtime RX + C2 | 111_staged_loader |
 | Poly build / watermark | Handle + extractable wm | 75_, 87_ |
 | HWID spoof | Payment/IP graph | 15_, 23_, 86_ |
 | Soft aim | Snap slips; residual IA | 11_aim_humanization |

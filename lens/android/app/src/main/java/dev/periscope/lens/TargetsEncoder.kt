@@ -19,7 +19,7 @@ package dev.periscope.lens
  * Python decoder's fixtures byte-for-byte when CI lands.
  */
 object TargetsEncoder {
-    const val PROTOCOL_VERSION: Int = 1
+    const val PROTOCOL_VERSION: Int = 2
     const val TYPE_HELLO: Int = 1
     const val TYPE_TARGETS: Int = 2
     const val TYPE_PING: Int = 3
@@ -29,7 +29,7 @@ object TargetsEncoder {
     const val MAX_FRAME_BYTES: Int = 512 * 1024
 
     private val BOX_BYTES = 21
-    private val HEAD_BYTES = 17
+    private val HEAD_BYTES = 21
 
     data class TargetBox(
         val classId: Int,
@@ -44,6 +44,8 @@ object TargetsEncoder {
         val frameId: Long,
         val tCaptureNs: Long,
         val boxes: List<TargetBox>,
+        val frameWidth: Int = 1280,
+        val frameHeight: Int = 720,
     )
 
     private fun frame(type: Int, payload: ByteArray): ByteArray {
@@ -91,6 +93,11 @@ object TargetsEncoder {
         putU64(targets.tCaptureNs, body, 8)
         require(targets.boxes.size <= 255) { "too many boxes for u8 count" }
         body[16] = targets.boxes.size.toByte()
+        require(targets.frameWidth in 0..0xFFFF && targets.frameHeight in 0..0xFFFF) {
+            "frame dimensions must fit a u16"
+        }
+        putU16(targets.frameWidth.toLong(), body, 17)
+        putU16(targets.frameHeight.toLong(), body, 19)
         targets.boxes.forEachIndexed { index, box ->
             val offset = HEAD_BYTES + index * BOX_BYTES
             body[offset] = box.classId.toByte()

@@ -332,11 +332,11 @@ ac::ReadResult World::read_mem(std::uint32_t reader_pid, std::uint32_t target_pi
   out.bytes.assign(t->memory.begin() + static_cast<std::ptrdiff_t>(off),
                    t->memory.begin() + static_cast<std::ptrdiff_t>(off + size));
   out.status = ac::Status::Ok;
-  // Bulk/pattern-scan residual: count successful handle-gated remote reads.
-  if (require_handle) {
-    ++remote_read_ops;
-    remote_read_bytes += static_cast<std::uint32_t>(size);
-  }
+  // Remote read telemetry: every successful read leaves this residual, whether
+  // or not the caller had a handle. Handle-gated paths are counted separately
+  // by consumers that need them.
+  ++remote_read_ops;
+  remote_read_bytes += static_cast<std::uint32_t>(size);
   return out;
 }
 

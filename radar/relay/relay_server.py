@@ -58,6 +58,11 @@ def ws_accept(key: str) -> str:
     return base64.b64encode(digest).decode("ascii")
 
 
+def sequence_payload(sequence: int, payload: bytes) -> bytes:
+    """Prepend the monotonic room sequence so viewers can spot a drop."""
+    return int(sequence).to_bytes(8, "little") + payload
+
+
 def build_frame(opcode: int, payload: bytes, mask: bytes | None = None) -> bytes:
     header = bytes([(0x80 | opcode) & 0xFF])
     length = len(payload)
@@ -74,24 +79,43 @@ def build_frame(opcode: int, payload: bytes, mask: bytes | None = None) -> bytes
     return header + payload
 
 
-async def read_frame(reader: asyncio.StreamReader) -> tuple[int, bytes]:
+async def _read_one_frame(reader: asyncio.StreamReader) -> tuple[bool, int, bytes]:
     head = await reader.readexactly(2)
+    fin = bool(head[0] & 0x80)
     opcode = head[0] & 0x0F
     masked = bool(head[1] & 0x80)
+    if not masked:
+        raise RelayError("client frame is not masked")
     length = head[1] & 0x7F
     if length == 126:
         length = int.from_bytes(await reader.readexactly(2), "big")
     elif length == 127:
         length = int.from_bytes(await reader.readexactly(8), "big")
-    # Reject before allocating: a peer can otherwise claim an absurd length
-    # and make the server buffer it.
     if length > MAX_FRAME_BYTES:
         raise RelayError(f"frame of {length} bytes exceeds cap")
-    mask = await reader.readexactly(4) if masked else None
+    mask = await reader.readexactly(4)
     payload = await reader.readexactly(length) if length else b""
-    if mask is not None:
-        payload = bytes(b ^ mask[i % 4] for i, b in enumerate(payload))
-    return opcode, payload
+    payload = bytes(b ^ mask[i % 4] for i, b in enumerate(payload))
+    return fin, opcode, payload
+
+
+async def read_frame(reader: asyncio.StreamReader) -> tuple[int, bytes]:
+    fin, opcode, payload = await _read_one_frame(reader)
+    if fin and opcode != 0x0:
+        return opcode, payload
+    # Fragmented message: keep the first opcode, join continuation frames.
+    first_opcode = opcode if opcode != 0x0 else 0x1
+    parts = [payload]
+    total = len(payload)
+    while not fin:
+        fin, opcode, payload = await _read_one_frame(reader)
+        if opcode not in (0x0, first_opcode):
+            raise RelayError("interleaved control frame inside fragments")
+        parts.append(payload)
+        total += len(payload)
+        if total > MAX_FRAME_BYTES:
+            raise RelayError("fragmented message exceeds cap")
+    return first_opcode, b"".join(parts)
 
 
 class RelayServer:
@@ -320,7 +344,7 @@ class RelayServer:
             # Latest frame on connect: a fresh viewer is immediately current.
             latest = self.store.latest(room_id)
             if latest is not None and limiter.allow():
-                writer.write(build_frame(0x1, latest[1]))
+                writer.write(build_frame(0x1, sequence_payload(*latest)))
                 await writer.drain()
             while True:
                 try:
@@ -348,7 +372,7 @@ class RelayServer:
             if not limiter.allow():
                 continue
             try:
-                writer.write(build_frame(0x1, payload))
+                writer.write(build_frame(0x1, sequence_payload(sequence, payload)))
                 await writer.drain()
             except (ConnectionError, RuntimeError):
                 continue

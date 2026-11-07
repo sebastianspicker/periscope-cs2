@@ -540,7 +540,8 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
   std::uint64_t chunk0 = 0;
   bool bulk = opt.bulk_reads;
   if (bulk) {
-    if (!rd_t(read, entity_list + chunk_table_offset(), chunk0) || chunk0 == 0) {
+    if (!rd_t(read, entity_list + chunk_table_offset(), chunk0) ||
+        !handle::pointer_usable(chunk0)) {
       bulk = false;
     }
   }
@@ -585,7 +586,7 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
         // The page already answered for this slot: an empty slot costs zero
         // reads instead of the two-read resolve fallback.
         slot_known = true;
-        have_controller = controller != 0;
+        have_controller = handle::pointer_usable(controller);
       }
     }
     if (slot_known && !have_controller) continue;
@@ -627,7 +628,7 @@ EntityReadResult read_entity_list_scattered(RemoteReadFn read,
                    entity_list + geo.chunk_table_offset +
                        static_cast<std::uint64_t>(chunk_number) * 8ull,
                    pawn_chunk) &&
-              pawn_chunk != 0) {
+              handle::pointer_usable(pawn_chunk)) {
             chunk_cache.emplace(chunk_number, pawn_chunk);
           }
         }

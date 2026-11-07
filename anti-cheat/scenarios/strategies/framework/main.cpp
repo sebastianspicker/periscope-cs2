@@ -1,20 +1,21 @@
 // main.cpp: strategy_lab CLI:
 //   list [--family <F>] [--tier <T>] | stats | all [--quiet] [--family <F>]
 //   [--tier <T>] | run <id> | attach | mode.
-// Dual-mode dispatch: strategies run against real CS2 and/or sim::World.
+// Simulation-only dispatch. The real/hybrid mode fields are retained, but every
+// pair currently runs on sim::World; real process access lives in radar/.
 //
 // Educational design:
-//   - `run` defaults to HYBRID mode: tries real CS2, falls back to sim.
+//   - `run` always runs the simulated world.
 //   - `attach` finds and inspects a real CS2 process.
-//   - `mode` displays or sets the runtime mode (real/sim/hybrid).
+//   - `mode` accepts real/sim/hybrid but currently always reports sim.
 //   - `list` shows all strategies; T0/T1 strategies support real mode.
-//   - `stats` prints a summary table (families, tiers, real-capable).
+//   - `stats` prints a summary table (families, tiers, real-capable; 0 for now).
 //
 // Quick start:
 //./build/strategy_lab attach              # Check if CS2 is running
-//./build/strategy_lab run 01_external_rpm # Dual mode (real + sim)
+//./build/strategy_lab run 01_external_rpm # Simulation run
 //./build/strategy_lab mode sim            # Force sim-only mode
-//   LR_MODE=real./build/strategy_lab run 01_external_rpm  # Env override
+//   LR_MODE=real ./build/strategy_lab run 01_external_rpm  # Env override (still sim today)
 
 #include "strategies/framework.hpp"
 
@@ -34,9 +35,9 @@ static void usage(const char* argv0) {
       "  %s stats                               Print catalog summary table\n"
       "  %s all [--quiet] [--family <F>] [--tier <T>]\n"
       "                                         Run all (or filtered) strategy pairs (sim mode)\n"
-      "  %s run <strategy_id>     Run one strategy (hybrid: real CS2 + sim fallback)\n"
+      "  %s run <strategy_id>     Run one strategy on the simulated world\n"
       "  %s attach                Try to find and inspect the real CS2 process\n"
-      "  %s mode [real|sim|hybrid] Show or set the runtime execution mode\n"
+      "  %s mode [real|sim|hybrid] Show or set the mode (currently always sim)\n"
       "\n"
       "Filters (case-insensitive):\n"
       "  --family <F>    Delivery | Feature | Evasion | Detection | Structural\n"
@@ -260,7 +261,7 @@ int main(int argc, char** argv) {
       return 2;
     }
 
-    // Dual mode (hybrid default): try real CS2 + sim comparison
+    // Retained dual-mode shape; the real half is stubbed today.
     auto result = strategies::run_dual(argv[2], true);
 
     // Show summary
@@ -270,9 +271,7 @@ int main(int argc, char** argv) {
 
     // Pass condition: blue detected/mitigated OR red didn't achieve
     const auto& effective = result.sim;
-    const bool pass = effective.blue_detected ||
-                      effective.blue_mitigated ||
-                      !effective.red_achieved;
+    const bool pass = effective.blue_detected || effective.blue_mitigated;
     return pass ? 0: 1;
   }
 

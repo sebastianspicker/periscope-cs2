@@ -473,3 +473,26 @@ def test_edge_cues_empty_and_degenerate() -> None:
 
     assert compute_edge_cues((), 100, 100) == ()
     assert compute_edge_cues((_mask(0, 0, 10, 10),), 0, 100) == ()
+
+
+def test_shared_sink_reclaims_crashed_segment() -> None:
+    from cs2_vision_access.adapters.capture.sinks.shared import SharedFrameSink
+
+    first = SharedFrameSink("v10_stale_test", 6, 4, slots=2)
+    name = first._name
+    first._shm.close()  # simulate a crash: mapped memory gone, segment stays
+    with SharedFrameSink(name, 6, 4, slots=2) as second:
+        assert second._shm.buf is not None
+    with SharedFrameSink(name, 8, 4, slots=2) as resized:
+        assert resized.frame_bytes == 8 * 4 * 4
+
+
+def test_shared_sink_adopts_first_frame_size() -> None:
+    from cs2_vision_access.adapters.capture.sinks.shared import SharedFrameSink
+
+    with SharedFrameSink("v7_resize_test", 1920, 1080, slots=2) as sink:
+        sink.send(np.zeros((720, 1280, 4), dtype=np.uint8), 0)
+        assert sink.frame_bytes == 1280 * 720 * 4
+        # A later different size is rejected, not silently corrupted.
+        with pytest.raises(ValueError):
+            sink.send(np.zeros((1080, 1920, 4), dtype=np.uint8), 1)

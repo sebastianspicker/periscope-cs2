@@ -74,6 +74,7 @@ def write_text_atomic(destination: Path, payload: str) -> None:
             temporary_name = handle.name
             handle.write(payload)
             handle.flush()
+            os.fsync(handle.fileno())
         Path(temporary_name).replace(destination)
     except OSError as error:
         if temporary_name is not None:

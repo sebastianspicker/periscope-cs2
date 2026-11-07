@@ -107,8 +107,6 @@ def _regular_json_file(path: str | Path, *, label: str) -> Path:
     candidate = Path(path)
     if candidate.is_symlink():
         raise OutlinePreferencesError(f"{label} path must not be a symlink")
-    if candidate.parent.is_symlink():
-        raise OutlinePreferencesError(f"{label} parent must not be a symlink")
     if not candidate.is_file():
         raise OutlinePreferencesError(f"{label} is not a regular file: {candidate}")
     if candidate.suffix.lower() != ".json":

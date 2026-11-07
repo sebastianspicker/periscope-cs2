@@ -114,6 +114,7 @@ int main() {
     const DWORD w = WaitForSingleObject(evt_req, 200);
     if (w != WAIT_OBJECT_0) continue;
     if (hdr->status != 1) continue;
+    hdr->ack_ticket = hdr->ticket;
     const std::uint32_t sz = hdr->req_size;
     if (sz == 0 || sz > kDonorMaxPayload) {
       hdr->status = 3;

@@ -30,6 +30,21 @@ class OutputSink(Protocol):
         """Release any resources held by the sink."""
 
 
+class MultiSink:
+    """Fan out one frame to several sinks (file + shared memory)."""
+
+    def __init__(self, sinks: list[OutputSink]) -> None:
+        self._sinks = sinks
+
+    def send(self, frame: np.ndarray, frame_index: int) -> None:
+        for sink in self._sinks:
+            sink.send(frame, frame_index)
+
+    def close(self) -> None:
+        for sink in self._sinks:
+            sink.close()
+
+
 @dataclass
 class FileOutputSink:
     """Write rendered frames to disk as a video or PNG image sequence.

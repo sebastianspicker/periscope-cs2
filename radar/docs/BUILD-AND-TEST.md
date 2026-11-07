@@ -78,8 +78,9 @@ ctest --test-dir radar/build/dev --output-on-failure   # portable host tests
 ./radar/build/dev/strategy_lab all --quiet             # strategy pairs (lab catalog)
 ```
 
-`ctest` covers the nine `radar_*` host tests: snapshot, sampling, ring,
-geometry, offsets, scatter, LOS, webradar and tri_loader. They link only the
+`ctest` covers the eleven `radar_*` host tests: snapshot, sampling, ring,
+geometry, offsets, scatter, LOS, webradar, tri_loader, entity math and the
+external-ledger primitives. They link only the
 pure radar libraries (`radar_snapshot`, `radar_webradar`, `radar_collision`),
 so the suite runs on every platform with the default configuration.
 
@@ -90,9 +91,9 @@ python3 scripts/verify.py radar-sim
 ```
 
 It configures and builds `radar/` with `-DLR_BUILD_STRATEGY_LAB=ON`, expects
-CTest to report 9/9, then runs the anti-cheat lab's strategy catalog from
+CTest to report 11/11, then runs the anti-cheat lab's strategy catalog from
 radar's build directory (`strategy_lab list`, `strategy_lab all --quiet`,
-187 pairs, 0 failures). The catalog itself and the lab-only verification lane
+202 pairs, 0 failures). The catalog itself and the lab-only verification lane
 (`verify.py anti-cheat-sim`, which owns the `stack_posture_test` now that the
 posture test moved with the lab) are documented in
 [`../../anti-cheat/CONTRIBUTING.md`](../../anti-cheat/CONTRIBUTING.md) and

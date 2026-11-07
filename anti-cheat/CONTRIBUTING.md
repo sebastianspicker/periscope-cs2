@@ -26,11 +26,13 @@ Educational anti-cheat lab (anti-cheat track of the Periscope monorepo). Useful 
    ```
 2. Export `entry_NN_short_name()` from `pair.cpp`.
 3. Register it in `scenarios/strategies/framework/registry.cpp`.
-4. Rebuild and run:
+4. Add `red_example.cpp`, `blue_example.cpp` and `pair.cpp` to
+   `cmake/ScenarioSources.cmake`.
+5. Rebuild and run:
    ```bash
    ./build/dev/strategy_lab run <id>
    ```
-5. If the pair introduces a new surface class, update the CMake wiring.
+6. If the pair introduces a new surface class, update the CMake wiring beyond the manifest.
 
 ## Verify
 

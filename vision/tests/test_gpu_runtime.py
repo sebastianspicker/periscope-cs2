@@ -135,3 +135,19 @@ def test_benchmark_failure_is_logged(
     monkeypatch.setattr(benchmark, "benchmark_device", boom)
     assert benchmark._benchmark_candidate("m.onnx", "cuda:0") is None
     assert "cuda:0" in caplog.text
+
+
+def test_nms_is_class_aware() -> None:
+    boxes = np.array([[0.0, 0.0, 10.0, 10.0], [0.0, 0.0, 10.0, 10.0]], dtype=np.float32)
+    scores = np.array([0.9, 0.8], dtype=np.float32)
+    assert nms(boxes, scores, 0.5) == [0]
+    assert nms(boxes, scores, 0.5, np.array([0, 1])) == [0, 1]
+
+
+def test_nms_zero_area_does_not_poison_later_boxes() -> None:
+    boxes = np.array(
+        [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [2.0, 2.0, 8.0, 8.0]],
+        dtype=np.float32,
+    )
+    scores = np.array([0.9, 0.8, 0.7], dtype=np.float32)
+    assert nms(boxes, scores, 0.5) == [0, 1, 2]

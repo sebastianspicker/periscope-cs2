@@ -18,11 +18,11 @@ name/
 
 | Theme | Example IDs | Multi-step idea |
 |-------|-------------|-----------------|
-| Staged loader | 12_staged_loader | Stub to payload to manual map to CDN to mapper |
-| Crypto / poly | 13_obfuscation_crypto, 75_polymorphic_build, 87_build_watermark | Unique build + handle; YARA miss |
+| Staged loader | 111_staged_loader | Stub to payload to manual map to CDN to mapper |
+| Crypto / poly | 106_obfuscation_crypto, 107_polymorphic_build, 109_build_watermark | Unique build + handle; YARA miss |
 | Offset C2 | 14_offset_c2 | Handle and offset CDN intel |
-| HWID | 15_hwid_spoof | Spoof + payment/IP cluster accounts |
-| Anti-RE | 52_anti_re_canary | Analysis host + canary + debug posture |
+| HWID | 110_hwid_spoof | Spoof + payment/IP cluster accounts |
+| Anti-RE | 108_anti_re_canary | Analysis host + canary + debug posture |
 | VEH CF | 63_veh_exception_cf | Dirty VEH chain + handlers + correlate |
 | Clipboard | 99_clipboard_token | Leak + loader + net + handle |
 

@@ -238,6 +238,14 @@ static void test_entity_cache_diffs_and_generations() {
   CHECK_EQ(cache.last_diff().added.size(), 0u);
   CHECK_EQ(cache.last_diff().removed.size(), 1u);
 
+  // Re-add a handle that is still pending removal: it must survive the
+  // publish and must not be reported as removed.
+  cache.remove(1);
+  cache.upsert(1, Entity{90});
+  snap = cache.publish();
+  CHECK_EQ(snap.entities.size(), 2u);
+  CHECK_EQ(cache.last_diff().removed.size(), 0u);
+
   // Generation grows on upsert; a snapshot is stale below it.
   const std::uint64_t before = cache.generation();
   cache.upsert(2, Entity{60});
@@ -248,8 +256,12 @@ static void test_entity_cache_diffs_and_generations() {
   // Lock-free latest path agrees with the last publish.
   CacheSnapshot<Entity> latest{};
   CHECK(cache.latest(latest));
-  CHECK_EQ(latest.entities.size(), 1u);
-  CHECK_EQ(latest.entities[0].health, 60);
+  CHECK_EQ(latest.entities.size(), 2u);
+  bool found_60 = false;
+  for (const Entity& entity : latest.entities) {
+    if (entity.health == 60) found_60 = true;
+  }
+  CHECK(found_60);
 }
 
 static void test_entity_cache_sync_full_walk() {

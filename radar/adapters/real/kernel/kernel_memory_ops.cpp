@@ -199,8 +199,7 @@ Result<std::vector<std::uint8_t>> read_process_memory_by_cr3(
   std::vector<std::uint8_t> result(size);
   const std::uint64_t cr3_frame = pte_frame(cr3);
 
-  for (std::size_t offset = 0; offset < size;) {
-    const std::uint64_t virt = address + offset;
+  for (std::size_t offset = 0; offset < size;) {    const std::uint64_t virt = address + offset;
     const PageIndices idx = virt_to_indices(virt);
 
     auto pml4_data = read_physical(pte_entry_phys(cr3_frame, idx.pml4), 8);
@@ -232,6 +231,9 @@ Result<std::vector<std::uint8_t>> read_process_memory_by_cr3(
       if (page_data) {
         std::memcpy(result.data() + offset, page_data->data(),
                     (std::min)(chunk, page_data->size()));
+      } else {
+        return Result<std::vector<std::uint8_t>>(
+            {}, "physical read failed for present 1G page");
       }
       offset += chunk;
       continue;
@@ -255,6 +257,9 @@ Result<std::vector<std::uint8_t>> read_process_memory_by_cr3(
       if (page_data) {
         std::memcpy(result.data() + offset, page_data->data(),
                     (std::min)(chunk, page_data->size()));
+      } else {
+        return Result<std::vector<std::uint8_t>>(
+            {}, "physical read failed for present 2M page");
       }
       offset += chunk;
       continue;
@@ -277,6 +282,9 @@ Result<std::vector<std::uint8_t>> read_process_memory_by_cr3(
     if (page_data) {
       std::memcpy(result.data() + offset, page_data->data(),
                   (std::min)(chunk, page_data->size()));
+    } else {
+      return Result<std::vector<std::uint8_t>>(
+          {}, "physical read failed for present 4K page");
     }
     offset += chunk;
   }

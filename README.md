@@ -20,7 +20,16 @@ Read [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) before building anything. It
 | [`vision/`](vision/) | Screen pixels, capture device or video file | Python 3.11 to 3.13 | Window, overlay, video file or shared-memory ring | CPU inference with ONNX Runtime |
 | [`lens/`](lens/) | Phone camera frames | Python package plus an Android companion | Calibrated targets, motion deltas | Camera only; output paths are opt-in |
 
-Radar consumes anti-cheat libraries one way. The lab never imports Radar. Vision and Lens share no runtime code with either.
+Radar consumes anti-cheat libraries one way. The lab never imports Radar sources, except the test-only
+`stack_posture_test` include of radar's posture header. Vision and Lens share no runtime code with either.
+
+## Prerequisites
+
+- `cmake` 3.20 or newer and a C++20 compiler for `anti-cheat/` and `radar/`.
+- `uv` and Python 3.11 to 3.13 for `vision/` and `lens/`.
+- Radar expects the sibling `anti-cheat/` checkout (it is the current repo).
+- Windows real backends additionally need MSVC or Clang-CL, and optional WDK,
+  VMX or DMA hardware. They are off by default.
 
 ## Quick start
 

@@ -180,7 +180,8 @@ def test_breakdown_prefers_measured_over_assumed() -> None:
     )
 
     partial = breakdown(camera_to_detect_ms=25.0, rtt=RoundTrip())
-    assert partial.compensation_ms == 80.0  # one measured segment alone
+    # Measured capture plus the assumed transport half, never the truncated max.
+    assert partial.compensation_ms == pytest.approx(25.0 + 40.0)
     # does not validate the whole budget
 
     with pytest.raises(LatencyError):
@@ -207,3 +208,28 @@ def test_encode_rejects_out_of_range_targets() -> None:
         encode(Targets(1, 2, (TargetBox(256, 0.5, 1.0, 2.0, 3.0, 4.0),)))
     with pytest.raises(ProtocolError, match="frame_id"):
         encode(Targets(-1, 2, (box,)))
+
+
+def test_targets_frame_dimensions_round_trip_and_scale() -> None:
+    from periscope_lens.policy import scale_targets
+
+    message = Targets(
+        frame_id=1,
+        t_capture_ns=2,
+        boxes=(TargetBox(0, 0.9, 640.0, 360.0, 100.0, 200.0),),
+        frame_width=1280,
+        frame_height=720,
+    )
+    decoder = Decoder()
+    decoder.feed(encode(message))
+    decoded = decoder.messages()[0]
+    assert isinstance(decoded, Targets)
+    assert (decoded.frame_width, decoded.frame_height) == (1280, 720)
+
+    scaled = scale_targets(decoded, 1920, 1080)
+    assert scaled.boxes[0].cx == pytest.approx(960.0)
+    assert scaled.boxes[0].cy == pytest.approx(540.0)
+    assert scaled.boxes[0].width == pytest.approx(150.0)
+    # No metadata leaves the boxes untouched.
+    plain = Targets(1, 2, decoded.boxes)
+    assert scale_targets(plain, 1920, 1080).boxes[0].cx == pytest.approx(640.0)

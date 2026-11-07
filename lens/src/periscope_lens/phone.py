@@ -46,6 +46,8 @@ def build_scrcpy_command(
     max_size: int = _DEFAULT_SCRCPY_MAX_SIZE,
     max_fps: int = _DEFAULT_SCRCPY_MAX_FPS,
     camera_id: str | None = None,
+    v4l2_sink: str | None = None,
+    record_path: str = "raw_video.h264",
 ) -> list[str]:
     """The scrcpy invocation that streams the phone's *camera* (not screen).
 
@@ -61,11 +63,13 @@ def build_scrcpy_command(
         command.append(f"--camera-id={camera_id}")
     if device_serial is not None:
         command.extend(["--serial", device_serial])
+    if v4l2_sink is not None:
+        command.append(f"--v4l2-sink={v4l2_sink}")
     command.extend(
         [
             f"--max-size={max_size}",
             f"--max-fps={max_fps}",
-            "--record=raw_video.h264",
+            f"--record={record_path}",
             "--no-playback",
         ]
     )
@@ -100,6 +104,7 @@ class PhoneCameraSource:
 
     backend: str
     frame_reader: FrameReader
+    reopen: Callable[[], FrameReader] | None = None
     max_consecutive_failures: int = 3
     _failures: int = 0
     _closed: bool = field(default=False)
@@ -139,6 +144,26 @@ class PhoneCameraSource:
 
     def should_reconnect(self) -> bool:
         return self._failures >= self.max_consecutive_failures
+
+    def reconnect(self) -> bool:
+        """Release the current handle and rebuild it through ``reopen``.
+
+        Returns false when no factory is configured or reopen fails. The
+        failure counter is only cleared after a successful rebuild.
+        """
+        closer = getattr(self.frame_reader, "close", None)
+        if callable(closer):
+            closer()
+        if self.reopen is None:
+            self._failures = 0
+            return False
+        try:
+            self.frame_reader = self.reopen()
+        except PhoneSourceError:
+            return False
+        self._failures = 0
+        self._closed = False
+        return True
 
     def reset_after_reconnect(self) -> None:
         self._failures = 0

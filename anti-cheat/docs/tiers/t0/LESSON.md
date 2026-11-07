@@ -39,7 +39,7 @@ Use `t0_blue::AcAgent` and pair blue_example sensors for multi-reason detect and
 ## Run
 
 ```bash
-./anti-cheat/build/dev/strategy_lab run --tier T0
+./anti-cheat/build/dev/strategy_lab all --tier T0
 ./anti-cheat/build/dev/duel_t0   # if built
 ```
 

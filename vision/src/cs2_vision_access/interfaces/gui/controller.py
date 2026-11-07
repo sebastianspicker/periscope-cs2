@@ -82,7 +82,7 @@ def build_live_pipeline_config(
         capture=capture,
         max_frames=settings.max_frames,
         display_scale=settings.display_scale,
-        headless=True,
+        headless=settings.headless and overlay is None,
         alpha_output_mode=settings.output_mode,
         enable_alpha_fill=settings.alpha_fill,
         temporal_config=TemporalStabilityConfig(

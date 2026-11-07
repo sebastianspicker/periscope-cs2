@@ -6,8 +6,9 @@ smartphone pointed at the game monitor, capturing the game with its
 camera, running vision enhancement on-device, connected to the PC by
 cable to feed aim assistance.
 
-Camera-first by construction: the phone watches the monitor; today the game
-PC runs nothing. Actuation paths are opt-in (see
+Camera-first by construction: the phone watches the monitor. The game
+process is never opened; only optional PC-side capture tooling runs beside
+it. Actuation paths are opt-in (see
 [docs/decisions/0002-live-game-use-permitted.md](../docs/decisions/0002-live-game-use-permitted.md)
 for the project's live-use policy).
 
@@ -31,6 +32,9 @@ operation is not claimed.
 | `android/` | Kotlin companion sources (Camera2/ORT seams, wire encoder, HID probe) |
 
 ## Quick start
+
+Needs `uv` and Python 3.12. The real camera binding additionally needs
+OpenCV (next section).
 
 ```bash
 cd lens

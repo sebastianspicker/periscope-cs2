@@ -87,7 +87,7 @@ StrategyResult assemble_pair_result(const RedOutcome& red,
 }
 
 bool pair_pass(const StrategyResult& r) {
-  return r.blue_detected || r.blue_mitigated || !r.red_achieved;
+  return r.blue_detected || r.blue_mitigated;
 }
 
 std::string describe_pair_result(const StrategyResult& r) {

@@ -71,7 +71,7 @@ def _decode_nms(
     boxes, scores, class_ids = _filter_by_confidence(boxes, scores, class_ids, confidence)
     if len(boxes) > 0:
         # ``nms`` runs greedy NMS on the host (CuPy inputs are copied once).
-        keep = nms(boxes, scores, iou_threshold)
+        keep = nms(boxes, scores, iou_threshold, class_ids)
         boxes = boxes[keep]
         scores = scores[keep]
         class_ids = class_ids[keep]

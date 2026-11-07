@@ -20,7 +20,9 @@ RedResult apply(sim::World& w) {
   }
   ++r.steps;
   std::printf("[red:feature_control_msr] step %d: apply isolated strategy residual\n", r.steps);
-  w.feature_control_spoofed = true; w.trust.personal_hv_active = true;
+  w.trust.vbs = false; w.trust.hvci = false;
+  (void)w.try_start_personal_hv("lab");
+  w.feature_control_spoofed = true;
   if (!(w.feature_control_spoofed)) {
     return {false, r.steps, "strategy residual was not recorded"};
   }

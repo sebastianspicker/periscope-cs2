@@ -4,8 +4,9 @@
 
 Pre-alpha phone-camera track for studying camera-based assist for
 Counter-Strike 2: a smartphone watches the monitor, portable modules compute
-targets, motion deltas and output reports. The game PC runs nothing and
-shares nothing - capture is light the phone sees.
+targets, motion deltas and output reports. The game process is never opened and
+shares nothing; capture is light the phone sees. Optional PC-side capture
+tooling (scrcpy, DroidCam) runs outside the game.
 
 ## What it is not
 

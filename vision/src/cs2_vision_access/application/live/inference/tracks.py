@@ -231,6 +231,7 @@ class TrackAnimator:
         masks: Sequence[InstanceMask],
         *,
         frame_index: int,
+        dt_s: float | None = None,
     ) -> tuple[tuple[InstanceMask, ...], TrackDiagnostics]:
         """Associate, smooth, animate; return the masks to draw this frame.
 
@@ -259,9 +260,13 @@ class TrackAnimator:
             centroid_match_px=self._centroid_match_px,
         )
 
-        smoothing_factor = (
-            1.0 if config.smoothing_rate <= 0.0 else 1.0 - math.exp(-config.smoothing_rate)
-        )
+        # ``smoothing_rate`` is expressed per 60 fps frame. When the caller
+        # supplies dt, convert to a time constant so 30 and 60 fps behave the
+        # same over a second.
+        rate = config.smoothing_rate
+        if dt_s is not None and math.isfinite(dt_s) and dt_s > 0.0:
+            rate = config.smoothing_rate * dt_s * 60.0
+        smoothing_factor = 1.0 if rate <= 0.0 else 1.0 - math.exp(-rate)
 
         emitted: list[InstanceMask] = []
         matched_track_indices: set[int] = set()

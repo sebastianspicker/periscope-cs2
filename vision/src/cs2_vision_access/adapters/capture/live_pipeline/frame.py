@@ -173,7 +173,12 @@ def run_frame(
     # after the temporal filter so fading geometry is also smoothed.
     tracks_active = 0
     if track_animator is not None:
-        predictions, _track_diag = track_animator.update(predictions, frame_index=frame_index)
+        fps = float(getattr(cfg.capture, "preferred_fps", 0.0) or 0.0)
+        predictions, _track_diag = track_animator.update(
+            predictions,
+            frame_index=frame_index,
+            dt_s=(1.0 / fps) if fps > 0 else None,
+        )
         tracks_active = _track_diag.active_tracks
     result.tracks_active = tracks_active
 

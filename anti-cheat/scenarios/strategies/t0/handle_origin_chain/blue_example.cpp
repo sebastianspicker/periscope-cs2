@@ -2,6 +2,7 @@
 #include "strategies/strategy_support.hpp"
 
 #include <cstdio>
+#include <set>
 
 namespace examples::handle_origin_chain {
 
@@ -31,26 +32,25 @@ BlueResult detect(sim::World& w) {
   sig(duplicate_handles > 0,
       "duplicate-acquired VM_READ handles=" + std::to_string(duplicate_handles));
 
-  // Reason 2: walk one hop past the immediate owner. A handle whose owner
-  // also holds a duplicate/source handle means the true origin is upstream;
-  // an owner-only sensor would name the wrong process.
-  bool misattributed = false;
+  // Reason 2: duplicate edges alone are not enough. Walk the whole handle set
+  // for the target and count distinct owners: with a relay chain, at least
+  // three processes (donor, relay, consumer) hold an edge, so the immediate
+  // owner is not the origin. A single duplicate with no upstream stays at one.
+  std::set<std::uint32_t> owners;
   for (const auto& entry : w.handle_table.open_handles_to(game_pid, true)) {
-    if (entry.acquisition != ac::HandleAcquisitionModel::HandleDuplicate) {
-      continue;
+    if (entry.acquisition == ac::HandleAcquisitionModel::HandleDuplicate ||
+        entry.acquisition == ac::HandleAcquisitionModel::DirectOpenProcess) {
+      owners.insert(entry.owner_pid);
     }
-    for (const auto& upstream : w.handle_table.open_handles_from(entry.owner_pid)) {
-      if (upstream.target_pid == game_pid) {
-        misattributed = true;
-        ++w.handle_origin_trace_hops;
-        break;
-      }
-    }
-    if (misattributed) break;
   }
+  const bool misattributed = owners.size() >= 3 && duplicate_handles >= 2;
+  w.handle_origin_trace_hops = owners.empty()
+                                   ? 0
+                                   : static_cast<int>(owners.size()) - 1;
   w.handle_origin_misattributed = misattributed;
   sig(misattributed,
-      "owner-of-owner resolves a source handle: origin is one hop upstream");
+      "distinct handle owners=" + std::to_string(owners.size()) +
+          ": origin is upstream of the immediate owner");
 
   // Reason 3: chain depth recorded by the duplicate graph.
   sig(w.handle_chain_depth >= 2,

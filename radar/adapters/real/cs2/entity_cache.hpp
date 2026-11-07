@@ -103,6 +103,7 @@ class EntityCache {
   /// diffs accumulate until ``publish``; call ``publish`` once per walk.
   void upsert(std::uint32_t handle, const Entity& entity) {
     std::lock_guard<std::mutex> lock(mutex_);
+    removed_pending_.erase(handle);
     auto& slot = live_[handle];
     slot.entity = entity;
     slot.generation = ++generation_;
@@ -164,6 +165,7 @@ class EntityCache {
     present.reserve(entities.size());
     for (const Entity& entity : entities) {
       const std::uint32_t handle = key_of(entity);
+      removed_pending_.erase(handle);
       present.insert(handle);
       auto& slot = live_[handle];
       slot.entity = entity;

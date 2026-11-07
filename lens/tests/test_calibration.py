@@ -97,12 +97,12 @@ def test_input_validation() -> None:
             [(0, 0), (1, 1), (2, 2), (float("nan"), 3)],
             [(0, 0), (1, 1), (2, 2), (3, 3)],
         )
-    with pytest.raises(CalibrationError, match="degenerate"):
-        # All four points collinear → singular system.
-        solve_homography(
-            [(0, 0), (1, 0), (2, 0), (3, 0)],
-            [(0, 0), (1, 0), (2, 0), (3, 0)],
-        )
+    # Collinear points are a legal 1-D projective map.
+    collinear = solve_homography(
+        [(0, 0), (1, 0), (2, 0), (3, 0)],
+        [(0, 0), (1, 0), (2, 0), (3, 0)],
+    )
+    assert collinear.apply(2.0, 0.0) == pytest.approx((2.0, 0.0), abs=1e-6)
 
 
 def test_drift_monitor_patience() -> None:

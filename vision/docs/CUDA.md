@@ -24,7 +24,7 @@ When CUDA works you typically see `CUDAExecutionProvider`. DirectML may appear o
 
 ## CuPy
 
-CUDA kernels under `inference/cuda/` use CuPy when available. Match the wheel to your CUDA major version (`cupy-cuda12x` vs `cupy-cuda11x`). If import fails, implemented paths fall back to CPU.
+CUDA kernels under `src/cs2_vision_access/adapters/models/runtime/cuda/` use CuPy when available. Match the wheel to your CUDA major version (`cupy-cuda12x` vs `cupy-cuda11x`). If import fails, implemented paths fall back to CPU.
 
 ## CLI device flags
 

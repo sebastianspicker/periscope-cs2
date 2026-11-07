@@ -146,7 +146,13 @@ class CaptureManager:
         self._timing.record_received()
         error = self._validate_frame(frame)
         if error:
-            return False, None, error
+            # A malformed frame is usually a transient negotiation hiccup.
+            # Count it and keep the session alive; only a persistent run of
+            # bad frames terminates.
+            self._failures += 1
+            if self._failures >= self._max_failures:
+                return False, None, error
+            return False, None, ""
 
         return True, frame, ""
 

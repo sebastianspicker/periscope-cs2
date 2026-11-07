@@ -260,6 +260,28 @@ void test_json_shape() {
                               "\"note\":\"\\\"m_iHealth\\\": 1\"}";
   auto escaped_hits = real::cs2::json::key_locations(escaped, "m_iHealth");
   check(escaped_hits.size() == 1, "escaped quotes do not count as keys");
+
+  const std::string value_text = "{\"fields\":{\"m_iHealth\": 844}}";
+  auto value_hit = real::cs2::json::key_locations(value_text, "m_iHealth");
+  std::uint64_t value = 0;
+  check(value_hit.size() == 1 &&
+            real::cs2::json::number_after(value_text, value_hit[0],
+                                          std::strlen("m_iHealth"), value) &&
+            value == 844,
+        "number after key");
+  const std::string spaced = "{\"fields\":{\"m_iHealth\" : 844}}";
+  auto spaced_hit = real::cs2::json::key_locations(spaced, "m_iHealth");
+  check(spaced_hit.size() == 1 &&
+            real::cs2::json::number_after(spaced, spaced_hit[0],
+                                          std::strlen("m_iHealth"), value) &&
+            value == 844,
+        "space before colon tolerated");
+  const std::string quoted = "{\"fields\":{\"m_iHealth\":\"844\"}}";
+  auto quoted_hit = real::cs2::json::key_locations(quoted, "m_iHealth");
+  check(quoted_hit.size() == 1 &&
+            !real::cs2::json::number_after(quoted, quoted_hit[0],
+                                           std::strlen("m_iHealth"), value),
+        "quoted number rejected");
 }
 
 void test_player_name() {

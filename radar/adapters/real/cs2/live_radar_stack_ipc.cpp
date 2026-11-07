@@ -108,19 +108,22 @@ bool DonorIpcClient::wait_modules(int timeout_ms) noexcept {
 
 bool DonorIpcClient::read(std::uint64_t addr, void* buf, std::size_t size) noexcept {
   if (!mapped_ || !buf || size == 0 || size > kDonorMaxPayload) return false;
+  std::lock_guard<std::mutex> lock(read_mu_);
   auto* hdr = reinterpret_cast<DonorIpcHeader*>(mapped_);
   for (int spin = 0; spin < 200 && hdr->status == 1; ++spin) Sleep(1);
   hdr->req_addr = addr;
   hdr->req_size = static_cast<std::uint32_t>(size);
   hdr->resp_size = 0;
+  hdr->ack_ticket = 0;
   hdr->status = 1;
-  ++hdr->ticket;
+  const std::uint32_t ticket = ++hdr->ticket;
   SetEvent(static_cast<HANDLE>(evt_req_));
   if (WaitForSingleObject(static_cast<HANDLE>(evt_rsp_), 80) != WAIT_OBJECT_0) {
     hdr->status = 0;
     return false;
   }
-  if (hdr->status != 2 || hdr->resp_size != size) {
+  // A late response from the previous request has the wrong ack ticket.
+  if (hdr->ack_ticket != ticket || hdr->status != 2 || hdr->resp_size != size) {
     hdr->status = 0;
     return false;
   }

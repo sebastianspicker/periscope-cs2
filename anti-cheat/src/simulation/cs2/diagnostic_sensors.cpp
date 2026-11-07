@@ -286,9 +286,7 @@ VmtIntegritySensor::VmtIntegritySensor(sim::World& world) : world_(world) {}
 
 VmtIntegrityReport VmtIntegritySensor::collect() {
   VmtIntegrityReport report;
-  std::unordered_map<std::uint64_t, int> counts;
   std::vector<std::uint8_t> interfaces;
-  for (const auto& entry : world_.diagnostic_state.vmts) ++counts[entry.address];
   for (const auto& entry : world_.diagnostic_state.vmts) {
     report.entity_vmt_count += entry.entity_vmt;
     report.interface_count += !entry.entity_vmt;
@@ -296,7 +294,7 @@ VmtIntegrityReport VmtIntegritySensor::collect() {
       const auto* bytes = reinterpret_cast<const std::uint8_t*>(&entry.address);
       interfaces.insert(interfaces.end(), bytes, bytes + sizeof(entry.address));
     }
-    if (!entry.expected || counts[entry.address] == 1) report.suspicious_vmts.push_back(entry);
+    if (!entry.expected) report.suspicious_vmts.push_back(entry);
   }
   report.crc_interfaces = crc32(interfaces.data(), interfaces.size());
   report.anomalous_vmts = static_cast<int>(report.suspicious_vmts.size());

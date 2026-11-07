@@ -20,7 +20,8 @@ surfaced to the user (the L8 acceptance).
 
 ## Path 1 - phone-as-USB-HID gadget
 
-- Mechanism: Android 10+ configfs USB gadget functions (`usb_gadget_tool`
+- Mechanism: Android 8+ configfs USB gadget functions (root usually
+  required to create functions) (`usb_gadget_tool`
   lineage; Arian04/android-hid-client is the reference implementation).
   The PC sees a standard relative mouse; no drivers, no agent.
 - Kernel/configfs support varies per device - hence the matrix below and

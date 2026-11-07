@@ -62,7 +62,13 @@ void place_overlay_corner(void* hwnd, int width, int height, int margin_px,
 #if LR_PLATFORM_WINDOWS
   if (!hwnd || width <= 0 || height <= 0) return;
   RECT work{};
-  if (!SystemParametersInfoA(SPI_GETWORKAREA, 0, &work, 0)) {
+  MONITORINFO monitor{};
+  monitor.cbSize = sizeof(monitor);
+  const HMONITOR target = MonitorFromWindow(static_cast<HWND>(hwnd),
+                                            MONITOR_DEFAULTTONEAREST);
+  if (target != nullptr && GetMonitorInfoA(target, &monitor)) {
+    work = monitor.rcWork;
+  } else if (!SystemParametersInfoA(SPI_GETWORKAREA, 0, &work, 0)) {
     work.left = 0;
     work.top = 0;
     work.right = GetSystemMetrics(SM_CXSCREEN);

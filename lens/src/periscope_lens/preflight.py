@@ -91,13 +91,19 @@ def banding_score(frame: np.ndarray) -> float:
     centered = rows - rows.mean()
     if np.allclose(centered, 0.0):
         return 0.0
-    spectrum = np.abs(np.fft.rfft(centered)) ** 2
-    total = float(spectrum.sum())
+    # Score against the raw total, but measure the band on a detrended signal:
+    # the linear ramp's 1/f tail otherwise swamps the high-frequency bins.
+    raw = np.abs(np.fft.rfft(centered)) ** 2
+    total = float(raw.sum())
+    axis = np.arange(rows.size, dtype=np.float64)
+    detrended = rows - np.polyval(np.polyfit(axis, rows, 1), axis)
+    spectrum = np.abs(np.fft.rfft(detrended - detrended.mean())) ** 2
     if total <= 0.0:
         return 0.0
-    # "High frequency": anything above one quarter of the row count, a
-    # banding period shorter than four pixel rows is never panel content.
-    cutoff = max(4, len(spectrum) // 4)
+    # High frequency means row periods up to roughly 80 rows. A period of
+    # four rows or less is never panel content; longer PWM bands must still
+    # land above the cutoff.
+    cutoff = max(3, len(spectrum) // 40)
     band = float(spectrum[cutoff:].sum())
     return min(band / total, 1.0)
 
@@ -108,11 +114,14 @@ def moire_score(frame: np.ndarray) -> float:
     centered = columns - columns.mean()
     if np.allclose(centered, 0.0):
         return 0.0
-    spectrum = np.abs(np.fft.rfft(centered)) ** 2
-    total = float(spectrum.sum())
+    raw = np.abs(np.fft.rfft(centered)) ** 2
+    total = float(raw.sum())
+    axis = np.arange(columns.size, dtype=np.float64)
+    detrended = columns - np.polyval(np.polyfit(axis, columns, 1), axis)
+    spectrum = np.abs(np.fft.rfft(detrended - detrended.mean())) ** 2
     if total <= 0.0:
         return 0.0
-    cutoff = max(4, len(spectrum) // 3)
+    cutoff = max(3, len(spectrum) // 40)
     band = float(spectrum[cutoff:].sum())
     return min(band / total, 1.0)
 

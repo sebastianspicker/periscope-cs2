@@ -44,7 +44,7 @@ class Calibration:
     correspondences: int
 
     def apply(self, camera_x: float, camera_y: float) -> tuple[float, float]:
-        """Maps a camera-frame point to normalized screen coordinates."""
+        """Maps a camera-frame point to screen pixels."""
         (a, b, c), (d, e, f), (g, h, _i) = self.matrix
         denominator = g * camera_x + h * camera_y + _i
         if abs(denominator) < 1e-12:
@@ -161,14 +161,24 @@ def solve_homography(
         rows.append(np.array([0.0, 0.0, 0.0, x, y, w, -v * x, -v * y, -v * w]))
     system = np.asarray(rows)
     _, _, vh = np.linalg.svd(system)
-    solution = vh[-1]
 
-    h_normalized = solution.reshape(3, 3)
-    # Denormalize: H = inv(T_dst) @ h_normalized @ T_src
-    matrix = np.linalg.inv(t_dst) @ h_normalized @ t_src
-    if abs(matrix[2, 2]) < 1e-12:
-        raise CalibrationError("degenerate homography (h22 ~ 0)")
-    matrix = matrix / matrix[2, 2]
+    # Denormalize each candidate: H = inv(T_dst) @ h @ T_src.
+    # A collinear point set leaves several null vectors; the last one can have
+    # a zero denominator on the line. Prefer a candidate whose h22 and all
+    # sample denominators are non-zero.
+    matrix = None
+    for step in range(1, min(7, vh.shape[0] + 1)):
+        candidate = np.linalg.inv(t_dst) @ vh[-step].reshape(3, 3) @ t_src
+        scale = float(np.max(np.abs(candidate)))
+        if not np.isfinite(scale) or scale < 1e-12:
+            continue
+        candidate = candidate / scale
+        denominator = candidate[2, 0] * src[:, 0] + candidate[2, 1] * src[:, 1] + candidate[2, 2]
+        if abs(candidate[2, 2]) > 1e-9 and np.all(np.abs(denominator) > 1e-9):
+            matrix = candidate
+            break
+    if matrix is None:
+        raise CalibrationError("degenerate homography")
 
     residual = _reprojection_residual(matrix, src, dst)
     return Calibration(

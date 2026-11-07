@@ -305,3 +305,23 @@ def test_fingerprint_ignores_label_rewrites(tmp_path: Path) -> None:
     before = _dataset_fingerprint(tmp_path / "images", tmp_path / "labels")
     (tmp_path / "labels" / "a.txt").write_text("0 0.1 0.1 0.2 0.2 0.3 0.3\n")
     assert _dataset_fingerprint(tmp_path / "images", tmp_path / "labels") == before
+
+
+def test_zip_replaces_stale_destination_contents(tmp_path: Path) -> None:
+    out = tmp_path / "out"
+    (out / "images").mkdir(parents=True)
+    (out / "images" / "stale.jpg").write_bytes(b"old")
+    archive = _zip(tmp_path / "new.zip", {"images/new.jpg": b"x", "labels/new.txt": b"\n"})
+    with zipfile.ZipFile(archive) as zf:
+        safe_extract_zip(zf, out)
+    assert not (out / "images" / "stale.jpg").exists()
+    assert (out / "images" / "new.jpg").is_file()
+
+
+def test_zip_duplicate_member_rejected(tmp_path: Path) -> None:
+    archive = tmp_path / "dup.zip"
+    with zipfile.ZipFile(archive, "w") as zf:
+        zf.writestr("images/a.jpg", b"one")
+        zf.writestr("images/a.jpg", b"two")
+    with zipfile.ZipFile(archive) as zf, pytest.raises(ValueError, match="duplicate"):
+        safe_extract_zip(zf, tmp_path / "out")

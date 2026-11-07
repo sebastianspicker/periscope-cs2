@@ -39,7 +39,7 @@ class MainActivity: Activity() {
 
     override fun onResume() {
         super.onResume()
-        if (transportThread == null) {
+        if (transportThread?.isAlive != true) {
             transportThread = startTransport().also { it.start() }
         }
     }
@@ -49,8 +49,9 @@ class MainActivity: Activity() {
         runCatching { transportServer?.close() }
         TransportHub.detachAll()
         // Give accept() a bounded moment to unwind before onResume can rebind.
-        runCatching { transportThread?.join(500) }
-        transportThread = null
+        val thread = transportThread
+        runCatching { thread?.join(500) }
+        if (thread?.isAlive != true) transportThread = null
         super.onPause()
     }
 
@@ -89,6 +90,7 @@ class MainActivity: Activity() {
                 ServerSocket(8742).also { transportServer = it }.use { server ->
                     while (!server.isClosed) {
                         val client = server.accept()
+                        runCatching { client.tcpNoDelay = true }
                         // Per-connection writer is owned by the camera loop;
                         // a slow consumer gets the latest frame and catches
                         // up (bounded-latest, R5 rule).
@@ -97,6 +99,9 @@ class MainActivity: Activity() {
                 }
             } catch (error: Exception) {
                 Log.w("PeriscopeLens", "transport stopped: ${error.message}")
+            } finally {
+                transportServer = null
+                transportThread = null
             }
         }
     }

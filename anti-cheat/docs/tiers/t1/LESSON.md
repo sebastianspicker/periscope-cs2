@@ -37,7 +37,7 @@ Use `t1_blue::SyscallAwareMonitor` and pair blue_example sensors for multi-reaso
 ## Run
 
 ```bash
-./anti-cheat/build/dev/strategy_lab run --tier T1
+./anti-cheat/build/dev/strategy_lab all --tier T1
 ./anti-cheat/build/dev/duel_t1   # if built
 ```
 

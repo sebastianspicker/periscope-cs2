@@ -125,8 +125,9 @@ def test_sink_rejects_wrong_shape(ring: SharedFrameSink) -> None:
 
 
 def test_sink_rejects_wrong_size(ring: SharedFrameSink) -> None:
+    ring.send(np.zeros((ring._height, ring._width, 4), dtype=np.uint8), frame_index=0)
     with pytest.raises(ValueError, match="does not match"):
-        ring.send(np.zeros((2, 8, 4), dtype=np.uint8), frame_index=0)
+        ring.send(np.zeros((2, 8, 4), dtype=np.uint8), frame_index=1)
 
 
 def test_sink_rejects_bad_frame_size_at_open() -> None:

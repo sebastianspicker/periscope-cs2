@@ -236,21 +236,20 @@ def render_study_pack(
     }
     if inference is not None:
         manifest["inference"] = inference.as_json()
+    manifest["pack_directory"] = str(out_root.resolve())
+    manifest["manifest_path"] = str((out_root / "pack-manifest.v1.json").resolve())
 
     if not validate_only:
         _write_json_atomic(out_root / "pack-manifest.v1.json", manifest)
         template_path = out_root / "ratings.template.jsonl"
         if not template_path.exists():  # users edit the template in place
             _write_ratings_template(template_path, package)
-        manifest["pack_directory"] = str(out_root.resolve())
-        manifest["manifest_path"] = str((out_root / "pack-manifest.v1.json").resolve())
     else:
         # Still useful for operators / tests: emit plan without writing media.
         out_root.mkdir(parents=True, exist_ok=True)
         # Never clobber the manifest of an already rendered pack with "planned" rows.
         if not out_root.is_symlink() and not (out_root / "pack-manifest.v1.json").exists():
             _write_json_atomic(out_root / "pack-manifest.v1.json", manifest)
-            manifest["manifest_path"] = str((out_root / "pack-manifest.v1.json").resolve())
 
     return manifest
 

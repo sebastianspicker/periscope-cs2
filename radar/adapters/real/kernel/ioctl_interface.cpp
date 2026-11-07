@@ -153,6 +153,7 @@ Result<std::vector<std::uint8_t>> send_ioctl(
     return os_error("DeviceIoControl");
   }
 
+  if (bytes_returned > output_size) bytes_returned = output_size;
   output.resize(bytes_returned);
 #ifndef NDEBUG
   std::printf("[kernel:ioctl] IOCTL succeeded: %lu bytes returned\n", bytes_returned);
@@ -168,11 +169,14 @@ Result<std::vector<std::uint8_t>> send_ioctl(
   if (!input_data.empty()) {
     std::memcpy(buf.data(), input_data.data(), input_data.size());
   }
-  if (::ioctl(fd, static_cast<unsigned long>(ioctl_code), buf.data()) < 0) {
+  const int nread = ::ioctl(fd, static_cast<unsigned long>(ioctl_code), buf.data());
+  if (nread < 0) {
     return os_error("ioctl");
   }
   if (output_size) {
-    buf.resize(output_size);
+    std::size_t written = static_cast<std::size_t>(nread);
+    if (written > output_size) written = output_size;
+    buf.resize(written);
   } else {
     buf.clear();
   }

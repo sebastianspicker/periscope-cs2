@@ -109,7 +109,7 @@ struct RealStrategyResult {
 struct DualResult {
   StrategyResult sim;              ///< Outcome on sim::World
   RealStrategyResult real;         ///< Outcome on real CS2 process
-  const char* mode_used = "sim";   ///< "real", "sim", or "hybrid"
+  const char* mode_used = "sim";   ///< "real", "sim", or "hybrid"; sim today
 
   /// Human-readable comparison.
   /// Prints both SIM and REAL narratives side by side.

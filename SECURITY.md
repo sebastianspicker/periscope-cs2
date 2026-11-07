@@ -16,7 +16,8 @@ Per-project detail: [`anti-cheat/SECURITY.md`](anti-cheat/SECURITY.md), [`radar/
 ### Lens track posture (added 2026-11-06, ledger X6)
 
 The Lens subtree (`lens/`) is camera-first: the phone watches the same
-light a human watches; today the game PC runs nothing. Its output and
+light a human watches; the game process is never opened. Optional PC-side
+capture tooling (scrcpy, DroidCam) runs outside the game. Its output and
 actuation paths (HID gadget, PC agent in `lens/src/periscope_lens/output.py`
 and `lens/src/periscope_lens/policy.py`) compute motion deltas and are opt-in
 like radar's real backends. Nothing is default-on. Hardware injectors

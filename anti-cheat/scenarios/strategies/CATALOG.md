@@ -120,14 +120,14 @@ Locations are tier-first: `strategies/<tier>/<folder>/`.
 
 | ID | Path |
 |----|------|
-| 12_staged_loader | crosscutting/staged_loader |
-| 13_obfuscation_crypto | crosscutting/obfuscation_crypto |
+| 111_staged_loader | crosscutting/staged_loader |
+| 106_obfuscation_crypto | crosscutting/obfuscation_crypto |
 | 14_offset_c2 | crosscutting/offset_c2 |
-| 15_hwid_spoof | crosscutting/hwid_spoof |
-| 52_anti_re_canary | crosscutting/anti_re_canary |
+| 110_hwid_spoof | crosscutting/hwid_spoof |
+| 108_anti_re_canary | crosscutting/anti_re_canary |
 | 63_veh_exception_cf | crosscutting/veh_exception_cf |
-| 75_polymorphic_build | crosscutting/polymorphic_build |
-| 87_build_watermark | crosscutting/build_watermark |
+| 107_polymorphic_build | crosscutting/polymorphic_build |
+| 109_build_watermark | crosscutting/build_watermark |
 | 99_clipboard_token | crosscutting/clipboard_token |
 | 09_overlay_esp | crosscutting/overlay_esp |
 | 10_web_phone_radar | crosscutting/web_phone_radar |

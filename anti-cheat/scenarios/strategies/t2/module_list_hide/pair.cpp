@@ -21,8 +21,8 @@ StrategyResult run(sim::World& w, sim::Narrator& n) {
 
   StrategyResult r;
   r.red_achieved = w.module_shadowing_active || w.module_loaded;
-  r.blue_detected = det.detected || det.signals >= 2;
-  r.blue_mitigated = mit.mitigated || mit.detection_count >= 2;
+  r.blue_detected = det.detected;
+  r.blue_mitigated = mit.mitigated;
   r.summary = det.detail;
   n.result(r.blue_detected || r.blue_mitigated, r.summary);
   return r;

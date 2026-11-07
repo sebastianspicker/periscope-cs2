@@ -56,6 +56,8 @@ set(LR_REAL_kernel_SOURCES
 set(LR_REAL_vmx_SOURCES
   "${RADAR_SOURCE_DIR}/adapters/real/mode/mode.cpp"
   "${RADAR_SOURCE_DIR}/adapters/real/mode/mode_cpu_vmx.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/mode/mode_linux_probes.cpp"
+  "${RADAR_SOURCE_DIR}/adapters/real/mode/mode_win_probes.cpp"
   "${RADAR_SOURCE_DIR}/adapters/real/vmx/cpuid.cpp"
   "${RADAR_SOURCE_DIR}/adapters/real/vmx/ept.cpp"
   "${RADAR_SOURCE_DIR}/adapters/real/vmx/hyperv.cpp"

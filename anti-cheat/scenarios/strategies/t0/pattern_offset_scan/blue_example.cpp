@@ -39,7 +39,7 @@ BlueResult detect(sim::World& w) {
   if (w.ranked_access_denied) result.reasons.emplace_back("ranked policy already denied this session");
   result.signals = static_cast<int>(result.reasons.size());
   result.reason_count = result.signals;
-  result.detected = result.signals >= 2;
+  result.detected = result.signals >= 2 && specific_scar;
   if (result.detected) {
     w.ranked_access_denied = true;
     w.server_sends_full_enemy_origin = false;

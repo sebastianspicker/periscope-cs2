@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - "anti-cheat/**"
+      - "radar/adapters/real/cs2/posture.hpp"
       - "scripts/check_architecture.py"
       - "scripts/verify.py"
       - ".github/workflows/anti-cheat-ci.yml"

@@ -295,7 +295,7 @@ class Cs2SamSegmenter:
         box_stack = np.stack([x1_f, y1_f, x2_f, y2_f], axis=1).astype(np.float32)
         from cs2_vision_access.adapters.models.runtime.cuda import nms as cuda_nms
 
-        kept_idx = cuda_nms(box_stack, sc_f, 0.5)
+        kept_idx = cuda_nms(box_stack, sc_f, 0.5, cls_f)
 
         results = []
         for idx in kept_idx:

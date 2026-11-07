@@ -60,7 +60,7 @@ from cs2_vision_access.adapters.capture.live_pipeline import (
     LiveRunSummary,
     run_live_pipeline,
 )
-from cs2_vision_access.adapters.capture.outputs import OutputSink
+from cs2_vision_access.adapters.capture.outputs import MultiSink, OutputSink
 from cs2_vision_access.adapters.capture.sinks.shared import SharedFrameSink
 from cs2_vision_access.adapters.models.segmenters import (
     DEFAULT_SEGMENTER_BACKEND,
@@ -530,6 +530,20 @@ def _merge_style_defaults(
     outline_config: Any,
 ) -> None:
     """Apply config file style values as defaults for unset CLI flags."""
+    names = (
+        "outline_preset",
+        "inner_color",
+        "outer_color",
+        "inner_width",
+        "outer_width",
+        "fill_opacity",
+        "stroke_pattern",
+        "dash_period",
+        "fill_mode",
+        "halo_blur",
+        "outline_kernel",
+    )
+    arguments._cli_style_explicit = {name: getattr(arguments, name) is not None for name in names}
     for attribute, value in (
         ("outline_preset", outline_config.preset),
         ("inner_color", outline_config.inner_color),
@@ -658,25 +672,19 @@ def _handle_live(arguments: argparse.Namespace) -> int:
 
     # --- Output sinks ---
     # File sink (direct write) and shared-memory ring (cross-process) are
-    # independent: a device-2 compositor consumes the ring while the local
-    # preview still shows the composite.
-    output_sink: OutputSink | None = (
-        FileOutputSink(
-            str(arguments.output_sink or display_config.output_sink),
-            fps=fps,
-        )
-        if arguments.output_sink is not None or display_config.output_sink is not None
-        else None
-    )
+    # independent, so both are kept and fanned out when both are requested.
+    sinks: list[OutputSink] = []
+    file_target = arguments.output_sink or display_config.output_sink
+    if file_target is not None:
+        sinks.append(FileOutputSink(str(file_target), fps=fps))
     stream_name = arguments.output_stream
     if stream_name is not None:
         if not stream_name.startswith("shm:"):
             raise ValueError(f"unsupported --output-stream {stream_name!r}; expected shm:<name>")
-        output_sink = SharedFrameSink(
-            stream_name[4:],
-            width,
-            height,
-        )
+        sinks.append(SharedFrameSink(stream_name[4:], width, height))
+    output_sink: OutputSink | None = (
+        sinks[0] if len(sinks) == 1 else MultiSink(sinks) if sinks else None
+    )
 
     # --- Ledger V2: optional sanitized recording (opened before the config) ---
     record_handle = None

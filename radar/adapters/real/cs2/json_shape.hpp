@@ -14,7 +14,9 @@
 #pragma once
 
 #include <cctype>
+#include <charconv>
 #include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -96,6 +98,36 @@ inline bool key_shape_ok(const KeyLocation& location) {
   return location.depth == 1 ||
          (location.depth == 2 &&
           (location.parent == "fields" || location.parent == "globals"));
+}
+
+/// Read the unsigned integer value that follows `location`. The location points
+/// at the first key character, so skip the rest of the key and the closing
+/// quote before looking for the colon. Returns false on malformed input.
+inline bool number_after(const std::string& text, const KeyLocation& location,
+                         std::size_t key_length, std::uint64_t& out) {
+  std::size_t pos = location.pos + key_length;
+  if (pos < text.size() && text[pos] == '"') ++pos;
+  while (pos < text.size() &&
+         std::isspace(static_cast<unsigned char>(text[pos]))) {
+    ++pos;
+  }
+  if (pos >= text.size() || text[pos] != ':') return false;
+  ++pos;
+  while (pos < text.size() &&
+         std::isspace(static_cast<unsigned char>(text[pos]))) {
+    ++pos;
+  }
+  if (pos >= text.size()) return false;
+  if (text[pos] == '-' || text[pos] == '+' || text[pos] == '"') return false;
+  const char* first = text.data() + pos;
+  const char* last = text.data() + text.size();
+  const auto [end, error] = std::from_chars(first, last, out, 10);
+  if (error != std::errc{} || end == first) return false;
+  if (end != last && *end != ',' && *end != '}' &&
+      !std::isspace(static_cast<unsigned char>(*end))) {
+    return false;
+  }
+  return true;
 }
 
 }  // namespace real::cs2::json
