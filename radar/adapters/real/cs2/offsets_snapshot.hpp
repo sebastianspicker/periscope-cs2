@@ -2,7 +2,7 @@
 // Embedded CS2 offset snapshot (auto-updated by scripts/update_cs2_signatures.py).
 // Values are RVAs relative to client.dll base unless noted as field offsets.
 // Source: https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/
-// Generated: 2026-11-05T19:12:21Z
+// Generated: 2026-11-10T09:59:30Z
 //
 // NOTE: entities.cpp / live_radar_stack.cpp require the full FIELD_MAP set
 // (core + armor, dormant, spotted, bomb, observer). emit_hpp emits every key.
@@ -21,7 +21,7 @@ namespace real::cs2::snapshot {
 inline constexpr const char* kSourceUrl =
     "https://raw.githubusercontent.com/a2x/cs2-dumper/main/output/";
 inline constexpr const char* kModule = "client.dll";
-inline constexpr const char* kGeneratedAt = "2026-11-05T19:12:21Z";
+inline constexpr const char* kGeneratedAt = "2026-11-10T09:59:30Z";
 
 namespace globals {
 inline constexpr std::uint64_t dwEntityList = encoded::encode(0x271EB08);
@@ -34,7 +34,7 @@ inline constexpr std::uint64_t dwViewAngles = encoded::encode(0x2580008);
 inline constexpr std::uint64_t dwPlantedC4 = encoded::encode(0x24CFB60);
 inline constexpr std::uint64_t dwCSGOInput = encoded::encode(0x257F980);
 inline constexpr std::uint64_t dwSensitivity = encoded::encode(0x2566BC8);
-inline constexpr std::uint64_t dwGlobalVars = encoded::encode(0x0);  ///< 0 until a refresh fills it
+inline constexpr std::uint64_t dwGlobalVars = encoded::encode(0x2234108);
 }  // namespace globals
 
 namespace fields {
@@ -43,44 +43,48 @@ inline constexpr std::uint64_t m_iHealth = 0x34C;
 inline constexpr std::uint64_t m_iTeamNum = 0x3E7;
 inline constexpr std::uint64_t m_lifeState = 0x354;
 inline constexpr std::uint64_t m_pGameSceneNode = 0x330;
-inline constexpr std::uint64_t m_vecVelocity = 0x438;
-inline constexpr std::uint64_t m_hOwnerEntity = 0x528;
 // C_BasePlayerPawn
 inline constexpr std::uint64_t m_vOldOrigin = 0x14A4;
-inline constexpr std::uint64_t m_pWeaponServices = 0x13D8;
 // C_CSPlayerPawn
 inline constexpr std::uint64_t m_angEyeAngles = 0x3600;
 // CCSPlayerController
 inline constexpr std::uint64_t m_hPlayerPawn = 0x92C;
-inline constexpr std::uint64_t m_sSanitizedPlayerName = 0x860;
 // CGameSceneNode
 inline constexpr std::uint64_t m_vecAbsOrigin = 0xC8;
 inline constexpr std::uint64_t m_bDormant = 0x103;
 // C_CSPlayerPawn
 inline constexpr std::uint64_t m_ArmorValue = 0x1ED0;
 inline constexpr std::uint64_t m_entitySpottedState = 0x1E88;
-// C_BaseModelEntity
-inline constexpr std::uint64_t m_vecViewOffset = 0xD58;
 // EntitySpottedState_t
 inline constexpr std::uint64_t m_bSpotted = 0x8;
 // C_BasePlayerPawn
 inline constexpr std::uint64_t m_pObserverServices = 0x1308;
 // CPlayer_ObserverServices
 inline constexpr std::uint64_t m_iObserverMode = 0x48;
-inline constexpr std::uint64_t m_hObserverTarget = 0x4C;
-// CPlayer_WeaponServices
-inline constexpr std::uint64_t m_hActiveWeapon = 0x60;
-// C_EconEntity
-inline constexpr std::uint64_t m_AttributeManager = 0x1378;
-// C_AttributeContainer
-inline constexpr std::uint64_t m_Item = 0x50;
-// C_EconItemView
-inline constexpr std::uint64_t m_iItemDefinitionIndex = 0x1BA;
 // C_PlantedC4
 inline constexpr std::uint64_t m_bBombTicking = 0x1288;
 inline constexpr std::uint64_t m_nBombSite = 0x128C;
 inline constexpr std::uint64_t m_flC4Blow = 0x12B8;
 inline constexpr std::uint64_t m_bBeingDefused = 0x12C4;
+// C_BaseEntity
+inline constexpr std::uint64_t m_vecVelocity = 0x430;
+inline constexpr std::uint64_t m_hOwnerEntity = 0x520;
+// C_BaseModelEntity
+inline constexpr std::uint64_t m_vecViewOffset = 0xF60;
+// CCSPlayerController
+inline constexpr std::uint64_t m_sSanitizedPlayerName = 0x878;
+// C_BasePlayerPawn
+inline constexpr std::uint64_t m_pWeaponServices = 0x12F0;
+// CPlayer_WeaponServices
+inline constexpr std::uint64_t m_hActiveWeapon = 0x60;
+// C_EconEntity
+inline constexpr std::uint64_t m_AttributeManager = 0x1290;
+// C_AttributeContainer
+inline constexpr std::uint64_t m_Item = 0x50;
+// C_EconItemView
+inline constexpr std::uint64_t m_iItemDefinitionIndex = 0x1BA;
+// CPlayer_ObserverServices
+inline constexpr std::uint64_t m_hObserverTarget = 0x4C;
 }  // namespace fields
 
 namespace constants {
